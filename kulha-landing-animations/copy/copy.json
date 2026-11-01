@@ -1,0 +1,53 @@
+{
+  "_note": "Placeholder marketing copy written for the Kulha landing hero animations. Claims such as 'in minutes' are placeholders: replace them with what the business can actually promise. The same strings are baked into the *.mp4/*.webm files that have no '-logo-only' suffix.",
+  "brand": {
+    "name": "Kulha!",
+    "tagline_options": [
+      "Everything fresh, one tap away.",
+      "Fill your bag. We’ll do the rest.",
+      "Fresh picks. Fast drops."
+    ]
+  },
+  "hero1_split": {
+    "eyebrow": "FRESH GROCERY DELIVERY",
+    "headline": ["Everything fresh,", "one tap away."],
+    "headline_emphasis": "fresh,",
+    "subhead": ["Groceries from the shops you love,", "delivered to your door in minutes."],
+    "cta_primary": "Get the app",
+    "cta_secondary": "See how it works"
+  },
+  "hero2_center": {
+    "headline": "Fill your bag. We’ll do the rest.",
+    "headline_emphasis": "We’ll do the rest.",
+    "subhead": "Fresh groceries from the shops you trust, delivered fast.",
+    "chips": ["Fresh daily", "Fast delivery", "Fair prices"]
+  },
+  "hero3_light": {
+    "eyebrow": "FRESH GROCERY DELIVERY",
+    "headline": ["Fresh picks.", "Fast drops."],
+    "headline_underline": "Fresh picks.",
+    "headline_accent_red": "drops.",
+    "subhead": ["From crisp veggies to warm bread —", "straight to your door in minutes."],
+    "cta_primary": "Download now",
+    "store_note": "Available on iOS & Android"
+  },
+  "more_slogans": [
+    "All your groceries. One bag.",
+    "Fresh to your door.",
+    "Shop less. Live more.",
+    "From the market to your kitchen.",
+    "Your weekly shop, sorted.",
+    "Good food, zero hassle."
+  ],
+  "seo": {
+    "title": "Kulha! — Fresh grocery delivery to your door",
+    "meta_description": "Order fresh groceries from the shops you love and get them delivered to your door. Download the Kulha! app.",
+    "og_title": "Kulha! — Everything fresh, one tap away",
+    "video_aria_label": "Animated Kulha! shopping bag filling up with fresh produce"
+  },
+  "microcopy": {
+    "trust_line": "Free delivery on your first order",
+    "download_label": "Download the Kulha! app",
+    "footer_line": "Kulha! — fresh, local, delivered."
+  }
+}

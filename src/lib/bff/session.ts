@@ -1,0 +1,55 @@
+import { NextResponse, type NextRequest } from "next/server";
+import { backendRequest, BackendUnavailableError } from "@/lib/auth/backend";
+import { REFRESH_COOKIE, applySessionCookies, clearSessionCookies } from "@/lib/auth/cookies";
+import { parseTokens } from "@/lib/auth/tokens";
+import { getConfig } from "@/lib/config";
+import { isTrustedMutation } from "@/lib/security/origin";
+import { copyResponse, problemResponse } from "./responses";
+
+const MAX_BODY_BYTES = 10_000;
+
+/** Logs in through the API and stores the tokens in HttpOnly cookies. The browser never receives them. */
+export async function handleLogin(request: NextRequest): Promise<NextResponse> {
+  const config = getConfig();
+  if (!isTrustedMutation(request.headers, config.appOrigin)) {
+    return problemResponse(403, "Forbidden", "Request origin not allowed.");
+  }
+  const body = await request.text();
+  if (body.length > MAX_BODY_BYTES) return problemResponse(413, "Request too large");
+
+  try {
+    const upstream = await backendRequest("/api/v1/auth/login", { method: "POST", body });
+    if (upstream.status !== 200) return copyResponse(upstream);
+
+    const tokens = parseTokens(await upstream.json().catch(() => null));
+    if (!tokens) return problemResponse(502, "Service unavailable", "Unexpected answer from the server.");
+
+    const response = NextResponse.json({ ok: true }, { headers: { "Cache-Control": "no-store" } });
+    applySessionCookies(response, tokens, config.secureCookies);
+    return response;
+  } catch (error) {
+    if (error instanceof BackendUnavailableError) {
+      return problemResponse(502, "Service unavailable", "The server cannot be reached. Try again shortly.");
+    }
+    throw error;
+  }
+}
+
+/** Ends the session on the API (best effort) and clears the cookies. */
+export async function handleLogout(request: NextRequest): Promise<NextResponse> {
+  const config = getConfig();
+  if (!isTrustedMutation(request.headers, config.appOrigin)) {
+    return problemResponse(403, "Forbidden", "Request origin not allowed.");
+  }
+  const refreshToken = request.cookies.get(REFRESH_COOKIE)?.value;
+  if (refreshToken) {
+    try {
+      await backendRequest("/api/v1/auth/logout", { method: "POST", body: JSON.stringify({ refreshToken }) });
+    } catch {
+      // The cookies are cleared anyway; the refresh token expires on its own.
+    }
+  }
+  const response = new NextResponse(null, { status: 204, headers: { "Cache-Control": "no-store" } });
+  clearSessionCookies(response, config.secureCookies);
+  return response;
+}

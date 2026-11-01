@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kulha! — landing hero animations (reference demo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green:#073324; --green-text:#06482F; --yellow:#FDBE2E; --cream:#FCF4E7; --tomato:#EE3F29;
+    --sub-dark:#CEE0D2; --sub-light:#345C4A;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#111;font-family:'Nunito',system-ui,sans-serif;color:var(--cream)}
+  h2.label{margin:0;padding:18px 24px;font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:#9bb;font-weight:700}
+
+  /* ---------- hero shell: 16:9 stage, everything inside scales with cqw ---------- */
+  .hero{position:relative;width:100%;max-width:1920px;aspect-ratio:16/9;margin:0 auto 40px;overflow:hidden;background:var(--green);container-type:inline-size}
+  .hero video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .copy{position:absolute;font-weight:800}
+  .copy *{margin:0}
+
+  /* text reveal: each word rises out of a clipped line. Animations start when the video starts (class .play) */
+  .line{display:block;overflow:hidden;padding-bottom:.14em;margin-bottom:-.14em}
+  .w{display:inline-block;transform:translateY(110%);opacity:0}
+  .fade,.pop{opacity:0}
+  .play .w{animation:rise .7s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:var(--d)}
+  .play .fade{animation:fade .6s ease forwards;animation-delay:var(--d)}
+  .play .pop{animation:pop .55s cubic-bezier(.2,1.4,.4,1) forwards;animation-delay:var(--d)}
+  @keyframes rise{to{transform:none;opacity:1}}
+  @keyframes fade{from{transform:translateY(.6em)}to{transform:none;opacity:1}}
+  @keyframes pop{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
+  @media (prefers-reduced-motion:reduce){
+    .w,.fade,.pop{animation:none!important;transform:none!important;opacity:1!important}
+    .swoosh path{animation:none!important;stroke-dashoffset:0!important}
+  }
+
+  .eyebrow{font-size:1.2cqw;font-weight:700;letter-spacing:.17em;color:var(--yellow);display:flex;align-items:center;gap:.7cqw}
+  .eyebrow::before{content:"";width:.7cqw;height:.7cqw;border-radius:50%;background:var(--yellow)}
+  .sub{font-weight:600;font-size:1.67cqw;line-height:1.5}
+  .btn{display:inline-flex;align-items:center;gap:.7cqw;height:4.05cqw;padding:0 2cqw;border-radius:99px;font-weight:700;font-size:1.56cqw;text-decoration:none}
+  .btn.primary{background:var(--yellow);color:var(--green-text)}
+  .btn.dark{background:var(--green-text);color:var(--cream)}
+  .btn.ghost{border:2px solid rgba(252,244,231,.55);color:var(--cream)}
+
+  /* ---------- HERO 1 · split ---------- */
+  .h1 .copy{left:7.1cqw;top:13.6cqw;width:48cqw}
+  .h1 h1{font-size:5.1cqw;line-height:1.14;color:var(--cream)}
+  .h1 .em{color:var(--yellow)}
+  .h1 .sub{color:var(--sub-dark);margin-top:1.2cqw}
+  .h1 .eyebrow{margin-bottom:1.2cqw}
+  .h1 .cta{margin-top:2cqw;display:flex;gap:1.1cqw}
+
+  /* ---------- HERO 2 · center stage ---------- */
+  .h2 .copy{left:0;right:0;top:39.6cqw;text-align:center}
+  .h2 h1{font-size:4.27cqw;line-height:1.15;color:var(--cream)}
+  .h2 .em{color:var(--yellow)}
+  .h2 .sub{color:var(--sub-dark);margin-top:.5cqw}
+  .h2 .chips{display:flex;gap:1.15cqw;justify-content:center;margin-top:1.7cqw}
+  .chip{display:inline-flex;align-items:center;gap:.8cqw;height:3.2cqw;padding:0 1.5cqw 0 1.3cqw;border-radius:99px;font-size:1.4cqw;font-weight:700;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.35)}
+  .chip i{width:.95cqw;height:.95cqw;border-radius:50%;display:block}
+
+  /* ---------- HERO 3 · light ---------- */
+  .h3{background:#FFF8EA}
+  .h3 .copy{left:7.1cqw;top:14.2cqw;width:46cqw}
+  .h3 .eyebrow{color:var(--green-text);margin-bottom:1.2cqw}
+  .h3 .eyebrow::before{background:var(--yellow)}
+  .h3 h1{font-size:5.6cqw;line-height:1.13;color:var(--green-text)}
+  .h3 .accent{color:var(--tomato)}
+  .h3 .u{position:relative;display:inline-block}
+  .h3 .swoosh{position:absolute;left:-.4cqw;right:-.4cqw;bottom:-.9cqw;width:calc(100% + .8cqw);height:2.3cqw;overflow:visible;pointer-events:none}
+  .h3 .swoosh path{fill:none;stroke:var(--yellow);stroke-width:15;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1}
+  .play .h3 .swoosh path, .h3.play .swoosh path{animation:draw .6s ease forwards;animation-delay:1s}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .h3 .sub{color:var(--sub-light);margin-top:1.6cqw}
+  .h3 .cta{margin-top:2cqw}
+  .h3 .note{margin-top:1.4cqw;font-size:1.25cqw;font-weight:600;color:#607E6E}
+</style>
+</head>
+<body>
+
+<h2 class="label">Hero 1 · split (dark) — logo-only video + live HTML text</h2>
+<section class="hero h1" id="hero1">
+  <video muted playsinline preload="auto" poster="../hero-1-split/hero1-split-logo-only_poster.jpg" aria-label="Animated Kulha! shopping bag filling up with fresh produce">
+    <source src="../hero-1-split/hero1-split-logo-only.mp4" type="video/mp4">
+    <source src="../hero-1-split/hero1-split-logo-only.webm" type="video/webm">
+  </video>
+  <div class="copy">
+    <p class="eyebrow fade" style="--d:1.75s">FRESH GROCERY DELIVERY</p>
+    <h1>
+      <span class="line"><span class="w" style="--d:1.85s">Everything</span> <span class="w em" style="--d:1.95s">fresh,</span></span>
+      <span class="line"><span class="w" style="--d:2.05s">one</span> <span class="w" style="--d:2.15s">tap</span> <span class="w" style="--d:2.25s">away.</span></span>
+    </h1>
+    <p class="sub fade" style="--d:2.6s">Groceries from the shops you love,<br>delivered to your door in minutes.</p>
+    <div class="cta">
+      <a class="btn primary pop" style="--d:3s" href="#download">Get the app <span aria-hidden="true">→</span></a>
+      <a class="btn ghost fade" style="--d:3.2s" href="#how">See how it works</a>
+    </div>
+  </div>
+</section>
+
+<h2 class="label">Hero 2 · center stage (dark) — logo-only video + live HTML text</h2>
+<section class="hero h2" id="hero2">
+  <video muted playsinline preload="auto" poster="../hero-2-center/hero2-center-logo-only_poster.jpg" aria-label="Animated Kulha! shopping bag filling up with fresh produce">
+    <source src="../hero-2-center/hero2-center-logo-only.mp4" type="video/mp4">
+    <source src="../hero-2-center/hero2-center-logo-only.webm" type="video/webm">
+  </video>
+  <div class="copy">
+    <h1>
+      <span class="line"><span class="w" style="--d:1.9s">Fill</span> <span class="w" style="--d:1.99s">your</span> <span class="w" style="--d:2.08s">bag.</span>
+      <span class="w em" style="--d:2.17s">We’ll</span> <span class="w em" style="--d:2.26s">do</span> <span class="w em" style="--d:2.35s">the</span> <span class="w em" style="--d:2.44s">rest.</span></span>
+    </h1>
+    <p class="sub fade" style="--d:2.55s">Fresh groceries from the shops you trust, delivered fast.</p>
+    <div class="chips">
+      <span class="chip pop" style="--d:2.85s"><i style="background:#7EC34A"></i>Fresh daily</span>
+      <span class="chip pop" style="--d:2.99s"><i style="background:#FDBE2E"></i>Fast delivery</span>
+      <span class="chip pop" style="--d:3.13s"><i style="background:#FF785A"></i>Fair prices</span>
+    </div>
+  </div>
+</section>
+
+<h2 class="label">Hero 3 · light (cream) — logo-only video + live HTML text</h2>
+<section class="hero h3" id="hero3">
+  <video muted playsinline preload="auto" poster="../hero-3-light/hero3-light-logo-only_poster.jpg" aria-label="Animated Kulha! shopping bag filling up with fresh produce">
+    <source src="../hero-3-light/hero3-light-logo-only.mp4" type="video/mp4">
+    <source src="../hero-3-light/hero3-light-logo-only.webm" type="video/webm">
+  </video>
+  <div class="copy">
+    <p class="eyebrow fade" style="--d:.35s">FRESH GROCERY DELIVERY</p>
+    <h1>
+      <span class="line"><span class="u"><span class="w" style="--d:.45s">Fresh</span> <span class="w" style="--d:.55s">picks.</span>
+        <svg class="swoosh" viewBox="0 0 640 46" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M12 30 C 170 8, 430 2, 628 28"/></svg></span></span>
+      <span class="line"><span class="w" style="--d:.7s">Fast</span> <span class="w accent" style="--d:.8s">drops.</span></span>
+    </h1>
+    <p class="sub fade" style="--d:1.2s">From crisp veggies to warm bread —<br>straight to your door in minutes.</p>
+    <div class="cta"><a class="btn dark pop" style="--d:1.6s" href="#download">Download now <span aria-hidden="true">→</span></a></div>
+    <p class="note fade" style="--d:1.9s">Available on iOS &amp; Android</p>
+  </div>
+</section>
+
+<script>
+  // Start each hero's text animations exactly when its video starts playing.
+  // Videos play once and hold on the last frame (no loop attribute).
+  document.querySelectorAll('.hero').forEach(function (hero) {
+    var v = hero.querySelector('video');
+    var start = function () { hero.classList.add('play'); };
+    v.addEventListener('playing', start, { once: true });
+    // If autoplay is blocked or reduced motion is on: show the final state immediately.
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { start(); return; }
+    // Play each hero when it scrolls into view (so you can see all three in this demo page).
+    new IntersectionObserver(function (entries, obs) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          v.play().catch(function () { start(); });
+          obs.unobserve(hero);
+        }
+      });
+    }, { threshold: 0.5 }).observe(hero);
+  });
+</script>
+</body>
+</html>

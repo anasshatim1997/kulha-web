@@ -1,0 +1,44 @@
+{
+  "meta": {
+    "locale": "fr-MA",
+    "dir": "ltr",
+    "currency": "MAD"
+  },
+  "brand": {
+    "name": "KULHA!",
+    "tagline": "Les invendus du quartier, une deuxième chance."
+  },
+  "nav": {
+    "how": "Comment ça marche",
+    "categories": "Les paniers",
+    "faq": "FAQ",
+    "shops": "Pour les commerces",
+    "signin": "Connexion",
+    "signup": "Créer un compte"
+  },
+  "home": {
+    "hero.kicker": "La plateforme marocaine anti-gaspillage",
+    "hero.title": "Les bons paniers du quartier, à prix doux.",
+    "hero.body": "Réservez des paniers d’invendus alimentaires à prix réduit et récupérez-les directement au commerce pendant le créneau indiqué.",
+    "hero.primary": "Créer mon compte",
+    "hero.secondary": "Voir comment ça marche",
+    "how.title": "Découvrez, réservez, récupérez.",
+    "categories.title": "Des paniers selon les invendus du jour.",
+    "trust.pickup": "Retrait chez le commerçant",
+    "cta.title": "La bonne affaire du quartier mérite une seconde chance."
+  },
+  "auth": {
+    "signup.title": "Créer un compte",
+    "signin.title": "Connexion",
+    "field.name": "Nom complet",
+    "field.phone": "Téléphone (+212)",
+    "field.email": "Adresse e-mail",
+    "field.password": "Mot de passe",
+    "error.network": "Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.",
+    "error.invalid": "Certaines informations sont invalides. Vérifiez le formulaire."
+  },
+  "footer": {
+    "madeIn": "Une marque marocaine, faite avec soin.",
+    "rights": "Tous droits réservés."
+  }
+}

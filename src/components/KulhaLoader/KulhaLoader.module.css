@@ -1,0 +1,88 @@
+/* Kulha! loader — pure CSS, no JS. Layers are positioned in % of the logo box so it scales with --kl-size.
+   One loop = 1.8s: the produce hops out of the bag one after another, the bag squashes on every landing,
+   the leaf wiggles and the sparks pulse. */
+
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* ---------- layout ---------- */
+.inline { display: inline-block; line-height: 0; vertical-align: middle; }
+.root { position: relative; display: block; width: var(--kl-size, 160px); aspect-ratio: 1.0836; --hop: calc(var(--kl-size, 160px) * -0.072); --hop-s: calc(var(--kl-size, 160px) * -0.03); }
+.float, .squash { position: absolute; inset: 0; display: block; }
+.float { animation: kl-float 1.8s ease-in-out infinite; }
+.squash { transform-origin: 50% 94%; animation: kl-squash 1.8s linear infinite; }
+.root img { position: absolute; height: auto; display: block; user-select: none; -webkit-user-drag: none; pointer-events: none; }
+.shadow { position: absolute; left: 12%; width: 76%; bottom: -3.5%; height: 6%; border-radius: 50%; background: radial-gradient(closest-side, rgba(2, 22, 14, .42), rgba(2, 22, 14, 0)); animation: kl-shadow 1.8s ease-in-out infinite; }
+
+/* ---------- layer positions (auto-generated) ---------- */
+.greensBack { left: 7.549%; top: 1.838%; width: 70.568%; }
+.handle { left: 44.360%; top: 5.331%; width: 19.508%; }
+.baguette { left: 67.769%; top: 6.250%; width: 21.204%; }
+.pepper { left: 51.315%; top: 14.522%; width: 19.678%; }
+.tomato { left: 32.655%; top: 24.265%; width: 20.526%; }
+.bag { left: 10.941%; top: 5.331%; width: 78.541%; }
+.greensFront { left: 55.725%; top: 1.287%; width: 17.642%; }
+.wordmark { left: 17.388%; top: 52.390%; width: 68.193%; }
+.underline { left: 33.673%; top: 75.368%; width: 41.561%; }
+.leaf { left: 58.270%; top: 40.441%; width: 13.740%; }
+.spark1 { left: 4.411%; top: 41.728%; width: 7.125%; }
+.spark2 { left: 1.187%; top: 52.574%; width: 9.500%; }
+.spark3 { left: 88.889%; top: 40.074%; width: 8.482%; }
+.spark4 { left: 89.652%; top: 50.368%; width: 9.160%; }
+
+/* ---------- item motion ---------- */
+.hop { transform-origin: 50% 100%; animation: kl-hop 1.8s infinite; }
+.hopTomato { animation-delay: 0s; }
+.hopPepper { animation-delay: .18s; }
+.hopBaguette { animation-delay: .36s; --hop: calc(var(--kl-size, 160px) * -0.085); }
+.hopGreens { animation-name: kl-hop-soft; animation-delay: .54s; }
+.leaf { transform-origin: 42.6% 105.6%; animation: kl-leaf 1.8s ease-in-out infinite; }
+.spark { animation: kl-spark 1.8s ease-in-out infinite; }
+.spark1 { transform-origin: 82% 83%; animation-delay: 0s; }
+.spark2 { transform-origin: 87% 65%; animation-delay: .06s; }
+.spark3 { transform-origin: 85% 16%; animation-delay: .03s; }
+.spark4 { transform-origin: 89% 39%; animation-delay: .09s; }
+.root[data-small] .spark { display: none; }   /* tiny sizes (buttons): hide the sparks */
+
+@keyframes kl-hop {
+  0%    { transform: translateY(0) rotate(0);                       animation-timing-function: cubic-bezier(.2, .75, .3, 1); }
+  9%    { transform: translateY(var(--hop)) rotate(-5deg);          animation-timing-function: cubic-bezier(.55, 0, .9, .55); }
+  17%   { transform: translateY(0) rotate(0);                       animation-timing-function: cubic-bezier(.3, .6, .5, 1); }
+  19.5% { transform: translateY(calc(var(--hop) * .2)) rotate(1deg); animation-timing-function: ease-in; }
+  22%, 100% { transform: translateY(0) rotate(0); }
+}
+@keyframes kl-hop-soft {
+  0%    { transform: translateY(0) rotate(0);                          animation-timing-function: cubic-bezier(.2, .75, .3, 1); }
+  10%   { transform: translateY(var(--hop-s)) rotate(1.8deg);          animation-timing-function: cubic-bezier(.55, 0, .9, .55); }
+  19%   { transform: translateY(0) rotate(-1deg);                      animation-timing-function: ease-out; }
+  26%, 100% { transform: translateY(0) rotate(0); }
+}
+@keyframes kl-squash {
+  0%, 16%  { transform: scale(1, 1); }
+  17%      { transform: scale(1.008, .982); }  21%, 26% { transform: scale(1, 1); }
+  27%      { transform: scale(1.008, .982); }  31%, 36% { transform: scale(1, 1); }
+  37%      { transform: scale(1.008, .982); }  41%, 46% { transform: scale(1, 1); }
+  47%      { transform: scale(1.008, .982); }  51%, 100% { transform: scale(1, 1); }
+}
+@keyframes kl-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.3%); } }
+@keyframes kl-shadow { 0%, 100% { transform: scaleX(1); opacity: 1; } 50% { transform: scaleX(.93); opacity: .8; } }
+@keyframes kl-leaf {
+  0%, 56% { transform: rotate(0); } 62% { transform: rotate(10deg); } 68% { transform: rotate(-8deg); } 74% { transform: rotate(5deg); } 80%, 100% { transform: rotate(0); }
+}
+@keyframes kl-spark {
+  0%, 55% { transform: scale(.6); opacity: .35; } 65% { transform: scale(1.15); opacity: 1; } 80% { transform: scale(1); opacity: 1; } 92%, 100% { transform: scale(.6); opacity: .35; }
+}
+
+/* ---------- full screen wrapper ---------- */
+.screen { position: fixed; inset: 0; z-index: 9999; display: grid; place-content: center; justify-items: center; gap: clamp(14px, 2.4vh, 24px); padding: 24px; }
+.dark { background: radial-gradient(ellipse 80% 60% at 50% 45%, #115a3f 0%, #04251a 100%); color: #cee0d2; }
+.light { background: radial-gradient(ellipse 80% 60% at 50% 45%, #fffbf0 0%, #f4ebd6 100%); color: #345c4a; }
+.transparent { background: transparent; color: inherit; }
+.message { margin: 0; font: 700 clamp(15px, 1.6vw, 18px)/1.4 'Nunito', system-ui, sans-serif; letter-spacing: .01em; text-align: center; animation: kl-msg 1.8s ease-in-out infinite; }
+@keyframes kl-msg { 0%, 100% { opacity: .65; } 50% { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .float, .squash, .hop, .leaf, .spark, .shadow { animation: none !important; }
+  .root { animation: kl-reduced 2s ease-in-out infinite; }
+  .message { animation: none; }
+}
+@keyframes kl-reduced { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }

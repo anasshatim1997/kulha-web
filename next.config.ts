@@ -1,16 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
-  turbopack: {
-    rules: {
-      "*.css": {
-        loaders: ["@tailwindcss/turbopack"],
-        as: "*.css",
-      },
-    },
+  reactStrictMode: true,
+  poweredByHeader: false,
+  async redirects() {
+    return [
+      { source: "/ary", destination: "/ar", permanent: true },
+      { source: "/ary/:path*", destination: "/ar/:path*", permanent: true },
+      { source: "/ary-latn", destination: "/ar", permanent: true },
+      { source: "/ary-latn/:path*", destination: "/ar/:path*", permanent: true },
+    ];
   },
 };
 

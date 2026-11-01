@@ -1,0 +1,44 @@
+{
+  "meta": {
+    "locale": "en",
+    "dir": "ltr",
+    "currency": "MAD"
+  },
+  "brand": {
+    "name": "KULHA!",
+    "tagline": "Neighbourhood surplus, given a second chance."
+  },
+  "nav": {
+    "how": "How it works",
+    "categories": "Explore baskets",
+    "faq": "FAQ",
+    "shops": "For shops",
+    "signin": "Sign in",
+    "signup": "Create account"
+  },
+  "home": {
+    "hero.kicker": "Morocco’s food-waste marketplace",
+    "hero.title": "Good neighbourhood food. Better prices.",
+    "hero.body": "Reserve discounted surplus-food baskets online and collect them directly from the shop during its stated pickup window.",
+    "hero.primary": "Create an account",
+    "hero.secondary": "How it works",
+    "how.title": "Discover, reserve, collect.",
+    "categories.title": "Baskets shaped by each day’s surplus.",
+    "trust.pickup": "Collect from the shop",
+    "cta.title": "Give good local food a second chance."
+  },
+  "auth": {
+    "signup.title": "Create an account",
+    "signin.title": "Sign in",
+    "field.name": "Full name",
+    "field.phone": "Phone (+212)",
+    "field.email": "Email address",
+    "field.password": "Password",
+    "error.network": "We could not reach the server. Check your connection and try again.",
+    "error.invalid": "Some details are invalid. Please review the form."
+  },
+  "footer": {
+    "madeIn": "A Moroccan brand, made with care.",
+    "rights": "All rights reserved."
+  }
+}

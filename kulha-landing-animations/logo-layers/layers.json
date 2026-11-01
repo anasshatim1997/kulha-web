@@ -1,0 +1,79 @@
+{
+  "01-greens-back": {
+    "canvas": 1536,
+    "crop_x": 260,
+    "crop_y": 200,
+    "crop_w": 840,
+    "crop_h": 500
+  },
+  "02-handle-right-leg": {
+    "canvas": 1536,
+    "crop_x": 700,
+    "crop_y": 240,
+    "crop_w": 396,
+    "crop_h": 485
+  },
+  "03-baguette": {
+    "canvas": 1536,
+    "crop_x": 950,
+    "crop_y": 220,
+    "crop_w": 310,
+    "crop_h": 520
+  },
+  "04-pepper": {
+    "canvas": 1536,
+    "crop_x": 740,
+    "crop_y": 340,
+    "crop_w": 320,
+    "crop_h": 340
+  },
+  "05-tomato": {
+    "canvas": 1536,
+    "crop_x": 550,
+    "crop_y": 440,
+    "crop_w": 280,
+    "crop_h": 280
+  },
+  "06-bag-body-and-handle": {
+    "canvas": 1536,
+    "crop_x": 290,
+    "crop_y": 240,
+    "crop_w": 960,
+    "crop_h": 1050
+  },
+  "07-greens-front-leaf": {
+    "canvas": 1536,
+    "crop_x": 760,
+    "crop_y": 160,
+    "crop_w": 400,
+    "crop_h": 320
+  },
+  "08-wordmark-KULHA": {
+    "canvas": 1536,
+    "crop_x": 370,
+    "crop_y": 760,
+    "crop_w": 755,
+    "crop_h": 410
+  },
+  "09-wordmark-exclamation": {
+    "canvas": 1536,
+    "crop_x": 1115,
+    "crop_y": 760,
+    "crop_w": 85,
+    "crop_h": 410
+  },
+  "10-wordmark-leaf": {
+    "canvas": 1536,
+    "crop_x": 850,
+    "crop_y": 630,
+    "crop_w": 210,
+    "crop_h": 170
+  },
+  "11-wordmark-underline": {
+    "canvas": 1536,
+    "crop_x": 560,
+    "crop_y": 1020,
+    "crop_w": 530,
+    "crop_h": 160
+  }
+}

@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function NotFound(){return <div className="content-page" style={{textAlign:"center"}}><p className="section-kicker">404 · PAGE INTROUVABLE</p><h1>On a perdu le chemin.</h1><p className="page-lead" style={{marginInline:"auto"}}>Cette page n’existe pas ou a peut-être changé d’adresse.</p><Link href="/" className="button button-yellow" style={{marginTop:28}}>Retour à l’accueil <span aria-hidden>↗</span></Link></div>}

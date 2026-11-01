@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "locale": "ary-Latn",
+    "dir": "ltr",
+    "currency": "MAD",
+    "digits": "Latin"
+  },
+  "brand": {
+    "name": "KULHA!",
+    "tagline": "Qfaf l7ouma, forsa tania lmakla."
+  },
+  "nav": {
+    "how": "Kifach katkhdem",
+    "categories": "L9faf",
+    "faq": "As2ila",
+    "shops": "Tjjar",
+    "signin": "Dkhol",
+    "signup": "7ell compte"
+  },
+  "home": {
+    "hero.kicker": "Plateforme maghribiya anti-gaspillage",
+    "hero.title": "Qfaf zwina, b taman na9es.",
+    "hero.body": "7jez qfaf dyal lmakla li bqat b taman na9es, w tsellemha mn l7anout f lwa9t lm7edded.",
+    "hero.primary": "7ell compte",
+    "hero.secondary": "Chouf kifach katkhdem",
+    "how.title": "Ktechef, t7jez, tsellem.",
+    "categories.title": "Qfaf 3la 7sab chno bqa 3end l7wanet.",
+    "trust.pickup": "Istilam mn l7anout",
+    "cta.title": "3ti lmakla forsa tania."
+  },
+  "auth": {
+    "signup.title": "7ell compte",
+    "signin.title": "Dkhol",
+    "field.name": "Smiya kamla",
+    "field.phone": "Telephone (+212)",
+    "field.email": "Email",
+    "field.password": "Mot de passe",
+    "error.network": "Ma 9drnach netaslo b serveur. Chouf connexion w 3awed 7awel.",
+    "error.invalid": "Chi ma3lomat ma-s7i7ach. Raje3 formulaire."
+  },
+  "footer": {
+    "madeIn": "Marque maghribiya, msayba b l3ناية.",
+    "rights": "Kol l7o9o9 ma7foudin."
+  }
+}
