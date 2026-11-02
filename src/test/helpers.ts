@@ -25,9 +25,15 @@ export function problem(status: number, title: string) {
 
 export function request(
   path: string,
-  options: { method?: string; cookies?: Record<string, string>; origin?: string | null; body?: unknown } = {},
+  options: {
+    method?: string;
+    cookies?: Record<string, string>;
+    origin?: string | null;
+    body?: unknown;
+    headers?: Record<string, string>;
+  } = {},
 ) {
-  const headers: Record<string, string> = {};
+  const headers: Record<string, string> = { ...options.headers };
   if (options.cookies) {
     headers.cookie = Object.entries(options.cookies).map(([k, v]) => `${k}=${v}`).join("; ");
   }

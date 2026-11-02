@@ -26,7 +26,10 @@ export function localePath(locale: SiteLocale, path: string): string {
 export function switchLocalePath(pathname: string, locale: SiteLocale): string {
   const withoutPrefix = pathname.replace(localePrefix, "") || "/";
   const parts = withoutPrefix.split("?")[0].split("#")[0].split("/").filter(Boolean);
-  const supported = new Set(["how-it-works", "about", "categories", "faq", "for-shops", "pickup-policy", "contact", "login", "register"]);
+  const supported = new Set(["how-it-works", "about", "categories", "faq", "for-shops", "pickup-policy", "contact", "login", "register", "account"]);
+  if (parts[0] === "merchant" && parts.length === 2 && ["apply", "dashboard"].includes(parts[1])) {
+    return localePath(locale, `/${parts.join("/")}`);
+  }
   if (parts.length > 1 || (parts.length === 1 && !supported.has(parts[0]))) return localePath(locale, "/");
   return localePath(locale, withoutPrefix);
 }

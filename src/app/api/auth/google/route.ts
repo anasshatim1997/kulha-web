@@ -1,18 +1,29 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { createOAuthState, GOOGLE_OAUTH_COOKIE, googleOAuthCookieOptions } from "@/lib/auth/google-oauth";
 import { getConfig } from "@/lib/config";
+import { safeNext } from "@/lib/navigation";
 
-/** Starts the Google authorization-code flow on the configured Spring Security backend.
- * OAuth state, callback validation and session establishment remain owned by the backend.
- */
-export function GET() {
+export async function GET(request: NextRequest) {
   const config = getConfig();
-  const backendOrigin = new URL(config.apiBaseUrl);
-  const authorizationUrl = new URL(config.googleOAuthAuthorizationPath, backendOrigin);
-  return NextResponse.redirect(authorizationUrl, {
-    status: 302,
-    headers: {
-      "Cache-Control": "no-store",
-      "Referrer-Policy": "no-referrer",
-    },
-  });
+  if (!config.googleClientId || !config.googleClientSecret || !config.bffSharedSecret) {
+    const login = new URL("/login", config.appOrigin);
+    login.searchParams.set("oauth", "not_configured");
+    return NextResponse.redirect(login);
+  }
+  const next = safeNext(request.nextUrl.searchParams.get("next"));
+  const { cookie, state, challenge } = createOAuthState(next);
+  const authorization = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+  authorization.searchParams.set("client_id", config.googleClientId);
+  authorization.searchParams.set("redirect_uri", config.googleRedirectUri);
+  authorization.searchParams.set("response_type", "code");
+  authorization.searchParams.set("scope", "openid email profile");
+  authorization.searchParams.set("state", state.state);
+  authorization.searchParams.set("nonce", state.nonce);
+  authorization.searchParams.set("code_challenge", challenge);
+  authorization.searchParams.set("code_challenge_method", "S256");
+  authorization.searchParams.set("prompt", "select_account");
+  const response = NextResponse.redirect(authorization);
+  response.cookies.set(GOOGLE_OAUTH_COOKIE, cookie, googleOAuthCookieOptions(config.secureCookies));
+  response.headers.set("Cache-Control", "no-store");
+  return response;
 }

@@ -4,6 +4,7 @@ import { REFRESH_COOKIE, applySessionCookies, clearSessionCookies } from "@/lib/
 import { parseTokens } from "@/lib/auth/tokens";
 import { getConfig } from "@/lib/config";
 import { isTrustedMutation } from "@/lib/security/origin";
+import { trustedProxyClientIp } from "@/lib/security/client-ip";
 import { copyResponse, problemResponse } from "./responses";
 
 const MAX_BODY_BYTES = 10_000;
@@ -18,7 +19,11 @@ export async function handleLogin(request: NextRequest): Promise<NextResponse> {
   if (body.length > MAX_BODY_BYTES) return problemResponse(413, "Request too large");
 
   try {
-    const upstream = await backendRequest("/api/v1/auth/login", { method: "POST", body });
+    const upstream = await backendRequest("/api/v1/auth/login", {
+      method: "POST",
+      body,
+      clientIp: trustedProxyClientIp(request.headers),
+    });
     if (upstream.status !== 200) return copyResponse(upstream);
 
     const tokens = parseTokens(await upstream.json().catch(() => null));

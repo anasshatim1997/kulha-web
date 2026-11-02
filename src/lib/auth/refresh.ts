@@ -15,14 +15,18 @@ export type RefreshResult =
 const REUSE_WINDOW_MS = 10_000;
 const results = new Map<string, { promise: Promise<RefreshResult>; startedAt: number }>();
 
-export function refreshSession(refreshToken: string, now: number = Date.now()): Promise<RefreshResult> {
+export function refreshSession(
+  refreshToken: string,
+  now: number = Date.now(),
+  clientIp?: string,
+): Promise<RefreshResult> {
   for (const [key, entry] of results) {
     if (now - entry.startedAt > REUSE_WINDOW_MS) results.delete(key);
   }
   const existing = results.get(refreshToken);
   if (existing) return existing.promise;
 
-  const promise = callRefreshEndpoint(refreshToken);
+  const promise = callRefreshEndpoint(refreshToken, clientIp);
   results.set(refreshToken, { promise, startedAt: now });
   void promise.then((result) => {
     // A temporary failure must not be remembered: the next request may try again.
@@ -36,11 +40,12 @@ export function resetRefreshCache(): void {
   results.clear();
 }
 
-async function callRefreshEndpoint(refreshToken: string): Promise<RefreshResult> {
+async function callRefreshEndpoint(refreshToken: string, clientIp?: string): Promise<RefreshResult> {
   try {
     const response = await backendRequest("/api/v1/auth/refresh", {
       method: "POST",
       body: JSON.stringify({ refreshToken }),
+      clientIp,
     });
     if (response.status === 200) {
       const tokens = parseTokens(await response.json().catch(() => null));

@@ -43,6 +43,10 @@ export function SiteHeader() {
   }, [open]);
 
   const authenticated = state.status === "authenticated";
+  const accountHref = state.status === "authenticated" && state.user.roles.includes("MERCHANT")
+    ? localePath(locale, "/merchant/dashboard")
+    : localePath(locale, "/account");
+  const accountLabel = locale === "ar" ? "حسابي" : locale === "en" ? "My account" : "Mon compte";
   const isAuthPage = /\/(login|register|forgot-password|reset-password|verify-email)\/?$/.test(pathname);
   return (
     <header className={`site-header${isAuthPage ? " site-header-auth" : ""}`} dir={copy.dir}>
@@ -59,7 +63,7 @@ export function SiteHeader() {
             </select>
           </label>
           {authenticated ? <>
-            <LinkButton href="/account" variant="ghost" className="nav-login">{locale === "ar" ? "حسابي" : locale === "en" ? "My account" : "Mon compte"}</LinkButton>
+            <LinkButton href={accountHref} variant="ghost" className="nav-login">{accountLabel}</LinkButton>
             <Button variant="primary" onClick={() => void signOut()} className="nav-cta">{locale === "ar" ? "تسجيل الخروج" : locale === "en" ? "Sign out" : "Déconnexion"}</Button>
           </> : <>
             <LinkButton href={localePath(locale, "/login")} variant="ghost" className="nav-login">{copy.nav.login}</LinkButton>
@@ -76,7 +80,7 @@ export function SiteHeader() {
         </nav>
         <div className="mobile-drawer-actions">
           {authenticated ? <>
-            <LinkButton href="/account" variant="ghost" className="drawer-login">{locale === "en" ? "My account" : locale === "ar" ? "حسابي" : "Mon compte"}</LinkButton>
+            <LinkButton href={accountHref} variant="ghost" className="drawer-login">{accountLabel}</LinkButton>
             <Button variant="primary" onClick={() => { setOpen(false); void signOut(); }} className="drawer-cta">{locale === "en" ? "Sign out" : locale === "ar" ? "تسجيل الخروج" : "Déconnexion"}</Button>
           </> : <>
             <LinkButton href={localePath(locale, "/login")} variant="ghost" className="drawer-login">{copy.nav.login}</LinkButton>

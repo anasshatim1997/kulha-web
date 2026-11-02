@@ -5,7 +5,10 @@ import { handleLogin, handleLogout } from "./session";
 const TOKENS = { accessToken: "access-secret", refreshToken: "refresh-secret", tokenType: "Bearer", expiresIn: 600 };
 
 describe("handleLogin", () => {
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
 
   it("stores the tokens in HttpOnly cookies and never returns them to the page", async () => {
     const fetchMock = stubFetch();
@@ -23,6 +26,32 @@ describe("handleLogin", () => {
     expect(cookies.find((c) => c.startsWith("kulha_rt=refresh-secret"))).toContain("HttpOnly");
     expect(cookies.find((c) => c.startsWith("kulha_rt="))).toContain("Max-Age=2592000");
     expect(cookies.every((c) => c.includes("SameSite=lax"))).toBe(true);
+  });
+
+  it("forwards only the trusted proxy IP and configured BFF secret to the API", async () => {
+    vi.stubEnv("KULHA_BFF_SHARED_SECRET", "server-only-secret");
+    const fetchMock = stubFetch();
+    fetchMock.mockResolvedValueOnce(jsonResponse(TOKENS));
+
+    const response = await handleLogin(
+      request("/api/auth/login", {
+        method: "POST",
+        origin: APP_ORIGIN,
+        body: { email: "a@b.c", password: "a-long-password" },
+        headers: {
+          "x-real-ip": "203.0.113.44",
+          "x-kulha-client-ip": "198.51.100.99",
+          "x-kulha-bff-secret": "attacker-controlled",
+          "x-forwarded-for": "198.51.100.88",
+        },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    const headers = fetchMock.mock.calls[0][1]?.headers as Record<string, string>;
+    expect(headers["X-Kulha-Client-IP"]).toBe("203.0.113.44");
+    expect(headers["X-Kulha-Bff-Secret"]).toBe("server-only-secret");
+    expect(headers["X-Forwarded-For"]).toBeUndefined();
   });
 
   it("passes a failed login through without setting cookies", async () => {

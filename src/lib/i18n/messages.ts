@@ -106,6 +106,7 @@ export const messages = {
       resend: "Envoyer un nouveau lien",
       resending: "Envoi…",
       resent: "Si un compte non confirmé existe pour cette adresse, un nouvel e-mail vient d'être envoyé.",
+      merchantNext: "Vous représentez un commerce ? Compléter une demande commerçant",
     },
     forgot: {
       title: "Mot de passe oublié",

@@ -5,6 +5,7 @@ import { refreshSession } from "@/lib/auth/refresh";
 import type { SessionTokens } from "@/lib/auth/tokens";
 import { getConfig } from "@/lib/config";
 import { isTrustedMutation } from "@/lib/security/origin";
+import { trustedProxyClientIp } from "@/lib/security/client-ip";
 import { resolveBackendPath } from "./policy";
 import { copyResponse, problemResponse } from "./responses";
 
@@ -18,6 +19,7 @@ const METHODS = new Set(["GET", "POST", "PUT", "PATCH", "DELETE"]);
 export async function forwardToBackend(request: NextRequest, segments: string[]): Promise<NextResponse> {
   const config = getConfig();
 
+  const clientIp = trustedProxyClientIp(request.headers);
   const path = resolveBackendPath(segments);
   if (!path) return problemResponse(404, "Not found");
   if (!METHODS.has(request.method)) return problemResponse(405, "Method not allowed");
@@ -40,7 +42,7 @@ export async function forwardToBackend(request: NextRequest, segments: string[])
 
   const tryRefresh = async (): Promise<boolean> => {
     if (!refreshToken) return false;
-    const result = await refreshSession(refreshToken);
+    const result = await refreshSession(refreshToken, Date.now(), clientIp);
     if (result.status === "ok") {
       refreshed = result.tokens;
       accessToken = result.tokens.accessToken;
@@ -50,8 +52,12 @@ export async function forwardToBackend(request: NextRequest, segments: string[])
     return false;
   };
 
-  const call = () =>
-    backendRequest(`${path}${request.nextUrl.search}`, { method: request.method, body, accessToken });
+  const call = () => backendRequest(`${path}${request.nextUrl.search}`, {
+    method: request.method,
+    body,
+    accessToken,
+    clientIp,
+  });
 
   try {
     if (!accessToken) await tryRefresh();

@@ -5,8 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
 import { useSession } from "@/components/session/SessionProvider";
 import { Alert } from "@/components/ui/Alert";
-import { GoogleOAuthButton } from "@/components/auth/GoogleOAuthButton";
 import { SubmitProgress } from "@/components/auth/SubmitProgress";
+import { GoogleOAuthButton } from "@/components/auth/GoogleOAuthButton";
 import { Button } from "@/components/ui/Button";
 import { PasswordField } from "@/components/ui/PasswordField";
 import { TextField } from "@/components/ui/TextField";
@@ -14,17 +14,21 @@ import { authApi } from "@/lib/api/client";
 import { describeError } from "@/lib/api/errors";
 import { authCopy } from "@/lib/i18n/auth-copy";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
-import { safeNext } from "@/lib/navigation";
+import { localePath, safeNext } from "@/lib/navigation";
 import { fieldErrors, loginSchema } from "@/lib/validation/schemas";
+import { useToast } from "@/components/feedback/ToastProvider";
 
 export function LoginForm({ locale = "fr" }: { locale?: SiteLocale }) {
   const t = authCopy[locale];
+  const toast = useToast();
   const router = useRouter();
-  const next = safeNext(useSearchParams().get("next"));
+  const searchParams = useSearchParams();
+  const explicitNext = searchParams.get("next");
+  const next = safeNext(explicitNext, localePath(locale, "/account"));
   const { reload } = useSession();
   const [values, setValues] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [formError, setFormError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(searchParams.get("oauth") ? t.googleError : null);
   const [pending, setPending] = useState(false);
   const submittingRef = useRef(false);
 
@@ -43,12 +47,20 @@ export function LoginForm({ locale = "fr" }: { locale?: SiteLocale }) {
     let navigationStarted = false;
     try {
       await authApi.login(parsed.data.email, parsed.data.password);
-      await reload();
+      const user = await reload();
+      toast.success({ title: t.loginSubmit, description: t.loginLead });
       navigationStarted = true;
       window.dispatchEvent(new Event("kulha:navigation-start"));
-      router.replace(next);
+      const destination = explicitNext
+        ? next
+        : user?.roles.includes("MERCHANT")
+          ? localePath(locale, "/merchant/dashboard")
+          : localePath(locale, "/account");
+      router.replace(destination);
     } catch (error) {
-      setFormError(describeError(error, { 401: t.invalidLogin }));
+      const message = describeError(error, { 401: t.invalidLogin });
+      setFormError(message);
+      toast.error({ title: t.loginTitle, description: message });
     } finally {
       submittingRef.current = false;
       // Keep the blocking progress feedback visible until Next.js leaves this page.
@@ -59,7 +71,6 @@ export function LoginForm({ locale = "fr" }: { locale?: SiteLocale }) {
 
   return (
     <>
-      <GoogleOAuthButton locale={locale} disabled={pending} />
       <form onSubmit={onSubmit} noValidate aria-busy={pending} className="auth-form-fields">
         {formError && <Alert tone="error">{formError}</Alert>}
         <TextField id="email" name="email" label={t.email} type="email" autoComplete="email" inputMode="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} placeholder="nom@exemple.com" value={values.email} onChange={(e) => setValues({ ...values, email: e.target.value })} error={errors.email} />
@@ -68,6 +79,9 @@ export function LoginForm({ locale = "fr" }: { locale?: SiteLocale }) {
         {pending && <SubmitProgress title={t.loginPending} detail={t.submitProgressDetail} />}
         <Button type="submit" loading={pending} className="w-full">{pending ? t.loginPending : t.loginSubmit}</Button>
       </form>
+      <div className="mt-5">
+        <GoogleOAuthButton label={t.googleContinue} next={next} />
+      </div>
     </>
   );
 }

@@ -14,15 +14,16 @@ KULHA! connects people with Moroccan neighbourhood shops offering surplus food i
 ## Requirements
 
 - Node.js 20.9+ (Node.js 22 LTS recommended)
-- npm 10+
+- pnpm 10.11.0 (pinned in `package.json`)
 - API environment for authenticated actions (see `.env.example`)
 
 ## Run locally
 
 ```bash
 cp .env.example .env.local
-npm install
-npm run dev
+corepack enable
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
 Open http://localhost:3000.
@@ -30,9 +31,9 @@ Open http://localhost:3000.
 ## Validation commands
 
 ```bash
-npm run typecheck
-npm run test
-npm run build
+pnpm typecheck
+pnpm test
+pnpm build
 ```
 
 The test script uses Vitest. Add feature tests as the API and product flows are connected. A successful frontend build does not replace backend authorization, stock concurrency, payment webhook, or pickup-token tests.
@@ -105,9 +106,17 @@ The login and registration pages now share a clear sign-in/create-account switch
 On desktop login/register routes, the KULHA! lockup is centered in the header over the form-side column, and the form card is raised slightly to align with the supplied reference. On mobile, the standard left-aligned header brand remains in place.
 
 
+## BFF client IP rate limiting
+
+The Next.js server reads the client address only from `X-Real-IP`, which must be set by the trusted reverse proxy. Configure the proxy to strip any incoming client-supplied `X-Real-IP` and overwrite it with the actual connecting client IP; do not expose Next.js directly in a way that bypasses this proxy. The BFF forwards the validated address to the API using `X-Kulha-Client-IP` and `X-Kulha-Bff-Secret`. Set the same long random `KULHA_BFF_SHARED_SECRET` in the web and API environments. The browser-supplied `X-Forwarded-For` and `X-Kulha-*` headers are never forwarded or trusted.
+
 ## Google sign-in
 
-The sign-in and registration pages include a Google OAuth entry button at `/api/auth/google`. The route redirects to the Spring Security authorization endpoint configured by `GOOGLE_OAUTH2_AUTHORIZATION_PATH` (default: `/oauth2/authorization/google`) on `API_BASE_URL`. Configure the backend's Google client credentials, authorization-code callback, state/nonce validation, and post-login session/cookie handoff on the backend. No Google client secret belongs in this Next.js app. If the backend uses a different authorization path, set the environment variable to that path.
+Google sign-in uses the OIDC authorization-code flow with PKCE (S256). The Next.js BFF creates and signs a short-lived state cookie, validates the callback state, exchanges the authorization code server-side, and forwards the ID token plus nonce to the API. The API verifies Google's signature/JWKS, issuer, audience, expiry and nonce, requires `email_verified`, links the stable Google subject to a KULHA account, and returns the normal KULHA access/refresh pair. Tokens remain in HttpOnly cookies; Google tokens are never returned to browser JavaScript. Existing email/password login remains available.
+
+Configure the same Google OAuth Web client ID in `GOOGLE_CLIENT_ID` (web) and `GOOGLE_OAUTH_CLIENT_ID` (API), the client secret only in the web server environment, and the same long random `KULHA_BFF_SHARED_SECRET` in both services. Register `http://localhost:3000/api/auth/google/callback` (or the exact production callback) as an authorized redirect URI in Google Cloud. Google sign-in remains unavailable until all required settings are present.
+
+A verified Google email may be linked to an existing active KULHA account with the same normalized email. A disabled account is never reactivated by Google sign-in. New Google accounts receive the standard CUSTOMER role.
 
 ### Authentication layout
 The auth header keeps the normal KULHA! lockup at the far left. The illustrated KULHA! bag sits inside the left benefit panel next to the four benefit statements. On desktop the two auth columns remain 50/50, with the form naturally centered in the available viewport height; mobile stacks both panels and allows normal document scrolling (no nested form scroller).
@@ -119,7 +128,7 @@ The auth header keeps the normal KULHA! lockup at the far left. The illustrated 
 
 ### Authentication UX
 - Registration is a two-step flow: name/email/optional phone, then password + confirmation + terms.
-- Login, registration, and Google OAuth redirect show a KULHA-branded blocking progress overlay.
+- Login and registration show a KULHA-branded blocking progress overlay.
 - Login and registration requests time out after 30 seconds and return the form to an actionable error state.
 - The progress bar is intentionally indeterminate: the browser cannot know the backend's exact percentage, so it never displays a fabricated completion percentage.
 
@@ -171,3 +180,34 @@ The auth card surface is transparent; editable input fields are white.
 
 ### Latest authentication styling
 The auth page and form surfaces use the same `--cream` background token as the page body (`#fcf4e7`). White is reserved for editable input fields. Customer and shop-owner selection uses neutral line icons, understated borders, and a forest-green selected state. Auth typography has been increased for readability.
+
+## Customer and shop-owner onboarding
+
+- Customers and shop owners create the same secure KULHA! identity account. A shop-owner selection changes the post-signup journey; it never grants merchant permissions by itself.
+- The user confirms their email address, signs in, then submits the shop profile at `/merchant/apply` (or the localized `/en/merchant/apply` and `/ar/merchant/apply` routes).
+- The API creates the merchant application as `PENDING`. The owner can follow its status; a rejected application can be corrected and resubmitted. The API only grants `MERCHANT` after an administrator approves the shop.
+- Existing email/password and Google sign-in both use the same post-login route. Google-created accounts are email-verified by the identity provider before the merchant application step.
+
+## Transactional email and in-app feedback
+
+- Verification and password-reset emails are multipart HTML/text messages using the KULHA! forest-green and saffron brand palette. Action links appear as buttons in the HTML email; one-time tokens are carried in URL fragments, never printed in the text alternative, and are removed from the browser address bar as soon as the confirmation page reads them.
+- In-app notifications use the project-owned `ToastProvider` and KULHA! styling. No third-party React toast package is used.
+
+## Post-sign-in customer and shop-owner screens
+
+The authentication flow now lands on role-appropriate account screens after email verification and sign-in:
+
+- **Customer:** `/account` (also `/en/account` and `/ar/account`) is the customer home. It shows the signed-in profile, email verification state, launch information, and links to basket discovery and the KULHA! how-it-works page. Reservation functionality is not presented as live before the pilot is opened.
+- **Shop owner:** `/merchant/dashboard` (also `/en/merchant/dashboard` and `/ar/merchant/dashboard`) is the shop workspace and application entry point. An owner without an application can submit one; a pending owner sees the review status; a rejected owner can correct and resubmit; an approved owner sees the verified business profile and the state of the tools.
+- **Role-based return:** a normal password sign-in sends an approved `MERCHANT` role to the shop dashboard and other accounts to the customer home. A validated `next` destination supplied by the signup/verification flow is preserved.
+
+Basket publishing, reservation management, and pickup confirmation are still future product phases. The approved shop workspace labels these tools as not yet released rather than displaying nonfunctional controls.
+
+### Smoke-test paths
+
+1. Register as **Customer**, verify the email from the message, use the sign-in button, and confirm that `/account` opens.
+2. Register as **Shop owner**, verify the email, use the shop-owner sign-in button, complete the business application, and confirm that the application status is shown on `/merchant/dashboard`.
+3. Approve the application through the existing administrator workflow. On the owner's next sign-in, confirm that the shop dashboard shows the approved business workspace.
+4. Repeat using `/en` and `/ar` paths to verify localized account and shop-owner screens.
+
+These flows require the API, database, email provider, and (for Google sign-in) Google OAuth credentials to be configured. The UI screens do not bypass API verification or merchant approval.

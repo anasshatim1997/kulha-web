@@ -23,7 +23,7 @@ jobs:
       # action-setup does not need a packageManager field to discover it.
       - uses: pnpm/action-setup@v4
         with:
-          version: 10
+          version: 10.11.0
           run_install: false
 
       - uses: actions/setup-node@v4

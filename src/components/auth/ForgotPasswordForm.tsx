@@ -9,10 +9,12 @@ import { api } from "@/lib/api/client";
 import { describeError } from "@/lib/api/errors";
 import { messages } from "@/lib/i18n/messages";
 import { fieldErrors, forgotPasswordSchema } from "@/lib/validation/schemas";
+import { useToast } from "@/components/feedback/ToastProvider";
 
 const t = messages.auth.forgot;
 
 export function ForgotPasswordForm() {
+  const toast = useToast();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | undefined>();
   const [formError, setFormError] = useState<string | null>(null);
@@ -32,8 +34,11 @@ export function ForgotPasswordForm() {
     try {
       await api.post("/auth/forgot-password", { email: parsed.data.email });
       setDone(true);
+      toast.success({ title: t.done });
     } catch (e) {
-      setFormError(describeError(e));
+      const message = describeError(e);
+      setFormError(message);
+      toast.error({ title: t.title, description: message });
     } finally {
       setPending(false);
     }

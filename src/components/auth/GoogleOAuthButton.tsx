@@ -1,36 +1,16 @@
-"use client";
+import { buttonClass } from "@/components/ui/Button";
 
-import { useState } from "react";
-import { SubmitProgress } from "@/components/auth/SubmitProgress";
-import { authCopy } from "@/lib/i18n/auth-copy";
-import type { SiteLocale } from "@/lib/i18n/site-copy";
-
-export function GoogleOAuthButton({ locale = "fr", disabled = false }: { locale?: SiteLocale; disabled?: boolean }) {
-  const t = authCopy[locale];
-  const [redirecting, setRedirecting] = useState(false);
-
+export function GoogleOAuthButton({ label, next }: { label: string; next?: string }) {
+  const query = next ? `?next=${encodeURIComponent(next)}` : "";
   return (
-    <div className="auth-google-auth">
-      {redirecting && <SubmitProgress title={t.googleContinue} detail={t.googleRedirect} />}
-      <a
-        className={`auth-google-button${disabled || redirecting ? " is-disabled" : ""}`}
-        href="/api/auth/google"
-        aria-disabled={disabled || redirecting || undefined}
-        tabIndex={disabled || redirecting ? -1 : 0}
-        onClick={(event) => {
-          if (disabled || redirecting) { event.preventDefault(); return; }
-          setRedirecting(true);
-        }}
-      >
-        <svg aria-hidden="true" viewBox="0 0 48 48" width="20" height="20" focusable="false">
-          <path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.4 9.4 0 0 1-4.1 6.2v5.1h6.7c3.9-3.6 6-8.8 6-15Z" />
-          <path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.7-5.1c-1.8 1.2-4 1.9-6.8 1.9-5.2 0-9.6-3.5-11.2-8.2H5.9v5.3A20 20 0 0 0 24 44Z" />
-          <path fill="#FBBC05" d="M12.8 27.7a12 12 0 0 1 0-7.4V15H5.9a20 20 0 0 0 0 18l6.9-5.3Z" />
-          <path fill="#EA4335" d="M24 12.1c3 0 5.7 1 7.8 3.1l5.8-5.8C34.1 6.1 29.5 4 24 4A20 20 0 0 0 5.9 15l6.9 5.3c1.6-4.7 6-8.2 11.2-8.2Z" />
-        </svg>
-        <span>{t.googleContinue}</span>
-      </a>
-      <div className="auth-social-divider" aria-hidden="true"><span>{t.orEmail}</span></div>
-    </div>
+    <a href={`/api/auth/google${query}`} className={buttonClass("ghost", "w-full !bg-white shadow-sm transition-shadow hover:!bg-white hover:shadow-md")}>
+      <svg aria-hidden="true" viewBox="0 0 48 48" className="h-5 w-5">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5Z" transform="translate(0 4)"/>
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.75 7.18l7.73 6C44.42 38.01 46.98 31.94 46.98 24.55Z"/>
+        <path fill="#FBBC05" d="M10.53 28.59A14.4 14.4 0 0 1 9.75 24c0-1.59.27-3.13.76-4.59l-7.98-6.2A23.9 23.9 0 0 0 0 24c0 3.87.93 7.52 2.56 10.78l7.97-6.19Z" transform="translate(0 0)"/>
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.9-5.8l-7.73-6c-2.14 1.44-4.88 2.3-8.17 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48Z"/>
+      </svg>
+      {label}
+    </a>
   );
 }

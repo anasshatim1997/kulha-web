@@ -8,12 +8,14 @@ import { api } from "@/lib/api/client";
 import { describeError } from "@/lib/api/errors";
 import { messages } from "@/lib/i18n/messages";
 import { emailSchema, fieldErrors } from "@/lib/validation/schemas";
+import { useToast } from "@/components/feedback/ToastProvider";
 import { z } from "zod";
 
 const t = messages.auth.verify;
 const schema = z.object({ email: emailSchema });
 
 export function ResendVerificationForm() {
+  const toast = useToast();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | undefined>();
   const [formError, setFormError] = useState<string | null>(null);
@@ -33,8 +35,11 @@ export function ResendVerificationForm() {
     try {
       await api.post("/auth/resend-verification", { email: parsed.data.email });
       setDone(true);
+      toast.success({ title: t.resent });
     } catch (e) {
-      setFormError(describeError(e));
+      const message = describeError(e);
+      setFormError(message);
+      toast.error({ title: t.title, description: message });
     } finally {
       setPending(false);
     }

@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useRef, useState, type FormEvent } from "react";
 import { Alert } from "@/components/ui/Alert";
-import { GoogleOAuthButton } from "@/components/auth/GoogleOAuthButton";
 import { SubmitProgress } from "@/components/auth/SubmitProgress";
+import { GoogleOAuthButton } from "@/components/auth/GoogleOAuthButton";
 import { Button, LinkButton } from "@/components/ui/Button";
 import { PasswordField } from "@/components/ui/PasswordField";
 import { TextField } from "@/components/ui/TextField";
@@ -14,10 +14,12 @@ import { authCopy } from "@/lib/i18n/auth-copy";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { localePath } from "@/lib/navigation";
 import { fieldErrors, registerSchema } from "@/lib/validation/schemas";
+import { useToast } from "@/components/feedback/ToastProvider";
 
-export function RegisterForm({ locale = "fr" }: { locale?: SiteLocale }) {
+export function RegisterForm({ locale = "fr", initialAccountType = null }: { locale?: SiteLocale; initialAccountType?: "CUSTOMER" | "MERCHANT" | null }) {
   const t = authCopy[locale];
-  const [accountType, setAccountType] = useState<"CUSTOMER" | "MERCHANT" | null>(null);
+  const toast = useToast();
+  const [accountType, setAccountType] = useState<"CUSTOMER" | "MERCHANT" | null>(initialAccountType);
   const [values, setValues] = useState({ fullName: "", email: "", phone: "", password: "" });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -34,7 +36,7 @@ export function RegisterForm({ locale = "fr" }: { locale?: SiteLocale }) {
     setFormError(null);
 
     if (step === 1) {
-      if (accountType !== "CUSTOMER") return;
+      if (!accountType) return;
       const details = registerSchema.pick({ fullName: true, email: true, phone: true }).safeParse(values);
       if (!details.success) {
         setErrors(fieldErrors(details.error));
@@ -45,7 +47,7 @@ export function RegisterForm({ locale = "fr" }: { locale?: SiteLocale }) {
       return;
     }
 
-    if (accountType !== "CUSTOMER") return;
+    if (!accountType) return;
     const parsed = registerSchema.safeParse(values);
     if (!parsed.success) {
       setErrors(fieldErrors(parsed.error));
@@ -67,8 +69,11 @@ export function RegisterForm({ locale = "fr" }: { locale?: SiteLocale }) {
       const { fullName, email, phone, password } = parsed.data;
       await api.post("/auth/register", { fullName, email, password, ...(phone ? { phone } : {}) }, { timeoutMs: 30000 });
       setDone(true);
+      toast.success({ title: accountType === "MERCHANT" ? t.merchantDoneTitle : t.doneTitle, description: accountType === "MERCHANT" ? t.merchantDone : t.done });
     } catch (error) {
-      setFormError(describeError(error));
+      const message = describeError(error);
+      setFormError(message);
+      toast.error({ title: t.registerTitle, description: message });
     } finally {
       submittingRef.current = false;
       setPending(false);
@@ -78,8 +83,8 @@ export function RegisterForm({ locale = "fr" }: { locale?: SiteLocale }) {
   if (done) {
     return (
       <div className="space-y-5">
-        <Alert tone="success" title={t.doneTitle}>{t.done}</Alert>
-        <LinkButton href={localePath(locale, "/login")} variant="ghost" className="w-full">{t.loginSubmit}</LinkButton>
+        <Alert tone="success" title={accountType === "MERCHANT" ? t.merchantDoneTitle : t.doneTitle}>{accountType === "MERCHANT" ? t.merchantDone : t.done}</Alert>
+        <LinkButton href={`${localePath(locale, "/login")}?next=${encodeURIComponent(accountType === "MERCHANT" ? localePath(locale, "/merchant/dashboard") : localePath(locale, "/account"))}`} variant="accent" className="w-full">{accountType === "MERCHANT" ? t.merchantContinue : t.loginSubmit}</LinkButton>
       </div>
     );
   }
@@ -127,28 +132,22 @@ export function RegisterForm({ locale = "fr" }: { locale?: SiteLocale }) {
               </div>
               <p id="auth-account-type-help" className="auth-account-type-help">{t.accountTypeHelp}</p>
             </fieldset>
-            {accountType === "CUSTOMER" && (
+            {accountType && (
               <>
-                <GoogleOAuthButton locale={locale} disabled={pending} />
                 <TextField id="fullName" name="fullName" label={t.fullName} autoComplete="name" autoCapitalize="words" placeholder={locale === "ar" ? "الاسم الكامل" : locale === "en" ? "Your full name" : "Votre nom complet"} value={values.fullName} onChange={(e) => setValues({ ...values, fullName: e.target.value })} error={errors.fullName} required />
                 <TextField id="email" name="email" label={t.email} type="email" autoComplete="email" inputMode="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} placeholder="nom@exemple.com" value={values.email} onChange={(e) => setValues({ ...values, email: e.target.value })} error={errors.email} required />
                 <TextField id="phone" name="phone" label={t.phone} type="tel" autoComplete="tel" inputMode="tel" placeholder="+212 6 12 34 56 78" value={values.phone} onChange={(e) => setValues({ ...values, phone: e.target.value })} error={errors.phone} />
+                {accountType === "MERCHANT" && (
+                  <div className="auth-merchant-route" role="note" style={{ display: "block", width: "100%", minWidth: 0 }}>
+                    <div className="auth-merchant-route-copy" style={{ width: "100%", maxWidth: "none", minWidth: 0, flex: "1 1 auto" }}>
+                      <strong style={{ display: "block", overflowWrap: "break-word", wordBreak: "normal" }}>{t.merchantNextTitle}</strong>
+                      <p style={{ overflowWrap: "break-word", wordBreak: "normal" }}>{t.merchantNextBody}</p>
+                    </div>
+                  </div>
+                )}
                 <Button type="submit" variant="accent" className="w-full">{t.continueToPassword}<span aria-hidden="true"> →</span></Button>
                 <p className="auth-step-footnote">{t.stepOneHint}</p>
               </>
-            )}
-            {accountType === "MERCHANT" && (
-              <div className="auth-merchant-route" role="status">
-                <div className="auth-merchant-route-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3.5 10.5 5 4.8h14l1.5 5.7" />
-                    <path d="M4.5 10.5v9h15v-9" />
-                    <path d="M9 19.5v-5.8h6v5.8M3.5 10.5a2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 2.5 0" />
-                  </svg>
-                </div>
-                <div className="auth-merchant-route-copy"><strong>{t.merchantNextTitle}</strong><p>{t.merchantNextBody}</p></div>
-                <Link href={localePath(locale, "/for-shops")} className="auth-merchant-route-cta">{t.merchantNextCta}<span aria-hidden="true"> ↗</span></Link>
-              </div>
             )}
             {!accountType && <p className="auth-step-footnote">{t.accountTypeChooseHint}</p>}
           </>
@@ -169,6 +168,9 @@ export function RegisterForm({ locale = "fr" }: { locale?: SiteLocale }) {
           </>
         )}
       </form>
+      <div className="mt-5 [&_a]:bg-white [&_a]:shadow-sm [&_a:hover]:bg-white [&_a:hover]:shadow-md [&_button]:bg-white [&_button]:shadow-sm [&_button:hover]:bg-white [&_button:hover]:shadow-md [&_a]:transition-shadow [&_button]:transition-shadow">
+        <GoogleOAuthButton label={t.googleContinue} next={accountType === "MERCHANT" ? localePath(locale, "/merchant/dashboard") : localePath(locale, "/account")} />
+      </div>
     </>
   );
 }

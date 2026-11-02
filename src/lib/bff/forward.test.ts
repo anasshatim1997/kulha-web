@@ -7,7 +7,10 @@ const NEW_TOKENS = { accessToken: "fresh-access", refreshToken: "fresh-refresh",
 
 describe("forwardToBackend", () => {
   beforeEach(() => resetRefreshCache());
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
 
   it("adds the access token from the cookie and returns the API's answer", async () => {
     const fetchMock = stubFetch();
@@ -20,6 +23,33 @@ describe("forwardToBackend", () => {
     expect(String(fetchMock.mock.calls[0][0])).toBe("http://localhost:8080/api/v1/me");
     expect(authorizationOf(fetchMock.mock.calls[0])).toBe("Bearer tok");
     expect(response.headers.get("cache-control")).toBe("no-store");
+  });
+
+  it("forwards only the trusted proxy IP with the server-side BFF secret", async () => {
+    vi.stubEnv("KULHA_BFF_SHARED_SECRET", "server-only-secret");
+    const fetchMock = stubFetch();
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 202 }));
+
+    const response = await forwardToBackend(
+      request("/api/bff/auth/forgot-password", {
+        method: "POST",
+        origin: APP_ORIGIN,
+        body: { email: "a@b.c" },
+        headers: {
+          "x-real-ip": "203.0.113.42",
+          "x-kulha-client-ip": "198.51.100.99",
+          "x-kulha-bff-secret": "attacker-controlled",
+          "x-forwarded-for": "198.51.100.88",
+        },
+      }),
+      ["auth", "forgot-password"],
+    );
+
+    expect(response.status).toBe(202);
+    const headers = fetchMock.mock.calls[0][1]?.headers as Record<string, string>;
+    expect(headers["X-Kulha-Client-IP"]).toBe("203.0.113.42");
+    expect(headers["X-Kulha-Bff-Secret"]).toBe("server-only-secret");
+    expect(headers["X-Forwarded-For"]).toBeUndefined();
   });
 
   it("sends no Authorization header for public calls without a session", async () => {
@@ -98,10 +128,20 @@ describe("forwardToBackend", () => {
     const fetchMock = stubFetch();
     fetchMock.mockResolvedValueOnce(jsonResponse(NEW_TOKENS)).mockResolvedValueOnce(jsonResponse({ ok: true }));
 
-    const response = await forwardToBackend(request("/api/bff/me", { cookies: { kulha_rt: "old-rt" } }), ["me"]);
+    vi.stubEnv("KULHA_BFF_SHARED_SECRET", "server-only-secret");
+    const response = await forwardToBackend(
+      request("/api/bff/me", {
+        cookies: { kulha_rt: "old-rt" },
+        headers: { "x-real-ip": "203.0.113.43" },
+      }),
+      ["me"],
+    );
 
     expect(response.status).toBe(200);
     expect(String(fetchMock.mock.calls[0][0])).toContain("/api/v1/auth/refresh");
+    const refreshHeaders = fetchMock.mock.calls[0][1]?.headers as Record<string, string>;
+    expect(refreshHeaders["X-Kulha-Client-IP"]).toBe("203.0.113.43");
+    expect(refreshHeaders["X-Kulha-Bff-Secret"]).toBe("server-only-secret");
     expect(authorizationOf(fetchMock.mock.calls[1])).toBe("Bearer fresh-access");
     const cookies = setCookies(response).join("\n");
     expect(cookies).toContain("kulha_at=fresh-access");

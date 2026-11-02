@@ -5,7 +5,7 @@ import { localePath } from "@/lib/navigation";
 
 export function LocalizedInfoPage({ locale, page, slug }: { locale: SiteLocale; page: InfoPageCopy; slug?: string }) {
   const direction = locale === "ar" ? "rtl" : "ltr";
-  const ctaHref = slug === "for-shops" ? "/contact" : "/register";
+  const ctaHref = slug === "for-shops" ? "/register?accountType=merchant" : "/register";
   return (
     <div className="content-page locale-info" dir={direction} lang={locale === "ar" ? "ar-MA" : locale}>
       <p className="section-kicker">{page.eyebrow}</p>

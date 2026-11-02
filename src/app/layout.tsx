@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SessionProvider } from "@/components/session/SessionProvider";
 import { RouteProgress } from "@/components/navigation/RouteProgress";
+import { ToastProvider } from "@/components/feedback/ToastProvider";
 
 const nunito = Nunito({ subsets: ["latin", "latin-ext"], variable: "--font-nunito", display: "swap" });
 const notoArabic = Noto_Sans_Arabic({ subsets: ["arabic"], variable: "--font-noto-arabic", display: "swap" });
@@ -25,12 +26,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr" className={`${nunito.variable} ${notoArabic.variable}`}>
       <body className="flex min-h-dvh flex-col antialiased">
         <a href="#contenu" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-xl focus:bg-sun-500 focus:px-4 focus:py-2 focus:font-bold focus:text-forest-900">Aller au contenu</a>
-        <SessionProvider>
-          <Suspense fallback={null}><RouteProgress /></Suspense>
-          <SiteHeader />
-          <main id="contenu" className="flex-1">{children}</main>
-          <SiteFooter />
-        </SessionProvider>
+        <ToastProvider>
+          <SessionProvider>
+            <Suspense fallback={null}><RouteProgress /></Suspense>
+            <SiteHeader />
+            <main id="contenu" className="flex-1">{children}</main>
+            <SiteFooter />
+          </SessionProvider>
+        </ToastProvider>
       </body>
     </html>
   );

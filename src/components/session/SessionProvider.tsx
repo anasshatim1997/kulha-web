@@ -18,7 +18,7 @@ export type SessionState = { status: "loading" } | { status: "anonymous" } | { s
 type SessionValue = {
   state: SessionState;
   /** Loads the current user again, for example right after a login. */
-  reload: () => Promise<void>;
+  reload: () => Promise<Me | null>;
   signOut: () => Promise<void>;
 };
 
@@ -28,12 +28,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [state, setState] = useState<SessionState>({ status: "loading" });
 
-  const reload = useCallback(async () => {
+  const reload = useCallback(async (): Promise<Me | null> => {
     try {
       const user = await api.get<Me>("/me");
       setState({ status: "authenticated", user });
+      return user;
     } catch {
       setState({ status: "anonymous" });
+      return null;
     }
   }, []);
 

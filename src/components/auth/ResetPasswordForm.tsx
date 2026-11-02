@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { Button, LinkButton } from "@/components/ui/Button";
@@ -10,16 +9,21 @@ import { api, ApiError } from "@/lib/api/client";
 import { describeError } from "@/lib/api/errors";
 import { messages } from "@/lib/i18n/messages";
 import { fieldErrors, resetPasswordSchema } from "@/lib/validation/schemas";
+import { useEmailTokenFragment } from "@/lib/auth/use-email-token-fragment";
+import { useToast } from "@/components/feedback/ToastProvider";
 
 const t = messages.auth.reset;
 
 export function ResetPasswordForm() {
-  const token = useSearchParams().get("token");
+  const { token, ready } = useEmailTokenFragment();
+  const toast = useToast();
   const [values, setValues] = useState({ password: "", confirm: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [status, setStatus] = useState<"form" | "done" | "invalid">("form");
+
+  if (!ready) return <p className="text-sm text-forest-600">{messages.common.loading}</p>;
 
   if (!token) {
     return (
@@ -45,11 +49,14 @@ export function ResetPasswordForm() {
     try {
       await api.post("/auth/reset-password", { token, newPassword: parsed.data.password });
       setStatus("done");
+      toast.success({ title: t.done });
     } catch (e) {
       if (e instanceof ApiError && e.status === 400 && e.title === "Invalid token") {
         setStatus("invalid");
+        toast.error({ title: t.invalid });
       } else {
         setFormError(describeError(e));
+        toast.error({ title: messages.errors.generic, description: describeError(e) });
       }
     } finally {
       setPending(false);
