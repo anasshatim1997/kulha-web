@@ -240,8 +240,8 @@ describe("forwardToBackend", () => {
     fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
 
     const response = await forwardToBackend(
-      request("/api/bff/auth/verify-email", { method: "POST", origin: APP_ORIGIN, body: { token: "t" } }),
-      ["auth", "verify-email"],
+      request("/api/bff/auth/reset-password", { method: "POST", origin: APP_ORIGIN, body: { token: "t", newPassword: "a-long-password" } }),
+      ["auth", "reset-password"],
     );
 
     expect(response.status).toBe(204);
