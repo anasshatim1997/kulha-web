@@ -75,7 +75,4 @@ export const authApi = {
   login: (email: string, password: string) =>
     requestJson<{ ok: true }>("/api/auth/login", { method: "POST", body: { email, password }, timeoutMs: 30000 }),
   logout: () => requestJson("/api/auth/logout", { method: "POST", body: {} }),
-  /** Confirms the email address and, when `signedIn` is true, the HttpOnly session cookies are already set. */
-  verifyEmail: (token: string) =>
-    requestJson<{ ok: true; signedIn: boolean }>("/api/auth/verify-email", { method: "POST", body: { token }, timeoutMs: 30000 }),
 };

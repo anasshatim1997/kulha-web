@@ -20,7 +20,7 @@ KULHA! connects people with Moroccan neighbourhood shops offering surplus food i
 ## Run locally
 
 ```bash
-cp .env .env.local
+cp .env.example .env.local
 corepack enable
 pnpm install --frozen-lockfile
 pnpm dev

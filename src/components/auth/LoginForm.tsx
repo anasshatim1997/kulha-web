@@ -28,14 +28,7 @@ export function LoginForm({ locale = "fr" }: { locale?: SiteLocale }) {
   const { reload } = useSession();
   const [values, setValues] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const oauthReason = searchParams.get("oauth");
-  const [formError, setFormError] = useState<string | null>(
-    !oauthReason || oauthReason === "cancelled" // pressing "Cancel" on Google's page is not an error
-      ? null
-      : oauthReason === "not_configured" || oauthReason === "service_unavailable"
-        ? t.googleUnavailable
-        : t.googleError,
-  );
+  const [formError, setFormError] = useState<string | null>(searchParams.get("oauth") ? t.googleError : null);
   const [pending, setPending] = useState(false);
   const submittingRef = useRef(false);
 

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { APP_ORIGIN, jsonResponse, problem, request, setCookies, stubFetch } from "@/test/helpers";
-import { handleLogin, handleLogout, handleVerifyEmail } from "./session";
+import { handleLogin, handleLogout } from "./session";
 
 const TOKENS = { accessToken: "access-secret", refreshToken: "refresh-secret", tokenType: "Bearer", expiresIn: 600 };
 
@@ -155,70 +155,5 @@ describe("handleLogout", () => {
     expect(ok.status).toBe(204);
     expect(evil.status).toBe(403);
     expect(fetchMock).not.toHaveBeenCalled();
-  });
-});
-
-
-describe("handleVerifyEmail", () => {
-  afterEach(() => {
-    vi.unstubAllGlobals();
-    vi.unstubAllEnvs();
-  });
-
-  const verify = (origin: string | null = APP_ORIGIN) =>
-    handleVerifyEmail(request("/api/auth/verify-email", { method: "POST", origin, body: { token: "t".repeat(43) } }));
-
-  it("signs the person in with HttpOnly cookies and never returns the tokens to the page", async () => {
-    const fetchMock = stubFetch();
-    fetchMock.mockResolvedValueOnce(jsonResponse(TOKENS));
-
-    const response = await verify();
-
-    expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ ok: true, signedIn: true });
-    expect(fetchMock.mock.calls[0][0]).toContain("/api/v1/auth/verify-email");
-    const cookies = setCookies(response);
-    expect(cookies.find((c) => c.startsWith("kulha_at=access-secret"))).toContain("HttpOnly");
-    expect(cookies.find((c) => c.startsWith("kulha_rt=refresh-secret"))).toContain("HttpOnly");
-  });
-
-  it("confirms the address without cookies when the API issues no session", async () => {
-    const fetchMock = stubFetch();
-    fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
-
-    const response = await verify();
-
-    expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ ok: true, signedIn: false });
-    expect(setCookies(response)).toEqual([]);
-  });
-
-  it("passes an invalid or expired link through without cookies", async () => {
-    const fetchMock = stubFetch();
-    fetchMock.mockResolvedValueOnce(problem(400, "Invalid token"));
-
-    const response = await verify();
-
-    expect(response.status).toBe(400);
-    expect(setCookies(response)).toEqual([]);
-  });
-
-  it("refuses requests that do not come from this site", async () => {
-    const fetchMock = stubFetch();
-
-    const response = await verify("https://evil.example");
-
-    expect(response.status).toBe(403);
-    expect(fetchMock).not.toHaveBeenCalled();
-  });
-
-  it("answers 502 when the API reply has no usable tokens", async () => {
-    const fetchMock = stubFetch();
-    fetchMock.mockResolvedValueOnce(jsonResponse({ accessToken: "", refreshToken: "" }));
-
-    const response = await verify();
-
-    expect(response.status).toBe(502);
-    expect(setCookies(response)).toEqual([]);
   });
 });

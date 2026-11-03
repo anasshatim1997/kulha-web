@@ -12,14 +12,13 @@ describe("resolveBackendPath", () => {
   });
 
   it("allows the public auth actions", () => {
-    for (const action of ["register", "resend-verification", "forgot-password", "reset-password"]) {
+    for (const action of ["register", "verify-email", "resend-verification", "forgot-password", "reset-password"]) {
       expect(resolveBackendPath(["auth", action])).toBe(`/api/v1/auth/${action}`);
     }
   });
 
   it("never exposes the endpoints that carry tokens", () => {
     expect(resolveBackendPath(["auth", "login"])).toBeNull();
-    expect(resolveBackendPath(["auth", "verify-email"])).toBeNull(); // answers with a session, so it has its own handler
     expect(resolveBackendPath(["auth", "refresh"])).toBeNull();
     expect(resolveBackendPath(["auth", "logout"])).toBeNull();
   });
