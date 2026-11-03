@@ -52,14 +52,14 @@ describe("locale navigation", () => {
     expect(switchLocalePath("/categories", "en")).toBe("/en/categories");
   });
 
-  it("falls back to the localized home for unsupported routes", () => {
-    expect(switchLocalePath("/blog/a-post", "ar")).toBe("/ar");
-    expect(switchLocalePath("/terms", "en")).toBe("/en");
-    expect(switchLocalePath("/en/blog", "fr")).toBe("/");
-  });
-
   it("keeps the account page, which exists in every language", () => {
     expect(switchLocalePath("/account", "en")).toBe("/en/account");
-    expect(switchLocalePath("/ar/account", "fr")).toBe("/account");
+    expect(switchLocalePath("/en/account", "fr")).toBe("/account");
+  });
+
+  it("falls back to the localized home for unsupported routes", () => {
+    expect(switchLocalePath("/blog/a-post", "ar")).toBe("/ar");
+    expect(switchLocalePath("/privacy", "en")).toBe("/en");
+    expect(switchLocalePath("/admin/merchants", "ar")).toBe("/ar");
   });
 });

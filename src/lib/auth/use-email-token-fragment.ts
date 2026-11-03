@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 
 export function parseEmailTokenFragment(hash: string): string | null {
-  // Only a real URL fragment counts: a token in a query string would be sent to servers and logs.
+  // Only a real URL fragment counts. URLSearchParams silently drops a leading "?", so without this
+  // check "?token=..." (a query string, which is sent to servers and logged) would be accepted.
   if (!hash.startsWith("#")) return null;
-  const fragment = hash.slice(1);
-  const candidate = new URLSearchParams(fragment).get("token");
+  const candidate = new URLSearchParams(hash.slice(1)).get("token");
   return candidate && /^[A-Za-z0-9_-]{24,200}$/.test(candidate) ? candidate : null;
 }
 

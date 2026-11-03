@@ -1,11 +1,11 @@
 /**
  * Which API routes the browser may reach through /api/bff.
- * The login, refresh and logout endpoints are deliberately NOT here: they return or take tokens,
- * and tokens must never be visible to JavaScript. They have their own handlers.
+ * The login, verify-email, refresh and logout endpoints are deliberately NOT here: they return or take
+ * tokens (verify-email signs the person in), and tokens must never be visible to JavaScript.
+ * They have their own handlers.
  */
 const PUBLIC_AUTH_ACTIONS = new Set([
   "register",
-  "verify-email",
   "resend-verification",
   "forgot-password",
   "reset-password",

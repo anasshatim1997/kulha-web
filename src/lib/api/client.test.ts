@@ -30,7 +30,7 @@ describe("api client", () => {
   it("returns nothing for 202 and 204", async () => {
     const fetchMock = stubFetch();
     fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
-    await expect(api.post("/auth/verify-email", { token: "t" })).resolves.toBeUndefined();
+    await expect(api.post("/auth/reset-password", { token: "t" })).resolves.toBeUndefined();
   });
 
   it("turns a problem response into an ApiError with Retry-After", async () => {
