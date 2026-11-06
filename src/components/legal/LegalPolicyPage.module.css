@@ -1,0 +1,95 @@
+.page {
+  width: min(100%, 1100px);
+}
+
+.draftNotice {
+  margin: 0 0 18px;
+  padding: 22px 24px;
+  border: 1px solid #d7b45d;
+  border-inline-start: 5px solid #b88622;
+  border-radius: 16px;
+  background: #fff8e7;
+  color: #4f4328;
+}
+
+.draftNotice strong {
+  display: block;
+  margin-bottom: 7px;
+  color: #674b13;
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.draftNotice p,
+.completion p {
+  margin: 0;
+  color: #625b4c;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.version {
+  margin: 0 0 20px;
+  color: #738075;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.sections {
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+
+.sections section {
+  scroll-margin-top: 100px;
+}
+
+.sections section p + p {
+  margin-top: 12px;
+}
+
+.sections section ul,
+.references ul {
+  margin: 12px 0 0;
+  padding-inline-start: 22px;
+}
+
+.sections section li,
+.references li {
+  margin: 7px 0;
+  color: #65786a;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.references {
+  margin-top: 22px;
+}
+
+.references a {
+  color: #15543b;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.completion {
+  margin-top: 22px;
+  padding: 22px 24px;
+  border: 1px solid #e4d6bc;
+  border-radius: 18px;
+  background: #fffdf8;
+}
+
+.completion h2 {
+  margin: 0 0 9px;
+  color: #173e2e;
+  font-size: 19px;
+  font-weight: 950;
+}
+
+@media (max-width: 700px) {
+  .draftNotice,
+  .completion {
+    padding: 18px;
+  }
+}

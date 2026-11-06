@@ -57,6 +57,19 @@ describe("locale navigation", () => {
     expect(switchLocalePath("/en/account", "fr")).toBe("/account");
   });
 
+  it("keeps the separate shop owner sign-up page in every language", () => {
+    expect(switchLocalePath("/register/merchant", "en")).toBe("/en/register/merchant");
+    expect(switchLocalePath("/en/register/merchant", "ar")).toBe("/ar/register/merchant");
+    expect(switchLocalePath("/ar/register/merchant", "fr")).toBe("/register/merchant");
+    expect(switchLocalePath("/register/other", "en")).toBe("/en");
+  });
+
+  it("keeps legal pages when switching languages", () => {
+    expect(switchLocalePath("/terms", "en")).toBe("/en/terms");
+    expect(switchLocalePath("/en/privacy", "ar")).toBe("/ar/privacy");
+    expect(switchLocalePath("/ar/terms", "fr")).toBe("/terms");
+  });
+
   it("falls back to the localized home for unsupported routes", () => {
     expect(switchLocalePath("/blog/a-post", "ar")).toBe("/ar");
     expect(switchLocalePath("/privacy", "en")).toBe("/en");

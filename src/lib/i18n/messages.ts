@@ -31,7 +31,7 @@ export const messages = {
   fields: {
     email: "Adresse e-mail",
     password: "Mot de passe",
-    passwordHint: "10 caractères minimum.",
+    passwordHint: "Au moins 10 caractères, avec des lettres, un chiffre et un symbole (niveau Bon).",
     newPassword: "Nouveau mot de passe",
     confirmPassword: "Confirmer le mot de passe",
     fullName: "Nom complet",
@@ -42,6 +42,7 @@ export const messages = {
     email: "Entrez une adresse e-mail valide.",
     emailTooLong: "L'adresse e-mail est trop longue.",
     passwordMin: "Le mot de passe doit contenir au moins 10 caractères.",
+    passwordGood: "Pour atteindre le niveau Bon, utilisez au moins 10 caractères avec des lettres, un chiffre et un symbole. Le niveau Excellent est facultatif.",
     passwordMax: "Le mot de passe est trop long (128 caractères maximum).",
     passwordsDiffer: "Les deux mots de passe ne correspondent pas.",
     fullNameMax: "Le nom est trop long (120 caractères maximum).",

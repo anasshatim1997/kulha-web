@@ -1,9 +1,10 @@
+import type { MouseEvent } from "react";
 import { buttonClass } from "@/components/ui/Button";
 
-export function GoogleOAuthButton({ label, next }: { label: string; next?: string }) {
+export function GoogleOAuthButton({ label, next, onClick, disabled = false }: { label: string; next?: string; disabled?: boolean; onClick?: (event: MouseEvent<HTMLAnchorElement>) => void }) {
   const query = next ? `?next=${encodeURIComponent(next)}` : "";
   return (
-    <a href={`/api/auth/google${query}`} className={buttonClass("ghost", "w-full !bg-white shadow-sm transition-shadow hover:!bg-white hover:shadow-md")}>
+    <a href={`/api/auth/google${query}`} data-skip-route-progress="true" onClick={(event) => { if (disabled) { event.preventDefault(); return; } onClick?.(event); /* Show the progress screen only when the browser really is leaving for Google. */ if (!event.defaultPrevented) window.dispatchEvent(new Event("kulha:navigation-start")); }} aria-disabled={disabled} tabIndex={disabled ? -1 : 0} className={buttonClass("ghost", `w-full !bg-white shadow-sm transition-shadow hover:!bg-white hover:shadow-md${disabled ? " pointer-events-none cursor-not-allowed opacity-50" : ""}`)}>
       <svg aria-hidden="true" viewBox="0 0 48 48" className="h-5 w-5">
         <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5Z" transform="translate(0 4)"/>
         <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.75 7.18l7.73 6C44.42 38.01 46.98 31.94 46.98 24.55Z"/>

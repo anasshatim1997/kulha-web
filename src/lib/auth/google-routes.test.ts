@@ -13,6 +13,7 @@ function configure() {
   vi.stubEnv("KULHA_BFF_SHARED_SECRET", "bff-secret-for-tests");
   vi.stubEnv("GOOGLE_CLIENT_ID", "client-id.apps.googleusercontent.com");
   vi.stubEnv("GOOGLE_CLIENT_SECRET", "google-client-secret");
+  vi.stubEnv("GOOGLE_OAUTH_STATE_SECRET", "test-only-long-secret-for-google-route-tests");
 }
 
 function callbackRequest(options: { query?: string; cookie?: string; headers?: Record<string, string> }) {
@@ -71,6 +72,16 @@ describe("GET /api/auth/google (start)", () => {
 
   it("goes back to the login page without any cookie when Google is not configured", async () => {
     vi.stubEnv("GOOGLE_CLIENT_ID", "");
+
+    const response = await startGoogle(request("/api/auth/google"));
+
+    expect(location(response).pathname).toBe("/login");
+    expect(location(response).searchParams.get("oauth")).toBe("not_configured");
+    expect(setCookies(response).some((c) => c.startsWith(`${GOOGLE_OAUTH_COOKIE}=`))).toBe(false);
+  });
+
+  it("requires the dedicated OAuth state secret", async () => {
+    vi.stubEnv("GOOGLE_OAUTH_STATE_SECRET", "");
 
     const response = await startGoogle(request("/api/auth/google"));
 

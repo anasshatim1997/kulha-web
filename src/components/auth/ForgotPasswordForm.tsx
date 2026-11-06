@@ -13,9 +13,9 @@ import { useToast } from "@/components/feedback/ToastProvider";
 
 const t = messages.auth.forgot;
 
-export function ForgotPasswordForm() {
+export function ForgotPasswordForm({ initialEmail = "" }: { initialEmail?: string }) {
   const toast = useToast();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(initialEmail);
   const [error, setError] = useState<string | undefined>();
   const [formError, setFormError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);

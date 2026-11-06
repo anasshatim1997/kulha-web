@@ -5,7 +5,7 @@ import { safeNext } from "@/lib/navigation";
 
 export async function GET(request: NextRequest) {
   const config = getConfig();
-  if (!config.googleClientId || !config.googleClientSecret || !config.bffSharedSecret) {
+  if (!config.googleClientId || !config.googleClientSecret || !config.googleOAuthStateSecret) {
     const login = new URL("/login", config.appOrigin);
     login.searchParams.set("oauth", "not_configured");
     return NextResponse.redirect(login);

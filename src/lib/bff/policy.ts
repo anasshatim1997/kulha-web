@@ -6,6 +6,7 @@
  */
 const PUBLIC_AUTH_ACTIONS = new Set([
   "register",
+  "email-status",
   "resend-verification",
   "forgot-password",
   "reset-password",

@@ -26,7 +26,7 @@ export function LoginForm({ locale = "fr" }: { locale?: SiteLocale }) {
   const explicitNext = searchParams.get("next");
   const next = safeNext(explicitNext, localePath(locale, "/account"));
   const { reload } = useSession();
-  const [values, setValues] = useState({ email: "", password: "" });
+  const [values, setValues] = useState(() => ({ email: searchParams.get("email")?.trim() ?? "", password: "" }));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const oauthReason = searchParams.get("oauth");
   const [formError, setFormError] = useState<string | null>(
@@ -83,7 +83,7 @@ export function LoginForm({ locale = "fr" }: { locale?: SiteLocale }) {
         <TextField id="email" name="email" label={t.email} type="email" autoComplete="email" inputMode="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} placeholder="nom@exemple.com" value={values.email} onChange={(e) => setValues({ ...values, email: e.target.value })} error={errors.email} />
         <PasswordField id="password" name="password" label={t.password} showLabel={t.show} hideLabel={t.hide} autoComplete="current-password" value={values.password} onChange={(e) => setValues({ ...values, password: e.target.value })} error={errors.password} />
         <div className="auth-forgot-row"><Link href="/forgot-password">{t.forgot}</Link></div>
-        {pending && <SubmitProgress title={t.loginPending} detail={t.submitProgressDetail} />}
+        <SubmitProgress title={t.loginPending} detail={t.submitProgressDetail} active={pending} />
         <Button type="submit" loading={pending} className="w-full">{pending ? t.loginPending : t.loginSubmit}</Button>
       </form>
       <div className="mt-5">

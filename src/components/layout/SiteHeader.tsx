@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSession } from "@/components/session/SessionProvider";
 import { Button, LinkButton } from "@/components/ui/Button";
-import { localeFromPath, localePath, switchLocalePath } from "@/lib/navigation";
+import { isMerchantWorkspacePath, localeFromPath, localePath, switchLocalePath } from "@/lib/navigation";
 import { siteCopy, type SiteLocale } from "@/lib/i18n/site-copy";
 import { Logo } from "./Logo";
 
@@ -47,7 +47,40 @@ export function SiteHeader() {
     ? localePath(locale, "/merchant/dashboard")
     : localePath(locale, "/account");
   const accountLabel = locale === "ar" ? "حسابي" : locale === "en" ? "My account" : "Mon compte";
-  const isAuthPage = /\/(login|register|forgot-password|reset-password|verify-email)\/?$/.test(pathname);
+  const isAuthPage = /\/(login|register(?:\/merchant)?|forgot-password|reset-password|verify-email)\/?$/.test(pathname);
+  const isWorkspace = isMerchantWorkspacePath(pathname);
+  const isMerchant = state.status === "authenticated" && state.user.roles.includes("MERCHANT");
+  const signOutLabel = locale === "ar" ? "تسجيل الخروج" : locale === "en" ? "Sign out" : "Déconnexion";
+
+  if (isWorkspace) {
+    // Focused merchant shell: logo, the two workspace pages, language and sign out. No marketing links.
+    const workspaceLinks = [
+      [locale === "ar" ? "لوحة المتجر" : locale === "en" ? "Dashboard" : "Tableau de bord", localePath(locale, "/merchant/dashboard"), /\/merchant\/(dashboard|apply)\/?$/.test(pathname)],
+      [locale === "ar" ? "عروضي" : locale === "en" ? "My offers" : "Mes offres", `/${locale}/merchant/offers`, /\/merchant\/offers/.test(pathname)],
+    ] as const;
+    return (
+      <header className="site-header site-header-workspace" dir={copy.dir}>
+        <div className="nav-shell">
+          <Link href={home} aria-label="Kulha!" className="brand-link"><Logo /></Link>
+          {isMerchant && (
+            <nav className="workspace-nav" aria-label={locale === "ar" ? "مساحة المتجر" : locale === "en" ? "Shop workspace" : "Espace commerçant"}>
+              {workspaceLinks.map(([label, href, active]) => <Link key={href} href={href} aria-current={active ? "page" : undefined}>{label}</Link>)}
+            </nav>
+          )}
+          <div className="workspace-actions">
+            <label className="language-select-label">
+              <span className="sr-only">{copy.nav.language}</span>
+              <select aria-label={copy.nav.language} value={locale} onChange={(event) => { window.dispatchEvent(new Event("kulha:navigation-start")); router.push(switchLocalePath(pathname, event.target.value as SiteLocale)); }}>
+                {localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+              </select>
+            </label>
+            {authenticated && <button type="button" className="workspace-signout" onClick={() => void signOut()}>{signOutLabel}</button>}
+          </div>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <header className={`site-header${isAuthPage ? " site-header-auth" : ""}`} dir={copy.dir}>
       <div className="nav-shell">

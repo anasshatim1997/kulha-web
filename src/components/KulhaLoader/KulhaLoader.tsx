@@ -16,6 +16,7 @@ export type KulhaLoaderProps = {
   /** Folder in /public that holds the sprites. Default '/kulha-loader'. */
   basePath?: string;
   className?: string;
+  panelClassName?: string;
 };
 
 /* [css class, file, extra animation class]. Order = z-order (bottom → top). */
@@ -77,10 +78,11 @@ export function KulhaLoader({
   label = 'Loading…',
   basePath = '/kulha-loader',
   className,
+  panelClassName,
 }: KulhaLoaderProps) {
   if (fullscreen) {
     return (
-      <div className={cx(styles.screen, styles[theme])} role="status" aria-live="polite" aria-busy="true">
+      <div className={cx(styles.screen, styles[theme], panelClassName)} role="status" aria-live="polite" aria-busy="true">
         <Logo size={size} basePath={basePath} className={className} />
         {message ? <p className={styles.message}>{message}</p> : null}
         <span className={styles.sr}>{message ?? label}</span>

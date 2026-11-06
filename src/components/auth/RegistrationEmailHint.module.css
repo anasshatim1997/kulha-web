@@ -1,0 +1,44 @@
+.panel {
+  display: grid;
+  gap: 9px;
+  margin-top: -4px;
+  padding: 13px 14px;
+  border: 1px solid #dbe8d8;
+  border-radius: 14px;
+  background: #f5f9f2;
+  color: #345846;
+}
+
+.message {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.6;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.actions a {
+  color: #145438;
+  font-size: 12px;
+  font-weight: 900;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.privacy {
+  margin: 0;
+  color: #64766a;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.actions a:focus-visible {
+  outline: 3px solid #d89f35;
+  outline-offset: 3px;
+  border-radius: 3px;
+}

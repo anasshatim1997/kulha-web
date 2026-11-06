@@ -26,10 +26,18 @@ export function localePath(locale: SiteLocale, path: string): string {
 export function switchLocalePath(pathname: string, locale: SiteLocale): string {
   const withoutPrefix = pathname.replace(localePrefix, "") || "/";
   const parts = withoutPrefix.split("?")[0].split("#")[0].split("/").filter(Boolean);
-  const supported = new Set(["how-it-works", "about", "categories", "faq", "for-shops", "pickup-policy", "contact", "login", "register", "account"]);
+  const supported = new Set(["how-it-works", "about", "categories", "faq", "for-shops", "pickup-policy", "contact", "terms", "privacy", "login", "register", "account"]);
   if (parts[0] === "merchant" && parts.length === 2 && ["apply", "dashboard"].includes(parts[1])) {
     return localePath(locale, `/${parts.join("/")}`);
   }
+  if (parts[0] === "register" && parts.length === 2 && parts[1] === "merchant") {
+    return localePath(locale, "/register/merchant");
+  }
   if (parts.length > 1 || (parts.length === 1 && !supported.has(parts[0]))) return localePath(locale, "/");
   return localePath(locale, withoutPrefix);
+}
+
+/** Merchant workspace pages (/merchant/..., /fr|en|ar/merchant/...) get a focused shell without the marketing navigation or footer. */
+export function isMerchantWorkspacePath(pathname: string): boolean {
+  return /^\/(?:(?:fr|en|ar)\/)?merchant(?:\/|$)/.test(pathname);
 }

@@ -6,26 +6,22 @@ import { authCopy } from "@/lib/i18n/auth-copy";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { localePath } from "@/lib/navigation";
 
-type AuthMode = "login" | "register";
+type AuthMode = "login";
 
-/** Split account surface: a clear KULHA! welcome on one half and a focused form on the other. */
-export function AuthCard({
-  title,
-  lead,
-  children,
-  locale = "fr",
-  mode,
-}: {
+type AuthCardProps = {
   title: string;
   lead?: string;
   children: ReactNode;
   locale?: SiteLocale;
   mode?: AuthMode;
-}) {
+};
+
+/** Sign-in and account recovery: a KULHA! welcome beside a focused form. (Sign-up has its own RegisterShell.) */
+export function AuthCard({ title, lead, children, locale = "fr", mode }: AuthCardProps) {
   const copy = authCopy[locale];
   const direction = locale === "ar" ? "rtl" : "ltr";
-  const panelTitle = mode === "login" ? copy.panelLoginTitle : mode === "register" ? copy.panelRegisterTitle : copy.panelTitle;
-  const panelLead = mode === "login" ? copy.panelLoginLead : mode === "register" ? copy.panelRegisterLead : copy.panelLead;
+  const panelTitle = mode === "login" ? copy.panelLoginTitle : copy.panelTitle;
+  const panelLead = mode === "login" ? copy.panelLoginLead : copy.panelLead;
 
   return (
     <div className="content-page auth-layout" dir={direction} lang={locale === "ar" ? "ar-MA" : locale}>
@@ -58,17 +54,17 @@ export function AuthCard({
 
       <section className="auth-form-shell" aria-labelledby="auth-title">
         <div className="auth-form-wrap">
-          <Card className={`auth-form-card${mode === "register" ? " auth-register-card" : " auth-login-card"}`}>
+          <Card className="auth-form-card auth-login-card">
             {mode && (
               <nav className="auth-mode-switch" aria-label={locale === "ar" ? "نوع الوصول" : locale === "en" ? "Account access" : "Accès au compte"}>
                 <Link href={localePath(locale, "/login")} aria-current={mode === "login" ? "page" : undefined} className={mode === "login" ? "is-active" : ""}>{copy.modeLogin}</Link>
-                <Link href={localePath(locale, "/register")} aria-current={mode === "register" ? "page" : undefined} className={mode === "register" ? "is-active" : ""}>{copy.modeRegister}</Link>
+                <Link href={localePath(locale, "/register")}>{copy.modeRegister}</Link>
               </nav>
             )}
             <p className="section-kicker auth-form-kicker">{copy.eyebrow}</p>
             <h1 id="auth-title">{title}</h1>
             {lead && <p className="auth-form-lead">{lead}</p>}
-            <div className={`auth-form-content${mode === "register" ? " auth-register-scroll" : ""}`}>{children}</div>
+            <div className="auth-form-content">{children}</div>
             <p className="auth-security-note"><span aria-hidden="true">✓</span>{copy.secureNote}</p>
           </Card>
         </div>

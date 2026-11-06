@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type InputHTMLAttributes } from "react";
 import { messages } from "@/lib/i18n/messages";
+import { getPasswordStrength } from "@/lib/auth/password-strength";
 import { inputClass } from "./TextField";
 
 type StrengthCopy = {
@@ -45,18 +46,7 @@ export function PasswordField({
   const errorId = error ? `${id}-error` : undefined;
   const strengthId = strengthCopy ? `${id}-strength` : undefined;
 
-  const strength = useMemo(() => {
-    const checks = {
-      minimum: password.length >= 10,
-      maximum: password.length > 0 && password.length <= 128,
-      letters: /\p{L}/u.test(password),
-      number: /\d/.test(password),
-      symbol: /[\p{P}\p{S}]/u.test(password),
-      longer: password.length >= 14,
-    };
-    const score = password && password.length <= 128 ? [checks.minimum, checks.letters, checks.number, checks.symbol, checks.longer].filter(Boolean).length : 0;
-    return { checks, score, percent: (score / 5) * 100 };
-  }, [password]);
+  const strength = useMemo(() => getPasswordStrength(password), [password]);
 
   const strengthLevel = password.length > 128 ? "invalid" : strength.score <= 1 ? "weak" : strength.score <= 3 ? "medium" : "strong";
   const strengthLabel = password.length > 128 ? strengthCopy?.invalid : strengthCopy?.levels[strength.score];

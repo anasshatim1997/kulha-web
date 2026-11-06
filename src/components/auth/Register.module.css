@@ -1,0 +1,169 @@
+/*
+ * Sign-up (customer and shop owner): the page is split 50 / 50 across the full width.
+ * Left: forest welcome panel. Right: one focused form. On desktop the whole thing is exactly one screen tall.
+ * Self-contained: no global overrides. The wrapper also carries the global `kulha-fill` class so it fills the space under the header.
+ */
+.page {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  color: #073324;
+}
+
+/* ---------- Welcome panel (left half) ---------- */
+.aside {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(24px, 5vh, 60px) clamp(28px, 4.5vw, 84px);
+  overflow: hidden;
+  color: #fcf4e7;
+  background:
+    radial-gradient(120% 80% at 100% 100%, rgb(253 190 46 / 0.2), transparent 58%),
+    linear-gradient(155deg, #073324 0%, #0a5638 100%);
+}
+.badge {
+  align-self: flex-start;
+  margin: 0 0 clamp(12px, 2.4vh, 24px);
+  padding: 6px 14px;
+  border: 1px solid rgb(252 244 231 / 0.28);
+  border-radius: 99px;
+  font-size: 12.5px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fdbe2e;
+}
+.asideTitle {
+  margin: 0;
+  max-width: 14em;
+  font-size: clamp(30px, 3.4vw, 50px);
+  line-height: 1.06;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: #fff8ec;
+}
+.asideLead { margin: clamp(10px, 2vh, 18px) 0 0; max-width: 44ch; font-size: clamp(15px, 1.25vw, 17.5px); line-height: 1.6; color: rgb(252 244 231 / 0.8); }
+.points { list-style: none; margin: clamp(16px, 3.2vh, 32px) 0 0; padding: 0; display: grid; gap: clamp(10px, 1.8vh, 16px); position: relative; z-index: 1; }
+.points li { display: flex; align-items: center; gap: 12px; font-size: clamp(15px, 1.2vw, 17px); font-weight: 800; color: #f5efdc; }
+.points li > span { display: grid; flex: 0 0 28px; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #fdbe2e; color: #073324; font-size: 13.5px; font-weight: 900; }
+
+/* The picture takes whatever height is left, so it can never push the page into a scroll. */
+.bagWrap { position: relative; flex: 1 1 0; min-height: 0; margin-top: 8px; }
+.bag { object-fit: contain; object-position: right bottom; filter: drop-shadow(0 18px 24px rgb(0 0 0 / 0.22)); }
+[dir="rtl"] .bag { object-position: left bottom; }
+
+.invite {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 14px;
+  margin-top: 12px;
+  padding: 14px 18px;
+  border: 1px solid rgb(252 244 231 / 0.22);
+  border-radius: 16px;
+  font-size: 14.5px;
+  color: rgb(252 244 231 / 0.88);
+}
+.invite a { font-weight: 900; color: #fdbe2e; text-decoration: underline; text-underline-offset: 4px; }
+
+/* ---------- Form (right half) ---------- */
+.formSide { display: flex; align-items: center; justify-content: center; min-width: 0; padding: clamp(18px, 3.5vh, 48px) clamp(20px, 4.5vw, 84px); }
+.card { width: 100%; max-width: 480px; }
+.cardTitle { margin: 0; font-size: clamp(26px, 2.5vw, 34px); line-height: 1.1; font-weight: 900; letter-spacing: -0.035em; color: #073324; }
+.cardLead { margin: 8px 0 0; font-size: 16px; line-height: 1.5; color: #5a7062; }
+.body { margin-top: clamp(14px, 2.6vh, 24px); }
+.switch { margin: clamp(14px, 2.4vh, 22px) 0 0; padding-top: clamp(12px, 2vh, 18px); border-top: 1px solid #e6ddcf; text-align: center; font-size: 15px; color: #5a7062; }
+.switch a { font-weight: 900; color: #073324; text-decoration: underline; text-underline-offset: 4px; }
+.secure { display: flex; align-items: flex-start; justify-content: center; gap: 8px; margin: 10px 0 0; font-size: 12.5px; line-height: 1.5; color: #78897d; text-align: start; }
+.secure svg { flex: 0 0 auto; margin-top: 1px; color: #2c8a57; }
+
+/* ---------- Stepper ---------- */
+.steps { list-style: none; display: flex; align-items: center; gap: 10px; margin: 0 0 clamp(12px, 2.2vh, 20px); padding: 0; }
+.steps li { display: flex; align-items: center; gap: 10px; font-size: 14.5px; font-weight: 800; color: #8a998e; }
+.steps li + li::before { content: ""; width: clamp(24px, 8vw, 56px); height: 2px; border-radius: 2px; background: #e0d8c6; }
+.dot { display: grid; place-items: center; width: 28px; height: 28px; border: 2px solid #cfc6b2; border-radius: 50%; background: #fff; font-size: 13px; font-weight: 900; color: #8a998e; }
+.stepCurrent { color: #073324 !important; }
+.stepCurrent .dot { border-color: #073324; background: #073324; color: #fcf4e7; }
+.stepDone { color: #2c6a49 !important; }
+.stepDone .dot { border-color: #2c8a57; background: #2c8a57; color: #fff; }
+.stepDone + li::before { background: #2c8a57 !important; }
+
+/* ---------- Form ---------- */
+.form { display: grid; gap: clamp(10px, 1.8vh, 16px); min-width: 0; }
+.form > * { min-width: 0; }
+.form label { display: block; font-size: 15px; font-weight: 800; color: #173f2e; }
+.form input:not([type="checkbox"]) {
+  width: 100%;
+  min-height: 46px;
+  padding-block: 9px;
+  padding-inline: 16px;
+  border: 1.5px solid #d8d0bf;
+  border-radius: 14px;
+  background: #fff;
+  color: #073324;
+  font-size: 16px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.form input::placeholder { color: #8c9b90; }
+.form input:not([type="checkbox"]):hover { border-color: #a9b9ab; }
+.form input:not([type="checkbox"]):focus { outline: none; border-color: #0a5638; box-shadow: 0 0 0 4px rgb(253 190 46 / 0.4); }
+.form input[aria-invalid="true"] { border-color: #d93320; background: #fff8f6; }
+.form p[role="alert"] { font-size: 13.5px; line-height: 1.45; font-weight: 800; color: #b42a18; }
+.form :global(.password-field) input { padding-inline-end: 88px; }
+.form :global(.password-toggle) { height: 34px; padding: 0 12px; border-radius: 10px; font-size: 13px; font-weight: 800; color: #0a4a31; }
+[dir="rtl"] .form input[type="email"], [dir="rtl"] .form input[type="tel"] { direction: ltr; text-align: left; }
+
+.match { margin: -4px 0 0; font-size: 13.5px; font-weight: 800; color: #287447; }
+.cta { width: 100%; min-height: 50px; border-radius: 14px; font-size: 17px; }
+.actions { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: center; }
+.back { min-height: 50px; padding-inline: 22px; border-radius: 14px; font-size: 16px; }
+.back:focus-visible { outline: 3px solid #fdbe2e; outline-offset: 2px; }
+
+/* ---------- Google ---------- */
+.social { margin-top: 2px; }
+.divider { display: flex; align-items: center; gap: 14px; margin: clamp(10px, 2vh, 18px) 0 clamp(8px, 1.6vh, 14px); font-size: 13.5px; font-weight: 800; color: #8a998e; }
+.divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #e6ddcf; }
+.social a { min-height: 46px; border: 1.5px solid #d8d0bf; border-radius: 14px; color: #173f2e; font-size: 16px; font-weight: 800; box-shadow: none; }
+.social a:hover { border-color: #0a5638; }
+
+/* ---------- Done ---------- */
+.done { display: grid; gap: 16px; }
+.doneLink { margin: 0; text-align: center; font-size: 14.5px; }
+.doneLink a { font-weight: 800; color: #0a4a31; text-decoration: underline; text-underline-offset: 4px; }
+
+/* ---------- Short desktop screens: optional text gives way so nothing scrolls ---------- */
+@media (min-width: 901px) and (max-height: 780px) {
+  .cardLead, .secure { display: none; }
+  .asideLead { display: none; }
+  .form input:not([type="checkbox"]) { min-height: 42px; padding-block: 6px; }
+  .cta, .back { min-height: 46px; }
+  .social a { min-height: 42px; }
+}
+@media (min-width: 901px) and (max-height: 640px) {
+  .points, .invite { display: none; }
+}
+
+/* ---------- Phones and tablets: stacked, compact welcome banner ---------- */
+@media (max-width: 900px) {
+  .page { grid-template-columns: 1fr; }
+  .aside { padding: 22px 20px; }
+  .badge { margin-bottom: 10px; }
+  .asideTitle { font-size: 26px; }
+  .asideLead { margin-top: 8px; font-size: 15px; }
+  .points, .bagWrap, .invite { display: none; }
+  .formSide { padding: 24px 18px 36px; align-items: flex-start; }
+  .card { max-width: 560px; }
+}
+@media (max-width: 560px) {
+  .actions { grid-template-columns: 1fr; }
+  .actions .back { order: 2; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .form input { transition: none; }
+}

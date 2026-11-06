@@ -1,14 +1,18 @@
-import { KulhaLoader } from "@/components/KulhaLoader";
+"use client";
 
-/** Full-screen logo-based feedback for sign-in, sign-up and OAuth redirects. */
-export function SubmitProgress({ title, detail }: { title: string; detail: string }) {
-  return (
-    <KulhaLoader
-      fullscreen
-      theme="dark"
-      size={236}
-      message={`${title} ${detail}`}
-      label={title}
-    />
-  );
+import { useEffect, useState } from "react";
+import { KulhaCurtain } from "@/components/navigation/KulhaCurtain";
+
+export function SubmitProgress({ title, detail, active }: { title: string; detail: string; active: boolean }) {
+  const [safetyExpired, setSafetyExpired] = useState(false);
+  useEffect(() => {
+    if (!active) {
+      setSafetyExpired(false);
+      return;
+    }
+    setSafetyExpired(false);
+    const timeout = setTimeout(() => setSafetyExpired(true), 18000);
+    return () => clearTimeout(timeout);
+  }, [active]);
+  return <KulhaCurtain active={active && !safetyExpired} message={`${title} ${detail}`} label={title}/>;
 }

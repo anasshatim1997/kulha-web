@@ -52,11 +52,18 @@ export async function forwardToBackend(request: NextRequest, segments: string[])
     return false;
   };
 
+  const forwardedHeaders: Record<string, string> = {};
+  const idempotencyKey = request.headers.get("Idempotency-Key");
+  if (idempotencyKey !== null) forwardedHeaders["Idempotency-Key"] = idempotencyKey;
+  const correlationId = request.headers.get("X-Correlation-Id");
+  if (correlationId !== null) forwardedHeaders["X-Correlation-Id"] = correlationId;
+
   const call = () => backendRequest(`${path}${request.nextUrl.search}`, {
     method: request.method,
     body,
     accessToken,
     clientIp,
+    forwardedHeaders,
   });
 
   try {

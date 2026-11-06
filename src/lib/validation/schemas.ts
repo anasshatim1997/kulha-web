@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { messages } from "@/lib/i18n/messages";
+import { isGoodPassword } from "@/lib/auth/password-strength";
 
 const v = messages.validation;
 
@@ -10,8 +11,16 @@ export const emailSchema = z
   .max(254, v.emailTooLong)
   .email(v.email);
 
-/** Same rule as the API: 10 to 128 characters. */
-export const passwordSchema = z.string().min(10, v.passwordMin).max(128, v.passwordMax);
+/** Good is the minimum accepted level; Excellent (14+ characters) is optional. */
+export const passwordSchema = z
+  .string()
+  .min(10, v.passwordMin)
+  .max(128, v.passwordMax)
+  .superRefine((password, context) => {
+    if (password.length >= 10 && password.length <= 128 && !isGoodPassword(password)) {
+      context.addIssue({ code: z.ZodIssueCode.custom, message: v.passwordGood });
+    }
+  });
 
 export const loginSchema = z.object({
   email: emailSchema,

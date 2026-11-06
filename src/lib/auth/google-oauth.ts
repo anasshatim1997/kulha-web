@@ -11,8 +11,8 @@ function base64url(value: Buffer | string): string {
 }
 
 function sign(payload: string): string {
-  const secret = getConfig().bffSharedSecret;
-  if (!secret) throw new Error("Google sign-in requires KULHA_BFF_SHARED_SECRET");
+  const secret = getConfig().googleOAuthStateSecret;
+  if (!secret) throw new Error("Google sign-in requires GOOGLE_OAUTH_STATE_SECRET");
   return createHmac("sha256", secret).update(payload).digest("base64url");
 }
 

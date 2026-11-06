@@ -1,0 +1,32 @@
+.panel {
+  display: grid;
+  gap: 8px;
+  margin-top: 2px;
+  padding: 13px 14px;
+  border: 1px solid #dbe8d8;
+  border-radius: 14px;
+  background: #f5f9f2;
+  color: #345846;
+}
+
+.message {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.action {
+  justify-self: start;
+  min-height: 35px;
+  padding: 7px 11px;
+  border: 1px solid #b9d0bb;
+  border-radius: 9px;
+  background: #fff;
+  color: #145438;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.action:hover { background: #eaf2e6; }
+.action:focus-visible { outline: 3px solid #d89f35; outline-offset: 3px; }

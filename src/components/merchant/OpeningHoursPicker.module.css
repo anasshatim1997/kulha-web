@@ -1,0 +1,82 @@
+/* Opening hours: one compact row per day, switch + native time pickers. */
+.picker { display: grid; gap: 10px; min-width: 0; border-radius: 16px; outline: none; }
+.picker:focus-visible { box-shadow: 0 0 0 4px rgb(253 190 46 / 0.4); }
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 4px 10px 4px 12px;
+  border: 1.5px solid #e2dac9;
+  border-radius: 14px;
+  background: #fff;
+  transition: border-color 0.15s, background 0.15s;
+}
+[dir="rtl"] .row { padding: 4px 12px 4px 10px; }
+.rowClosed { background: #f6f1e6; border-color: #ebe3d2; }
+.rowInvalid { border-color: #d93320; background: #fff8f6; }
+
+/* Switch */
+.day { display: flex; align-items: center; gap: 12px; min-width: 0; cursor: pointer; }
+.switchInput { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.track { position: relative; flex: 0 0 38px; width: 38px; height: 22px; border-radius: 99px; background: #cfc6b2; transition: background 0.15s; }
+.thumb { position: absolute; top: 3px; inset-inline-start: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgb(7 51 36 / 0.3); transition: inset-inline-start 0.15s; }
+.switchInput:checked + .track { background: #0a5638; }
+.switchInput:checked + .track .thumb { inset-inline-start: 19px; }
+.switchInput:focus-visible + .track { outline: 3px solid #fdbe2e; outline-offset: 2px; }
+.dayName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; font-weight: 800; color: #173f2e; }
+.rowClosed .dayName { color: #7a8b7f; }
+
+/* Times */
+.times { display: flex; align-items: center; gap: 6px; direction: ltr; }
+.time {
+  width: 112px;
+  min-height: 36px;
+  padding: 4px 6px;
+  border: 1.5px solid #d8d0bf;
+  border-radius: 10px;
+  background: #fffdf8;
+  color: #073324;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.time:hover { border-color: #a9b9ab; }
+.time:focus { outline: none; border-color: #0a5638; box-shadow: 0 0 0 3px rgb(253 190 46 / 0.45); }
+.time[aria-invalid="true"] { border-color: #d93320; }
+.dash { color: #8a998e; font-weight: 800; }
+.closed { padding-inline-end: 6px; font-size: 14px; font-weight: 800; color: #8a998e; }
+
+.copy {
+  justify-self: start;
+  padding: 4px 2px;
+  border: 0;
+  background: none;
+  color: #0a4a31;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 850;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+.copy:disabled { color: #9aa89e; text-decoration: none; cursor: default; }
+.copy:focus-visible { outline: 3px solid #fdbe2e; outline-offset: 2px; border-radius: 6px; }
+
+@media (max-height: 780px) and (min-width: 901px) {
+  .list { gap: 4px; }
+  .row { min-height: 40px; padding-block: 2px; }
+  .time { min-height: 32px; }
+}
+@media (max-width: 380px) {
+  .time { width: 96px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .row, .track, .thumb, .time { transition: none; }
+}

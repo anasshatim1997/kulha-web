@@ -1,0 +1,5 @@
+.curtain{position:fixed;inset:0;z-index:9999;pointer-events:auto;}
+.panel{transform:translateY(-100%);opacity:.9;transition:transform 390ms cubic-bezier(.22,1,.36,1),opacity 390ms ease;will-change:transform,opacity;}
+.entering .panel,.shown .panel{transform:translateY(0);opacity:1;}
+.leaving .panel{transform:translateY(-100%);opacity:.9;transition:transform 430ms cubic-bezier(.4,0,1,1),opacity 430ms ease;}
+@media(prefers-reduced-motion:reduce){.panel,.leaving .panel{transform:none;opacity:0;transition:opacity 150ms ease;}.entering .panel,.shown .panel{opacity:1}}

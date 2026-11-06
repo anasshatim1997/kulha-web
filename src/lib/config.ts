@@ -8,6 +8,7 @@ export function getConfig() {
     apiBaseUrl: (process.env.API_BASE_URL ?? "http://localhost:8080").replace(/\/+$/, ""),
     appOrigin: (process.env.APP_ORIGIN ?? "http://localhost:3000").replace(/\/+$/, ""),
     bffSharedSecret: process.env.KULHA_BFF_SHARED_SECRET ?? "",
+    googleOAuthStateSecret: process.env.GOOGLE_OAUTH_STATE_SECRET ?? "",
     googleClientId: process.env.GOOGLE_CLIENT_ID ?? "",
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
     googleRedirectUri: process.env.GOOGLE_REDIRECT_URI ?? `${(process.env.APP_ORIGIN ?? "http://localhost:3000").replace(/\/+$/, "")}/api/auth/google/callback`,

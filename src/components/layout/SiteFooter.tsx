@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { localeFromPath, localePath } from "@/lib/navigation";
+import { isMerchantWorkspacePath, localeFromPath, localePath } from "@/lib/navigation";
 import { siteCopy, type SiteLocale } from "@/lib/i18n/site-copy";
 import { Logo } from "./Logo";
 
@@ -11,7 +11,7 @@ export function SiteFooter() {
   const locale = localeFromPath(pathname) as SiteLocale;
   const t = siteCopy[locale].footer;
   const isAuthPage = /\/(login|register|forgot-password|reset-password|verify-email)(\/|$)/.test(pathname);
-  if (isAuthPage) return null;
+  if (isAuthPage || isMerchantWorkspacePath(pathname)) return null;
 
   const columns = [
     { title: t.explore, links: [[t.how, "/how-it-works"], [t.categories, "/categories"], [t.shops, "/for-shops"]] },
@@ -29,7 +29,7 @@ export function SiteFooter() {
         </div>
         {columns.map((column) => <div className="footer-col" key={column.title}>
           <h3>{column.title}</h3>
-          {column.links.map(([label, href]) => <Link href={href === "/privacy" || href === "/terms" ? href : localePath(locale, href)} key={href}>{label}</Link>)}
+          {column.links.map(([label, href]) => <Link href={localePath(locale, href)} key={href}>{label}</Link>)}
         </div>)}
       </div>
       <div className="footer-bottom"><span>© {new Date().getFullYear()} KULHA! · Maroc</span><span>{t.languages}: AR · FR · EN</span></div>

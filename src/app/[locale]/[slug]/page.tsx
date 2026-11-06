@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { AuthCard } from "@/components/layout/AuthCard";
 import { LoginForm } from "@/components/auth/LoginForm";
-import { RegisterForm } from "@/components/auth/RegisterForm";
+import { CustomerRegisterForm } from "@/components/auth/CustomerRegisterForm";
+import { RegisterShell } from "@/components/auth/RegisterShell";
 import { LocalizedInfoPage } from "@/components/landing/LocalizedInfoPage";
 import { BasketDiscovery } from "@/components/landing/BasketDiscovery";
 import { AccountPanel } from "@/components/auth/AccountPanel";
 import { pageCopy, infoSlugs } from "@/lib/i18n/page-copy";
 import { authCopy } from "@/lib/i18n/auth-copy";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
+import { localePath } from "@/lib/navigation";
 
 const locales: SiteLocale[] = ["fr", "ar", "en"];
 const extraSlugs = ["login", "register", "account"] as const;
@@ -42,9 +44,10 @@ export default async function LocaleSubPage({ params, searchParams }: { params: 
     if (slug === "login") {
       return <AuthCard locale={selectedLocale} mode="login" title={copy.loginTitle} lead={copy.loginLead}><Suspense><LoginForm locale={selectedLocale} /></Suspense></AuthCard>;
     }
+    // Old links used ?accountType=merchant; shop owners now have their own page.
     const accountType = Array.isArray(query.accountType) ? query.accountType[0] : query.accountType;
-    const initialAccountType = accountType?.toLowerCase() === "merchant" ? "MERCHANT" : null;
-    return <AuthCard locale={selectedLocale} mode="register" title={copy.registerTitle} lead={copy.registerLead}><RegisterForm locale={selectedLocale} initialAccountType={initialAccountType} /></AuthCard>;
+    if (accountType?.toLowerCase() === "merchant") redirect(localePath(selectedLocale, "/register/merchant"));
+    return <RegisterShell audience="CUSTOMER" locale={selectedLocale} title={copy.registerTitle} lead={copy.registerLead}><CustomerRegisterForm locale={selectedLocale} /></RegisterShell>;
   }
   if (!infoSlugs.includes(slug as (typeof infoSlugs)[number])) notFound();
   if (slug === "categories") return <><LocalizedInfoPage locale={selectedLocale} page={pageCopy[selectedLocale].categories} /><BasketDiscovery locale={selectedLocale} /></>;

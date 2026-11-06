@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { backendRequest, BackendUnavailableError } from "@/lib/auth/backend";
 import { applySessionCookies } from "@/lib/auth/cookies";
@@ -6,6 +7,9 @@ import { parseTokens } from "@/lib/auth/tokens";
 import { getConfig } from "@/lib/config";
 import { trustedProxyClientIp } from "@/lib/security/client-ip";
 import { localeFromPath, localePath, safeNext } from "@/lib/navigation";
+
+/** First 8 hex characters of SHA-256, to compare the shared secret with the API's log line without revealing it. */
+const fingerprint = (value: string) => (value ? createHash("sha256").update(value).digest("hex").slice(0, 8) : "NOT SET");
 
 /** Back to the login page in the language the person started from. */
 function loginPath(origin: string, reason: string, next?: string) {
@@ -40,11 +44,11 @@ export async function GET(request: NextRequest) {
     return response;
   };
 
-  if (!config.googleClientId || !config.googleClientSecret || !config.bffSharedSecret) {
+  if (!config.googleClientId || !config.googleClientSecret || !config.googleOAuthStateSecret) {
     logFailure("not_configured", {
       hasClientId: Boolean(config.googleClientId),
       hasClientSecret: Boolean(config.googleClientSecret),
-      hasBffSharedSecret: Boolean(config.bffSharedSecret),
+      hasOAuthStateSecret: Boolean(config.googleOAuthStateSecret),
     });
     return fail("not_configured");
   }
@@ -61,7 +65,7 @@ export async function GET(request: NextRequest) {
   if (oauth) next = oauth.next;
   if (!code || !returnedState || !oauth || returnedState !== oauth.state) {
     // Usually a missing/expired state cookie (more than 10 minutes on Google's page, or cookies blocked),
-    // or KULHA_BFF_SHARED_SECRET differing between instances.
+    // or GOOGLE_OAUTH_STATE_SECRET differing between instances.
     logFailure("invalid_state", { hasCode: Boolean(code), hasState: Boolean(returnedState), hasCookie: Boolean(oauth) });
     return fail("invalid_state");
   }
@@ -95,7 +99,7 @@ export async function GET(request: NextRequest) {
       clientIp: trustedProxyClientIp(request.headers), bffAuthenticated: true,
     });
     if (!upstream.ok) {
-      logFailure("api_rejected", { status: upstream.status });
+      logFailure("api_rejected", { status: upstream.status, bffSecretFingerprint: fingerprint(config.bffSharedSecret) });
       return fail(upstream.status === 503 ? "not_configured" : upstream.status === 429 ? "rate_limited" : "authentication_failed");
     }
     const tokens = parseTokens(await upstream.json().catch(() => null));

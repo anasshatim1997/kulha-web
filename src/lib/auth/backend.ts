@@ -13,6 +13,7 @@ export type BackendRequestInit = {
   accessToken?: string;
   clientIp?: string;
   bffAuthenticated?: boolean;
+  forwardedHeaders?: Record<string, string>;
 };
 
 /** Calls the Spring Boot API from the server. Never used from the browser. */
@@ -21,6 +22,7 @@ export async function backendRequest(path: string, init: BackendRequestInit): Pr
   const headers: Record<string, string> = { Accept: "application/json" };
   if (init.body !== undefined) headers["Content-Type"] = "application/json";
   if (init.accessToken) headers["Authorization"] = `Bearer ${init.accessToken}`;
+  if (init.forwardedHeaders) Object.assign(headers, init.forwardedHeaders);
   if (init.clientIp && isIP(init.clientIp) !== 0 && config.bffSharedSecret) {
     headers["X-Kulha-Client-IP"] = init.clientIp;
   }

@@ -8,11 +8,13 @@ import { PasswordField } from "@/components/ui/PasswordField";
 import { api, ApiError } from "@/lib/api/client";
 import { describeError } from "@/lib/api/errors";
 import { messages } from "@/lib/i18n/messages";
+import { authCopy } from "@/lib/i18n/auth-copy";
 import { fieldErrors, resetPasswordSchema } from "@/lib/validation/schemas";
 import { useEmailTokenFragment } from "@/lib/auth/use-email-token-fragment";
 import { useToast } from "@/components/feedback/ToastProvider";
 
 const t = messages.auth.reset;
+const passwordStrengthCopy = authCopy.fr.passwordStrength;
 
 export function ResetPasswordForm() {
   const { token, ready } = useEmailTokenFragment();
@@ -93,6 +95,7 @@ export function ResetPasswordForm() {
         name="password"
         label={messages.fields.newPassword}
         hint={messages.fields.passwordHint}
+        strengthCopy={passwordStrengthCopy}
         autoComplete="new-password"
         value={values.password}
         onChange={(e) => setValues({ ...values, password: e.target.value })}
