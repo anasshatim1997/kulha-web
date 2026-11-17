@@ -17,6 +17,7 @@ export type KulhaLoaderProps = {
   basePath?: string;
   className?: string;
   panelClassName?: string;
+  progress?: number;
 };
 
 /* [css class, file, extra animation class]. Order = z-order (bottom → top). */
@@ -37,6 +38,31 @@ const LAYERS: ReadonlyArray<readonly [string, string, string?]> = [
   ['spark4', 'spark-4', 'spark'],
 ];
 
+const preloadCache = new Map<string, Promise<void>>();
+
+export function preloadKulhaLoaderAssets(basePath = "/kulha-loader"): Promise<void> {
+  const existing = preloadCache.get(basePath);
+  if (existing) return existing;
+
+  const urls = LAYERS.map(([, file]) => `${basePath}/${file}.webp`);
+  const result = Promise.all(urls.map((url) => new Promise<void>((resolve) => {
+    const image = new Image();
+    const finish = () => {
+      const decoded = typeof image.decode === "function"
+        ? image.decode().catch(() => undefined)
+        : Promise.resolve();
+      void decoded.then(() => resolve());
+    };
+    image.onload = finish;
+    image.onerror = () => resolve();
+    image.src = url;
+    if (image.complete && image.naturalWidth > 0) finish();
+  }))).then(() => undefined);
+
+  preloadCache.set(basePath, result);
+  return result;
+}
+
 const cx = (...c: Array<string | false | undefined>) => c.filter(Boolean).join(' ');
 const mod = (names?: string) => (names ? names.split(' ').map((n) => styles[n]).join(' ') : '');
 
@@ -52,7 +78,9 @@ function Logo({ size, basePath, className }: { size: number; basePath: string; c
               src={`${basePath}/${file}.webp`}
               alt=""
               draggable={false}
-              decoding="async"
+              loading="eager"
+              fetchPriority="high"
+              decoding="sync"
               className={cx(styles[pos], mod(anim))}
             />
           ))}
@@ -79,12 +107,25 @@ export function KulhaLoader({
   basePath = '/kulha-loader',
   className,
   panelClassName,
+  progress,
 }: KulhaLoaderProps) {
   if (fullscreen) {
     return (
       <div className={cx(styles.screen, styles[theme], panelClassName)} role="status" aria-live="polite" aria-busy="true">
         <Logo size={size} basePath={basePath} className={className} />
         {message ? <p className={styles.message}>{message}</p> : null}
+        {typeof progress === "number" ? (
+          <div
+            className={styles.progress}
+            role="progressbar"
+            aria-label={label}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.max(0, Math.min(100, Math.round(progress)))}
+          >
+            <span style={{ transform: `scaleX(${Math.max(0, Math.min(100, progress)) / 100})` }} />
+          </div>
+        ) : null}
         <span className={styles.sr}>{message ?? label}</span>
       </div>
     );

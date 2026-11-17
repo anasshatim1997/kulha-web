@@ -14,11 +14,6 @@ import { useToast } from "@/components/feedback/ToastProvider";
 
 const t = messages.auth.verify;
 
-/**
- * The link in the email only opens this page. The one-time token is used when the person clicks the
- * button, so mail scanners that open links, and React's double rendering in development, cannot use it up.
- * Once the address is confirmed the API signs the person in, so they continue straight to their account.
- */
 export function VerifyEmailPanel() {
   const { token, ready } = useEmailTokenFragment();
   const toast = useToast();
@@ -47,10 +42,15 @@ export function VerifyEmailPanel() {
       const result = await authApi.verifyEmail(token as string);
       if (result.signedIn) {
         const user = await reload();
+        const savedNext = window.localStorage.getItem("kulha:after-verification-path");
+        window.localStorage.removeItem("kulha:after-verification-path");
+        const merchantApplicationPath = savedNext && /^\/(?:en\/|ar\/)?merchant\/dashboard$/.test(savedNext)
+          ? savedNext
+          : null;
         setStatus("signedIn");
         toast.success({ title: t.doneSignedIn });
         window.dispatchEvent(new Event("kulha:navigation-start"));
-        router.replace(user?.roles.includes("MERCHANT") ? "/merchant/dashboard" : "/account");
+        router.replace(merchantApplicationPath ?? (user?.roles.includes("MERCHANT") ? "/merchant/dashboard" : "/offers"));
         return;
       }
       setStatus("done");
@@ -70,7 +70,7 @@ export function VerifyEmailPanel() {
     return (
       <div className="space-y-5">
         <Alert tone="success">{t.doneSignedIn}</Alert>
-        <LinkButton href="/account" className="w-full">
+        <LinkButton href="/offers" className="w-full">
           {t.continueToAccount}
         </LinkButton>
       </div>

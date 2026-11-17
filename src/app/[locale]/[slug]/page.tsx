@@ -13,7 +13,7 @@ import { authCopy } from "@/lib/i18n/auth-copy";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { localePath } from "@/lib/navigation";
 
-const locales: SiteLocale[] = ["fr", "ar", "en"];
+const locales: SiteLocale[] = ["en", "ar"];
 const extraSlugs = ["login", "register", "account"] as const;
 type AuthSlug = (typeof extraSlugs)[number];
 

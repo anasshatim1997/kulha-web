@@ -3,15 +3,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useSession } from "@/components/session/SessionProvider";
 import { useToast } from "@/components/feedback/ToastProvider";
 import { Alert } from "@/components/ui/Alert";
 import { Button, LinkButton } from "@/components/ui/Button";
 import { ApiError, api } from "@/lib/api/client";
 import { describeError } from "@/lib/api/errors";
-import { OpeningHoursPicker } from "@/components/merchant/OpeningHoursPicker";
+import { CustomerPreview, formatPreviewHours } from "@/components/merchant/shop-setup/CustomerPreview";
+import { SetupStepper } from "@/components/merchant/shop-setup/SetupStepper";
+import { WeekHoursEditor } from "@/components/merchant/shop-setup/WeekHoursEditor";
+import styles from "@/components/merchant/shop-setup/ShopSetup.module.css";
 import { merchantCopy } from "@/lib/i18n/merchant-copy";
+import { shopSetupCopy } from "@/lib/i18n/shop-setup-copy";
 import { defaultWeek, describeStoredHours, parseWeek, serializeWeek, validateWeek, type DayKey, type WeekSchedule } from "@/lib/merchant/opening-hours";
 import { localeFromPath, localePath } from "@/lib/navigation";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
@@ -24,23 +28,26 @@ type MerchantRecord = {
     businessType: BusinessType;
     address: string;
     city: string;
+    district: string | null;
+    latitude: number | null;
+    longitude: number | null;
     phone: string;
     openingHours: string;
+    pickupInstructions: string | null;
     status: MerchantStatus;
     decisionReason: string | null;
     createdAt: string;
 };
-type MerchantFormValues = Omit<MerchantRecord, "id" | "status" | "decisionReason" | "createdAt" | "openingHours"> & { hours: WeekSchedule };
-type TextFieldKey = "name" | "address" | "city" | "phone";
+type MerchantFormValues = Omit<MerchantRecord, "id" | "status" | "decisionReason" | "createdAt" | "openingHours" | "district" | "pickupInstructions"> & { district: string; hours: WeekSchedule };
+type TextFieldKey = "name" | "address" | "city" | "district" | "phone";
 type FieldKey = TextFieldKey | "openingHours";
 type FormErrors = Partial<Record<FieldKey, string>>;
 type Copy = (typeof merchantCopy)[SiteLocale];
 
-const emptyValues = (): MerchantFormValues => ({ name: "", businessType: "BAKERY", address: "", city: "", phone: "", hours: defaultWeek() });
+const emptyValues = (): MerchantFormValues => ({ name: "", businessType: "BAKERY", address: "", city: "", district: "", latitude: null, longitude: null, phone: "", hours: defaultWeek() });
 const businessTypes: BusinessType[] = ["BAKERY", "CAFE", "RESTAURANT", "SUPERMARKET", "OTHER"];
-const textFields: TextFieldKey[] = ["name", "address", "city", "phone"];
 const fieldIds: Record<FieldKey, string> = {
-    name: "merchant-name", address: "merchant-address", city: "merchant-city", phone: "merchant-phone", openingHours: "merchant-hours",
+    name: "merchant-name", address: "merchant-address", city: "merchant-city", district: "merchant-district", phone: "merchant-phone", openingHours: "merchant-hours",
 };
 const STEP_FIELDS: FieldKey[][] = [["name"], ["address", "city", "phone"], ["openingHours"]];
 const LAST_STEP = STEP_FIELDS.length - 1;
@@ -51,6 +58,7 @@ function validate(values: MerchantFormValues, t: Copy): { errors: FormErrors; ho
     if (!values.name.trim() || values.name.length > 120) errors.name = t.required;
     if (!values.address.trim() || values.address.length > 255) errors.address = t.required;
     if (!values.city.trim() || values.city.length > 80) errors.city = t.required;
+    if (values.district.length > 80) errors.district = t.required;
     if (!values.phone.trim() || values.phone.length > 30) errors.phone = t.required;
     else if (!/^[+0-9 ()-]{6,30}$/.test(values.phone.trim())) errors.phone = t.phoneError;
     const problem = validateWeek(values.hours);
@@ -87,11 +95,70 @@ function addressFromGeo(geo: GeoAddress) {
     const area = geo.neighbourhood ?? geo.suburb ?? geo.quarter;
     const address = [street, area].filter(Boolean).join(", ").slice(0, 255);
     const city = (geo.city ?? geo.town ?? geo.village ?? geo.municipality ?? geo.county ?? "").slice(0, 80);
-    return { address, city };
+    return { address, city, district: (area ?? "").slice(0, 80) };
 }
 
 function Shell({ locale, children }: { locale: SiteLocale; children: ReactNode }) {
     return <div className="mw-shell" dir={locale === "ar" ? "rtl" : "ltr"}>{children}</div>;
+}
+
+function ShopMapLocation({ merchant, locale, onUpdated }: { merchant: MerchantRecord; locale: SiteLocale; onUpdated: (merchant: MerchantRecord) => void }) {
+    const [saving, setSaving] = useState(false);
+    const [status, setStatus] = useState<{ kind: "success" | "error"; text: string } | null>(null);
+    const t = merchantCopy[locale];
+
+    async function saveCurrentLocation() {
+        if (!navigator.geolocation) {
+            setStatus({ kind: "error", text: t.mapLocationUnsupported });
+            return;
+        }
+        setSaving(true);
+        setStatus(null);
+        try {
+            const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 });
+            });
+            const updated = await api.put<MerchantRecord>("/merchants/me", {
+                name: merchant.name,
+                businessType: merchant.businessType,
+                address: merchant.address,
+                city: merchant.city,
+                district: merchant.district,
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                phone: merchant.phone,
+                openingHours: merchant.openingHours,
+                pickupInstructions: merchant.pickupInstructions,
+            });
+            onUpdated(updated);
+            setStatus({ kind: "success", text: t.mapLocationSaved });
+        } catch (error) {
+            const denied = typeof error === "object" && error !== null && "code" in error && Number((error as { code?: number }).code) === 1;
+            setStatus({ kind: "error", text: denied ? t.mapLocationDenied : t.mapLocationError });
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    const hasPin = typeof merchant.latitude === "number" && typeof merchant.longitude === "number";
+    return (
+        <section className="mw-map-location" aria-labelledby="mw-map-location-title">
+            <div className="mw-map-location__copy">
+                <span className="mw-map-location__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M19 10.1c0 5.2-7 10.2-7 10.2S5 15.3 5 10.1a7 7 0 1 1 14 0Z" /><circle cx="12" cy="10" r="2.3" /></svg>
+                </span>
+                <div>
+                    <h3 id="mw-map-location-title">{t.mapLocationTitle}</h3>
+                    <p>{hasPin ? t.mapLocationReadyBody : t.mapLocationBody}</p>
+                    {hasPin && <small>{merchant.latitude?.toFixed(5)}, {merchant.longitude?.toFixed(5)}</small>}
+                </div>
+            </div>
+            <Button variant="accent" loading={saving} disabled={saving} onClick={() => void saveCurrentLocation()}>
+                {saving ? t.mapLocationSaving : hasPin ? t.mapLocationUpdate : t.mapLocationSet}
+            </Button>
+            {status && <p className={`mw-map-location__status is-${status.kind}`} role="status">{status.text}</p>}
+        </section>
+    );
 }
 
 function CheckIcon() {
@@ -138,59 +205,6 @@ function Aside({ title, body, children }: { title: string; body?: string; childr
     );
 }
 
-/** The dossier being sent, shown inside step 1 of the tracker. Fills in live as the merchant types. */
-function DossierCard({ t, values, showHours }: { t: Copy; values: MerchantFormValues; showHours: boolean }) {
-    const hours = useMemo(() => {
-        if (!showHours) return null;
-        try {
-            return describeStoredHours(serializeWeek(values.hours), t.daysShort, t.hoursClosed);
-        } catch {
-            return null;
-        }
-    }, [showHours, values.hours, t.daysShort, t.hoursClosed]);
-    const name = values.name.trim();
-    const address = [values.address.trim(), values.city.trim()].filter(Boolean).join(", ");
-    const phone = values.phone.trim();
-    const place = [t.types[values.businessType], values.city.trim()].filter(Boolean).join(" · ");
-    const icon = { viewBox: "0 0 24 24", width: 15, height: 15, fill: "none", stroke: "currentColor", strokeWidth: 2.4, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true } as const;
-    return (
-        <div className="mw-dossier">
-            <div className="mw-dossier-who">
-                <i className="mw-dossier-avatar" aria-hidden="true">{name ? Array.from(name)[0]?.toUpperCase() : "K"}</i>
-                <div className="mw-dossier-id">
-                    <b className={`mw-dossier-name${name ? "" : " is-empty"}`}>{name || t.namePlaceholder}</b>
-                    <p className="mw-dossier-meta">{place}</p>
-                </div>
-            </div>
-            <div className="mw-dossier-rows">
-                <div className={`mw-dossier-row${address ? "" : " is-empty"}`}>
-                    <svg {...icon}><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z" /><circle cx="12" cy="10" r="2.3" /></svg>
-                    <p>{address || t.address}</p>
-                </div>
-                <div className={`mw-dossier-row${phone ? "" : " is-empty"}`}>
-                    <svg {...icon}><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z" /></svg>
-                    <p>{phone || t.phone}</p>
-                </div>
-                <div className={`mw-dossier-row${hours ? "" : " is-empty"}`}>
-                    <svg {...icon}><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg>
-                    <p>{hours || t.openingHours}</p>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function Field({ id, label, hint, error, children }: { id: string; label: string; hint?: string; error?: string; children: ReactNode }) {
-    return (
-        <div className="mw-field">
-            <label htmlFor={id} className="mw-label">{label}</label>
-            {children}
-            {hint && !error && <p id={`${id}-hint`} className="mw-hint">{hint}</p>}
-            {error && <p id={`${id}-error`} role="alert" className="mw-error">{error}</p>}
-        </div>
-    );
-}
-
 function describedBy(id: string, hint?: string, error?: string) {
     return [error ? `${id}-error` : hint ? `${id}-hint` : null].filter(Boolean).join(" ") || undefined;
 }
@@ -200,6 +214,7 @@ function Details({ merchant, t, wide = false }: { merchant: MerchantRecord; t: C
         <dl className={`mw-details${wide ? " mw-details-row" : ""}`}>
             <div><dt>{t.type}</dt><dd>{t.types[merchant.businessType]}</dd></div>
             <div><dt>{t.city}</dt><dd>{merchant.city}</dd></div>
+            {merchant.district && <div><dt>{t.district}</dt><dd>{merchant.district}</dd></div>}
             <div className="mw-details-wide"><dt>{t.address}</dt><dd>{merchant.address}</dd></div>
             <div><dt>{t.phone}</dt><dd>{merchant.phone}</dd></div>
             <div className="mw-details-hours"><dt>{t.openingHours}</dt><dd>{describeStoredHours(merchant.openingHours, t.daysShort, t.hoursClosed)}</dd></div>
@@ -250,6 +265,9 @@ export function MerchantApplicationPanel() {
                     businessType: record.businessType,
                     address: record.address,
                     city: record.city,
+                    district: record.district ?? "",
+                    latitude: record.latitude ?? null,
+                    longitude: record.longitude ?? null,
                     phone: record.phone,
                     hours: week ?? defaultWeek(),
                 });
@@ -305,20 +323,26 @@ export function MerchantApplicationPanel() {
             const position = await new Promise<GeolocationPosition>((resolve, reject) => {
                 navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
             });
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            setValues((current) => ({ ...current, latitude, longitude }));
             const controller = new AbortController();
             const timer = window.setTimeout(() => controller.abort(), 8000);
             const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=18&lat=${position.coords.latitude}&lon=${position.coords.longitude}&accept-language=${locale}`;
             const response = await fetch(url, { signal: controller.signal }).finally(() => window.clearTimeout(timer));
             if (!response.ok) throw new Error("reverse-geocoding-failed");
             const data = (await response.json()) as { address?: GeoAddress };
-            const found = data.address ? addressFromGeo(data.address) : { address: "", city: "" };
+            const found = data.address ? addressFromGeo(data.address) : { address: "", city: "", district: "" };
             if (!found.address && !found.city) throw new Error("no-address");
             setValues((current) => ({
                 ...current,
                 address: found.address || current.address,
                 city: found.city || current.city,
+                district: found.district || current.district,
+                latitude,
+                longitude,
             }));
-            setErrors((current) => ({ ...current, address: undefined, city: undefined }));
+            setErrors((current) => ({ ...current, address: undefined, city: undefined, district: undefined }));
             setLocateStatus({ kind: "ok", text: pick(locale, "Address filled in. Please check it and fix anything that's off.", "Adresse remplie. Vérifiez-la et corrigez si besoin.", "تم ملء العنوان. تحقق منه وصحح ما يلزم.") });
         } catch (error) {
             const denied = typeof error === "object" && error !== null && "code" in error && (error as { code: number }).code === 1;
@@ -370,8 +394,12 @@ export function MerchantApplicationPanel() {
                 businessType: values.businessType,
                 address: values.address.trim(),
                 city: values.city.trim(),
+                district: values.district.trim() || null,
                 phone: values.phone.trim(),
                 openingHours: serializeWeek(values.hours),
+                pickupInstructions: merchant?.pickupInstructions ?? null,
+                latitude: values.latitude,
+                longitude: values.longitude,
             };
             const saved = merchant
                 ? await api.put<MerchantRecord>("/merchants/me", payload)
@@ -448,7 +476,7 @@ export function MerchantApplicationPanel() {
                     <Image src="/brand/kulha-bag.png" alt="" width={300} height={275} priority className="mw-hero-bag" />
                 </section>
 
-                <Link href={`/${locale}/merchant/offers/new`} className={`mw-primary-action mw-rise`} style={{ animationDelay: "90ms" }}>
+                <Link href={localePath(locale, "/merchant/offers/new")} className={`mw-primary-action mw-rise`} style={{ animationDelay: "90ms" }}>
           <span className="mw-primary-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
           </span>
@@ -460,7 +488,7 @@ export function MerchantApplicationPanel() {
                 </Link>
 
                 <div className={`mw-secondary mw-rise`} style={{ animationDelay: "180ms" }}>
-                    <Link href={`/${locale}/merchant/offers`} className="mw-action">
+                    <Link href={localePath(locale, "/merchant/offers")} className="mw-action">
             <span className="mw-action-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 8.5h16l-1.4 11H5.4L4 8.5Z" /><path d="M8 9V6.8a4 4 0 0 1 8 0V9" /></svg>
             </span>
@@ -488,6 +516,7 @@ export function MerchantApplicationPanel() {
                         <Link href={localePath(locale, "/account")} className="mw-back-link">{t.workspaceBack}</Link>
                     </div>
                     <Details merchant={merchant} t={t} wide />
+                    <ShopMapLocation merchant={merchant} locale={locale} onUpdated={setMerchant} />
                 </section>
             </Shell>
         );
@@ -521,48 +550,27 @@ export function MerchantApplicationPanel() {
         );
     }
 
-    const stepTitles = [t.sectionShop, t.sectionPlace, t.sectionHours];
+    const copy = shopSetupCopy[locale];
     const isLast = step === LAST_STEP;
-    const filled = textFields.filter((key) => values[key].trim().length > 0).length + (hoursTouched ? 1 : 0);
-    const total = textFields.length + 1;
-    const progress = t.progressLabel.replace("{done}", String(filled)).replace("{total}", String(total));
+    const stepHeadings = [
+        [copy.shopTitle, copy.shopLead],
+        [copy.locationTitle, copy.locationLead],
+        [copy.hoursTitle, copy.hoursLead],
+    ] as const;
+    const previewMeta = [copy.types[values.businessType], values.city.trim()].filter(Boolean).join(" · ");
+    const previewHours = hoursTouched || isLast ? formatPreviewHours(values.hours, t.daysShort, t.hoursClosed) : null;
 
     return (
-        <Shell key="form" locale={locale}>
-            <header className={`mw-head mw-rise`}>
-                <h1 className="mw-title">{t.setupTitle}</h1>
-                <p className="mw-lead">{t.setupLead}</p>
+        <div key="form" className={styles.page} dir={locale === "ar" ? "rtl" : "ltr"}>
+            <header className={styles.head}>
+                <h1>{copy.title}</h1>
+                <p>{copy.lead}</p>
             </header>
 
-            <div className="mw-grid">
-                <div className={`mw-aside-slot mw-slide-in`}>
-                    <Aside title={t.whyTitle} body={t.whyBody}>
-                        <Tracker t={t} current={1} detail={<DossierCard t={t} values={values} showHours={hoursTouched || step === LAST_STEP} />} />
-                        <div className="mw-progress">
-                            <div className="mw-progress-text"><span>{progress}</span></div>
-                            <div className="mw-progress-track" role="progressbar" aria-label={progress} aria-valuemin={0} aria-valuemax={total} aria-valuenow={filled}>
-                                <span style={{ width: `${(filled / total) * 100}%` }} />
-                            </div>
-                        </div>
-                    </Aside>
-                </div>
+            <SetupStepper label={copy.stepperLabel} steps={copy.steps} current={step} onGoTo={goTo} />
 
-                <section className={`mw-card mw-form-card mw-rise`} style={{ animationDelay: "120ms" }} aria-labelledby="merchant-form-title">
-                    <ol className="mw-stepper" aria-label={t.formTitle}>
-                        {stepTitles.map((title, index) => {
-                            const done = index < step;
-                            const active = index === step;
-                            return (
-                                <li key={title} className={`mw-stepper-item ${done ? "mw-stepper-done" : ""} ${active ? "mw-stepper-active" : ""}`} aria-current={active ? "step" : undefined}>
-                                    <button type="button" className="mw-stepper-button" disabled={index > step} onClick={() => goTo(index)}>
-                                        <span className="mw-stepper-dot" aria-hidden="true">{done ? <CheckIcon /> : index + 1}</span>
-                                        <span className="mw-stepper-label">{title}</span>
-                                    </button>
-                                </li>
-                            );
-                        })}
-                    </ol>
-
+            <div className={styles.layout}>
+                <section className={styles.card} aria-labelledby="merchant-form-title">
                     {merchant?.status === "REJECTED" && (
                         <Alert tone="error" title={t.rejectedTitle}>
                             {t.rejectedBody}{merchant.decisionReason ? ` ${t.reason}: ${merchant.decisionReason}` : ""}
@@ -570,21 +578,26 @@ export function MerchantApplicationPanel() {
                     )}
                     {fieldError && <Alert tone="error">{fieldError}</Alert>}
 
-                    <form onSubmit={onSubmit} noValidate className="mw-form">
-                        <div key={step} className={`mw-pane ${direction === "back" ? "mw-pane-back" : "mw-pane-forward"}`}>
-                            <h2 id="merchant-form-title" className="mw-step-title">{stepTitles[step]}</h2>
+                    <form onSubmit={onSubmit} noValidate className={styles.form}>
+                        <div key={step} className={`${styles.pane}${direction === "back" ? ` ${styles.paneBack}` : ""}`}>
+                            <div className={styles.cardHead}>
+                                <h2 id="merchant-form-title">{stepHeadings[step][0]}</h2>
+                                <p>{stepHeadings[step][1]}</p>
+                            </div>
 
                             {step === 0 && (
                                 <>
-                                    <Field id={fieldIds.name} label={t.name} error={errors.name}>
-                                        <input id={fieldIds.name} name="name" className="mw-input" autoComplete="organization" maxLength={120} placeholder={t.namePlaceholder} value={values.name} onChange={(event) => setText("name", event.target.value)} aria-invalid={errors.name ? true : undefined} aria-describedby={describedBy(fieldIds.name, undefined, errors.name)} required />
-                                    </Field>
-                                    <div className="mw-field" role="radiogroup" aria-labelledby="merchant-type-label">
-                                        <span id="merchant-type-label" className="mw-label">{t.type}</span>
-                                        <div className="mw-chips">
+                                    <div className={styles.field}>
+                                        <label htmlFor={fieldIds.name} className={styles.label}>{copy.shopName}</label>
+                                        <input id={fieldIds.name} name="name" className={styles.input} autoComplete="organization" maxLength={120} placeholder={t.namePlaceholder} value={values.name} onChange={(event) => setText("name", event.target.value)} aria-invalid={errors.name ? true : undefined} aria-describedby={describedBy(fieldIds.name, undefined, errors.name)} required />
+                                        {errors.name && <p id={`${fieldIds.name}-error`} role="alert" className={styles.error}>{errors.name}</p>}
+                                    </div>
+                                    <div className={styles.field} role="radiogroup" aria-labelledby="merchant-type-label">
+                                        <span id="merchant-type-label" className={styles.label}>{copy.businessType}</span>
+                                        <div className={styles.chips}>
                                             {businessTypes.map((type) => (
-                                                <button key={type} type="button" role="radio" aria-checked={values.businessType === type} className="mw-chip" onClick={() => setValues((current) => ({ ...current, businessType: type }))}>
-                                                    {t.types[type]}
+                                                <button key={type} type="button" role="radio" aria-checked={values.businessType === type} className={styles.chip} onClick={() => setValues((current) => ({ ...current, businessType: type }))}>
+                                                    {copy.types[type]}
                                                 </button>
                                             ))}
                                         </div>
@@ -594,63 +607,74 @@ export function MerchantApplicationPanel() {
 
                             {step === 1 && (
                                 <>
-                                    <div className="mw-locate">
-                                        <button type="button" className="mw-locate-button" onClick={() => void detectLocation()} disabled={locating}>
+                                    <div>
+                                        <button type="button" className={styles.locate} onClick={() => void detectLocation()} disabled={locating}>
                                             {locating ? (
-                                                <span className="mw-spinner" aria-hidden="true" />
+                                                <span className={styles.spinner} aria-hidden="true" />
                                             ) : (
-                                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2" /><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3" /><circle cx="12" cy="12" r="7.5" /></svg>
+                                                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2" /><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3" /><circle cx="12" cy="12" r="7.5" /></svg>
                                             )}
                                             {locating ? pick(locale, "Locating you…", "Localisation en cours…", "جارٍ تحديد موقعك…") : pick(locale, "Use my current location", "Utiliser ma position actuelle", "استخدم موقعي الحالي")}
                                         </button>
-                                        {locateStatus && <p role="status" className={locateStatus.kind === "ok" ? "mw-locate-ok" : "mw-locate-error"}>{locateStatus.text}</p>}
+                                        {locateStatus && <p role="status" className={`${styles.locateStatus} ${locateStatus.kind === "ok" ? styles.locateOk : styles.locateError}`}>{locateStatus.text}</p>}
                                     </div>
-                                    <Field id={fieldIds.address} label={t.address} hint={t.addressHint} error={errors.address}>
-                                        <input id={fieldIds.address} name="address" className="mw-input" autoComplete="street-address" maxLength={255} value={values.address} onChange={(event) => setText("address", event.target.value)} aria-invalid={errors.address ? true : undefined} aria-describedby={describedBy(fieldIds.address, t.addressHint, errors.address)} required />
-                                    </Field>
-                                    <div className="mw-row">
-                                        <Field id={fieldIds.city} label={t.city} error={errors.city}>
-                                            <input id={fieldIds.city} name="city" className="mw-input" autoComplete="address-level2" maxLength={80} placeholder={t.cityPlaceholder} value={values.city} onChange={(event) => setText("city", event.target.value)} aria-invalid={errors.city ? true : undefined} aria-describedby={describedBy(fieldIds.city, undefined, errors.city)} required />
-                                        </Field>
-                                        <Field id={fieldIds.phone} label={t.phone} hint={t.phoneHint} error={errors.phone}>
-                                            <input id={fieldIds.phone} name="phone" type="tel" className="mw-input" autoComplete="tel" inputMode="tel" maxLength={30} placeholder="+212 6 12 34 56 78" value={values.phone} onChange={(event) => setText("phone", event.target.value)} aria-invalid={errors.phone ? true : undefined} aria-describedby={describedBy(fieldIds.phone, t.phoneHint, errors.phone)} required />
-                                        </Field>
+                                    <div className={styles.field}>
+                                        <label htmlFor={fieldIds.address} className={styles.label}>{copy.street}</label>
+                                        <input id={fieldIds.address} name="address" className={styles.input} autoComplete="street-address" maxLength={255} value={values.address} onChange={(event) => setText("address", event.target.value)} aria-invalid={errors.address ? true : undefined} aria-describedby={describedBy(fieldIds.address, copy.streetHint, errors.address)} required />
+                                        {errors.address ? <p id={`${fieldIds.address}-error`} role="alert" className={styles.error}>{errors.address}</p> : <p id={`${fieldIds.address}-hint`} className={styles.hint}>{copy.streetHint}</p>}
+                                    </div>
+                                    <div className={styles.twoCol}>
+                                        <div className={styles.field}>
+                                            <label htmlFor={fieldIds.city} className={styles.label}>{copy.city}</label>
+                                            <input id={fieldIds.city} name="city" className={styles.input} autoComplete="address-level2" maxLength={80} placeholder={t.cityPlaceholder} value={values.city} onChange={(event) => setText("city", event.target.value)} aria-invalid={errors.city ? true : undefined} aria-describedby={describedBy(fieldIds.city, undefined, errors.city)} required />
+                                            {errors.city && <p id={`${fieldIds.city}-error`} role="alert" className={styles.error}>{errors.city}</p>}
+                                        </div>
+                                        <div className={styles.field}>
+                                            <label htmlFor={fieldIds.phone} className={styles.label}>{copy.phone}</label>
+                                            <input id={fieldIds.phone} name="phone" type="tel" className={styles.input} autoComplete="tel" inputMode="tel" maxLength={30} placeholder="+212 6 12 34 56 78" value={values.phone} onChange={(event) => setText("phone", event.target.value)} aria-invalid={errors.phone ? true : undefined} aria-describedby={describedBy(fieldIds.phone, copy.phoneHint, errors.phone)} required />
+                                            {errors.phone ? <p id={`${fieldIds.phone}-error`} role="alert" className={styles.error}>{errors.phone}</p> : <p id={`${fieldIds.phone}-hint`} className={styles.hint}>{copy.phoneHint}</p>}
+                                        </div>
                                     </div>
                                 </>
                             )}
 
                             {step === 2 && (
-                                <div className="mw-field">
-                                    <span id="merchant-hours-label" className="mw-label">{t.openingHours}</span>
-                                    <OpeningHoursPicker
+                                <div className={styles.field}>
+                                    <WeekHoursEditor
                                         id={fieldIds.openingHours}
-                                        labelId="merchant-hours-label"
+                                        labelId="merchant-form-title"
+                                        locale={locale}
                                         value={values.hours}
                                         onChange={setHours}
-                                        copy={t}
+                                        copy={copy}
+                                        daysShort={t.daysShort}
+                                        daysLong={t.days}
+                                        closedLabel={t.hoursClosed}
                                         errorDay={hoursErrorDay}
                                         describedBy={errors.openingHours ? `${fieldIds.openingHours}-error` : undefined}
                                     />
-                                    {errors.openingHours && <p id={`${fieldIds.openingHours}-error`} role="alert" className="mw-error">{errors.openingHours}</p>}
-                                    {!errors.openingHours && previousHours && <p className="mw-hint">{t.hoursPrevious.replace("{text}", previousHours)}</p>}
+                                    {errors.openingHours && <p id={`${fieldIds.openingHours}-error`} role="alert" className={styles.error}>{errors.openingHours}</p>}
+                                    {!errors.openingHours && previousHours && <p className={styles.hint}>{t.hoursPrevious.replace("{text}", previousHours)}</p>}
                                 </div>
                             )}
                         </div>
 
-                        <div className="mw-nav">
+                        <div className={styles.actions}>
                             {step > 0 && (
-                                <button type="button" className="mw-back" onClick={() => goTo(step - 1)}>
-                                    <svg className="mw-back-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7" /></svg>
-                                    {pick(locale, "Back", "Retour", "رجوع")}
+                                <button type="button" className={styles.back} onClick={() => goTo(step - 1)}>
+                                    <svg className={styles.backIcon} viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7" /></svg>
+                                    {copy.back}
                                 </button>
                             )}
-                            <Button type="submit" variant="accent" loading={isLast && submitting} className="mw-submit">
-                                {isLast ? (submitting ? t.submitting : merchant ? t.update : t.submit) : pick(locale, "Continue", "Continuer", "متابعة")}
-                            </Button>
+                            <button type="submit" className={styles.primary} disabled={isLast && submitting} aria-busy={isLast && submitting ? true : undefined}>
+                                {isLast ? (submitting ? t.submitting : merchant ? t.update : t.submit) : copy.next}
+                            </button>
                         </div>
                     </form>
                 </section>
+
+                <CustomerPreview copy={copy} name={values.name} namePlaceholder={t.namePlaceholder} meta={previewMeta} hours={previewHours} />
             </div>
-        </Shell>
+        </div>
     );
 }

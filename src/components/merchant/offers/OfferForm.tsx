@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { offerCopy } from "@/lib/i18n/offer-copy";
+import { offerCategories, offerCategoryLabel } from "@/lib/offers/public-copy";
+import { localePath } from "@/lib/navigation";
 import { casablancaLocalToUtc, utcToCasablancaLocal } from "@/lib/time/casablanca";
 import { idempotencyEntry, type IdempotencyEntry } from "@/lib/offers/idempotency";
 import { allergenPayload, DEFAULT_ALLERGENS_STATUS } from "@/lib/offers/allergens";
@@ -11,6 +13,7 @@ import { validateOfferDraft } from "@/lib/offers/form-validation";
 import { parseOfferProblem } from "@/lib/offers/problem";
 import { SubmitProgress } from "@/components/auth/SubmitProgress";
 import { OfferDetailSkeleton, OfferFormSkeleton } from "./OfferSkeletons";
+import { PriceSticker } from "@/components/ui/PriceSticker";
 
 type Offer = {
   id: string;
@@ -31,7 +34,7 @@ type Offer = {
   version: number;
 };
 
-const categories = ["BREAD_PASTRY", "PREPARED_MEALS", "GROCERIES", "FRUIT_VEG", "DRINKS", "SURPRISE_BASKET", "OTHER"];
+const categories = offerCategories;
 const allergens = ["GLUTEN", "CRUSTACEANS", "EGGS", "FISH", "PEANUTS", "SOY", "MILK", "NUTS", "CELERY", "MUSTARD", "SESAME", "SULPHITES", "LUPIN", "MOLLUSCS"];
 
 export function OfferForm({ locale, offerId }: { locale: string; offerId?: string }) {
@@ -162,7 +165,7 @@ export function OfferForm({ locale, offerId }: { locale: string; offerId?: strin
       }
       createKey.current = null;
       const saved = result as { id: string };
-      router.push(`/${locale}/merchant/offers/${saved.id}`);
+      router.push(localePath(locale as "fr" | "en" | "ar", `/merchant/offers/${saved.id}`));
       router.refresh();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : t.error);
@@ -194,13 +197,13 @@ export function OfferForm({ locale, offerId }: { locale: string; offerId?: strin
         return;
       }
       if (name === "cancel") {
-        router.push(`/${locale}/merchant/offers`);
+        router.push(localePath(locale as "fr" | "en" | "ar", "/merchant/offers"));
         return;
       }
       const result = await response.json() as Offer;
       if (name === "duplicate") {
         duplicateKey.current = null;
-        router.push(`/${locale}/merchant/offers/${result.id}`);
+        router.push(localePath(locale as "fr" | "en" | "ar", `/merchant/offers/${result.id}`));
       } else {
         setOffer(result);
       }
@@ -216,39 +219,50 @@ export function OfferForm({ locale, offerId }: { locale: string; offerId?: strin
     <p>{t.loadDetailError}</p>
     <div className="flex flex-wrap gap-3">
       <button type="button" onClick={() => setLoadAttempt(value => value + 1)} className="rounded-xl bg-forest-700 px-5 py-3 font-bold text-white">{t.retry}</button>
-      <Link href={`/${locale}/merchant/offers`} className="px-3 py-3 underline">{t.back}</Link>
+      <Link href={locale === "fr" ? "/merchant/offers" : `/${locale}/merchant/offers`} className="px-3 py-3 underline">{t.back}</Link>
     </div>
   </section>;
 
-  const input = "w-full rounded-xl border border-forest-200 bg-white px-4 py-3 text-forest-900";
-  return <><SubmitProgress title={t.saving} detail={t.pleaseWait} active={saving}/><form onSubmit={submit} className="grid gap-5 rounded-3xl border border-forest-100 bg-white p-6 shadow-sm" aria-busy={saving}>
+  const input = "mw-input";
+  const previewPriceMinor = price.trim() && Number.isFinite(Number(price)) && Number(price) > 0
+    ? Math.round(Number(price) * 100)
+    : null;
+  const previewOriginalPriceMinor = originalPrice.trim() && Number.isFinite(Number(originalPrice)) && Number(originalPrice) > 0
+    ? Math.round(Number(originalPrice) * 100)
+    : null;
+  const pricePreviewLabel = locale === "ar" ? "معاينة السعر" : locale === "en" ? "Price preview" : "Aperçu du prix";
+  return <><SubmitProgress title={t.saving} detail={t.pleaseWait} active={saving}/><form onSubmit={submit} className="mw-form mw-form-card mw-card" aria-busy={saving}>
     {error && <p role="alert" className="rounded-xl bg-tomato-50 p-3 text-tomato-600">{error}</p>}
-    <label className="grid gap-2">{t.titleField}<input required maxLength={120} value={title} onChange={event => { setTitle(event.target.value); clearFieldError("title"); }} aria-invalid={Boolean(fieldErrors.title)} aria-describedby={fieldErrors.title ? "title-error" : undefined} className={input}/>{fieldMessage("title")}</label>
-    <label className="grid gap-2">{t.description}<textarea required maxLength={1000} value={description} onChange={event => { setDescription(event.target.value); clearFieldError("description"); }} aria-invalid={Boolean(fieldErrors.description)} aria-describedby={fieldErrors.description ? "description-error" : undefined} rows={4} className={input}/>{fieldMessage("description")}</label>
-    <label className="grid gap-2">{t.category}<select value={category} onChange={event => { setCategory(event.target.value); clearFieldError("category"); }} aria-invalid={Boolean(fieldErrors.category)} aria-describedby={fieldErrors.category ? "category-error" : undefined} className={input}>{categories.map(value => <option key={value}>{value}</option>)}</select>{fieldMessage("category")}</label>
-    <div className="grid gap-4 sm:grid-cols-3">
-      <label className="grid gap-2">{t.price}<input type="number" min="1" max="2000" step="0.01" required value={price} onChange={event => { setPrice(event.target.value); clearFieldError("priceMinor"); }} aria-invalid={Boolean(fieldErrors.priceMinor)} aria-describedby={fieldErrors.priceMinor ? "priceMinor-error" : undefined} className={input}/>{fieldMessage("priceMinor")}</label>
-      <label className="grid gap-2">{t.originalPrice}<input type="number" min="1" max="2000" step="0.01" value={originalPrice} onChange={event => { setOriginalPrice(event.target.value); clearFieldError("originalPriceMinor"); }} aria-invalid={Boolean(fieldErrors.originalPriceMinor)} aria-describedby={fieldErrors.originalPriceMinor ? "originalPriceMinor-error" : undefined} className={input}/>{fieldMessage("originalPriceMinor")}</label>
-      <label className="grid gap-2">{t.quantity}<input type="number" min="1" max="500" required value={quantity} onChange={event => { setQuantity(event.target.value); clearFieldError("quantityTotal"); }} aria-invalid={Boolean(fieldErrors.quantityTotal)} aria-describedby={fieldErrors.quantityTotal ? "quantityTotal-error" : undefined} className={input}/>{fieldMessage("quantityTotal")}</label>
+    <label className="mw-field">{t.titleField}<input required maxLength={120} value={title} onChange={event => { setTitle(event.target.value); clearFieldError("title"); }} aria-invalid={Boolean(fieldErrors.title)} aria-describedby={fieldErrors.title ? "title-error" : undefined} className={input}/>{fieldMessage("title")}</label>
+    <label className="mw-field">{t.description}<textarea required maxLength={1000} value={description} onChange={event => { setDescription(event.target.value); clearFieldError("description"); }} aria-invalid={Boolean(fieldErrors.description)} aria-describedby={fieldErrors.description ? "description-error" : undefined} rows={4} className={input}/>{fieldMessage("description")}</label>
+    <label className="mw-field">{t.category}<select value={category} onChange={event => { setCategory(event.target.value); clearFieldError("category"); }} aria-invalid={Boolean(fieldErrors.category)} aria-describedby={fieldErrors.category ? "category-error" : undefined} className={input}>{categories.map(value => <option key={value} value={value}>{offerCategoryLabel(locale as "fr" | "en" | "ar", value)}</option>)}</select>{fieldMessage("category")}</label>
+    <div className="mw-grid sm:grid-cols-3">
+      <label className="mw-field">{t.price}<input type="number" min="1" max="2000" step="0.01" required value={price} onChange={event => { setPrice(event.target.value); clearFieldError("priceMinor"); }} aria-invalid={Boolean(fieldErrors.priceMinor)} aria-describedby={fieldErrors.priceMinor ? "priceMinor-error" : undefined} className={input}/>{fieldMessage("priceMinor")}</label>
+      <label className="mw-field">{t.originalPrice}<input type="number" min="1" max="2000" step="0.01" value={originalPrice} onChange={event => { setOriginalPrice(event.target.value); clearFieldError("originalPriceMinor"); }} aria-invalid={Boolean(fieldErrors.originalPriceMinor)} aria-describedby={fieldErrors.originalPriceMinor ? "originalPriceMinor-error" : undefined} className={input}/>{fieldMessage("originalPriceMinor")}</label>
+      <label className="mw-field">{t.quantity}<input type="number" min="1" max="500" required value={quantity} onChange={event => { setQuantity(event.target.value); clearFieldError("quantityTotal"); }} aria-invalid={Boolean(fieldErrors.quantityTotal)} aria-describedby={fieldErrors.quantityTotal ? "quantityTotal-error" : undefined} className={input}/>{fieldMessage("quantityTotal")}</label>
     </div>
-    <div className="grid gap-4 sm:grid-cols-2">
-      <label className="grid gap-2">{t.pickupStart}<input type="datetime-local" value={pickupStart} onChange={event => { setPickupStart(event.target.value); clearFieldError("pickupStart"); }} aria-invalid={Boolean(fieldErrors.pickupStart)} aria-describedby={fieldErrors.pickupStart ? "pickupStart-error" : undefined} className={input}/>{fieldMessage("pickupStart")}</label>
-      <label className="grid gap-2">{t.pickupEnd}<input type="datetime-local" value={pickupEnd} onChange={event => { setPickupEnd(event.target.value); clearFieldError("pickupEnd"); }} aria-invalid={Boolean(fieldErrors.pickupEnd)} aria-describedby={fieldErrors.pickupEnd ? "pickupEnd-error" : undefined} className={input}/>{fieldMessage("pickupEnd")}</label>
+    {previewPriceMinor !== null && <div className="mw-price-preview" aria-live="polite">
+      <span>{pricePreviewLabel}</span>
+      <PriceSticker priceMinor={previewPriceMinor} originalPriceMinor={previewOriginalPriceMinor} locale={locale as "fr" | "en" | "ar"} size="md" />
+    </div>}
+    <div className="mw-grid sm:grid-cols-2">
+      <label className="mw-field">{t.pickupStart}<input type="datetime-local" value={pickupStart} onChange={event => { setPickupStart(event.target.value); clearFieldError("pickupStart"); }} aria-invalid={Boolean(fieldErrors.pickupStart)} aria-describedby={fieldErrors.pickupStart ? "pickupStart-error" : undefined} className={input}/>{fieldMessage("pickupStart")}</label>
+      <label className="mw-field">{t.pickupEnd}<input type="datetime-local" value={pickupEnd} onChange={event => { setPickupEnd(event.target.value); clearFieldError("pickupEnd"); }} aria-invalid={Boolean(fieldErrors.pickupEnd)} aria-describedby={fieldErrors.pickupEnd ? "pickupEnd-error" : undefined} className={input}/>{fieldMessage("pickupEnd")}</label>
     </div>
-    <fieldset className="grid gap-3">
+    <fieldset className="mw-stack">
       <legend className="font-bold">{t.allergens}</legend>
       <label className="flex items-center gap-2"><input type="checkbox" checked={allergensUnknown} onChange={event => { setAllergensUnknown(event.target.checked); clearFieldError("allergensStatus"); clearFieldError("allergens"); }}/>{t.unknown}</label>
       {!allergensUnknown && <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{allergens.map(value => <label key={value} className="flex items-center gap-2 text-sm"><input type="checkbox" checked={allergenCodes.includes(value)} onChange={event => { setAllergenCodes(current => event.target.checked ? [...current, value] : current.filter(item => item !== value)); clearFieldError("allergens"); }}/>{value}</label>)}</div>}
       {fieldMessage("allergensStatus")}{fieldMessage("allergens")}
     </fieldset>
-    <label className="grid gap-2">{t.foodNotes}<textarea maxLength={500} rows={2} value={foodNotes} onChange={event => { setFoodNotes(event.target.value); clearFieldError("foodNotes"); }} aria-invalid={Boolean(fieldErrors.foodNotes)} aria-describedby={fieldErrors.foodNotes ? "foodNotes-error" : undefined} className={input}/>{fieldMessage("foodNotes")}</label>
-    <div className="flex flex-wrap items-center gap-3">
-      <button disabled={saving} className="rounded-xl bg-forest-700 px-5 py-3 font-extrabold text-white">{offerId ? t.save : t.create}</button>
-      <Link href={`/${locale}/merchant/offers`} className="px-3 py-3 underline">{t.back}</Link>
-      {offerId && offer?.status === "PUBLISHED" && <button type="button" disabled={saving} onClick={() => void action("unpublish")} className="rounded-xl bg-sun-500 px-4 py-3 font-extrabold">{t.unpublish}</button>}
-      {offerId && (offer?.status === "DRAFT" || offer?.status === "UNPUBLISHED") && <button type="button" disabled={saving} onClick={() => void action("publish")} className="rounded-xl bg-sun-500 px-4 py-3 font-extrabold">{t.publish}</button>}
-      {offerId && <button type="button" disabled={saving} onClick={() => void action("duplicate")} className="rounded-xl border px-4 py-3">{t.duplicate}</button>}
-      {offerId && offer?.status === "DRAFT" && <button type="button" disabled={saving} onClick={() => void action("cancel")} className="rounded-xl border border-tomato-200 px-4 py-3 text-tomato-600">{t.cancel}</button>}
+    <label className="mw-field">{t.foodNotes}<textarea maxLength={500} rows={2} value={foodNotes} onChange={event => { setFoodNotes(event.target.value); clearFieldError("foodNotes"); }} aria-invalid={Boolean(fieldErrors.foodNotes)} aria-describedby={fieldErrors.foodNotes ? "foodNotes-error" : undefined} className={input}/>{fieldMessage("foodNotes")}</label>
+    <div className="mw-actions-row">
+      <button disabled={saving} className="mw-primary-action">{offerId ? t.save : t.create}</button>
+      <Link href={locale === "fr" ? "/merchant/offers" : `/${locale}/merchant/offers`} className="px-3 py-3 underline">{t.back}</Link>
+      {offerId && offer?.status === "PUBLISHED" && <button type="button" disabled={saving} onClick={() => void action("unpublish")} className="mw-action">{t.unpublish}</button>}
+      {offerId && (offer?.status === "DRAFT" || offer?.status === "UNPUBLISHED") && <button type="button" disabled={saving} onClick={() => void action("publish")} className="mw-action">{t.publish}</button>}
+      {offerId && <button type="button" disabled={saving} onClick={() => void action("duplicate")} className="mw-action">{t.duplicate}</button>}
+      {offerId && offer?.status === "DRAFT" && <button type="button" disabled={saving} onClick={() => void action("cancel")} className="mw-action mw-error">{t.cancel}</button>}
     </div>
   </form></>;
 }

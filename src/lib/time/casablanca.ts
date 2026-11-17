@@ -31,3 +31,27 @@ export function casablancaLocalToUtc(value: string) {
   }
   return new Date(timestamp).toISOString();
 }
+
+function shiftLocalMinutes(value: string, minutes: number): string {
+  const [date, time] = value.split("T");
+  const [year, month, day] = date.split("-").map(Number);
+  const [hour, minute] = time.split(":").map(Number);
+  const shifted = new Date(Date.UTC(year, month - 1, day, hour, minute + minutes));
+  return `${shifted.getUTCFullYear()}-${String(shifted.getUTCMonth() + 1).padStart(2, "0")}-${String(shifted.getUTCDate()).padStart(2, "0")}T${String(shifted.getUTCHours()).padStart(2, "0")}:${String(shifted.getUTCMinutes()).padStart(2, "0")}`;
+}
+
+export function getCasablancaQuickPickupRanges(now = new Date()) {
+  const localNow = utcToCasablancaLocal(now.toISOString());
+  const today = localNow.slice(0, 10);
+  const tomorrowDate = shiftLocalMinutes(`${today}T00:00`, 24 * 60).slice(0, 10);
+  const tonightStart = localNow.slice(11) >= "18:00" ? localNow : `${today}T18:00`;
+  const ranges = {
+    now: { from: localNow, to: shiftLocalMinutes(localNow, 120) },
+    tonight: { from: tonightStart, to: `${today}T23:59` },
+    tomorrow: { from: `${tomorrowDate}T00:00`, to: `${tomorrowDate}T23:59` },
+  };
+  return Object.fromEntries(Object.entries(ranges).map(([key, range]) => [key, {
+    from: casablancaLocalToUtc(range.from),
+    to: casablancaLocalToUtc(range.to),
+  }])) as Record<keyof typeof ranges, { from: string; to: string }>;
+}

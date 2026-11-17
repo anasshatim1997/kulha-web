@@ -1,0 +1,223 @@
+/* Customer account — scoped under .ac so it never collides with the legacy .customer-account-* rules. */
+.ac {
+    --ac-ink: #06331f; --ac-muted: #53685a; --ac-line: #eee3cf; --ac-card: #fffdf8;
+    --ac-yellow: #fdb827; --ac-cream: #fcf3e6;
+    display: grid;
+    grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+    gap: clamp(28px, 4vw, 56px);
+    align-items: start;
+    width: min(1240px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: clamp(24px, 4vw, 48px) 0 72px;
+    color: var(--ac-ink);
+}
+.ac *, .ac *::before, .ac *::after { box-sizing: border-box; }
+.ac h1, .ac h2, .ac h3, .ac p { margin: 0; }
+.ac-icon { width: 22px; height: 22px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ac:focus-within :focus-visible, .ac :focus-visible { outline: 3px solid var(--ac-yellow); outline-offset: 2px; }
+
+/* ---- Sidebar ---- */
+.ac-side { position: sticky; top: 24px; display: grid; gap: 20px; }
+.ac-profile { display: grid; justify-items: start; gap: 4px; padding: 28px; border: 1px solid var(--ac-line); border-radius: 30px; background: var(--ac-card); }
+.ac-avatar { display: grid; width: 72px; height: 72px; margin-bottom: 14px; place-items: center; border-radius: 50%; background: var(--ac-yellow); color: #5c3b00; font-size: 26px; font-weight: 900; }
+.ac-profile h2 { font-size: 20px; font-weight: 900; letter-spacing: -.02em; line-height: 1.15; overflow-wrap: anywhere; }
+.ac-profile__email { color: var(--ac-muted); font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+.ac-badge { display: inline-flex; margin-top: 14px; padding: 7px 14px; border: 1px solid #f1d98c; border-radius: 999px; background: #fff1cb; color: #6a4300; font-size: 12px; font-weight: 800; }
+.ac-badge.is-ok { border-color: #bfdcc6; background: #e5f2e8; color: #0c5738; }
+
+.ac-nav { display: grid; gap: 6px; }
+.ac-nav a, .ac-nav button {
+    display: flex; align-items: center; gap: 14px; width: 100%; min-height: 54px; padding: 0 18px;
+    border: 0; border-radius: 18px; background: transparent; color: var(--ac-ink);
+    font: inherit; font-size: 15px; font-weight: 800; text-align: start; text-decoration: none; cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+}
+.ac-nav a:hover, .ac-nav button:hover { background: rgb(6 51 31 / 6%); }
+.ac-nav a.is-active { background: var(--ac-ink); color: #fffdf8; }
+:dir(rtl) .ac-nav .ac-icon { transform: none; }
+
+.ac-shop { display: grid; gap: 10px; padding: 26px; border-radius: 30px; background: var(--ac-ink); color: #fffdf8; }
+.ac-shop h2 { font-size: 18px; font-weight: 900; letter-spacing: -.01em; }
+.ac-shop p { color: rgb(255 253 248 / 78%); font-size: 14px; font-weight: 600; line-height: 1.5; }
+.ac-shop__cta { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; margin-top: 8px; padding: 0 18px; border-radius: 16px; background: var(--ac-yellow); color: #3d2900; font-size: 15px; font-weight: 900; text-align: center; text-decoration: none; transition: filter .15s ease, transform .15s ease; }
+.ac-shop__cta:hover { filter: brightness(1.05); transform: translateY(-1px); }
+
+/* ---- Main column ---- */
+.ac-main { display: grid; gap: 28px; min-width: 0; }
+.ac-head { display: grid; gap: 6px; }
+.ac-kicker { color: var(--ac-muted); font-size: 12px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+.ac[dir="rtl"] .ac-kicker, .ac[dir="rtl"] .ac-label { letter-spacing: 0; }
+.ac-head h1 { font-size: clamp(28px, 3.4vw, 40px); font-weight: 950; line-height: 1.05; letter-spacing: -.04em; overflow-wrap: anywhere; }
+.ac[dir="rtl"] .ac-head h1 { letter-spacing: 0; line-height: 1.35; }
+.ac-head__sub { margin-top: 4px; color: var(--ac-muted); font-size: 16px; font-weight: 600; }
+
+.ac-verify { display: flex; align-items: center; gap: 16px; padding: 18px 20px 18px 22px; border: 1px solid #f4dc9a; border-radius: 24px; background: #fff1cb; color: #5c3b00; }
+.ac-verify > .ac-icon { width: 28px; height: 28px; }
+.ac-verify__copy { display: grid; flex: 1; gap: 2px; min-width: 0; }
+.ac-verify__copy strong { font-size: 15px; font-weight: 900; line-height: 1.3; }
+.ac-verify__copy span { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+.ac-verify__error { color: #a13b32; font-weight: 800 !important; }
+.ac-verify__btn { flex: 0 0 auto; min-height: 50px; padding: 0 24px; border: 1px solid #ecd9a3; border-radius: 999px; background: #fffdf8; color: var(--ac-ink); font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; transition: background .15s ease; }
+.ac-verify__btn:hover:not(:disabled) { background: #fff; }
+.ac-verify__btn:disabled { opacity: .6; cursor: wait; }
+
+.ac-section { display: grid; gap: 14px; scroll-margin-top: 90px; }
+.ac-section[hidden] { display: none; }
+.ac-label { color: var(--ac-muted); font-size: 12px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+.ac-card { border: 1px solid var(--ac-line); border-radius: 30px; background: var(--ac-card); }
+
+.ac-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 54px; padding: 0 28px; border: 1px solid transparent; border-radius: 20px; font: inherit; font-size: 15px; font-weight: 900; line-height: 1.15; text-align: center; text-decoration: none; white-space: nowrap; cursor: pointer; transition: background .15s ease, transform .15s ease, opacity .15s ease; }
+.ac-btn--primary { background: var(--ac-ink); color: #fffdf8; }
+.ac-btn--primary:hover:not(:disabled) { background: #0b4a2f; transform: translateY(-1px); }
+.ac-btn--ghost { border-color: var(--ac-line); background: var(--ac-card); color: var(--ac-ink); }
+.ac-btn--ghost:hover:not(:disabled) { background: #fff; }
+.ac-btn:disabled { cursor: not-allowed; }
+.ac-btn--primary:disabled { background: #9eafa5; color: #fffdf8; }
+.ac-btn--ghost:disabled { color: #8a978e; }
+
+/* Reservations empty state */
+.ac-empty { display: flex; align-items: center; gap: clamp(20px, 3vw, 40px); padding: clamp(24px, 3vw, 40px); }
+.ac-empty__icon { display: grid; width: 120px; height: 120px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: #e6efe0; color: var(--ac-ink); }
+.ac-empty__icon .ac-icon { width: 44px; height: 44px; stroke-width: 1.7; }
+.ac-empty__copy { display: grid; gap: 8px; min-width: 0; max-width: 640px; }
+.ac-empty__copy h3 { font-size: clamp(19px, 2vw, 24px); font-weight: 900; letter-spacing: -.02em; line-height: 1.2; }
+.ac-empty__copy p { color: var(--ac-muted); font-size: 15px; font-weight: 600; line-height: 1.6; }
+.ac-empty__actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; }
+
+/* Personal details form */
+.ac-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 24px; padding: clamp(22px, 3vw, 40px); }
+.ac-field { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.ac-field--wide { grid-column: 1 / -1; }
+.ac-field > span, .ac-field > label { color: var(--ac-muted); font-size: 14px; font-weight: 800; }
+.ac-field input {
+    width: 100%; min-height: 58px; padding: 0 20px; border: 1px solid #e7dcc7; border-radius: 20px;
+    background: #fff; color: var(--ac-ink); font: inherit; font-size: 16px; font-weight: 600;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+.ac-field input::placeholder { color: #98a59c; font-weight: 500; }
+.ac-field input:focus { border-color: var(--ac-ink); outline: 0; box-shadow: 0 0 0 4px rgb(6 51 31 / 10%); }
+.ac-readonly { position: relative; }
+.ac-readonly input { padding-inline-end: 56px; border-color: #e7dcc7; background: #f4eee2; color: #3d5846; cursor: default; }
+.ac-readonly input:focus { box-shadow: none; border-color: #e7dcc7; }
+.ac-readonly .ac-icon { position: absolute; top: 50%; inset-inline-end: 20px; width: 22px; height: 22px; color: #6f8276; transform: translateY(-50%); pointer-events: none; }
+.ac-field small { color: var(--ac-muted); font-size: 13px; font-weight: 600; }
+.ac-form__error { grid-column: 1 / -1; padding: 12px 16px; border: 1px solid #f1c2bb; border-radius: 16px; background: #fbe8e4; color: #8a2d24; font-size: 14px; font-weight: 700; }
+.ac-form__actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 14px; }
+
+.ac-skeleton { min-height: 420px; border-radius: 30px; background: linear-gradient(90deg, #efe6d4 25%, #f8f1e3 50%, #efe6d4 75%); background-size: 200% 100%; animation: ac-shimmer 1.4s linear infinite; }
+.ac-anonymous { display: block; max-width: 560px; padding: 32px; border: 1px solid var(--ac-line); border-radius: 30px; background: var(--ac-card); }
+.ac-anonymous h1 { font-size: 24px; font-weight: 900; }
+.ac-anonymous p { margin-top: 8px; color: var(--ac-muted); }
+@keyframes ac-shimmer { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .ac-skeleton { animation: none; } .ac-btn, .ac-shop__cta, .ac-nav a, .ac-nav button { transition: none; } }
+
+/* ---- Laptops: tighten a little ---- */
+@media (max-width: 1180px) {
+    .ac { grid-template-columns: minmax(240px, 290px) minmax(0, 1fr); }
+    .ac-empty__icon { width: 96px; height: 96px; }
+    .ac-empty__copy p { font-size: 14px; }
+}
+
+/* ---- Tablets & phones: stack. Profile first, then content, shop card last. ---- */
+@media (max-width: 900px) {
+    .ac { grid-template-columns: 1fr; gap: 24px; width: calc(100% - 32px); padding: 18px 0 110px; }
+    .ac-side { position: static; display: contents; }
+    .ac-profile { order: 1; grid-template-columns: auto 1fr; justify-items: start; align-items: center; column-gap: 16px; padding: 18px; border-radius: 26px; }
+    .ac-avatar { grid-row: 1 / span 3; width: 56px; height: 56px; margin: 0; font-size: 22px; }
+    .ac-profile h2 { font-size: 18px; }
+    .ac-profile__email { font-size: 13px; }
+    .ac-badge { margin-top: 6px; padding: 5px 12px; font-size: 12px; }
+    .ac-nav { order: 2; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .ac-nav a, .ac-nav button { flex-direction: column; justify-content: center; gap: 6px; width: 100%; min-height: 66px; padding: 8px 6px; border: 1px solid var(--ac-line); border-radius: 18px; background: var(--ac-card); font-size: 12px; line-height: 1.2; text-align: center; }
+    .ac-nav a.is-active { border-color: var(--ac-ink); }
+    .ac-main { order: 3; gap: 22px; }
+    .ac-shop { order: 4; }
+    .ac-head__sub { font-size: 14px; }
+}
+@media (max-width: 640px) {
+    .ac-verify { flex-wrap: wrap; padding: 16px; border-radius: 22px; }
+    .ac-verify__btn { width: 100%; }
+    .ac-empty { flex-direction: column; align-items: flex-start; padding: 22px; border-radius: 26px; }
+    .ac-empty__icon { width: 76px; height: 76px; }
+    .ac-empty__icon .ac-icon { width: 32px; height: 32px; }
+    .ac-empty__copy p { font-size: 14px; }
+    .ac-empty__actions { width: 100%; }
+    .ac-empty__actions .ac-btn { flex: 1 1 140px; }
+    .ac-form { grid-template-columns: 1fr; padding: 20px; border-radius: 26px; }
+    .ac-form__actions .ac-btn { flex: 1 1 140px; }
+    .ac-btn { min-height: 52px; padding: 0 20px; font-size: 15px; }
+    .ac-field input { min-height: 54px; font-size: 16px; }
+}
+
+/* ---- Desktop one-screen layout (keep LAST) ----
+   Same approach as offer-detail.css: the viewport is split by flexbox (site header at its natural
+   height + <main> gets the rest), so /account never scrolls on a laptop/desktop screen. The sidebar
+   entries switch between panels (see AccountPanel) instead of scrolling to them.
+   Phones/tablets and very short windows keep normal scrolling so nothing is ever clipped.
+
+   Sizing: spacing and control heights are "compact value + a share of --ac-room", where --ac-room is how
+   much taller the window is than a baseline (0 → --ac-span). So it is tight on a small laptop and
+   roomy on a bigger screen, and the cards stretch to the bottom edge. Font sizes are not scaled. */
+@media (min-width: 901px) and (min-height: 600px) {
+    html:has(.ac--dash), body:has(.ac--dash) { height: 100dvh; overflow: hidden; }
+    body:has(.ac--dash) { display: flex; flex-direction: column; }
+    body:has(.ac--dash) > main { display: flex; flex: 1 1 0; flex-direction: column; min-height: 0; overflow: hidden; }
+
+    .ac--dash {
+        --ac-base: 450px; --ac-span: 300px;
+        --ac-room: clamp(0px, calc(100dvh - var(--ac-base)), var(--ac-span));
+        flex: 1 1 auto; max-height: 830px; grid-template-rows: minmax(0, 1fr); align-items: stretch; gap: clamp(20px, 3vw, 40px); min-height: 0;
+        padding: calc(10px + var(--ac-room) * 0.0533) 0 calc(14px + var(--ac-room) * 0.0533);
+    }
+    /* Extra rows (verify banner, save error) need space, so growth starts later in those states. */
+    .ac--dash:has(.ac-verify) { --ac-base: 560px; }
+    .ac--dash:has(.ac-form__error) { --ac-base: 490px; }
+    .ac--dash:has(.ac-verify):has(.ac-form__error) { --ac-base: 610px; }
+
+    /* Safety net only: if a very tall state ever overflows, scroll inside the column, never the page.
+       The 6px padding / -6px margin keeps focus rings and input glow from being clipped. */
+    .ac--dash .ac-side, .ac--dash .ac-main { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; padding: 6px; margin: -6px; scrollbar-width: thin; }
+    .ac--dash .ac-side > *, .ac--dash .ac-main > * { flex: 0 0 auto; }
+
+    /* Sidebar: profile + nav on top, the shop card pinned to the bottom edge. */
+    .ac--dash .ac-side { position: static; gap: calc(10px + var(--ac-room) * 0.0267); }
+    .ac--dash .ac-profile { grid-template-columns: auto 1fr; align-items: center; column-gap: 14px; padding: calc(12px + var(--ac-room) * 0.04) calc(16px + var(--ac-room) * 0.0267); border-radius: 24px; }
+    .ac--dash .ac-avatar { grid-row: 1 / span 3; width: calc(44px + var(--ac-room) * 0.0667); height: calc(44px + var(--ac-room) * 0.0667); margin: 0; font-size: calc(19px + var(--ac-room) * 0.0233); }
+    .ac--dash .ac-profile h2 { font-size: 18px; }
+    .ac--dash .ac-profile__email { font-size: 13px; }
+    .ac--dash .ac-badge { margin-top: 6px; padding: 4px 10px; }
+
+    /* Nav: the second auto-margin (the shop card already owns one) splits the leftover space
+       in two, so the nav sits centered between the profile card and the shop card. */
+    .ac--dash .ac-nav { margin-top: auto; gap: calc(4px + var(--ac-room) * 0.0067); }
+    .ac--dash .ac-nav a, .ac--dash .ac-nav button { min-height: calc(42px + var(--ac-room) * 0.0467); gap: 12px; padding: 0 calc(16px + var(--ac-room) * 0.0133); border-radius: 16px; }
+
+    .ac--dash .ac-shop { margin-top: auto; gap: calc(6px + var(--ac-room) * 0.0133); padding: calc(14px + var(--ac-room) * 0.04) calc(18px + var(--ac-room) * 0.02); border-radius: 24px; }
+    .ac--dash .ac-shop h2 { font-size: 17px; }
+    .ac--dash .ac-shop p { font-size: 13px; line-height: 1.45; }
+    .ac--dash .ac-shop__cta { min-height: calc(40px + var(--ac-room) * 0.0333); margin-top: 4px; border-radius: 14px; }
+
+    /* Main column: the visible panel stretches to the bottom edge. */
+    .ac--dash .ac-main { gap: calc(10px + var(--ac-room) * 0.06); }
+    .ac--dash .ac-head { gap: 4px; }
+    .ac--dash .ac-head h1 { font-size: calc(26px + var(--ac-room) * 0.04); }
+    .ac--dash .ac-head__sub { margin-top: 2px; font-size: 15px; }
+    .ac--dash .ac-verify { gap: 12px; padding: calc(9px + var(--ac-room) * 0.0167) calc(14px + var(--ac-room) * 0.0133); border-radius: 20px; }
+    .ac--dash .ac-verify__btn { min-height: 42px; padding: 0 20px; }
+    .ac--dash .ac-main > .ac-section:not([hidden]) { flex: 1 0 auto; grid-template-rows: auto 1fr; gap: calc(8px + var(--ac-room) * 0.0267); }
+    .ac--dash .ac-card { border-radius: 24px; }
+    .ac--dash .ac-empty { padding: calc(20px + var(--ac-room) * 0.08) calc(28px + var(--ac-room) * 0.0533); }
+    .ac--dash .ac-empty__icon { width: calc(80px + var(--ac-room) * 0.1333); height: calc(80px + var(--ac-room) * 0.1333); }
+    .ac--dash .ac-empty__icon .ac-icon { width: calc(32px + var(--ac-room) * 0.04); height: calc(32px + var(--ac-room) * 0.04); }
+    .ac--dash .ac-empty__copy p { font-size: 15px; }
+    .ac--dash .ac-form { grid-template-rows: auto auto 1fr; gap: calc(8px + var(--ac-room) * 0.06) calc(16px + var(--ac-room) * 0.04); padding: calc(14px + var(--ac-room) * 0.1) calc(22px + var(--ac-room) * 0.0733); }
+    .ac--dash .ac-field { gap: calc(6px + var(--ac-room) * 0.02); }
+    .ac--dash .ac-field input { min-height: calc(44px + var(--ac-room) * 0.0533); border-radius: 16px; }
+    .ac--dash .ac-form__error { align-self: start; }
+    .ac--dash .ac-form__actions { align-self: end; gap: 12px; }
+    .ac--dash .ac-btn { min-height: calc(40px + var(--ac-room) * 0.0533); padding: 0 24px; border-radius: 16px; }
+}
+/* Rare worst case on a very short window: unverified banner + save error at once. */
+@media (min-width: 901px) and (min-height: 600px) and (max-height: 640px) {
+    .ac--dash:has(.ac-verify):has(.ac-form__error) .ac-head__sub { display: none; }
+}

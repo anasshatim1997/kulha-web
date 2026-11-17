@@ -35,7 +35,7 @@ export function useRegistration({ locale, audience }: { locale: SiteLocale; audi
 
   const normalizedEmail = values.email.trim().toLowerCase();
   const validEmail = registerSchema.pick({ email: true }).safeParse({ email: normalizedEmail }).success;
-  const destination = localePath(locale, merchant ? "/merchant/dashboard" : "/account");
+  const destination = localePath(locale, merchant ? "/merchant/dashboard" : "/offers");
   const loginAfterRegister = `${localePath(locale, "/login")}?email=${encodeURIComponent(normalizedEmail)}&next=${encodeURIComponent(destination)}`;
 
   useEffect(() => {
@@ -149,6 +149,7 @@ export function useRegistration({ locale, audience }: { locale: SiteLocale; audi
     try {
       const { fullName, email, phone, password } = parsed.data;
       await api.post("/auth/register", { fullName, email, password, ...(phone ? { phone } : {}) }, { timeoutMs: 30000 });
+      if (merchant) window.localStorage.setItem("kulha:after-verification-path", destination);
       setDone(true);
       toast.success({ title: merchant ? t.merchantDoneTitle : t.doneTitle, description: merchant ? t.merchantDone : t.done });
     } catch (error) {

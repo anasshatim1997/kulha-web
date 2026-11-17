@@ -1,0 +1,113 @@
+/* Offers map: route, "you" avatar and calmer list cards.
+   Colour roles: GREEN = shops, YELLOW = selected / price, RED = discount, BLUE = you + your route. */
+
+/* ---------- YOU: same circular-avatar language as the shops, but blue, with a person glyph ---------- */
+.kulha-youdot { position: relative; width: 40px; height: 40px; pointer-events: none; }
+.kulha-youdot__dot {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  border: 3px solid #fffaf1; border-radius: 50%;
+  background: linear-gradient(160deg, #4a98ff, #1f6feb 60%, #1858c4);
+  box-shadow: 0 3px 10px rgb(10 50 120 / 38%);
+}
+.kulha-youdot__dot svg { width: 21px; height: 21px; fill: #fff; }
+.kulha-youdot__halo {
+  position: absolute; inset: -18px; border-radius: 50%;
+  background: rgb(31 111 235 / 22%); animation: kulha-youdot-pulse 2.4s ease-out infinite;
+}
+.kulha-youdot.is-ghost .kulha-youdot__dot { opacity: .55; }
+@keyframes kulha-youdot-pulse { 0% { transform: scale(.45); opacity: .95; } 100% { transform: scale(1); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .kulha-youdot__halo { animation: none; opacity: .5; } }
+
+/* ---------- Map controls: the locate button is a tool, not a primary action ---------- */
+.kulha-map-canvas-wrap .kulha-map-floating-tools .kulha-map-locate-button {
+  background: #fffaf1; border-color: rgb(7 51 36 / 14%); color: #0c5738;
+}
+.kulha-map-canvas-wrap .kulha-map-floating-tools .kulha-map-locate-button:hover:not(:disabled) { background: #f1f6ef; }
+
+/* ---------- Shop markers: circle avatar centred on the real location (the route ends under it) ---------- */
+.kulha-map-canvas-wrap .kulha-maplibre-marker { width: 43px; height: 43px; place-items: center; }
+.kulha-map-canvas-wrap .kulha-maplibre-marker > i { display: none; }
+.kulha-map-canvas-wrap .kulha-maplibre-marker .kulha-maplibre-marker__count { top: -5px; right: -7px; }
+.kulha-map-canvas-wrap .kulha-maplibre-marker .kulha-maplibre-marker__avatar { transition: transform .16s ease, background .16s ease, box-shadow .16s ease; }
+.kulha-map-canvas-wrap .kulha-maplibre-marker.is-selected .kulha-maplibre-marker__avatar {
+  transform: scale(1.16); box-shadow: 0 0 0 5px rgb(242 189 66 / 38%), 0 5px 12px rgb(7 51 36 / 30%);
+}
+
+/* ---------- List: quiet cards. Tap a card = show it on the map. Only the selected card shows actions. ---------- */
+.kulha-map-offer-results { gap: 14px; }
+.kulha-map-offer-results .kulha-map-offer-result { gap: 0; cursor: pointer; }
+.kulha-map-offer-results .kulha-map-offer-result.is-selected > .kulha-map-offer-card,
+.kulha-map-offer-results .kulha-map-offer-result.is-selected > .kulha-map-offer-card:hover {
+  transform: none; border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom-color: transparent; box-shadow: none;
+}
+.kulha-map-offer-results .kulha-map-offer-card__merchant-mark {
+  width: auto; min-width: 24px; height: 23px; flex: 0 0 auto; padding: 0 6px;
+  border-radius: 999px; background: #104c35; color: #fffaf1; letter-spacing: -.02em;
+}
+.kulha-map-offer-results .kulha-map-offer-actions {
+  display: flex; gap: 8px; padding: 0 10px 10px; cursor: default;
+  border: 1px solid #176744; border-top: 0; border-radius: 0 0 17px 17px; background: #fffefa;
+  box-shadow: 0 0 0 2px rgb(23 103 68 / 12%), 0 8px 20px rgb(17 48 31 / 7%);
+  animation: kulha-actions-in .18s ease-out;
+}
+@keyframes kulha-actions-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.kulha-map-offer-results .kulha-map-offer-actions .kulha-map-route-offer,
+.kulha-map-offer-results .kulha-map-offer-actions .kulha-map-offer-actions__details {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; margin: 0;
+  border-radius: 12px; font: 850 13px/1 var(--font-nunito), sans-serif; text-decoration: none; cursor: pointer;
+  transition: background .15s ease, border-color .15s ease;
+}
+.kulha-map-offer-results .kulha-map-offer-actions .kulha-map-route-offer {
+  flex: 1.5; border: 0; background: #0c5738; color: #fffaf1; box-shadow: 0 4px 12px rgb(12 87 56 / 24%);
+}
+.kulha-map-offer-results .kulha-map-offer-actions .kulha-map-route-offer:hover { background: #0a4a30; }
+.kulha-map-offer-results .kulha-map-offer-actions .kulha-map-offer-actions__details {
+  flex: 1; border: 1.5px solid #cfe0d3; background: #fff; color: #0c5738;
+}
+.kulha-map-offer-results .kulha-map-offer-actions .kulha-map-offer-actions__details:hover { border-color: #0c5738; }
+.kulha-map-offer-results .kulha-map-offer-actions svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+@media (prefers-reduced-motion: reduce) { .kulha-map-offer-results .kulha-map-offer-actions { animation: none; } }
+
+/* ---------- Floating route sheet ---------- */
+.kulha-route-sheet {
+  position: absolute; z-index: 6; inset-inline-start: 14px; bottom: 14px;
+  width: min(350px, calc(100% - 28px)); display: grid; gap: 11px; padding: 14px;
+  border: 1px solid rgb(6 60 43 / 12%); border-radius: 18px; background: rgb(255 253 248 / 96%); color: #123c2d;
+  box-shadow: 0 14px 34px rgb(6 40 28 / 24%); backdrop-filter: blur(8px);
+}
+.kulha-route-sheet svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.kulha-route-sheet__close {
+  position: absolute; top: 10px; inset-inline-end: 10px; display: grid; place-items: center;
+  width: 30px; height: 30px; border: 0; border-radius: 50%; background: #f1eee4; color: #123c2d; cursor: pointer;
+}
+.kulha-route-sheet__close:hover { background: #e7e3d8; }
+.kulha-route-sheet__head { display: flex; align-items: center; gap: 10px; padding-inline-end: 36px; min-width: 0; }
+.kulha-route-sheet__avatar {
+  display: grid; flex: 0 0 auto; width: 38px; height: 38px; place-items: center;
+  border: 3px solid #fffaf1; border-radius: 50%; background: #104c35; color: #fffaf1;
+  font: 1000 13px/1 var(--font-nunito), sans-serif; letter-spacing: -.04em; box-shadow: 0 3px 9px rgb(7 51 36 / 22%);
+}
+.kulha-route-sheet__head > div { display: grid; gap: 2px; min-width: 0; }
+.kulha-route-sheet__head div span { font: 800 10px/1.2 var(--font-nunito), sans-serif; letter-spacing: .08em; text-transform: uppercase; color: #65746a; }
+.kulha-route-sheet__head strong { font: 900 15px/1.25 var(--font-nunito), sans-serif; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.kulha-route-sheet__modes { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 3px; border-radius: 12px; background: #f1eee4; }
+.kulha-route-sheet__modes button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 34px;
+  border: 0; border-radius: 9px; background: transparent; color: #4f5f55; font: 850 12px/1 var(--font-nunito), sans-serif; cursor: pointer;
+}
+.kulha-route-sheet__modes button.is-active { background: #1f6feb; color: #fff; box-shadow: 0 2px 8px rgb(31 111 235 / 35%); }
+
+.kulha-route-sheet__metrics { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.kulha-route-sheet__metrics strong { font: 900 26px/1 var(--font-nunito), sans-serif; color: #1f6feb; }
+.kulha-route-sheet__metrics span { font: 800 14px/1 var(--font-nunito), sans-serif; color: #4f5f55; }
+.kulha-route-sheet__metrics small { flex-basis: 100%; font: 700 11px/1.35 var(--font-nunito), sans-serif; color: #8a5a00; }
+.kulha-route-sheet__status { margin: 0; font: 700 12px/1.4 var(--font-nunito), sans-serif; color: #4f5f55; }
+
+.kulha-route-sheet__go {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px;
+  border-radius: 11px; background: #0c5738; color: #fffaf1; text-decoration: none; font: 850 12px/1 var(--font-nunito), sans-serif;
+}
+.kulha-route-sheet__go:hover { background: #0a4a30; }
+
+@media (max-width: 760px) { .kulha-route-sheet { inset-inline: 10px; bottom: 10px; width: auto; } }

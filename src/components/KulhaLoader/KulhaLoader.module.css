@@ -78,11 +78,14 @@
 .light { background: radial-gradient(ellipse 80% 60% at 50% 45%, #fffbf0 0%, #f4ebd6 100%); color: #345c4a; }
 .transparent { background: transparent; color: inherit; }
 .message { margin: 0; font: 700 clamp(15px, 1.6vw, 18px)/1.4 'Nunito', system-ui, sans-serif; letter-spacing: .01em; text-align: center; animation: kl-msg 1.8s ease-in-out infinite; }
+.progress { width: min(260px, 64vw); height: 4px; margin-top: -7px; overflow: hidden; direction: ltr; border-radius: 999px; background: rgb(238 245 235 / 22%); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 7%); }
+.progress > span { display: block; width: 100%; height: 100%; border-radius: inherit; transform: scaleX(0); transform-origin: left center; background: #e9bd5c; box-shadow: 0 0 12px rgb(233 189 92 / 32%); transition: transform 360ms cubic-bezier(.2, .75, .25, 1); }
 @keyframes kl-msg { 0%, 100% { opacity: .65; } 50% { opacity: 1; } }
 
 @media (prefers-reduced-motion: reduce) {
   .float, .squash, .hop, .leaf, .spark, .shadow { animation: none !important; }
   .root { animation: kl-reduced 2s ease-in-out infinite; }
   .message { animation: none; }
+  .progress > span { transition: none; }
 }
 @keyframes kl-reduced { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }

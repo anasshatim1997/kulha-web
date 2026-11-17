@@ -1,16 +1,42 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { securityHeaders } from "@/lib/security/headers";
 
-/**
- * Convenience redirect only: pages that need a login send visitors without a session cookie to /login.
- * It is NOT a security control. Every API call is authorized again by the Spring Boot API.
- */
-export function proxy(request: NextRequest) {
-  if (request.cookies.has("kulha_rt")) return NextResponse.next();
-  const login = new URL("/login", request.url);
-  login.searchParams.set("next", request.nextUrl.pathname + request.nextUrl.search);
-  return NextResponse.redirect(login);
+function secure(response: NextResponse, request: NextRequest): NextResponse {
+  for (const [name, value] of Object.entries(securityHeaders(process.env.NODE_ENV ?? "development", request.nextUrl.protocol, request.nextUrl.pathname))) {
+    response.headers.set(name, value);
+  }
+  return response;
 }
 
-export const config = {
-  matcher: ["/account/:path*", "/merchant/:path*", "/admin/:path*", "/:locale(fr|en|ar)/account/:path*", "/:locale(fr|en|ar)/merchant/:path*"],
-};
+export function proxy(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  if (/^\/fr(?:\/|$)/.test(pathname)) {
+    const target = request.nextUrl.clone();
+    target.pathname = pathname.replace(/^\/fr(?=\/|$)/, "") || "/";
+    return secure(NextResponse.redirect(target, 308), request);
+  }
+  if (/^\/(?:ary|ary-latn)(?:\/|$)/.test(pathname)) {
+    const target = request.nextUrl.clone();
+    target.pathname = pathname.replace(/^\/(?:ary|ary-latn)(?=\/|$)/, "/ar") || "/ar";
+    return secure(NextResponse.redirect(target, 308), request);
+  }
+
+  const protectedPath = /^\/(?:account|merchant|admin)(?:\/|$)/.test(pathname)
+    || /^\/(?:en|ar)\/(?:account|merchant)(?:\/|$)/.test(pathname);
+  if (protectedPath && !request.cookies.has("kulha_rt")) {
+    const prefix = pathname.startsWith("/en/") ? "/en" : pathname.startsWith("/ar/") ? "/ar" : "";
+    const login = new URL(`${prefix}/login`, request.url);
+    login.searchParams.set("next", pathname + request.nextUrl.search);
+    return secure(NextResponse.redirect(login), request);
+  }
+  const forwardedHeaders = new Headers(request.headers);
+  const pageLocale = pathname === "/ar" || pathname.startsWith("/ar/")
+    ? "ar"
+    : pathname === "/en" || pathname.startsWith("/en/")
+      ? "en"
+      : "fr";
+  forwardedHeaders.set("x-kulha-locale", pageLocale);
+  return secure(NextResponse.next({ request: { headers: forwardedHeaders } }), request);
+}
+
+export const config = { matcher: ["/:path*"] };

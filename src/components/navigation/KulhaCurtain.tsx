@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { KulhaLoader } from "@/components/KulhaLoader";
+import { KulhaLoader, preloadKulhaLoaderAssets } from "@/components/KulhaLoader/KulhaLoader";
 import styles from "./KulhaCurtain.module.css";
 
 type Phase = "hidden" | "preparing" | "entering" | "shown" | "leaving";
-type Props = { active: boolean; message: string; label: string };
+type Props = { active: boolean; message: string; label: string; progress?: number };
 
-export function KulhaCurtain({ active, message, label }: Props) {
+export function KulhaCurtain({ active, message, label, progress }: Props) {
   const [phase, setPhase] = useState<Phase>("hidden");
   const phaseRef = useRef<Phase>("hidden");
   const exitAfterEnter = useRef(false);
@@ -25,6 +25,7 @@ export function KulhaCurtain({ active, message, label }: Props) {
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
     if (active) {
       exitAfterEnter.current = false;
       if (delayTimer.current) clearTimeout(delayTimer.current);
@@ -32,8 +33,13 @@ export function KulhaCurtain({ active, message, label }: Props) {
       if (phaseRef.current === "leaving") set("entering");
       if (phaseRef.current === "hidden") {
         delayTimer.current = setTimeout(() => {
-          set("preparing");
-          requestAnimationFrame(() => { if (active && phaseRef.current === "preparing") set("entering"); });
+          void preloadKulhaLoaderAssets().then(() => {
+            if (cancelled) return;
+            set("preparing");
+            requestAnimationFrame(() => {
+              if (!cancelled && active && phaseRef.current === "preparing") set("entering");
+            });
+          });
         }, 150);
       }
     } else {
@@ -43,6 +49,7 @@ export function KulhaCurtain({ active, message, label }: Props) {
       if (phaseRef.current === "shown") set("leaving");
     }
     return () => {
+      cancelled = true;
       if (delayTimer.current) clearTimeout(delayTimer.current);
     };
   }, [active]);
@@ -83,6 +90,6 @@ export function KulhaCurtain({ active, message, label }: Props) {
 
   if (phase === "hidden") return null;
   return <div className={`${styles.curtain} ${styles[phase]}`} onTransitionEnd={onTransitionEnd} aria-hidden="false">
-    <KulhaLoader fullscreen theme="dark" size={236} message={message} label={label} panelClassName={styles.panel}/>
+    <KulhaLoader fullscreen theme="dark" size={236} message={message} label={label} progress={progress} panelClassName={styles.panel}/>
   </div>;
 }

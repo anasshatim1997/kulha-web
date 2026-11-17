@@ -13,7 +13,11 @@
     "clean:next": "node scripts/clean-next-cache.mjs"
   },
   "dependencies": {
-    "next": "16.4.3",
+    "@protomaps/basemaps": "5.7.2",
+    "lucide-react": "^1.73.0",
+    "maplibre-gl": "6.17.0",
+    "next": "16.4.6",
+    "pmtiles": "4.5.0",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "zod": "^4.1.12"

@@ -2,19 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { isMerchantWorkspacePath, localeFromPath, localePath } from "@/lib/navigation";
+import { useSession } from "@/components/session/SessionProvider";
+import { isCustomerAccountPath, isMerchantWorkspacePath, localeFromPath, localePath, shouldUseCustomerWorkspace } from "@/lib/navigation";
 import { siteCopy, type SiteLocale } from "@/lib/i18n/site-copy";
 import { Logo } from "./Logo";
 
 export function SiteFooter() {
   const pathname = usePathname();
+  const { state } = useSession();
   const locale = localeFromPath(pathname) as SiteLocale;
   const t = siteCopy[locale].footer;
   const isAuthPage = /\/(login|register|forgot-password|reset-password|verify-email)(\/|$)/.test(pathname);
-  if (isAuthPage || isMerchantWorkspacePath(pathname)) return null;
+  const isCustomerWorkspace = state.status === "authenticated" && shouldUseCustomerWorkspace(pathname, state.user.roles);
+  if (isAuthPage || isMerchantWorkspacePath(pathname) || isCustomerAccountPath(pathname) || isCustomerWorkspace) return null;
 
   const columns = [
-    { title: t.explore, links: [[t.how, "/how-it-works"], [t.categories, "/categories"], [t.shops, "/for-shops"]] },
+    { title: t.explore, links: [[t.how, "/how-it-works"], [t.categories, "/offers"], [t.shops, "/for-shops"]] },
     { title: t.brand, links: [[t.about, "/about"], [t.pickup, "/pickup-policy"]] },
     { title: t.help, links: [[t.faq, "/faq"], [t.contact, "/contact"]] },
     { title: t.legal, links: [[t.privacy, "/privacy"], [t.terms, "/terms"]] },

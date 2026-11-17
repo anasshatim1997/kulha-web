@@ -1,0 +1,707 @@
+/* Offers map — Kulha redesign. Scoped under .km / .km-* so it does not fight the
+   legacy .kulha-map-discovery rules that remain in globals.css. */
+.km {
+  --km-cream: #fcf3e6; --km-ink: #06331f; --km-muted: #526757; --km-line: #e8dfcd;
+  --km-card: #fffdf8; --km-yellow: #fdb827;
+  display: grid; grid-template-rows: auto minmax(0, 1fr); height: calc(100dvh - var(--kulha-header-h, 76px)); min-height: 409px;
+  background: var(--km-cream); color: var(--km-ink);
+}
+.km *, .km *::before, .km *::after { box-sizing: border-box; }
+.km h2, .km p { margin: 0; }
+.km button { font-family: inherit; }
+.km-icon { width: 15px; height: 15px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+:dir(rtl) .km-topbar .km-round .km-icon { transform: scaleX(-1); }
+
+/* Top bar */
+.km-topbar { display: flex; align-items: center; gap: 9px; padding: 14px 20px; border-bottom: 1px solid var(--km-line); background: var(--km-card); }
+.km-round { display: grid; width: 34px; height: 34px; flex: 0 0 auto; place-items: center; border: 1px solid var(--km-line); border-radius: 50%; background: var(--km-card); color: var(--km-ink); text-decoration: none; }
+.km-round:hover { background: #f4efe3; }
+.km-search { display: flex; align-items: center; gap: 8px; flex: 0 1 560px; min-width: 0; height: 34px; padding: 0 20px; border: 1px solid var(--km-line); border-radius: 659px; background: var(--km-card); color: var(--km-muted); }
+.km-search:focus-within { border-color: var(--km-ink); box-shadow: 0 0 0 3px rgb(6 51 31 / 10%); }
+.km-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--km-ink); font: 600 17px/1 inherit; }
+.km-search input::placeholder { color: var(--km-muted); opacity: .85; }
+.km-chips { display: flex; align-items: center; gap: 7px; }
+.km-chips button { height: 30px; padding: 0 24px; border: 1px solid #ebe5d6; border-radius: 659px; background: #f4f2ea; color: var(--km-ink); font-size: 11px; font-weight: 800; cursor: pointer; transition: background .15s ease, color .15s ease; }
+.km-chips button:hover { background: #ebe8dc; }
+.km-chips button.is-active { border-color: var(--km-ink); background: var(--km-ink); color: var(--km-yellow); }
+.km-filters { display: inline-flex; align-items: center; gap: 7px; margin-inline-start: auto; height: 34px; padding: 0 22px; border: 1px solid var(--km-line); border-radius: 659px; background: var(--km-card); color: var(--km-ink); font-size: 11px; font-weight: 800; text-decoration: none; white-space: nowrap; }
+.km-filters:hover { background: #f4efe3; }
+.km-filters b { font-weight: 900; }
+
+/* Body */
+.km-body { display: grid; grid-template-columns: clamp(340px, 31%, 480px) minmax(0, 1fr); min-height: 0; }
+.km-switch { display: none; }
+
+/* Sidebar */
+.km-sidebar { display: flex; flex-direction: column; min-height: 0; padding: 26px 22px 0; overflow: hidden; background: #fbf2e5; }
+.km-sidebar__head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 0 4px 18px; }
+.km-sidebar__head h2 { font-size: 18px; font-weight: 950; letter-spacing: -.03em; }
+.km-sidebar__head > span { color: var(--km-muted); font-size: 11px; font-weight: 700; }
+.km-list { display: grid; align-content: start; gap: 7px; min-height: 0; padding: 4px 4px 24px; margin: 0 -4px; overflow-y: auto; }
+
+.km-row { display: flex; align-items: center; gap: 11px; width: 100%; padding: 16px; border: 1.5px solid transparent; border-radius: 17px; background: transparent; color: inherit; text-align: start; cursor: pointer; transition: background .15s ease, border-color .15s ease; }
+.km-row:hover:not(:disabled) { background: rgb(255 253 248 / 60%); }
+.km-row.is-selected { border-color: var(--km-ink); background: var(--km-card); }
+.km-row:disabled { opacity: .55; cursor: not-allowed; }
+.km-row:focus-visible, .km-btn:focus-visible, .km-chips button:focus-visible, .km-locate:focus-visible, .km-pin:focus-visible { outline: 3px solid var(--km-yellow); outline-offset: 2px; }
+.km-row__body { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.km-row__body small { color: var(--km-muted); font-size: 11px; font-weight: 700; }
+.km-row__body strong { font-size: 14px; font-weight: 900; line-height: 1.2; letter-spacing: -.01em; overflow-wrap: anywhere; }
+.km-row__body em { color: var(--km-muted); font-size: 11px; font-style: normal; font-weight: 600; }
+.km-row.is-sold-out .km-row__body strong { text-decoration: line-through; text-decoration-thickness: 1.5px; }
+.km-row__price { display: grid; justify-items: end; gap: 5px; flex: 0 0 auto; }
+.km-row__price > strong { font-size: 20px; font-weight: 950; line-height: 1; letter-spacing: -.03em; }
+.km-row__price > strong small, .km-card__price > strong small { margin-inline-start: 4px; color: var(--km-muted); font-size: 10px; font-weight: 800; letter-spacing: 0; }
+
+.km-badge { display: inline-block; padding: 4px 11px; border-radius: 659px; background: var(--km-yellow); color: #5c3b00; font-size: 10px; font-weight: 900; line-height: 1.2; }
+
+.km-tile { display: grid; width: 49px; height: 49px; flex: 0 0 auto; place-items: center; border-radius: 15px; background: #dfeadb; color: var(--km-ink); }
+.km-tile .km-icon { width: 20px; height: 20px; }
+.km-tile.is-bakery { background: #f5e6c4; }
+.km-tile.is-meals { background: #dfeadb; }
+.km-tile.is-produce { background: #f4d9d3; }
+.km-tile.is-drinks { background: #dbe6ee; }
+.km-tile.is-grocery { background: #e6e9cf; }
+.km-tile.is-surprise { background: #ecdcf0; }
+.km-tile.is-other { background: #ece6d8; }
+.km-tile--lg { width: 69px; height: 69px; align-self: stretch; height: auto; min-height: 69px; border-radius: 17px; }
+.km-tile--lg .km-icon { width: 25px; height: 25px; }
+
+.km-empty { display: grid; gap: 4px; padding: 28px 12px; color: var(--km-muted); font-size: 11px; line-height: 1.5; }
+.km-empty strong { color: var(--km-ink); font-size: 13px; font-weight: 900; }
+
+/* Skeletons */
+.km-skel { display: block; height: 9px; border-radius: 5px; background: linear-gradient(90deg, #efe6d4 25%, #f8f1e3 50%, #efe6d4 75%); background-size: 200% 100%; animation: km-shimmer 1.4s linear infinite; }
+.km-skel--tile { width: 49px; height: 49px; flex: 0 0 auto; border-radius: 15px; }
+.km-skel--wide { height: 13px; width: 80%; }
+.km-skel--count { width: 46px; }
+.km-row--skeleton { cursor: default; }
+.km-row--skeleton .km-row__body { gap: 7px; }
+@keyframes km-shimmer { to { background-position: -200% 0; } }
+
+/* Map */
+.km-map { position: relative; min-width: 0; min-height: 0; }
+.km-canvas.kulha-map-canvas-wrap { position: absolute; inset: 0; height: 100%; min-height: 0; border: 0; border-radius: 0; }
+.km .kulha-maplibre-map .maplibregl-ctrl-top-right { top: 86px; }
+.km-notices { position: absolute; z-index: 8; top: 16px; inset-inline-start: 16px; display: grid; gap: 5px; width: min(380px, calc(100% - 100px)); pointer-events: none; }
+.km-notices > * { pointer-events: auto; margin: 0; }
+.km-notice { border-radius: 9px; }
+.km-locate { position: absolute; z-index: 7; top: 16px; inset-inline-end: 16px; display: grid; width: 37px; height: 37px; place-items: center; border: 0; border-radius: 50%; background: var(--km-card); color: var(--km-ink); box-shadow: 0 6px 20px rgb(6 51 31 / 16%); cursor: pointer; }
+.km-locate:hover:not(:disabled) { background: #f4efe3; }
+.km-locate:disabled { opacity: .6; cursor: progress; }
+
+/* Markers: MapLibre owns position + transform of every marker root, so never override them. */
+.km .maplibregl-marker { position: absolute !important; top: 0 !important; left: 0 !important; }
+
+/* Store pins: avatar with a tip; the tip sits exactly on the shop location (anchor: bottom) */
+.km-pin { --pin-bg: var(--km-ink); --pin-fg: var(--km-yellow); display: block; width: 40px; height: 48px; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.km-pin__body { position: absolute; inset: 0; display: block; transform-origin: 50% 100%; transition: transform .16s ease; }
+.km-pin__body::after { position: absolute; z-index: 0; bottom: 3px; left: 50%; width: 12px; height: 12px; margin-left: -6px; border-right: 3px solid #fffdf8; border-bottom: 3px solid #fffdf8; background: var(--pin-bg); content: ""; transform: rotate(45deg); }
+.km-pin__avatar { position: absolute; z-index: 1; top: 0; left: 0; display: grid; width: 40px; height: 40px; place-items: center; border: 3px solid #fffdf8; border-radius: 50%; background: var(--pin-bg); color: var(--pin-fg); font: 900 13px/1 var(--font-nunito), sans-serif; letter-spacing: -.02em; box-shadow: 0 4px 12px rgb(6 51 31 / 30%); transition: background .16s ease, color .16s ease; }
+.km-pin__name { position: absolute; z-index: 2; top: 8px; inset-inline-start: calc(100% + 6px); max-width: 170px; padding: 5px 10px; border-radius: 999px; background: var(--km-card); color: var(--km-ink); font: 800 12px/1.2 var(--font-nunito), sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 2px 8px rgb(6 51 31 / 22%); opacity: 0; pointer-events: none; transition: opacity .15s ease; }
+.km-pin:hover, .km-pin:focus-visible { z-index: 3; }
+.km-pin:hover .km-pin__body, .km-pin:focus-visible .km-pin__body { transform: scale(1.1); }
+.km-pin:hover .km-pin__name, .km-pin:focus-visible .km-pin__name, .km-pin.is-selected .km-pin__name { opacity: 1; }
+.km-pin.is-selected { --pin-bg: var(--km-yellow); --pin-fg: var(--km-ink); z-index: 4; }
+.km-pin.is-selected .km-pin__body { transform: scale(1.25); }
+.km-pin.is-selected .km-pin__avatar { box-shadow: 0 0 0 4px rgb(253 184 39 / 35%), 0 5px 14px rgb(6 51 31 / 35%); }
+.km-pin.is-selected .km-pin__name { background: var(--km-ink); color: #fffdf8; }
+.km-pin.is-approximate .km-pin__avatar { border-style: dashed; }
+.km-pin__count { position: absolute; z-index: 3; top: -5px; inset-inline-end: -6px; display: grid; min-width: 18px; height: 18px; place-items: center; padding: 0 4px; border-radius: 999px; background: var(--km-yellow); color: #5c3b00; font: 900 10px/1 var(--font-nunito), sans-serif; box-shadow: 0 1px 4px rgb(0 0 0 / 25%); }
+.km-pin.is-selected .km-pin__count { background: var(--km-ink); color: var(--km-yellow); }
+
+/* "You" dot: keep its own absolute positioning from MapLibre; centre the visual on the coordinate */
+.km .kulha-youdot { position: absolute; }
+
+/* Bottom card */
+.km-card { position: absolute; z-index: 7; inset-inline-start: 50%; bottom: 24px; display: flex; gap: 13px; width: min(600px, calc(100% - 40px)); padding: 16px; border-radius: 25px; background: var(--km-card); box-shadow: 0 18px 50px rgb(6 51 31 / 20%); transform: translateX(-50%); animation: km-card-in .2s ease-out; }
+:dir(rtl) .km-card { transform: translateX(50%); }
+@keyframes km-card-in { from { opacity: 0; margin-bottom: -10px; } to { opacity: 1; margin-bottom: 0; } }
+.km-card__body { display: grid; gap: 4px; min-width: 0; flex: 1; padding: 4px 6px 0 0; }
+.km-card__body > small { color: var(--km-muted); font-size: 11px; font-weight: 700; }
+.km-card__title { color: var(--km-ink); font-size: 18px; font-weight: 950; line-height: 1.15; letter-spacing: -.025em; text-decoration: none; overflow-wrap: anywhere; }
+.km-card__title:hover { text-decoration: underline; text-underline-offset: 3px; }
+.km-card__price { display: flex; align-items: baseline; flex-wrap: wrap; gap: 5px; }
+.km-card__price > strong { font-size: 22px; font-weight: 950; line-height: 1; letter-spacing: -.03em; }
+.km-card__price del { color: var(--km-muted); font-size: 11px; font-weight: 700; }
+.km-card__actions { display: flex; gap: 8px; margin-top: 8px; }
+.km-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 38px; padding: 0 22px; border-radius: 15px; font-size: 13px; font-weight: 900; text-decoration: none; cursor: pointer; transition: background .15s ease, transform .15s ease; }
+.km-btn--primary { flex: 1.6; border: 0; background: var(--km-ink); color: #fffdf8; }
+.km-btn--primary:hover { background: #0b4a2f; transform: translateY(-1px); }
+.km-btn--primary[aria-disabled="true"] { background: #d9d3c4; color: #7b7566; pointer-events: none; }
+.km-btn--ghost { flex: 1; border: 1px solid var(--km-line); background: #fffdf8; color: var(--km-ink); }
+.km-btn--ghost:hover { background: #f4efe3; }
+.km-btn .km-icon { width: 13px; height: 13px; }
+
+/* Route sheet (re-uses map-route.css) sits where the card does */
+.km-route { inset-inline-start: 50%; bottom: 24px; width: min(480px, calc(100% - 40px)); transform: translateX(-50%); border-radius: 20px; }
+:dir(rtl) .km-route { transform: translateX(50%); }
+
+/* Tablet */
+@media (max-width: 1100px) {
+  .km-topbar { flex-wrap: wrap; gap: 10px; padding: 12px 16px; }
+  .km-search { flex: 1 1 260px; }
+  .km-filters { margin-inline-start: 0; }
+  .km-body { grid-template-columns: 320px minmax(0, 1fr); }
+  .km { height: auto; min-height: calc(100dvh - var(--kulha-header-h, 76px)); }
+  .km-body { height: calc(100dvh - 190px); min-height: 520px; }
+}
+
+/* Mobile: map / list switch */
+@media (max-width: 760px) {
+  .km { height: auto; min-height: 0; }
+  .km-topbar { gap: 8px; padding: 10px 12px; }
+  .km-round, .km-search, .km-filters { height: 46px; }
+  .km-round { width: 46px; }
+  .km-search { flex: 1 1 0; padding: 0 14px; }
+  .km-search input { font-size: 16px; }
+  .km-chips { order: 3; width: 100%; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+  .km-chips button { height: 40px; padding: 0 18px; font-size: 15px; flex: 0 0 auto; }
+  .km-filters { order: 2; padding: 0 14px; font-size: 15px; }
+  .km-filters span { display: none; }
+  .km-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin: 10px 12px 0; border-radius: 14px; background: #efe6d4; }
+  .km-switch button { min-height: 40px; border: 0; border-radius: 11px; background: transparent; color: var(--km-muted); font-size: 14px; font-weight: 850; cursor: pointer; }
+  .km-switch button.is-active { background: var(--km-card); color: var(--km-ink); box-shadow: 0 2px 8px rgb(6 51 31 / 8%); }
+  .km-switch button b { margin-inline-start: 5px; font-size: 12px; }
+  .km-body { display: block; height: auto; min-height: 0; padding-top: 10px; }
+  .km-body.is-list-view .km-map { display: none; }
+  .km-body.is-map-view .km-sidebar { display: none; }
+  .km-map { height: calc(100dvh - 250px); min-height: 440px; }
+  .km-sidebar { padding: 16px 12px 0; overflow: visible; }
+  .km-sidebar__head h2 { font-size: 22px; }
+  .km-sidebar__head > span { font-size: 14px; }
+  .km-list { overflow: visible; }
+  .km-row { gap: 12px; padding: 12px; border-radius: 22px; }
+  .km-tile { width: 60px; height: 60px; border-radius: 18px; }
+  .km-row__body small, .km-row__body em { font-size: 13px; }
+  .km-row__body strong { font-size: 17px; }
+  .km-row__price > strong { font-size: 24px; }
+  .km-card { inset-inline-start: 12px; bottom: 12px; width: calc(100% - 24px); gap: 12px; padding: 12px; border-radius: 28px; transform: none; }
+  :dir(rtl) .km-card { transform: none; }
+  .km-tile--lg { width: 72px; min-height: 72px; border-radius: 20px; }
+  .km-card__title { font-size: 21px; }
+  .km-card__price > strong { font-size: 26px; }
+  .km-card__body > small { font-size: 14px; }
+  .km-btn { min-height: 48px; padding: 0 14px; font-size: 16px; border-radius: 18px; }
+  .km-route { inset-inline-start: 12px; bottom: 12px; width: calc(100% - 24px); transform: none; }
+  :dir(rtl) .km-route { transform: none; }
+  .km-locate { width: 48px; height: 48px; top: 12px; inset-inline-end: 12px; }
+  .km-notices { top: 12px; inset-inline-start: 12px; width: calc(100% - 84px); }
+}
+@media (prefers-reduced-motion: reduce) { .km-card, .km-skel { animation: none; } .km-pin, .km-btn, .km-row { transition: none; } }
+
+/* ---- Final sizing (real-pixel scale; the first pass came from a 2x mockup) ---- */
+.km { min-height: 560px; font-size: 14px; }
+.km-topbar { gap: 10px; padding: 10px 16px; }
+.km-round { width: 40px; height: 40px; }
+.km-search { flex: 0 1 420px; height: 40px; padding: 0 14px; gap: 9px; }
+.km-search input { font: 600 14px/1 inherit; }
+.km-chips { gap: 8px; }
+.km-chips button { height: 36px; padding: 0 16px; font-size: 14px; }
+.km-filters { height: 40px; padding: 0 16px; gap: 8px; font-size: 14px; }
+.km-icon { width: 18px; height: 18px; }
+.km-body { grid-template-columns: clamp(300px, 27%, 400px) minmax(0, 1fr); }
+.km-sidebar { padding: 18px 14px 0; }
+.km-sidebar__head { padding: 0 6px 12px; }
+.km-sidebar__head h2 { font-size: 20px; letter-spacing: -.02em; }
+.km-sidebar__head > span { font-size: 13px; }
+.km-list { gap: 6px; }
+.km-row { gap: 12px; padding: 10px; border-radius: 18px; }
+.km-tile { width: 52px; height: 52px; border-radius: 15px; }
+.km-tile .km-icon { width: 22px; height: 22px; }
+.km-row__body { gap: 1px; }
+.km-row__body small { font-size: 12px; }
+.km-row__body strong { font-size: 15px; line-height: 1.25; }
+.km-row__body em { font-size: 12px; }
+.km-row__price { gap: 5px; }
+.km-row__price > strong { font-size: 20px; }
+.km-row__price > strong small, .km-card__price > strong small { margin-inline-start: 3px; font-size: 11px; }
+.km-badge { padding: 2px 8px; font-size: 11px; }
+.km-notices { width: min(320px, calc(100% - 90px)); }
+.km-locate { width: 42px; height: 42px; top: 14px; inset-inline-end: 14px; }
+.km .kulha-maplibre-map .maplibregl-ctrl-top-right { top: 66px; }
+.km-card { gap: 14px; width: min(440px, calc(100% - 32px)); padding: 12px; bottom: 20px; border-radius: 24px; }
+.km-tile--lg { width: 76px; min-height: 76px; border-radius: 18px; }
+.km-tile--lg .km-icon { width: 28px; height: 28px; }
+.km-card__body { gap: 3px; padding: 2px 4px 0 0; }
+.km-card__body > small { font-size: 12px; }
+.km-card__title { font-size: 18px; line-height: 1.2; letter-spacing: -.015em; }
+.km-card__price > strong { font-size: 22px; }
+.km-card__price del { font-size: 12px; }
+.km-card__actions { gap: 8px; margin-top: 6px; }
+.km-btn { min-height: 40px; padding: 0 16px; gap: 7px; border-radius: 13px; font-size: 14px; }
+.km-btn .km-icon { width: 16px; height: 16px; }
+.km-route { bottom: 20px; width: min(400px, calc(100% - 32px)); border-radius: 22px; }
+.km-empty { padding: 20px 8px; font-size: 13px; }
+.km-empty strong { font-size: 15px; }
+@media (max-width: 760px) {
+  .km { min-height: 0; }
+  .km-round, .km-search, .km-filters { height: 40px; }
+  .km-round { width: 40px; }
+  .km-chips button { height: 34px; padding: 0 14px; font-size: 13px; }
+  .km-row__body strong { font-size: 14px; }
+  .km-row__price > strong { font-size: 18px; }
+  .km-card { width: calc(100% - 20px); inset-inline-start: 10px; bottom: 10px; }
+  .km-tile--lg { width: 60px; min-height: 60px; }
+  .km-card__title { font-size: 16px; }
+  .km-btn { min-height: 38px; font-size: 13px; }
+}
+
+/* ---- Map chrome ---- */
+.km .maplibregl-ctrl-attrib, .km .maplibregl-ctrl-logo { display: none !important; }
+.km .maplibregl-ctrl-group { overflow: hidden; border: 0; border-radius: 14px; background: var(--km-card); box-shadow: 0 6px 20px rgb(6 51 31 / 16%); }
+.km .maplibregl-ctrl-group button { width: 40px; height: 40px; }
+.km .maplibregl-ctrl-group button + button { border-top: 1px solid var(--km-line); }
+.km .maplibregl-ctrl-group button:hover { background: #f4efe3; }
+.km-locate.is-following { background: #1f6feb; color: #fff; box-shadow: 0 6px 20px rgb(31 111 235 / 40%); }
+.km-locate.is-following:hover:not(:disabled) { background: #1a5fcb; }
+
+.km-list { gap: 9px; }
+.km-row {
+  position: relative;
+  align-items: center;
+  gap: 11px;
+  min-height: 78px;
+  padding: 10px 11px;
+  border: 1px solid #e9dfcd;
+  border-radius: 16px;
+  background: rgb(255 253 248 / 78%);
+  box-shadow: 0 2px 7px rgb(6 51 31 / 3%);
+}
+.km-row:hover:not(:disabled) {
+  border-color: #cfc4ad;
+  background: #fffdf8;
+  box-shadow: 0 5px 14px rgb(6 51 31 / 7%);
+}
+.km-row.is-selected {
+  border-color: #0c5738;
+  background: #fffdf8;
+  box-shadow: 0 5px 17px rgb(6 51 31 / 11%);
+}
+.km-row.is-selected::before {
+  position: absolute;
+  inset-block: 13px;
+  inset-inline-start: 0;
+  width: 4px;
+  border-radius: 0 5px 5px 0;
+  background: var(--km-yellow);
+  content: "";
+}
+:dir(rtl) .km-row.is-selected::before { border-radius: 5px 0 0 5px; }
+.km-row__glyph { font-size: 23px; line-height: 1; }
+.km-row__body { gap: 4px; }
+.km-row__eyebrow { display: flex; align-items: center; flex-wrap: wrap; gap: 5px 7px; min-width: 0; }
+.km-row__eyebrow small { min-width: 0; font-size: 11px; }
+.km-row__category {
+  max-width: 100%;
+  padding: 2px 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #f1eadb;
+  color: #5d6a5c;
+  font-size: 9px;
+  font-weight: 850;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.km-row__body strong { font-size: 14px; line-height: 1.25; }
+.km-row__body em { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; font-size: 10px; }
+.km-row__availability { color: #0c6842; font-weight: 850; }
+.km-row__availability.is-sold-out { color: #a13b32; }
+.km-row__price { align-content: center; justify-items: end; gap: 4px; min-width: 61px; }
+.km-row__price > strong { display: flex; align-items: baseline; gap: 2px; font-size: 19px; white-space: nowrap; }
+.km-row__price > strong small { font-size: 10px; }
+.km-row__price del { color: #8b8e83; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.km-badge { padding: 3px 7px; font-size: 10px; }
+.km-row--skeleton { border-color: #efe6d7; background: #fffaf1; box-shadow: none; }
+.km-row--skeleton .km-row__body { gap: 8px; }
+.km-skel--merchant { width: 54%; height: 8px; }
+.km-skel--meta { width: 68%; height: 8px; }
+.km-skel--badge { width: 42px; height: 15px; }
+.km-skel--amount { width: 52px; height: 14px; }
+.km-loading-control { display: grid; place-items: center; }
+.km-loading-control .km-skel { width: 8px; height: 15px; }
+.km-loading-search { gap: 10px; }
+.km-skel--search-icon { width: 14px; height: 14px; border-radius: 50%; }
+.km-skel--search-text { width: min(220px, 60%); height: 9px; }
+.km-loading-chip {
+  display: inline-flex;
+  height: 36px;
+  align-items: center;
+  padding: 0 16px;
+  border: 1px solid #ebe5d6;
+  border-radius: 999px;
+  background: #f4f2ea;
+  color: #758174;
+  font-size: 13px;
+  font-weight: 800;
+}
+.km-loading-filters .km-skel { width: 48px; height: 9px; }
+.km .kulha-maplibre-map { position: absolute; inset: 0; width: 100%; height: 100%; }
+@media (max-width: 760px) {
+  .km-row { min-height: 76px; padding: 11px; }
+  .km-row__glyph { font-size: 25px; }
+  .km-row__price > strong { font-size: 18px; }
+}
+
+
+/* Roomier offer rows: keep the map rail readable at desktop and mobile widths. */
+.km-list { gap: 12px; padding-block-end: 28px; }
+.km-row {
+  min-height: 102px;
+  gap: 13px;
+  padding: 14px 13px;
+  border-radius: 18px;
+}
+.km-tile { width: 58px; height: 58px; border-radius: 17px; }
+.km-row__body { gap: 6px; }
+.km-row__eyebrow { gap: 5px 8px; }
+.km-row__eyebrow small { font-size: 11px; line-height: 1.3; }
+.km-row__category { padding: 3px 7px; font-size: 9px; }
+.km-row__body strong { font-size: 15px; line-height: 1.3; }
+.km-row__body em { gap: 5px 9px; font-size: 11px; line-height: 1.35; }
+.km-row__price { min-width: 66px; gap: 6px; }
+.km-row__price > strong { font-size: 20px; }
+.km-row__price del { font-size: 10px; }
+@media (max-width: 1100px) {
+  .km-list { gap: 12px; }
+  .km-row { min-height: 106px; padding: 14px 12px; }
+}
+@media (max-width: 760px) {
+  .km-list { gap: 14px; padding-block-end: 26px; }
+  .km-row { min-height: 108px; gap: 13px; padding: 14px; }
+  .km-tile { width: 62px; height: 62px; border-radius: 18px; }
+  .km-row__body { gap: 6px; }
+  .km-row__body strong { font-size: 16px; }
+  .km-row__body em { font-size: 12px; }
+  .km-row__price { min-width: 70px; }
+  .km-row__price > strong { font-size: 21px; }
+}
+
+/* Final sidebar card layout: larger, predictable rows with independent space for
+   the category, basket title, pickup details and price. */
+.km-topbar { gap: 12px; padding: 12px 18px; }
+.km-search { flex: 0 1 420px; width: 420px; max-width: min(420px, calc(100vw - 90px)); min-height: 42px; height: 42px; padding-inline: 16px; }
+.km-search input { font-size: 14px; }
+.km-body { grid-template-columns: clamp(340px, 29%, 430px) minmax(0, 1fr); }
+.km-sidebar { padding: 20px 16px 0; }
+.km-sidebar__head { padding: 0 5px 16px; }
+.km-list { gap: 14px; padding: 4px 3px 30px; }
+.km-row {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) 86px;
+  align-items: stretch;
+  gap: 13px;
+  min-height: 146px;
+  padding: 16px 14px;
+  border: 1px solid #e9dfcd;
+  border-radius: 20px;
+  background: rgb(255 253 248 / 92%);
+  box-shadow: 0 3px 10px rgb(6 51 31 / 4%);
+  text-align: start;
+}
+.km-row:hover:not(:disabled) { border-color: #cfc5b1; background: #fffdf8; box-shadow: 0 7px 18px rgb(6 51 31 / 8%); }
+.km-row.is-selected { border-color: #0c5738; background: #fffdf8; box-shadow: 0 0 0 1px #0c5738 inset, 0 7px 18px rgb(6 51 31 / 9%); }
+.km-row.is-selected::before { inset-block: 18px; }
+.km-tile { width: 64px; height: 64px; align-self: center; border-radius: 19px; }
+.km-row__body {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 110px;
+}
+.km-row__eyebrow { display: flex; min-width: 0; align-items: center; flex-wrap: wrap; gap: 5px 7px; }
+.km-row__eyebrow small { min-width: 0; max-width: 100%; font-size: 11px; line-height: 1.35; overflow-wrap: anywhere; }
+.km-row__category { max-width: 100%; padding: 3px 8px; font-size: 9px; line-height: 1.35; }
+.km-row__body strong {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.38;
+  letter-spacing: -.015em;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+.km-row__body em {
+  display: grid;
+  align-items: start;
+  gap: 5px;
+  min-width: 0;
+  color: #596c5e;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 650;
+  line-height: 1.4;
+}
+.km-row__body em > span { min-width: 0; overflow-wrap: anywhere; }
+.km-row__availability { color: #0c6842; font-weight: 850; }
+.km-row__price {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  padding-inline-start: 0;
+  border-inline-start: 0;
+}
+.km-row__price > strong { display: flex; align-items: baseline; gap: 3px; font-size: 22px; line-height: 1.1; white-space: nowrap; }
+.km-row__price > strong small { margin-inline-start: 0; font-size: 10px; }
+.km-row__price del { color: #899084; font-size: 10px; font-weight: 750; white-space: nowrap; }
+.km-badge { padding: 4px 8px; font-size: 10px; }
+.km-row--skeleton { min-height: 146px; }
+.km-row--skeleton .km-row__body { gap: 10px; }
+
+@media (max-width: 1100px) {
+  .km-body { grid-template-columns: clamp(320px, 34%, 390px) minmax(0, 1fr); }
+  .km-row { min-height: 150px; }
+}
+@media (max-width: 760px) {
+  .km-topbar { gap: 9px; padding: 10px 12px; }
+  .km-round { width: 40px; height: 40px; }
+  .km-search { flex: 1 1 auto; width: auto; max-width: none; min-width: 0; height: 42px; padding-inline: 12px; }
+  .km-body { display: block; }
+  .km-sidebar { padding: 14px 12px 0; overflow: visible; }
+  .km-sidebar__head { padding: 0 4px 13px; }
+  .km-list { gap: 13px; padding: 3px 1px 28px; overflow: visible; }
+  .km-row {
+    grid-template-columns: 58px minmax(0, 1fr);
+    grid-template-rows: minmax(0, auto) auto;
+    align-items: start;
+    min-height: 150px;
+    gap: 6px 13px;
+    padding: 15px 13px;
+    border-radius: 19px;
+  }
+  .km-tile { grid-column: 1; grid-row: 1 / span 2; width: 58px; height: 58px; border-radius: 17px; }
+  .km-row__body { grid-column: 2; grid-row: 1; align-content: start; gap: 7px; min-height: 0; }
+  .km-row__body strong { font-size: 16px; line-height: 1.35; }
+  .km-row__body em { display: flex; flex-wrap: wrap; gap: 5px 10px; font-size: 11px; }
+  .km-row__price {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    min-height: 27px;
+    padding: 0;
+    border: 0;
+  }
+  .km-row__price > strong { font-size: 21px; }
+  .km-row__price > strong small { font-size: 10px; }
+  .km-row__price del { font-size: 10px; }
+  .km-row.is-selected::before { inset-block: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .km-row { transition: none; }
+}
+
+/* Map loading state uses the same search-only toolbar and tall offer rows. */
+.km-loading-round { display: grid; place-items: center; }
+.km-loading-round .km-skel { width: 7px; height: 14px; }
+.km-loading-search { gap: 12px; pointer-events: none; }
+.km-loading-search-icon { width: 15px; height: 15px; flex: 0 0 15px; border: 2px solid #cbd6c9; border-radius: 50%; }
+.km-loading-search-text { width: min(260px, 55%); height: 9px; border-radius: 8px; background: #eee9de; }
+.km-row--skeleton { pointer-events: none; }
+.km-row--skeleton .km-row__body { justify-items: start; }
+.km-skel--merchant { width: 58%; height: 8px; }
+.km-skel--meta { width: 76%; height: 8px; }
+.km-skel--badge { width: 42px; height: 17px; }
+.km-skel--amount { width: 58px; height: 17px; }
+.km-loading-map { position: absolute; inset: 0; overflow: hidden; background: linear-gradient(135deg, #e8efec 0%, #d9e8e7 44%, #e9e6d9 100%); }
+.km-loading-map::before,
+.km-loading-map::after { position: absolute; inset: -15%; content: ""; opacity: .8; }
+.km-loading-map::before { background: repeating-linear-gradient(26deg, transparent 0 38px, rgb(255 255 255 / 85%) 39px 42px, transparent 43px 76px), repeating-linear-gradient(112deg, transparent 0 54px, rgb(255 255 255 / 78%) 55px 58px, transparent 59px 105px); }
+.km-loading-map::after { background: repeating-linear-gradient(0deg, transparent 0 78px, rgb(205 194 171 / 34%) 79px 81px, transparent 82px 138px); transform: rotate(-13deg); }
+.km-loading-map-road { position: absolute; z-index: 1; height: 5px; border-radius: 999px; background: rgb(255 255 255 / 88%); box-shadow: 0 0 0 1px rgb(210 202 184 / 40%); transform-origin: left center; }
+.km-loading-map-road--one { top: 28%; left: 12%; width: 78%; transform: rotate(12deg); }
+.km-loading-map-road--two { top: 67%; left: 4%; width: 82%; transform: rotate(-19deg); }
+.km-loading-map-road--three { top: 10%; left: 53%; width: 68%; transform: rotate(72deg); }
+.km-loading-map-pin { position: absolute; z-index: 2; width: 22px; height: 22px; border: 5px solid #fffdf8; border-radius: 50%; background: #0b5438; box-shadow: 0 3px 10px rgb(6 51 31 / 18%); }
+.km-loading-map-pin.is-one { top: 28%; left: 35%; }
+.km-loading-map-pin.is-two { top: 55%; left: 66%; background: #fdb827; }
+.km-loading-map-pin.is-three { top: 76%; left: 22%; }
+.km-loading-map-zoom { position: absolute; z-index: 3; top: 18px; inset-inline-end: 18px; display: grid; width: 40px; border-radius: 12px; background: #fffdf8; box-shadow: 0 5px 14px rgb(6 51 31 / 12%); }
+.km-loading-map-zoom i { height: 38px; }
+.km-loading-map-zoom i + i { border-top: 1px solid #e8dfcd; }
+@media (max-width: 760px) {
+  .km-loading-map { display: none; }
+  .km-loading-search { min-height: 42px; }
+  .km-row--skeleton { min-height: 150px; }
+}
+
+
+/* Keep the map price presentation identical to the shared app-wide price sticker. */
+.km-row__price {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0;
+  border: 0;
+}
+.km-row__price .kulha-price-sticker {
+  --ps-min: 78px;
+  --ps-pill-font: 9px;
+  --ps-pill-pad: 3px 7px;
+  --ps-pill-overlap: 7px;
+  --ps-pill-inset: 7px;
+  --ps-pad: 5px 8px 7px;
+  --ps-radius: 11px;
+  --ps-old: 9px;
+  --ps-major: 23px;
+  --ps-frac: 10px;
+  --ps-cur: 8px;
+  --ps-pill-font: 10px;
+}
+.km .kulha-price-sticker--sm {
+  --ps-old: 9px;
+  --ps-major: 24px;
+  --ps-frac: 11px;
+  --ps-cur: 8px;
+  --ps-pill-font: 10px;
+}
+.km .kulha-price-sticker__plate {
+  border: 0;
+}
+.km-card__price {
+  display: flex;
+  align-items: flex-start;
+  margin-block: 2px 4px;
+}
+.km-card__price .kulha-price-sticker { margin: 0; }
+.km-card__price .kulha-price-sticker--sm { transform: scale(.9); transform-origin: left top; }
+.km-filters { margin-inline-start: auto; flex: 0 0 auto; }
+.km-loading-filters { pointer-events: none; }
+.km-loading-filters .km-skel { width: 50px; height: 9px; }
+@media (max-width: 760px) {
+  .km-row__price { grid-column: 2; grid-row: 2; justify-content: flex-start; }
+  .km-row--skeleton .km-row__price { flex-direction: column; align-items: flex-end; justify-content: center; gap: 5px; }
+  .km-row__price .kulha-price-sticker { transform: scale(.94); transform-origin: left center; }
+  .km-card__price .kulha-price-sticker--sm { transform: scale(.88); }
+}
+
+/* ==== Sidebar offer rows — final layout (keep LAST in this file) ====
+   Fixes crushed/clipped titles and the price sticker overlapping the text.
+   Row = [tile] [text, takes all spare room] [price, natural width]. */
+.km-list { grid-auto-rows: max-content; align-content: start; gap: 12px; padding: 4px 3px 28px; }
+.km-row {
+  display: grid;
+  flex: 0 0 auto;
+  align-self: start;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  grid-template-rows: auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 76px;
+  height: auto;
+  padding: 14px 12px;
+  border-radius: 18px;
+}
+.km-tile { grid-column: 1; grid-row: 1; width: 56px; height: 56px; align-self: center; border-radius: 17px; }
+.km-row__body { grid-column: 2; grid-row: 1; display: grid; align-content: center; gap: 5px; min-width: 0; min-height: 0; }
+.km-row__eyebrow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 7px; min-width: 0; }
+.km-row__eyebrow small { min-width: 0; max-width: 100%; font-size: 11px; line-height: 1.3; overflow-wrap: anywhere; }
+.km-row__category { flex: 0 0 auto; max-width: 100%; }
+.km-row__body strong {
+  display: block;
+  min-width: 0;
+  max-height: none;
+  overflow: visible;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.3;
+  letter-spacing: -.01em;
+  overflow-wrap: break-word;
+  word-break: normal;
+  text-wrap: balance;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+}
+.km-row__body em { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; min-width: 0; font-size: 11px; line-height: 1.35; }
+.km-row__price { grid-column: 3; grid-row: 1; display: flex; align-items: center; justify-content: flex-end; align-self: center; min-width: 0; padding: 0; }
+.km-row__price .kulha-price-sticker { margin: 0; transform: none; }
+.km-row.is-selected::before { inset-block: 16px; }
+.km-row--skeleton { min-height: 96px; }
+
+/* Narrow sidebars / tablets: shrink the tile and price a little, never the title. */
+@media (max-width: 1280px) {
+  .km-row { grid-template-columns: 48px minmax(0, 1fr) auto; gap: 10px; padding: 12px 10px; }
+  .km-tile { width: 48px; height: 48px; border-radius: 15px; }
+  .km-row__body strong { font-size: 14px; }
+}
+/* Phones (full-width list): title gets its own full-width line above the price. */
+@media (max-width: 760px) {
+  .km-row { grid-template-columns: 56px minmax(0, 1fr); gap: 10px 12px; padding: 14px 12px; }
+  .km-tile { grid-row: 1 / span 2; align-self: start; width: 56px; height: 56px; }
+  .km-row__body { grid-column: 2; grid-row: 1; }
+  .km-row__body strong { font-size: 16px; }
+  .km-row__price { grid-column: 2; grid-row: 2; justify-content: flex-start; }
+  .km-row__price .kulha-price-sticker { transform: none; }
+}
+
+/* Map pins: the little "2" badge on every avatar was just the shop's offer count and read as noise. */
+.km-pin__count { display: none; }
+
+/* ==== Map popup card: title + price on one line, bigger price (keep LAST) ==== */
+.km-card__body { grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; row-gap: 4px; align-items: center; }
+.km-card__body > small { grid-column: 1 / -1; grid-row: 1; }
+.km-card__title { grid-column: 1; grid-row: 2; align-self: center; min-width: 0; font-size: 19px; line-height: 1.2; overflow-wrap: break-word; }
+.km-card__price { grid-column: 2; grid-row: 2; align-self: center; justify-self: end; margin: 0; flex-wrap: nowrap; }
+.km-card__actions { grid-column: 1 / -1; grid-row: 3; margin-top: 8px; }
+.km-card__price .kulha-price-sticker,
+.km-card__price .kulha-price-sticker--sm {
+  --ps-min: 104px;
+  --ps-major: 34px;
+  --ps-frac: 14px;
+  --ps-cur: 11px;
+  --ps-old: 12px;
+  --ps-pill-font: 12px;
+  --ps-pad: 7px 12px 9px;
+  transform: none;
+}
+@media (max-width: 760px) {
+  .km-card__title { font-size: 18px; }
+  .km-card__price .kulha-price-sticker,
+  .km-card__price .kulha-price-sticker--sm { --ps-min: 94px; --ps-major: 30px; --ps-frac: 13px; transform: none; }
+}
+
+/* ==== Map popup card: compact + fixed tile (keep LAST) ==== */
+.km-card { align-items: center; gap: 14px; padding: 12px 14px 12px 12px; }
+.km-card .km-tile--lg {
+  flex: 0 0 64px;
+  align-self: center;
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  min-height: 0;
+  border-radius: 18px;
+}
+.km-card .km-tile--lg .km-icon { width: 26px; height: 26px; }
+.km-card__body { align-self: center; padding: 0; row-gap: 2px; }
+.km-card__body > small { margin-bottom: 2px; }
+.km-card__title { align-self: center; }
+.km-card__actions { margin-top: 6px; }
+
+/* Price: pill becomes a badge on the plate's corner instead of stacking above it,
+   which removes ~18px of dead height next to the title. */
+.km-card__price { margin-top: 11px; }
+.km-card__price .kulha-price-sticker__discount { position: absolute; z-index: 2; top: -11px; inset-inline-start: 8px; margin: 0; }
+.km-card__price .kulha-price-sticker__discount + .kulha-price-sticker__plate { padding-top: 11px; }
+.km-card__price .kulha-price-sticker,
+.km-card__price .kulha-price-sticker--sm { --ps-major: 32px; --ps-min: 96px; --ps-pad: 7px 11px 8px; }
+.km-card__price .kulha-price-sticker__plate { gap: 2px; }
+.km-card__price .kulha-price-sticker__old { font-size: 11px; }
+@media (max-width: 760px) {
+  .km-card { gap: 12px; padding: 12px; }
+  .km-card .km-tile--lg { flex-basis: 56px; width: 56px; min-width: 56px; height: 56px; border-radius: 16px; }
+  .km-card__price .kulha-price-sticker,
+  .km-card__price .kulha-price-sticker--sm { --ps-major: 28px; --ps-min: 86px; }
+}

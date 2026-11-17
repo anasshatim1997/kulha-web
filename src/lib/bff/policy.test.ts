@@ -4,6 +4,10 @@ import { resolveBackendPath } from "./policy";
 describe("resolveBackendPath", () => {
   it("maps allowed routes to the API", () => {
     expect(resolveBackendPath(["me"])).toBe("/api/v1/me");
+    expect(resolveBackendPath(["offers"])).toBe("/api/v1/offers");
+    expect(resolveBackendPath(["offers", "suggestions"])).toBe("/api/v1/offers/suggestions");
+    expect(resolveBackendPath(["offers", "a1a1a1a1-a1a1-41a1-81a1-a1a1a1a1a1a1"])).toBe("/api/v1/offers/a1a1a1a1-a1a1-41a1-81a1-a1a1a1a1a1a1");
+    expect(resolveBackendPath(["offers", "a1", "reserve"])).toBeNull();
     expect(resolveBackendPath(["merchants", "me"])).toBe("/api/v1/merchants/me");
     expect(resolveBackendPath(["admin", "merchants"])).toBe("/api/v1/admin/merchants");
     expect(resolveBackendPath(["admin", "merchants", "7a0d9a2a-a968-4320-910d-61483becfcde", "approve"])).toBe(

@@ -1,213 +1,291 @@
-# KULHA! — Moroccan surplus-food marketplace
+# kulha-api
 
-KULHA! connects people with Moroccan neighbourhood shops offering surplus food in discounted baskets. Customers browse an offer, reserve available stock online, then collect the basket from the shop during its stated pickup window.
+Backend of **KULHA!**, an anti-food-waste marketplace for Morocco: merchants publish unsold baskets, customers reserve them and pick them up.
 
-## Product scope represented in this web project
+This is a **modular monolith** (Spring Boot + PostgreSQL). Module boundaries follow DDD so a module can be extracted into its own service later, but for the pilot there is **one deployable application**. See `docs/adr/001-modular-monolith.md`.
 
-- Customer-facing responsive web/PWA experience in Arabic (RTL), French, and English.
-- Merchant-facing messaging for bakeries, cafés, restaurants, grocery shops, and supermarkets.
-- Discounted surplus-food baskets, clear MAD prices, quantities, shop address, and collection windows.
-- Reservation-first customer journey with clear shop details and collection windows.
-- One-time pickup code concept and payment instructions shown before confirmation; pay-at-pickup remains the fallback if an online payment provider is not approved for the pilot.
-- No unsupported claims about launch cities, partner shops, customer counts, savings, or availability.
+> Status: Sprint 1 (foundation). Not production-ready. Never mark a build or test as passing unless you have seen the real result.
 
-## Requirements
+## Stack
 
-- Node.js 20.9+ (Node.js 22 LTS recommended)
-- pnpm 10.11.0 (pinned in `package.json`)
-- API environment for authenticated actions (see `.env.example`)
+| Area | Choice |
+|---|---|
+| Language | Java 21 |
+| Framework | Spring Boot 4.1.x (version pinned in `pom.xml`) |
+| Build | Maven, wrapper included (`mvnw` / `mvnw.cmd`) |
+| Database | PostgreSQL 16, schema managed by Flyway |
+| Security | Spring Security, deny-by-default (self-issued JWT authentication arrives in Sprint 2) |
+| Tests | JUnit 5, ArchUnit (module boundaries) |
+| Local infra | Docker Compose, PostgreSQL only |
+| CI | GitHub Actions (`.github/workflows/ci.yaml`) with a PostgreSQL service container |
 
-## Run locally
+Not in the project yet, on purpose: RabbitMQ, Redis and SMTP (Sprint 8), the payment provider (Sprint 9), Testcontainers and OpenAPI docs (when the first endpoints need them).
 
-```bash
-cp .env.example .env.local
-corepack enable
-pnpm install --frozen-lockfile
-pnpm dev
+## Prerequisites
+
+- JDK 21
+- Docker: Docker Desktop, or Docker Engine inside WSL2
+- Git
+- IntelliJ IDEA Ultimate (recommended)
+
+Check:
+
+```powershell
+java -version
+docker --version
+git --version
 ```
 
-Open http://localhost:3000.
+## Getting started (Windows PowerShell)
 
-## Validation commands
+### 1. Create your `.env`
 
-```bash
-pnpm typecheck
-pnpm test
-pnpm build
+Create a file named `.env` in the project root. It is ignored by Git and must **never be committed**. Local values only:
+
+```
+DB_HOST=localhost
+DB_PORT=5433
+DB_NAME=kulha
+DB_USER=postgres
+DB_PASSWORD=your-local-password
 ```
 
-The test script uses Vitest. Add feature tests as the API and product flows are connected. A successful frontend build does not replace backend authorization, stock concurrency, payment webhook, or pickup-token tests.
+Port 5433 is used because port 5432 is blocked or reserved on some Windows machines. Docker Compose reads this file automatically.
 
-## Visual layout
+### 2. Start the database
 
-- Homepage: a viewport-height first-screen hero with the supplied full-canvas 1920×1080 KULHA! animation (settled loop, no cropped video tile or blend mask), a fixed-height typewriter campaign headline, neighbourhood slogan cards, two clear customer/shop-owner entry cards, a customer trust checklist, and a transparent pilot-status panel.
-- Header: compact, non-sticky navigation with breathing room for the customer area, how it works, FAQ, and the shop-owner space; switches to a drawer before desktop links become cramped.
-- Sign in / sign up: true 50/50 split-screen layout on desktop; stacked responsive layout on narrow screens. The form never uses an internal scroll area.
-- Arabic: MSA Arabic copy, explicit RTL column placement and Arabic typography spacing to keep the heading separate from the brand artwork.
-- Brand system: deep market green, warm cream, saffron, tomato accents, and a restrained zellige-inspired geometric motif.
-
-## Locales and RTL
-
-- `/ar` — Arabic (RTL, Modern Standard Arabic)
-- `/` — French
-- `/en` — English
-
-The language switcher offers exactly AR, FR and EN, preserves the current page where a translated route exists, and keeps Arabic right-to-left. Retired locale URLs redirect to the Arabic experience for link compatibility; they are not shown as language options.
-## Product and launch safeguards
-
-- Collection is confirmed at the participating shop using a one-time code.
-- Stock and prices must be authoritative on the backend. The UI must not imply a reservation until the server confirms it.
-- Food contents and allergen information must come from the merchant or a verified source. Unknown information must remain clearly marked as unknown.
-- The Moroccan data-protection, commercial, payment, and food-safety requirements need review by qualified local advisers before launch. This repository is not legal advice.
-
-## Main folders
-
-- `src/app` — routes and metadata
-- `src/components` — landing, account, navigation, and UI components
-- `src/lib/i18n` — localized product and account copy
-- `public/brand` — KULHA! identity assets
-- `public` — media and static assets
-
-
-### Landing hero animation
-The desktop hero uses the original supplied `kulha-landing-animations/hero-1-split/hero1-split-logo-only` MP4/WebM files. This is the bundle's recommended main-hero option. It plays once and holds on the completed logo; live localized HTML copy remains selectable and the CTA buttons remain real links. The baked-in delivery slogans are intentionally not used.
-
-## Interactive homepage experiences
-The homepage includes a client-side playground for both customers and shop owners.
-
-- Customer simulation: select an illustrative basket category, step through discovery, indicative price comparison, collection details, and an account-creation CTA.
-- Merchant simulation: edit an example reference value, basket price, and quantity to preview a simulated discount and potential gross sales before following the merchant information/onboarding path.
-- Mobile app showcase: separate customer and merchant concepts. Dedicated native apps are labeled as in preparation; the responsive website remains usable on mobile.
-
-All playground prices, basket mockups, and merchant calculations are illustrative only, not active offers or guaranteed commercial terms. The supplied Hero 1 split logo-only animation is set to loop in the landing hero at the current request.
-
-
-## Homepage basket discovery
-The home page includes a localized basket-discovery preview with category, area, price and text filters, sorting, and an offer-detail dialog. The current listings are illustrative fixtures only. They must not be presented as live inventory. Replace `SAMPLE_OFFERS` in `src/components/landing/BasketDiscovery.tsx` with the public-offers endpoint and response DTO defined in the backend OpenAPI contract, after merchant verification, inventory, price, area and pickup-window data are available. Until then, the sample-data labels are intentional.
-
-
-### Illustrative catalogue photography credits
-The basket preview uses generic stock photographs from Unsplash. They are visual examples only and do not depict KULHA! partner stores or verified live baskets. Credits and source pages:
-- Bakery: Stephanie LeBlanc — https://unsplash.com/photos/baked-pastries-on-brown-wicker-basket-NZH0p2_2kMo
-- Produce: Katelyn G — https://unsplash.com/photos/a-basket-filled-with-lots-of-different-types-of-fruits-and-vegetables-BqN1yRSKCCA
-- Café: Mathias Reding — https://unsplash.com/photos/a-cup-of-coffee-and-a-croissant-on-a-table-RJCODpGceTQ
-- Grocery: Tanya Barrow — https://unsplash.com/photos/wicker-basket-filled-with-goods-in-a-store-LfXqsVC9IOw
-
-
-### Basket discovery sample merchants
-
-The restaurant example is named **Restaurant Dar Zayna**. This is fictional sample content for the UI only, not a real partner or merchant. Replace its name, image, menu contents, price, stock and collection window with approved merchant data before launch.
-
-## Latest UI pass: authentication
-
-The login and registration pages now share a clear sign-in/create-account switch, improved field hierarchy and focus states, localized welcome messaging in French/English/Arabic, and a merchant onboarding link. Desktop remains a 50/50 split with a viewport-constrained layout; mobile becomes a natural single-column page. The auth request payloads and server validation were not changed.
-
-### Auth layout adjustment
-On desktop login/register routes, the KULHA! lockup is centered in the header over the form-side column, and the form card is raised slightly to align with the supplied reference. On mobile, the standard left-aligned header brand remains in place.
-
-
-## BFF client IP rate limiting
-
-The Next.js server reads the client address only from `X-Real-IP`, which must be set by the trusted reverse proxy. Configure the proxy to strip any incoming client-supplied `X-Real-IP` and overwrite it with the actual connecting client IP; do not expose Next.js directly in a way that bypasses this proxy. The BFF forwards the validated address to the API using `X-Kulha-Client-IP` and `X-Kulha-Bff-Secret`. Set the same long random `KULHA_BFF_SHARED_SECRET` in the web and API environments. The browser-supplied `X-Forwarded-For` and `X-Kulha-*` headers are never forwarded or trusted.
-
-## Google sign-in
-
-Google sign-in uses the OIDC authorization-code flow with PKCE (S256). The Next.js BFF creates and signs a short-lived state cookie, validates the callback state, exchanges the authorization code server-side, and forwards the ID token plus nonce to the API. The API verifies Google's signature/JWKS, issuer, audience, expiry and nonce, requires `email_verified`, links the stable Google subject to a KULHA account, and returns the normal KULHA access/refresh pair. Tokens remain in HttpOnly cookies; Google tokens are never returned to browser JavaScript. Existing email/password login remains available.
-
-Configure the same Google OAuth Web client ID in `GOOGLE_CLIENT_ID` (web) and `GOOGLE_OAUTH_CLIENT_ID` (API), the client secret only in the web server environment, and the same long random `KULHA_BFF_SHARED_SECRET` in both services. Register `http://localhost:3000/api/auth/google/callback` (or the exact production callback) as an authorized redirect URI in Google Cloud. Google sign-in remains unavailable until all required settings are present.
-
-A verified Google email may be linked to an existing active KULHA account with the same normalized email. A disabled account is never reactivated by Google sign-in. New Google accounts receive the standard CUSTOMER role.
-
-### Authentication layout
-The auth header keeps the normal KULHA! lockup at the far left. The illustrated KULHA! bag sits inside the left benefit panel next to the four benefit statements. On desktop the two auth columns remain 50/50, with the form naturally centered in the available viewport height; mobile stacks both panels and allows normal document scrolling (no nested form scroller).
-
-
-### Authentication feedback
-- Registration provides live password guidance in French, English and Arabic. The API-required rules remain 10–128 characters; number/symbol/14-character checks are presented as strength recommendations, not server requirements.
-- Login and registration display a KULHA!-branded indeterminate progress sweep while requests are pending. The UI does not invent a completion percentage.
-
-### Authentication UX
-- Registration is a two-step flow: name/email/optional phone, then password + confirmation + terms.
-- Login and registration show a KULHA-branded blocking progress overlay.
-- Login and registration requests time out after 30 seconds and return the form to an actionable error state.
-- The progress bar is intentionally indeterminate: the browser cannot know the backend's exact percentage, so it never displays a fabricated completion percentage.
-
-### Route loading and registration scrolling
-- Internal route navigation, browser back/forward, locale changes and auth redirects show a KULHA-branded top progress rail and a small animated bag mark.
-- The route indicator is indeterminate: it does not claim a percentage the browser cannot know. It completes on route/query change and clears after a safety timeout if navigation stalls.
-- Auth pages lock the document to the viewport and hide the global footer. The registration panel's content area is the only scroll container; login remains non-scrollable. Desktop remains 50/50, and mobile keeps the header/benefit panel fixed while the registration content scrolls inside its own panel.
-- The route and auth loaders use KULHA forest green, cream and saffron, with reduced-motion support.
-
-## Branded route and authentication loading
-
-The global App Router navigation feedback and auth submission overlay use the shared `KulhaLoader` component at `src/components/KulhaLoader`. Its 14 lightweight WebP logo sprites live in `public/kulha-loader/`. The loader uses the supplied KULHA bag/produce/wordmark artwork and CSS-only animation, with a dark forest-green full-screen treatment. Route loading is locale-aware (French, English, Arabic).
-
-Authentication surfaces use warm almond/cream paper tones and pale saffron input surfaces rather than stark white, with larger labels and field typography. Registration retains its dedicated inner scroll area; the document and left brand panel remain locked.
-
-## Fixing a stale Next.js / Turbopack module-factory error
-
-This project uses Next.js 16. In Next.js 16, Turbopack is the default development bundler. If the browser reports an error such as `Module factory is not available` or references `segment-explorer-node.js`, it can be caused by stale generated chunks or an inconsistent Turbopack module graph after dependency or source changes.
-
-The development script intentionally clears only generated Next.js caches and starts the app with Webpack:
-
-```bash
-# Stop any running dev server first (Ctrl+C), then:
-pnpm dev
+```powershell
+cd C:\dev\kulha-api
+docker compose up -d db
+docker compose ps
 ```
 
-The same command works with npm:
+Wait until `db` shows `(healthy)`. If Docker runs inside WSL, prefix the commands with `wsl`.
 
-```bash
-npm run dev
+If the password in `.env` is changed after the first start, the database keeps the old one. Reset the local data with `docker compose down -v`, then start it again.
+
+### 3. Run the application
+
+In IntelliJ: open the project, set the SDK to Java 21 (File > Project Structure), then create or edit the Spring Boot run configuration for `KulhaApiApplication` and set the environment variables:
+
+```
+DB_USER=postgres;DB_PASSWORD=your-local-password;DB_PORT=5433
 ```
 
-The scripts are configured as follows:
+`DB_HOST` and `DB_NAME` have defaults in `application.yml`. Run it. Flyway applies the migrations on startup.
 
-- `dev`: clear `.next` and `node_modules/.cache/next`, then start Next.js with Webpack.
-- `dev:webpack`: start Webpack without clearing caches (use only when you intentionally want to preserve the dev cache).
-- `clean:next`: clear generated Next.js caches without starting the server.
-- `build`: use Webpack for a consistent production build path while this runtime issue is being avoided.
+Or from the terminal, after setting the variables for that PowerShell window:
 
-After the server starts, close stale localhost tabs and hard-refresh the page (`Ctrl+Shift+R`). Do not delete `node_modules` as the first step; the cache reset is much less disruptive.
+```powershell
+$env:DB_USER="postgres"
+$env:DB_PASSWORD="your-local-password"
+$env:DB_PORT="5433"
+.\mvnw.cmd spring-boot:run
+```
 
-If the error persists after a clean Webpack start, inspect the local dependency graph with `pnpm why next` and `pnpm list next --depth 10`, then reinstall from the project's lockfile. Do not manually edit files inside `node_modules/.pnpm`. This app does not register a service worker or override Next.js static chunk cache headers, so no service-worker or custom static-cache rule needs to be changed for this fix.
+### 4. Check it
 
-### Authentication role selection
+```powershell
+curl http://localhost:8080/actuator/health
+```
 
-Registration asks users whether they are joining as a customer or representing a shop. Customer registration uses the existing `/api/v1/auth/register` request contract. Shop owners are directed to the merchant onboarding information flow; merchant access is reviewed and approved by the KULHA! team. The frontend intentionally does not submit a self-assigned privileged role to the API.
+Expected: `{"groups":["liveness","readiness"],"status":"UP"}`. Any other URL returns 403, because everything is denied by default.
 
-The auth card surface is transparent; editable input fields are white.
+If health shows `DOWN`, the database is not reachable: check `docker compose ps`.
 
-### Latest authentication styling
-The auth page and form surfaces use the same `--cream` background token as the page body (`#fcf4e7`). White is reserved for editable input fields. Customer and shop-owner selection uses neutral line icons, understated borders, and a forest-green selected state. Auth typography has been increased for readability.
+## Configuration
 
-## Customer and shop-owner onboarding
+Everything comes from environment variables. Real values stay in `.env` (never in Git).
 
-- Customers and shop owners create the same secure KULHA! identity account. A shop-owner selection changes the post-signup journey; it never grants merchant permissions by itself.
-- The user confirms their email address, signs in, then submits the shop profile at `/merchant/apply` (or the localized `/en/merchant/apply` and `/ar/merchant/apply` routes).
-- The API creates the merchant application as `PENDING`. The owner can follow its status; a rejected application can be corrected and resubmitted. The API only grants `MERCHANT` after an administrator approves the shop.
-- Existing email/password and Google sign-in both use the same post-login route. Google-created accounts are email-verified by the identity provider before the merchant application step.
+| Variable | Purpose | Default |
+|---|---|---|
+| `DB_HOST` | PostgreSQL host | `localhost` |
+| `DB_PORT` | PostgreSQL port | `5432` in `application.yml`, `5433` in the local setup above |
+| `DB_NAME` | Database name | `kulha` |
+| `DB_USER` | Database user | none, required |
+| `DB_PASSWORD` | Database password | none, required |
 
-## Transactional email and in-app feedback
+Never use production credentials on a developer machine.
 
-- Verification and password-reset emails are multipart HTML/text messages using the KULHA! forest-green and saffron brand palette. Action links appear as buttons in the HTML email; one-time tokens are carried in URL fragments, never printed in the text alternative, and are removed from the browser address bar as soon as the confirmation page reads them.
-- In-app notifications use the project-owned `ToastProvider` and KULHA! styling. No third-party React toast package is used.
+## Tests
 
-## Post-sign-in customer and shop-owner screens
+```powershell
+.\mvnw.cmd clean verify
+```
 
-The authentication flow now lands on role-appropriate account screens after email verification and sign-in:
+This needs the database running and the `DB_*` variables set in the same PowerShell window, because `KulhaApiApplicationTests` starts the whole application. CI provides its own PostgreSQL, so it does not depend on your machine.
 
-- **Customer:** `/account` (also `/en/account` and `/ar/account`) is the customer home. It shows the signed-in profile, email verification state, launch information, and links to basket discovery and the KULHA! how-it-works page. Reservation functionality is not presented as live before the pilot is opened.
-- **Shop owner:** `/merchant/dashboard` (also `/en/merchant/dashboard` and `/ar/merchant/dashboard`) is the shop workspace and application entry point. An owner without an application can submit one; a pending owner sees the review status; a rejected owner can correct and resubmit; an approved owner sees the verified business profile and the state of the tools.
-- **Role-based return:** a normal password sign-in sends an approved `MERCHANT` role to the shop dashboard and other accounts to the customer home. A validated `next` destination supplied by the signup/verification flow is preserved.
+To run only the architecture tests (no database needed):
 
-Basket publishing, reservation management, and pickup confirmation are still future product phases. The approved shop workspace labels these tools as not yet released rather than displaying nonfunctional controls.
+```powershell
+.\mvnw.cmd "-Dtest=ModuleBoundariesTest" test
+```
 
-### Smoke-test paths
+`ModuleBoundariesTest` (ArchUnit) fails the build if:
+- a `domain` package depends on Spring or JPA
+- a module uses another module's internal packages (`domain.model`, `domain.repository`, `infrastructure`, `interfaces`)
 
-1. Register as **Customer**, verify the email from the message, use the sign-in button, and confirm that `/account` opens.
-2. Register as **Shop owner**, verify the email, use the shop-owner sign-in button, complete the business application, and confirm that the application status is shown on `/merchant/dashboard`.
-3. Approve the application through the existing administrator workflow. On the owner's next sign-in, confirm that the shop dashboard shows the approved business workspace.
-4. Repeat using `/en` and `/ar` paths to verify localized account and shop-owner screens.
+Rules for tests going forward: every fixed bug gets a regression test, and a flaky test is diagnosed, not disabled.
 
-These flows require the API, database, email provider, and (for Google sign-in) Google OAuth credentials to be configured. The UI screens do not bypass API verification or merchant approval.
+Priority scenarios, added as the modules arrive:
+- two customers reserve the last unit: only one succeeds
+- a pickup code reused: the second use is refused
+- a merchant cannot read another merchant's data
+- an invalid or expired token is refused
+
+## Continuous integration
+
+`.github/workflows/ci.yaml` runs `./mvnw clean verify` on every push to `main` and on every pull request, on a GitHub-hosted Ubuntu machine with a temporary PostgreSQL 16 service. Check the **Actions** tab after each push and fix a red build before continuing. The password in that file belongs to a throwaway CI database and is not a real secret.
+
+## Project structure
+
+```
+kulha-api/
+  .github/workflows/ci.yaml
+  docs/adr/                  # architecture decision records
+  src/main/java/ma/kulha/
+    KulhaApiApplication.java
+    shared/security/         # SecurityConfig (deny by default, health open)
+    identity/                # accounts, roles, email verification   (Sprint 2)
+    merchant/                # merchant profile, admin approval      (Sprint 3)
+    offer/                   # offers, publication rules             (Sprint 4-5)
+    reservation/             # availability, orders, pickup code     (Sprint 6-7)
+    notification/            # emails, outbox consumers              (Sprint 8)
+    payment/                 # payment model, pay-at-pickup default  (Sprint 9)
+    admin/                   # moderation, audit log                 (Sprint 10)
+  src/main/resources/
+    application.yml
+    db/migration/            # Flyway: V1__init_schemas.sql, ...
+  src/test/java/ma/kulha/
+    architecture/            # ArchUnit boundary tests
+  compose.yaml               # local PostgreSQL
+  pom.xml
+```
+
+Planned layout inside each module (created when the module is built):
+
+```
+<module>/
+  domain/model        # entities, value objects, rules (no Spring, no JPA)
+  domain/event
+  domain/repository   # interfaces
+  application/        # use cases
+  infrastructure/     # persistence, messaging
+  interfaces/rest     # controllers
+  interfaces/dto      # request and response objects
+```
+
+## Architecture rules
+
+1. One PostgreSQL schema per module (`identity`, `merchant`, `offer`, `reservation`, `notification`, `payment`, `admin`). No cross-schema joins or foreign keys.
+2. A module talks to another only through its public `application` API or a domain event, never through another module's repository or entities.
+3. `domain` does not depend on Spring, JPA or any message broker.
+4. DTOs are separate from persistence entities and domain objects.
+5. The server is the source of truth for price, stock, payment, ownership and authorization. Never trust a client-supplied role, `merchantId`, price or status.
+6. Stock is decremented atomically in the database transaction and never goes negative.
+
+Rules 2 and 3 are enforced by ArchUnit. Availability and orders live in the same module (`reservation`) so that the stock decrement and the order creation share one database transaction.
+
+## Database migrations
+
+- Flyway only. Never edit a migration that has been applied; add a new one.
+- Naming: `V<number>__<description>.sql`.
+- Timestamps in UTC (`timestamptz`).
+- Money in MAD. Decide between integer minor units and `numeric(12,2)` and record it in an ADR before the first price column.
+
+## JWT signing key configuration
+
+For local development, copy `.env.example` to `.env`. The example explicitly enables an ephemeral RSA key for local use only. A new local key is generated at each restart, so existing access tokens stop validating after a restart; users can sign in again or refresh using a valid refresh token.
+
+For staging and production, leave `APP_SECURITY_JWT_ALLOW_EPHEMERAL_KEY=false` and inject a persistent RSA key pair from your secret manager:
+
+- `APP_SECURITY_JWT_PRIVATE_KEY_BASE64`: Base64-encoded PKCS#8 DER private key
+- `APP_SECURITY_JWT_PUBLIC_KEY_BASE64`: Base64-encoded X.509 DER public key
+- `APP_SECURITY_JWT_KEY_ID`: stable, non-secret key identifier (the JWT `kid`)
+
+Generate a 2048-bit or stronger RSA key pair with OpenSSL (keep the private key secure):
+
+```bash
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -out jwt-private.pem
+openssl pkey -in jwt-private.pem -pubout -out jwt-public.pem
+openssl pkcs8 -topk8 -nocrypt -in jwt-private.pem -outform DER | openssl base64 -A > jwt-private.b64
+openssl pkey -pubin -in jwt-public.pem -outform DER | openssl base64 -A > jwt-public.b64
+```
+
+Store the contents of the two `.b64` files in your secret manager as the corresponding environment variables. Never commit the PEM or `.b64` key files. The API checks that the public and private keys match at startup. This version supports one active signing key; replacing it invalidates old access tokens.
+
+## BFF client IP and authentication rate limits
+
+The API accepts `X-Kulha-Client-IP` only when `X-Kulha-Bff-Secret` matches `KULHA_BFF_SHARED_SECRET`; comparisons use a constant-time byte comparison. Otherwise, rate limits use the servlet remote address. Set the same long random `KULHA_BFF_SHARED_SECRET` in the API and web environments.
+
+The Next.js app reads the client address only from `X-Real-IP`, supplied by the trusted reverse proxy. Configure that proxy to **remove any incoming client-supplied `X-Real-IP` and overwrite it with the actual connecting client IP**; do not expose Next.js directly in a way that bypasses this proxy. Never derive the rate-limit identity from browser-supplied `X-Forwarded-For` or `X-Kulha-*` headers.
+
+## SMTP configuration and timeouts
+
+SMTP connections use bounded connect/read/write timeouts (5,000 / 8,000 / 8,000 ms by default). Override them with `MAIL_SMTP_CONNECTION_TIMEOUT`, `MAIL_SMTP_TIMEOUT`, and `MAIL_SMTP_WRITE_TIMEOUT` when needed. Local Mailpit may run without STARTTLS; **staging and production must set both `MAIL_SMTP_STARTTLS=true` and `MAIL_SMTP_STARTTLS_REQUIRED=true`** and configure a mail provider that supports STARTTLS. Server certificate identity verification is enabled.
+
+## Google OAuth / OIDC sign-in
+
+Google sign-in is implemented as a BFF-mediated OIDC authorization-code flow with PKCE. The Next.js server owns the client secret, callback, signed state cookie, PKCE verifier and nonce. The API independently validates the Google ID-token signature against Google's JWKS, issuer, audience, expiry, verified-email claim and nonce before creating or linking an identity. Provider subjects are stored in `identity.external_identities`; email/password authentication and the existing KULHA refresh-token session remain unchanged.
+
+Configure `GOOGLE_OAUTH_CLIENT_ID` in the API and the matching `GOOGLE_CLIENT_ID` plus `GOOGLE_CLIENT_SECRET` in the web server environment. Register the exact web callback URI (default local URI: `http://localhost:3000/api/auth/google/callback`) in Google Cloud. Both services must share the same non-empty `KULHA_BFF_SHARED_SECRET`. The API rejects direct Google-login requests without that secret. Google sign-in returns 503 until the client ID and BFF secret are configured. Never expose the client secret as a `NEXT_PUBLIC_*` variable.
+
+A Google-verified email can link to an existing active account with the same normalized email; disabled accounts are never reactivated. A new Google account receives only the standard `CUSTOMER` role. Provider access/refresh tokens are not persisted.
+
+## Security baseline
+
+- No secrets in Git, images or logs. `.env` is in `.gitignore`. Check `git status` before every commit.
+- Spring Security denies everything except `/actuator/health`. Open routes explicitly, one at a time.
+- Do not expose actuator or management endpoints publicly in staging or production.
+- Never store card data.
+- Do not log passwords, tokens, cookies or unnecessary personal data.
+- Dependency vulnerabilities are reviewed at each sprint start and before the pilot. Overrides of managed versions must be commented in `pom.xml` and removed when a Spring Boot release includes the fix.
+
+## Git workflow
+
+- Commit to `main` while the team has one developer. CI runs on every push; fix a red build before continuing.
+- Use a short-lived branch (`feat/KUL-xx-short-name`) for risky changes.
+- Commits: imperative and short (`Add offer publication rule`).
+- Never commit `.env`. Check `git status` before every commit.
+
+## Decisions
+
+Architecture decisions are recorded in `docs/adr/`:
+
+- `001-modular-monolith.md`
+- `002-identity-provider.md`
+
+## Definition of Done
+
+- Acceptance criteria written and met, including at least one error case
+- Authorization checked, with negative tests
+- Tests pass in CI; migrations included
+- Deployed to staging and accepted by the product owner
+- README and ADRs updated when needed
+- No known critical regression left silently
+
+## Roadmap (backend)
+
+| Sprint | Backend focus |
+|---|---|
+| 1 | Repo, CI, PostgreSQL, health endpoint, module skeleton, ArchUnit, ADRs |
+| 2 | Accounts, email verification, roles, authorization |
+| 3 | Merchant profile, admin approval |
+| 4-5 | Offers: create, publish, disable, catalog |
+| 6-7 | Reservation, atomic stock, pickup code |
+| 8 | Outbox, RabbitMQ, SMTP, Redis (rate limits, cache) |
+| 9 | Payment (pay-at-pickup unless a provider is approved) |
+| 10-12 | Admin and audit, security hardening, backup and restore, release candidate |
+
+## Out of scope for the pilot
+
+Microservice deployments, Kubernetes, native mobile app, delivery, wallet or loyalty, AI features.
+
+## Confidentiality
+
+Private repository. Confidential to the founders and project team.
+## Account and shop-owner onboarding
+
+Customer and shop-owner accounts use the same email-verified identity flow. A verified user submits a business profile through `POST /api/v1/merchants/apply`; the application starts in `PENDING` and the owner receives merchant permissions only after an administrator approves it. Rejected applications may be corrected through `PUT /api/v1/merchants/me` and return to `PENDING`.
+
+Verification and password-reset links place their single-use token in the URL fragment (`#token=...`). The browser fragment is not sent in HTTP requests; the web client reads it into memory and removes it from the address bar before the user explicitly confirms the action. HTML emails render these links as branded action buttons, while the plain-text alternative does not print the token URL.

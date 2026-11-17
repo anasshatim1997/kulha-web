@@ -4,7 +4,7 @@ type Pair = readonly [string, string];
 type SiteCopy = {
   localeTag: string;
   dir: "ltr" | "rtl";
-  nav: { customers: string; how: string; categories: string; faq: string; shops: string; login: string; signup: string; language: string; openMenu: string; closeMenu: string };
+  nav: { skipToContent: string; customers: string; how: string; categories: string; faq: string; shops: string; login: string; signup: string; language: string; openMenu: string; closeMenu: string; discover: string; account: string; signOut: string };
   hero: { kicker: string; title: string; rotatingTitles: readonly string[]; lead: string; primary: string; secondary: string; note: string; visualLabel: string; visualNote: string };
   how: { title: string; lead: string; steps: readonly Pair[] };
   categories: { title: string; lead: string; items: readonly Pair[] };
@@ -21,7 +21,7 @@ type SiteCopy = {
 export const siteCopy: Record<SiteLocale, SiteCopy> = {
   fr: {
     localeTag: "fr-MA", dir: "ltr",
-    nav: { customers: "Pour les clients", how: "Comment ça marche", categories: "Les paniers", faq: "FAQ", shops: "Pour les commerces", login: "Connexion", signup: "Créer un compte", language: "Langue", openMenu: "Ouvrir le menu", closeMenu: "Fermer le menu" },
+    nav: { skipToContent: "Aller au contenu", customers: "Pour les clients", how: "Comment ça marche", categories: "Les paniers", faq: "FAQ", shops: "Pour les commerces", login: "Connexion", signup: "Créer un compte", language: "Langue", openMenu: "Ouvrir le menu", closeMenu: "Fermer le menu", discover: "Découvrir", account: "Mon profil", signOut: "Déconnexion" },
     hero: {
       kicker: "LES PANIERS MALINS DES COMMERCES DE VOTRE QUARTIER",
       title: "Les bons plans du quartier ont trouvé leur panier.",
@@ -110,7 +110,7 @@ export const siteCopy: Record<SiteLocale, SiteCopy> = {
   },
   en: {
     localeTag: "en", dir: "ltr",
-    nav: { customers: "For customers", how: "How it works", categories: "Explore baskets", faq: "FAQ", shops: "For shops", login: "Sign in", signup: "Create account", language: "Language", openMenu: "Open menu", closeMenu: "Close menu" },
+    nav: { skipToContent: "Skip to content", customers: "For customers", how: "How it works", categories: "Explore baskets", faq: "FAQ", shops: "For shops", login: "Sign in", signup: "Create account", language: "Language", openMenu: "Open menu", closeMenu: "Close menu", discover: "Discover", account: "Profile", signOut: "Sign out" },
     hero: {
       kicker: "SMART BASKETS FROM YOUR LOCAL SHOPS",
       title: "Your neighbourhood’s good finds, for less.",
@@ -149,7 +149,7 @@ export const siteCopy: Record<SiteLocale, SiteCopy> = {
   },
   ar: {
     localeTag: "ar-MA", dir: "rtl",
-    nav: { customers: "للزبائن", how: "كيف تعمل المنصة", categories: "السلال", faq: "الأسئلة الشائعة", shops: "للمتاجر", login: "تسجيل الدخول", signup: "إنشاء حساب", language: "اللغة", openMenu: "فتح القائمة", closeMenu: "إغلاق القائمة" },
+    nav: { skipToContent: "انتقل إلى المحتوى", customers: "للزبائن", how: "كيف تعمل المنصة", categories: "السلال", faq: "الأسئلة الشائعة", shops: "للمتاجر", login: "تسجيل الدخول", signup: "إنشاء حساب", language: "اللغة", openMenu: "فتح القائمة", closeMenu: "إغلاق القائمة", discover: "اكتشف السلال", account: "ملفي الشخصي", signOut: "تسجيل الخروج" },
     hero: {
       kicker: "سلال مميزة من متاجر الحي",
       title: "خيرات الحي في سلتك، بسعر ألطف.",

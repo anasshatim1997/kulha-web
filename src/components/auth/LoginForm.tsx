@@ -14,7 +14,7 @@ import { authApi } from "@/lib/api/client";
 import { describeError } from "@/lib/api/errors";
 import { authCopy } from "@/lib/i18n/auth-copy";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
-import { localePath, safeNext } from "@/lib/navigation";
+import { defaultSignedInPath, localePath, safeNext } from "@/lib/navigation";
 import { fieldErrors, loginSchema } from "@/lib/validation/schemas";
 import { useToast } from "@/components/feedback/ToastProvider";
 
@@ -24,7 +24,7 @@ export function LoginForm({ locale = "fr" }: { locale?: SiteLocale }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const explicitNext = searchParams.get("next");
-  const next = safeNext(explicitNext, localePath(locale, "/account"));
+  const next = safeNext(explicitNext, localePath(locale, "/offers"));
   const { reload } = useSession();
   const [values, setValues] = useState(() => ({ email: searchParams.get("email")?.trim() ?? "", password: "" }));
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -58,11 +58,7 @@ export function LoginForm({ locale = "fr" }: { locale?: SiteLocale }) {
       toast.success({ title: t.loginSubmit, description: t.loginLead });
       navigationStarted = true;
       window.dispatchEvent(new Event("kulha:navigation-start"));
-      const destination = explicitNext
-        ? next
-        : user?.roles.includes("MERCHANT")
-          ? localePath(locale, "/merchant/dashboard")
-          : localePath(locale, "/account");
+      const destination = explicitNext ? next : defaultSignedInPath(locale, user?.roles ?? []);
       router.replace(destination);
     } catch (error) {
       const message = describeError(error, { 401: t.invalidLogin });

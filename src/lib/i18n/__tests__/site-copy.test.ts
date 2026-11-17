@@ -7,8 +7,11 @@ describe("KULHA! public product copy", () => {
     expect(Object.keys(siteCopy).sort()).toEqual(["ar", "en", "fr"]);
   });
 
-  it("keeps Arabic in RTL", () => {
+  it("keeps Arabic in RTL and localizes the root skip link", () => {
     expect(siteCopy.ar.dir).toBe("rtl");
+    expect(siteCopy.fr.nav.skipToContent).toBe("Aller au contenu");
+    expect(siteCopy.en.nav.skipToContent).toBe("Skip to content");
+    expect(siteCopy.ar.nav.skipToContent).toBe("انتقل إلى المحتوى");
   });
 
   it("keeps the reservation and collection journey clear", () => {

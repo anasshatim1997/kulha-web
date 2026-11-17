@@ -1,0 +1,210 @@
+/* Offer detail — Kulha redesign. Everything is scoped under .kd so it never
+   collides with the legacy .kulha-detail-* rules still in globals.css. */
+.kd {
+  --kd-cream: #fcf3e6; --kd-ink: #06331f; --kd-muted: #526757; --kd-line: #e8dfcd;
+  --kd-card: #fffdf8; --kd-yellow: #fdb827; --kd-yellow-soft: #fff1cb;
+  width: min(1240px, calc(100% - 48px)); margin: 0 auto; padding: 28px 0 64px; color: var(--kd-ink);
+}
+.kd *, .kd *::before, .kd *::after { box-sizing: border-box; }
+.kd h1, .kd h2, .kd p, .kd dl, .kd dd, .kd dt { margin: 0; }
+.kd-icon { width: 20px; height: 20px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+:dir(rtl) .kd-back .kd-icon { transform: scaleX(-1); }
+
+.kd-back { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-bottom: 14px; color: var(--kd-muted); font-size: 17px; font-weight: 800; text-decoration: none; }
+.kd-back:hover { color: var(--kd-ink); }
+
+.kd-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 4vw, 60px); align-items: start; }
+
+/* Stage */
+.kd-stage { position: relative; display: grid; place-items: center; min-height: 560px; height: 100%; overflow: hidden; border-radius: 40px; background: linear-gradient(180deg, #e7eddf 0%, #efeedd 45%, #f4ead7 100%); }
+.kd-stage.is-bread { background: linear-gradient(180deg, #f6e6c7, #fbf0dc 60%, #f4e9d6); }
+.kd-stage.is-produce { background: linear-gradient(180deg, #e2ecd5, #f1f2dd 60%, #e8efd9); }
+.kd-stage.is-grocery, .kd-stage.is-surprise { background: linear-gradient(180deg, #f3e6cd, #fbf0dd 60%, #e9efdf); }
+.kd-stage.is-drinks { background: linear-gradient(180deg, #dfeaee, #ecf0ea 60%, #f2ecdc); }
+.kd-chip { position: absolute; z-index: 3; top: 24px; inset-inline-start: 24px; padding: 13px 22px; border-radius: 999px; background: #fffdf8; color: var(--kd-ink); font-size: 17px; font-weight: 800; box-shadow: 0 2px 10px rgb(6 51 31 / 6%); }
+.kd-hero { position: relative; z-index: 1; width: min(66%, 400px); height: auto; max-height: 68%; object-fit: contain; filter: drop-shadow(0 26px 24px rgb(35 49 34 / 16%)); transition: transform .3s ease; }
+.kd-stage:hover .kd-hero { transform: translateY(-4px) scale(1.02); }
+.kd-symbol { font-size: clamp(110px, 17vw, 200px); line-height: 1; filter: drop-shadow(0 22px 20px rgb(35 49 34 / 16%)); }
+.kd-accent { position: absolute; z-index: 2; height: auto; object-fit: contain; filter: drop-shadow(0 12px 12px rgb(35 49 34 / 14%)); pointer-events: none; }
+.kd-accent.accent-1 { inset-inline-start: 12%; inset-block-end: 14%; width: clamp(54px, 9vw, 108px); }
+.kd-accent.accent-2 { inset-inline-end: 13%; inset-block-end: 16%; width: clamp(48px, 8vw, 88px); }
+.kd-accent.accent-3 { inset-inline-start: 24%; inset-block-start: 22%; width: clamp(52px, 8vw, 92px); }
+
+/* Info column */
+.kd-info { display: grid; gap: 18px; min-width: 0; }
+.kd-merchant { display: flex; align-items: center; gap: 16px; }
+.kd-merchant__mark { display: grid; width: 64px; height: 64px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: var(--kd-ink); color: var(--kd-yellow); font-size: 20px; font-weight: 900; letter-spacing: -.02em; }
+.kd-merchant div { display: grid; gap: 2px; min-width: 0; }
+.kd-merchant strong { font-size: 20px; font-weight: 900; }
+.kd-merchant span { color: var(--kd-muted); font-size: 17px; font-weight: 600; }
+.kd-info h1 { font-size: clamp(38px, 4.8vw, 62px); font-weight: 950; line-height: 1.04; letter-spacing: -.04em; overflow-wrap: anywhere; }
+.kd[lang="ar"] .kd-info h1 { letter-spacing: 0; line-height: 1.4; }
+.kd-description { max-width: 620px; color: var(--kd-muted); font-size: 19px; line-height: 1.65; }
+
+/* Facts */
+.kd-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.kd-fact { display: flex; align-items: center; gap: 14px; min-width: 0; padding: 16px 18px; border: 1px solid var(--kd-line); border-radius: 22px; background: var(--kd-card); }
+.kd-fact .kd-icon { width: 26px; height: 26px; color: var(--kd-ink); }
+.kd-fact h2 { color: var(--kd-muted); font-size: 14px; font-weight: 700; }
+.kd-fact p { margin-top: 2px; color: var(--kd-ink); font-size: 19px; font-weight: 850; line-height: 1.25; overflow-wrap: anywhere; }
+.kd-fact.is-stock { border-color: #f4dc9a; background: var(--kd-yellow-soft); }
+.kd-fact.is-stock.is-out { border-color: #f1c2bb; background: #fbe8e4; }
+
+/* Buy card */
+.kd-buy { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 28px; padding: 26px 30px 26px 26px; border: 1px solid var(--kd-line); border-radius: 36px; background: var(--kd-card); box-shadow: 0 18px 44px rgb(80 60 20 / 8%); }
+.kd-buy__price { display: grid; place-items: center; padding: 6px 4px; }
+.kd-buy__action { display: grid; gap: 14px; min-width: 0; }
+.kd-saving { color: var(--kd-ink); font-size: 18px; font-weight: 600; }
+.kd-saving strong { font-weight: 950; }
+.kd-buy__row { display: flex; align-items: center; gap: 14px; }
+.kd-reserve { display: inline-flex; flex: 1; min-height: 64px; align-items: center; justify-content: center; padding: 0 24px; border-radius: 24px; background: var(--kd-ink); color: #fffdf8; font-size: 21px; font-weight: 900; text-decoration: none; transition: background .16s ease, transform .16s ease; }
+.kd-reserve:hover { background: #0b4a2f; transform: translateY(-1px); }
+.kd-reserve.is-disabled { background: #d9d3c4; color: #7b7566; pointer-events: none; }
+.kd-share { display: grid; width: 64px; height: 64px; flex: 0 0 auto; place-items: center; border: 1px solid var(--kd-line); border-radius: 50%; background: #fffdf8; color: var(--kd-ink); transition: background .16s ease, border-color .16s ease; }
+.kd-share:hover { border-color: #b9c9b6; background: #eef4ea; }
+.kd-share .kd-icon { width: 26px; height: 26px; }
+
+/* Good to know */
+.kd-know { display: grid; gap: 4px; }
+.kd-know h2 { padding-bottom: 12px; border-bottom: 1px solid var(--kd-line); color: var(--kd-muted); font-size: 16px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+.kd[lang="ar"] .kd-know h2 { letter-spacing: 0; }
+.kd-know dl > div { display: flex; align-items: baseline; justify-content: space-between; gap: 28px; padding: 22px 0; border-bottom: 1px solid var(--kd-line); }
+.kd-know dl > div:last-child { border-bottom: 0; }
+.kd-know dt { flex: 0 0 auto; color: var(--kd-ink); font-size: 19px; font-weight: 850; }
+.kd-know dd { color: var(--kd-muted); font-size: 19px; line-height: 1.5; text-align: end; overflow-wrap: anywhere; }
+.kd-allergen-unknown { display: block; }
+.kd-allergen-note { display: block; margin-top: 4px; color: #8a7a58; font-size: 14px; }
+.kd-allergens { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.kd-allergens li { padding: 7px 13px; border-radius: 999px; background: #f1eadc; color: #355540; font-size: 15px; font-weight: 800; }
+.kd .kulha-map-open-button { justify-self: start; margin-top: 8px; }
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .kd { width: min(100% - 40px, 860px); }
+  .kd-layout { grid-template-columns: 1fr; }
+  .kd-stage { min-height: 0; aspect-ratio: 1.25 / 1; border-radius: 32px; }
+}
+@media (max-width: 720px) {
+  .kd { width: calc(100% - 28px); padding: 14px 0 40px; }
+  .kd-back { font-size: 15px; margin-bottom: 8px; }
+  .kd-stage { aspect-ratio: 1.1 / 1; border-radius: 26px; }
+  .kd-chip { top: 14px; inset-inline-start: 14px; padding: 9px 15px; font-size: 14px; }
+  .kd-merchant__mark { width: 52px; height: 52px; font-size: 17px; }
+  .kd-merchant strong { font-size: 17px; }
+  .kd-merchant span, .kd-description { font-size: 15px; }
+  .kd-facts { grid-template-columns: 1fr; gap: 10px; }
+  .kd-fact { padding: 13px 16px; border-radius: 18px; }
+  .kd-fact p { font-size: 17px; }
+  .kd-buy { grid-template-columns: 1fr; justify-items: stretch; gap: 16px; padding: 18px; border-radius: 28px; }
+  .kd-buy__price { justify-self: start; }
+  .kd-saving { font-size: 15px; }
+  .kd-reserve { min-height: 56px; font-size: 18px; border-radius: 20px; }
+  .kd-share { width: 56px; height: 56px; }
+  .kd-know dl > div { flex-direction: column; gap: 6px; padding: 16px 0; }
+  .kd-know dd { text-align: start; }
+  .kd-know dt, .kd-know dd { font-size: 16px; }
+  .kd-allergens { justify-content: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) { .kd-hero, .kd-reserve, .kd-share { transition: none !important; } }
+
+/* ---- Final sizing (real-pixel scale) ---- */
+.kd { width: min(1120px, calc(100% - 48px)); padding: 20px 0 48px; }
+.kd-back { min-height: 36px; margin-bottom: 8px; font-size: 14px; }
+.kd-layout { gap: clamp(24px, 3.5vw, 48px); align-items: stretch; }
+.kd-stage { min-height: 480px; border-radius: 28px; }
+.kd-chip { top: 16px; inset-inline-start: 16px; padding: 8px 14px; font-size: 13px; }
+.kd-info { gap: 14px; align-content: start; }
+.kd-merchant { gap: 12px; }
+.kd-merchant__mark { width: 44px; height: 44px; font-size: 14px; }
+.kd-merchant strong { font-size: 15px; }
+.kd-merchant span { font-size: 13px; }
+.kd-info h1 { font-size: clamp(28px, 3.4vw, 40px); }
+.kd-description { font-size: 15px; line-height: 1.6; }
+.kd-facts { gap: 10px; }
+.kd-fact { gap: 10px; padding: 12px 14px; border-radius: 16px; }
+.kd-fact .kd-icon { width: 20px; height: 20px; }
+.kd-fact h2 { font-size: 12px; }
+.kd-fact p { font-size: 14px; }
+.kd-buy { gap: 20px; padding: 18px 20px 18px 16px; border-radius: 26px; }
+.kd-saving { font-size: 14px; }
+.kd-reserve { min-height: 48px; padding: 0 18px; border-radius: 16px; font-size: 16px; }
+.kd-share { width: 48px; height: 48px; }
+.kd-share .kd-icon { width: 20px; height: 20px; }
+.kd-know h2 { padding-bottom: 8px; font-size: 12px; }
+.kd-know dl > div { gap: 20px; padding: 14px 0; }
+.kd-know dt, .kd-know dd { font-size: 14px; }
+.kd-allergen-note { font-size: 12px; }
+.kd-allergens li { padding: 5px 10px; font-size: 12px; }
+@media (max-width: 1100px) { .kd-stage { min-height: 0; } }
+@media (max-width: 720px) {
+  .kd { width: calc(100% - 28px); }
+  .kd-info h1 { font-size: 26px; }
+  .kd-reserve { min-height: 46px; font-size: 15px; }
+  .kd-share { width: 46px; height: 46px; }
+  .kd-know dt, .kd-know dd { font-size: 14px; }
+}
+
+/* ---- Desktop: the whole page fits one screen, no scrolling ---- */
+@media (min-width: 1000px) and (min-height: 640px) {
+  body:has(.kd) .site-footer { display: none; }
+  .kd { display: flex; flex-direction: column; height: calc(100dvh - var(--kulha-header-h, 76px)); padding: 10px 0 18px; overflow: hidden; }
+  .kd-back { flex: 0 0 auto; min-height: 30px; margin-bottom: 6px; }
+  .kd-layout { flex: 1 1 auto; min-height: 0; align-items: stretch; }
+  .kd-stage { height: 100%; min-height: 0; }
+  .kd-info { min-height: 0; gap: clamp(8px, 1.6vh, 14px); align-content: space-between; }
+  .kd-merchant__mark { width: 40px; height: 40px; }
+  .kd-info h1 { font-size: clamp(26px, 4.4vh, 38px); }
+  .kd-description { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 14px; line-height: 1.5; }
+  .kd-fact { padding: clamp(8px, 1.4vh, 12px) 14px; }
+  .kd-buy { padding: clamp(10px, 1.8vh, 16px) 18px 10px 14px; }
+  .kd-know h2 { padding-bottom: 6px; }
+  .kd-know dl > div { padding: clamp(7px, 1.3vh, 11px) 0; }
+  .kd-know dd { display: grid; justify-items: end; gap: 4px; }
+  .kd .kd-know .kulha-map-open-button { min-height: 30px; margin: 2px 0 0; padding: 0 12px; font-size: 12px; }
+  .kd .kd-know .kulha-map-open-button svg { width: 15px; height: 15px; }
+}
+@media (min-width: 1000px) and (min-height: 640px) and (max-height: 780px) {
+  .kd-buy .kulha-price-sticker { transform: scale(.86); transform-origin: left center; }
+}
+
+/* ---- Loading skeleton: same grid as the page ---- */
+.kd-sk { display: block; border-radius: 10px; background: linear-gradient(90deg, #efe6d4 25%, #f8f1e3 50%, #efe6d4 75%); background-size: 200% 100%; animation: kd-shimmer 1.4s linear infinite; }
+.kd-sk--round { border-radius: 50%; }
+.kd-stage.is-skeleton { background: #f1e8d6; }
+.kd-stage.is-skeleton .kd-sk { position: absolute; }
+.kd-stage.is-skeleton .kd-sk--chip { top: 16px; inset-inline-start: 16px; width: 120px; height: 32px; border-radius: 999px; background: #f8f1e3; }
+.kd-stage.is-skeleton .kd-sk--art { width: 46%; aspect-ratio: 1; border-radius: 44% 56% 52% 48% / 50% 44% 56% 50%; background: #e9dfca; animation: none; }
+.kd-fact.is-skeleton { align-items: center; }
+.kd-fact.is-skeleton > div { display: grid; flex: 1; gap: 7px; }
+.kd-buy.is-skeleton .kd-sk--price { width: 150px; height: 76px; border-radius: 16px; }
+.kd-know.is-skeleton dl > div { align-items: center; }
+@keyframes kd-shimmer { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .kd-sk { animation: none; } }
+
+/* ---- Desktop one-screen fix (keep LAST) ----
+   The old rule sized .kd from a --kulha-header-h variable that is never defined, and the
+   page wrapper kept `min-height:100vh` + bottom padding, so the page was always ~90px taller
+   than the screen. Now the viewport is split by flexbox: header (natural height) + main (the rest). */
+@media (min-width: 1000px) and (min-height: 640px) {
+  html:has(.kd), body:has(.kd) { height: 100dvh; overflow: hidden; }
+  body:has(.kd) > main { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  body:has(.kd) .kulha-offer-detail-page { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; padding: 0; background: #fcf3e6; }
+  .kd { flex: 1 1 auto; height: auto; min-height: 0; padding: 8px 0 16px; }
+  /* Between 1000px and 1100px keep the two-column layout (the tablet stack is taller than the screen). */
+  .kd-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(20px, 3vw, 44px); }
+  .kd-stage { aspect-ratio: auto; min-height: 0; height: 100%; border-radius: 28px; }
+  .kd-info { gap: clamp(6px, 1.3vh, 12px); }
+  .kd-info h1 { font-size: clamp(24px, 4vh, 38px); }
+  .kd-know dl > div { padding: clamp(5px, 1.1vh, 11px) 0; }
+}
+@media (min-width: 1000px) and (min-height: 640px) and (max-height: 760px) {
+  .kd-description { -webkit-line-clamp: 2; font-size: 13px; line-height: 1.45; }
+  .kd-merchant__mark { width: 34px; height: 34px; font-size: 12px; }
+  .kd-fact { padding: 7px 12px; }
+  .kd-fact p { font-size: 13px; }
+  .kd-buy { gap: 14px; padding: 8px 14px 8px 10px; }
+  .kd-reserve, .kd-share { min-height: 42px; height: 42px; }
+  .kd-share { width: 42px; }
+  .kd-know dt, .kd-know dd { font-size: 13px; }
+  .kd-allergen-note { display: none; }
+}

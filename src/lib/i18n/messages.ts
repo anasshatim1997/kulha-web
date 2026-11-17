@@ -103,7 +103,7 @@ export const messages = {
       missingToken: "Le lien est incomplet. Ouvrez à nouveau le lien reçu par e-mail.",
       done: "Votre adresse e-mail est confirmée. Vous pouvez vous connecter.",
       doneSignedIn: "Votre adresse e-mail est confirmée et vous êtes connecté(e). Redirection vers votre espace…",
-      continueToAccount: "Accéder à mon espace",
+      continueToAccount: "Découvrir les paniers",
       invalid: "Ce lien est invalide ou a expiré. Demandez un nouvel e-mail ci-dessous.",
       resendTitle: "Recevoir un nouveau lien",
       resend: "Envoyer un nouveau lien",

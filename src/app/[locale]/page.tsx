@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { LandingPage } from "@/components/landing/LandingPage";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 
-const locales: SiteLocale[] = ["fr", "ar", "en"];
+const locales: SiteLocale[] = ["en", "ar"];
 export function generateStaticParams() { return locales.map((locale) => ({ locale })); }
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;

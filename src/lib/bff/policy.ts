@@ -23,5 +23,10 @@ export function resolveBackendPath(segments: string[]): string | null {
   if (root === "auth") {
     return segments.length === 2 && PUBLIC_AUTH_ACTIONS.has(action) ? `/api/v1/auth/${action}` : null;
   }
+  if (root === "offers") {
+    return segments.length === 1 || segments.length === 2
+      ? `/api/v1/${segments.join("/")}`
+      : null;
+  }
   return ALLOWED_ROOTS.has(root) ? `/api/v1/${segments.join("/")}` : null;
 }

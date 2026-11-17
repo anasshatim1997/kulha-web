@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { localePath } from "@/lib/navigation";
+import { PriceSticker } from "@/components/ui/PriceSticker";
 
 type Audience = "customer" | "merchant";
 type Category = "bakery" | "produce" | "cafe";
@@ -144,7 +145,6 @@ export function MarketplacePlayground({ locale }: { locale: SiteLocale }) {
   const [appAudience, setAppAudience] = useState<Audience>("customer");
 
   const example = priceExamples[category];
-  const exampleSaving = Math.max(0, example.usual - example.kulha);
   const discount = usualValue > 0 ? Math.max(0, Math.min(100, Math.round((1 - basketPrice / usualValue) * 100))) : 0;
   const potentialSales = basketPrice * quantity;
   const formatMoney = (value: number) => `${value.toLocaleString(locale === "ar" ? "ar-MA" : locale === "en" ? "en-MA" : "fr-MA")} ${t.mad}`;
@@ -189,8 +189,7 @@ export function MarketplacePlayground({ locale }: { locale: SiteLocale }) {
                   <div className="playground-offer-body">
                     <span className="playground-example-tag">{t.demo}</span>
                     <h4>{t.basket[category]}</h4><p>{t.basketDetails[category]}</p>
-                    <div className="playground-price-row"><div><small>{t.regular}</small><del>{formatMoney(example.usual)}</del></div><div className="playground-price-main"><small>{t.kulhaPrice}</small><strong>{formatMoney(example.kulha)}</strong></div></div>
-                    <div className="playground-saving-row"><span>{t.save}</span><strong>{formatMoney(exampleSaving)}</strong><em>-{Math.round((exampleSaving / example.usual) * 100)}%</em></div>
+                    <div className="playground-price-row playground-price-row-sticker"><div><small>{t.kulhaPrice}</small><PriceSticker priceMinor={example.kulha * 100} originalPriceMinor={example.usual * 100} locale={locale} size="md" /></div></div>
                     <p className="playground-offer-foot">{t.notLive}</p>
                   </div>
                 </article>
@@ -217,7 +216,7 @@ export function MarketplacePlayground({ locale }: { locale: SiteLocale }) {
                 <article className="merchant-preview-card">
                   <div className="merchant-preview-top"><span>✳ KULHA!</span><small>{t.demo}</small></div>
                   <h4>{t.preview}</h4><h3>{t.basket[category]}</h3><p>{t.previewBody}</p>
-                  <div className="merchant-preview-pricing"><div><small>{t.regular}</small><strong>{formatMoney(usualValue)}</strong></div><div><small>{t.sale}</small><strong>{formatMoney(basketPrice)}</strong></div></div>
+                  <div className="merchant-preview-pricing merchant-preview-pricing-sticker"><div><small>{t.sale}</small><PriceSticker priceMinor={basketPrice * 100} originalPriceMinor={usualValue * 100} locale={locale} size="md" /></div></div>
                   <div className="merchant-metrics"><div><small>{t.discount}</small><strong>{discount}%</strong></div><div><small>{t.quantity}</small><strong>{quantity}</strong></div><div><small>{t.total}</small><strong>{formatMoney(potentialSales)}</strong></div></div>
                   <p className="merchant-note">{t.merchantNote}</p>
                 </article>
@@ -248,7 +247,7 @@ export function MarketplacePlayground({ locale }: { locale: SiteLocale }) {
               <div className="app-phone-notch"/><div className="app-phone-top"><b>{appAudience === "customer" ? "KULHA!" : "KULHA! SHOP"}</b><span>{appAudience === "customer" ? "⌕" : "☰"}</span></div>
               <div className="app-phone-greeting">{appAudience === "customer" ? t.appCustomer : t.appMerchant}</div>
               <div className="app-phone-concept">{t.appMockup}</div>
-              {appAudience === "customer" ? <><div className="app-phone-tile app-tile-bread"><span>🥖</span><b>{t.basket.bakery}</b><small>{formatMoney(29)}</small></div><div className="app-phone-tile app-tile-produce"><span>🥬</span><b>{t.basket.produce}</b><small>{formatMoney(39)}</small></div><div className="app-phone-tile"><span>🥐</span><b>{t.basket.cafe}</b><small>{formatMoney(25)}</small></div></> : <><div className="app-shop-stat"><small>{t.quantity}</small><strong>04</strong></div><div className="app-shop-order"><span>🥐</span><div><b>{t.basket.bakery}</b><small>{formatMoney(29)}</small></div><i>✓</i></div><div className="app-shop-order"><span>🥬</span><div><b>{t.basket.produce}</b><small>{formatMoney(39)}</small></div><i>✓</i></div></>}
+              {appAudience === "customer" ? <><div className="app-phone-tile app-tile-bread"><span>🥖</span><b>{t.basket.bakery}</b><small><PriceSticker priceMinor={2900} locale={locale} size="xs" /></small></div><div className="app-phone-tile app-tile-produce"><span>🥬</span><b>{t.basket.produce}</b><small><PriceSticker priceMinor={3900} locale={locale} size="xs" /></small></div><div className="app-phone-tile"><span>🥐</span><b>{t.basket.cafe}</b><small><PriceSticker priceMinor={2500} locale={locale} size="xs" /></small></div></> : <><div className="app-shop-stat"><small>{t.quantity}</small><strong>04</strong></div><div className="app-shop-order"><span>🥐</span><div><b>{t.basket.bakery}</b><small><PriceSticker priceMinor={2900} locale={locale} size="xs" /></small></div><i>✓</i></div><div className="app-shop-order"><span>🥬</span><div><b>{t.basket.produce}</b><small><PriceSticker priceMinor={3900} locale={locale} size="xs" /></small></div><i>✓</i></div></>}
               <div className="app-phone-nav"><i/> <i/> <i/> <i/></div>
             </div>
             <span className="mobile-app-orbit mobile-app-orbit-one"/><span className="mobile-app-orbit mobile-app-orbit-two"/>

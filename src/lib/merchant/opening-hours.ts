@@ -92,7 +92,7 @@ export function parseWeek(text: string): WeekSchedule | null {
   return week;
 }
 
-/** Human-readable lines in the shop owner's language, e.g. `Lun–Sam  08:00 – 19:00`. */
+/** Human-readable lines in the shop owner's language, e.g. `Lun - Sam  08:00 – 19:00`. */
 export function summarizeWeek(week: WeekSchedule, shortDays: Record<DayKey, string>, closedLabel: string): string[] {
   return groupWeek(week).map((group) => {
     const days = group.from === group.to ? shortDays[group.from] : `${shortDays[group.from]}–${shortDays[group.to]}`;
@@ -100,7 +100,7 @@ export function summarizeWeek(week: WeekSchedule, shortDays: Record<DayKey, stri
   });
 }
 
-/** Shows a stored value in the current language; text that predates the picker is shown as it was written. */
+/** Shows a stored value in the current language; a text that predates the picker is shown as it was written. */
 export function describeStoredHours(stored: string, shortDays: Record<DayKey, string>, closedLabel: string): string {
   const week = parseWeek(stored);
   return week ? summarizeWeek(week, shortDays, closedLabel).join("\n") : stored;

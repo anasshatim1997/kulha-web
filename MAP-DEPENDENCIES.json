@@ -1,0 +1,8 @@
+{
+  "dependenciesToAdd": {
+    "maplibre-gl": "6.17.0",
+    "pmtiles": "4.5.0",
+    "@protomaps/basemaps": "5.7.2"
+  },
+  "installCommand": "pnpm add maplibre-gl@6.17.0 pmtiles@4.5.0 @protomaps/basemaps@5.7.2"
+}

@@ -4,12 +4,16 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { OfferListSkeleton } from "./OfferSkeletons";
 import { offerCopy } from "@/lib/i18n/offer-copy";
+import { offerCategoryLabel, offerStatusLabel } from "@/lib/offers/public-copy";
+import { PriceSticker } from "@/components/ui/PriceSticker";
+import { localePath } from "@/lib/navigation";
 
 type OfferItem = {
   id: string;
   title: string;
   category: string;
   priceMinor: number;
+  originalPriceMinor?: number | null;
   quantityTotal: number;
   quantityReserved: number;
   availableUnits: number;
@@ -52,17 +56,17 @@ export function OfferList({ locale }: { locale: string }) {
   }, [status, page, reload]);
 
   const pageCount = Math.max(1, Math.ceil((data?.total ?? 0) / PAGE_SIZE));
-  return <div className="grid gap-5" aria-busy={loading}>
+  return <div className="mw-stack" aria-busy={loading}>
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <select aria-label={t.status} value={status} onChange={event => { setStatus(event.target.value); setPage(0); }} className="rounded-xl border border-forest-200 bg-white px-4 py-3">
-        <option value="">{t.status}: —</option>{statuses.map(value => <option key={value} value={value}>{value}</option>)}
+      <select aria-label={t.status} value={status} onChange={event => { setStatus(event.target.value); setPage(0); }} className="mw-input">
+        <option value="">{t.status}: —</option>{statuses.map(value => <option key={value} value={value}>{offerStatusLabel(locale as "fr" | "en" | "ar", value)}</option>)}
       </select>
-      <Link href={`/${locale}/merchant/offers/new`} className="rounded-xl bg-forest-700 px-5 py-3 font-extrabold text-cream">{t.newOffer}</Link>
+      <Link href={localePath(locale as "fr" | "en" | "ar", "/merchant/offers/new")} className="mw-primary-action">{t.newOffer}</Link>
     </div>
-    {loading ? <OfferListSkeleton label={t.loading}/> : error ? <div role="alert" className="rounded-2xl bg-white p-6">{t.error} <button className="ms-3 underline" onClick={() => setReload(value => value + 1)}>{t.retry}</button></div> : !data?.items.length ? <p className="rounded-2xl bg-white p-8">{t.empty}</p> : <>
-      <div className="grid gap-4">{data.items.map(item => <Link key={item.id} href={`/${locale}/merchant/offers/${item.id}`} className="rounded-3xl border border-forest-100 bg-white p-5 shadow-sm transition hover:-translate-y-0.5">
-        <div className="flex flex-wrap justify-between gap-3"><strong className="text-lg">{item.title}</strong><span className="rounded-full bg-forest-50 px-3 py-1 text-xs font-black">{item.status}</span></div>
-        <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-sm text-forest-700"><span>{item.category}</span><span>{(item.priceMinor / 100).toFixed(2)} MAD</span><span>{t.available}: {item.availableUnits}</span></div>
+    {loading ? <OfferListSkeleton label={t.loading}/> : error ? <div role="alert" className="mw-card">{t.error} <button className="ms-3 underline" onClick={() => setReload(value => value + 1)}>{t.retry}</button></div> : !data?.items.length ? <p className="mw-card">{t.empty}</p> : <>
+      <div className="grid gap-4">{data.items.map(item => <Link key={item.id} href={localePath(locale as "fr" | "en" | "ar", `/merchant/offers/${item.id}`)} className="mw-card">
+        <div className="flex flex-wrap justify-between gap-3"><strong className="text-lg">{item.title}</strong><span className="mw-pill">{offerStatusLabel(locale as "fr" | "en" | "ar", item.status)}</span></div>
+        <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-sm text-forest-700"><span>{offerCategoryLabel(locale as "fr" | "en" | "ar", item.category)}</span><PriceSticker priceMinor={item.priceMinor} originalPriceMinor={item.originalPriceMinor} locale={locale as "fr" | "en" | "ar"} size="sm" /><span>{t.available}: {item.availableUnits}</span></div>
       </Link>)}</div>
       {pageCount > 1 && <nav aria-label={t.pagination} className="flex flex-wrap items-center justify-between gap-3">
         <button type="button" disabled={page <= 0 || loading} onClick={() => setPage(value => Math.max(0, value - 1))} className="rounded-xl border px-4 py-2 disabled:opacity-50">{t.previous}</button>

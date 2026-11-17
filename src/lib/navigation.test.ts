@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { localeFromPath, localePath, safeNext, switchLocalePath } from "./navigation";
+import { defaultSignedInPath, localeFromPath, localePath, safeNext, switchLocalePath, isMerchantWorkspacePath, isCustomerAccountPath, shouldUseCustomerWorkspace } from "./navigation";
 
 describe("safeNext", () => {
     it("keeps simple paths of this site", () => {
@@ -9,9 +9,9 @@ describe("safeNext", () => {
     });
 
     it("falls back when there is nothing", () => {
-        expect(safeNext(null)).toBe("/account");
-        expect(safeNext(undefined)).toBe("/account");
-        expect(safeNext("")).toBe("/account");
+        expect(safeNext(null)).toBe("/offers");
+        expect(safeNext(undefined)).toBe("/offers");
+        expect(safeNext("")).toBe("/offers");
         expect(safeNext(null, "/home")).toBe("/home");
     });
 
@@ -27,7 +27,7 @@ describe("safeNext", () => {
             "/a\nb",
             "/api/bff/me",
         ]) {
-            expect(safeNext(bad)).toBe("/account");
+            expect(safeNext(bad)).toBe("/offers");
         }
     });
 });
@@ -64,6 +64,37 @@ describe("locale navigation", () => {
         expect(switchLocalePath("/register/other", "en")).toBe("/en");
     });
 
+    it("keeps public offer list and detail routes when switching languages", () => {
+        expect(switchLocalePath("/offers", "ar")).toBe("/ar/offers");
+        expect(switchLocalePath("/en/offers/123", "fr")).toBe("/offers/123");
+        expect(switchLocalePath("/merchant/offers", "en")).toBe("/en/merchant/offers");
+    });
+
+    it("recognizes only unprefixed French and EN/AR merchant workspaces", () => {
+        expect(isMerchantWorkspacePath("/merchant/offers")).toBe(true);
+        expect(isMerchantWorkspacePath("/en/merchant/offers")).toBe(true);
+        expect(isMerchantWorkspacePath("/ar/merchant/apply")).toBe(true);
+        expect(isMerchantWorkspacePath("/fr/merchant/offers")).toBe(false);
+    });
+
+    it("recognizes the account route in all supported locales", () => {
+        expect(isCustomerAccountPath("/account")).toBe(true);
+        expect(isCustomerAccountPath("/en/account")).toBe(true);
+        expect(isCustomerAccountPath("/ar/account/")).toBe(true);
+        expect(isCustomerAccountPath("/offers")).toBe(false);
+    });
+
+    it("uses the focused app shell for signed-in customers, not merchants or admins", () => {
+        expect(shouldUseCustomerWorkspace("/account", ["CUSTOMER"])).toBe(true);
+        expect(shouldUseCustomerWorkspace("/en/offers/123", ["CUSTOMER"])).toBe(true);
+        expect(shouldUseCustomerWorkspace("/ar/faq", ["CUSTOMER"])).toBe(true);
+        expect(shouldUseCustomerWorkspace("/login", ["CUSTOMER"])).toBe(false);
+        expect(shouldUseCustomerWorkspace("/merchant/dashboard", ["CUSTOMER"])).toBe(false);
+        expect(shouldUseCustomerWorkspace("/offers", ["MERCHANT"])).toBe(false);
+        expect(shouldUseCustomerWorkspace("/offers", ["CUSTOMER", "MERCHANT"])).toBe(false);
+        expect(shouldUseCustomerWorkspace("/offers", ["ADMIN"])).toBe(false);
+    });
+
     it("keeps legal pages when switching languages", () => {
         expect(switchLocalePath("/terms", "en")).toBe("/en/terms");
         expect(switchLocalePath("/en/privacy", "ar")).toBe("/ar/privacy");
@@ -75,4 +106,16 @@ describe("locale navigation", () => {
         expect(switchLocalePath("/unknown-page", "en")).toBe("/en");
         expect(switchLocalePath("/admin/merchants", "ar")).toBe("/ar");
     });
+});
+
+describe("post-auth destination", () => {
+  it("sends customers directly to the discovery feed", () => {
+    expect(defaultSignedInPath("fr", ["CUSTOMER"])).toBe("/offers");
+    expect(defaultSignedInPath("en", ["CUSTOMER"])).toBe("/en/offers");
+    expect(defaultSignedInPath("ar", ["CUSTOMER"])).toBe("/ar/offers");
+  });
+
+  it("keeps merchants in their workspace", () => {
+    expect(defaultSignedInPath("fr", ["CUSTOMER", "MERCHANT"])).toBe("/merchant/dashboard");
+  });
 });

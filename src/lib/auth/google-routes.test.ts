@@ -215,7 +215,7 @@ describe("GET /api/auth/google/callback", () => {
       const response = await googleCallback(callbackRequest({ query: `?code=c&state=${state.state}`, cookie }));
 
       expect(location(response).origin).toBe(APP_ORIGIN);
-      expect(location(response).pathname).toBe("/account");
+      expect(location(response).pathname).toBe("/offers");
     },
   );
 

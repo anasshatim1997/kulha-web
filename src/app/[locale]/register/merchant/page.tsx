@@ -5,7 +5,7 @@ import { RegisterShell } from "@/components/auth/RegisterShell";
 import { authCopy } from "@/lib/i18n/auth-copy";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 
-const locales: SiteLocale[] = ["fr", "ar", "en"];
+const locales: SiteLocale[] = ["en", "ar"];
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));

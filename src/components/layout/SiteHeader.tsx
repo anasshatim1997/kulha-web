@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSession } from "@/components/session/SessionProvider";
 import { Button, LinkButton } from "@/components/ui/Button";
-import { isMerchantWorkspacePath, localeFromPath, localePath, switchLocalePath } from "@/lib/navigation";
+import { isCustomerAccountPath, isMerchantWorkspacePath, localeFromPath, localePath, shouldUseCustomerWorkspace, switchLocalePath } from "@/lib/navigation";
 import { siteCopy, type SiteLocale } from "@/lib/i18n/site-copy";
 import { Logo } from "./Logo";
 
@@ -22,7 +22,7 @@ export function SiteHeader() {
   const copy = siteCopy[locale];
   // Make the two sides of the marketplace visible immediately: customers and shops.
   const links = [
-    [copy.nav.customers, localePath(locale, "/categories"), "nav-customer-link"],
+    [copy.nav.customers, localePath(locale, "/offers"), "nav-customer-link"],
     [copy.nav.how, localePath(locale, "/how-it-works"), ""],
     [copy.nav.faq, localePath(locale, "/faq"), ""],
     [copy.nav.shops, localePath(locale, "/for-shops"), "nav-shop-link"],
@@ -36,27 +36,71 @@ export function SiteHeader() {
 
   useEffect(() => {
     if (!open) return;
+    const previousOverflow = document.body.style.overflow;
     const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") setOpen(false); };
     window.addEventListener("keydown", onKeyDown);
     document.body.style.overflow = "hidden";
-    return () => { window.removeEventListener("keydown", onKeyDown); document.body.style.overflow = ""; };
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
   }, [open]);
 
   const authenticated = state.status === "authenticated";
   const accountHref = state.status === "authenticated" && state.user.roles.includes("MERCHANT")
     ? localePath(locale, "/merchant/dashboard")
     : localePath(locale, "/account");
-  const accountLabel = locale === "ar" ? "حسابي" : locale === "en" ? "My account" : "Mon compte";
   const isAuthPage = /\/(login|register(?:\/merchant)?|forgot-password|reset-password|verify-email)\/?$/.test(pathname);
   const isWorkspace = isMerchantWorkspacePath(pathname);
   const isMerchant = state.status === "authenticated" && state.user.roles.includes("MERCHANT");
-  const signOutLabel = locale === "ar" ? "تسجيل الخروج" : locale === "en" ? "Sign out" : "Déconnexion";
+  const isCustomerWorkspace = state.status === "authenticated"
+    ? shouldUseCustomerWorkspace(pathname, state.user.roles)
+    : isCustomerAccountPath(pathname);
+  const isHomePath = /^\/(?:en|ar)?\/?$/.test(pathname);
+
+  useEffect(() => {
+    if (state.status === "authenticated" && state.user.roles.includes("CUSTOMER") && !state.user.roles.includes("MERCHANT") && !state.user.roles.includes("ADMIN") && isHomePath) {
+      router.replace(localePath(locale, "/offers"));
+    }
+  }, [isHomePath, locale, router, state]);
+
+  if (isCustomerWorkspace && !isAuthPage && !isWorkspace) {
+    const discoverHref = localePath(locale, "/offers");
+    const customerAccountHref = localePath(locale, "/account");
+    const onOffers = /^\/(?:(?:en|ar)\/)?offers(?:\/|$)/.test(pathname);
+    const onAccount = isCustomerAccountPath(pathname);
+    return (
+      <>
+        <header className="site-header site-header-workspace site-header-customer" dir={copy.dir}>
+          <div className="nav-shell">
+            <Link href={discoverHref} aria-label="Kulha! — discover baskets" className="brand-link"><Logo /></Link>
+            <nav className="workspace-nav" aria-label={locale === "ar" ? "مساحة الزبون" : locale === "en" ? "Customer navigation" : "Navigation client"}>
+              <Link href={discoverHref} aria-current={onOffers ? "page" : undefined}>{copy.nav.discover}</Link>
+              <Link href={customerAccountHref} aria-current={onAccount ? "page" : undefined}>{copy.nav.account}</Link>
+            </nav>
+            <div className="workspace-actions">
+              <label className="language-select-label">
+                <span className="sr-only">{copy.nav.language}</span>
+                <select aria-label={copy.nav.language} value={locale} onChange={(event) => { window.dispatchEvent(new Event("kulha:navigation-start")); router.push(switchLocalePath(pathname, event.target.value as SiteLocale)); }}>
+                  {localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                </select>
+              </label>
+            </div>
+          </div>
+        </header>
+        <nav className="customer-mobile-tabs" aria-label={locale === "ar" ? "التنقل" : locale === "en" ? "App navigation" : "Navigation de l’application"} dir={copy.dir}>
+          <Link href={discoverHref} aria-current={onOffers ? "page" : undefined}><span aria-hidden="true">⌕</span><small>{copy.nav.discover}</small></Link>
+          <Link href={customerAccountHref} aria-current={onAccount ? "page" : undefined}><span aria-hidden="true">♙</span><small>{copy.nav.account}</small></Link>
+        </nav>
+      </>
+    );
+  }
 
   if (isWorkspace) {
     // Focused merchant shell: logo, the two workspace pages, language and sign out. No marketing links.
     const workspaceLinks = [
       [locale === "ar" ? "لوحة المتجر" : locale === "en" ? "Dashboard" : "Tableau de bord", localePath(locale, "/merchant/dashboard"), /\/merchant\/(dashboard|apply)\/?$/.test(pathname)],
-      [locale === "ar" ? "عروضي" : locale === "en" ? "My offers" : "Mes offres", `/${locale}/merchant/offers`, /\/merchant\/offers/.test(pathname)],
+      [locale === "ar" ? "عروضي" : locale === "en" ? "My offers" : "Mes offres", localePath(locale, "/merchant/offers"), /\/merchant\/offers/.test(pathname)],
     ] as const;
     return (
       <header className="site-header site-header-workspace" dir={copy.dir}>
@@ -74,7 +118,7 @@ export function SiteHeader() {
                 {localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
               </select>
             </label>
-            {authenticated && <button type="button" className="workspace-signout" onClick={() => void signOut()}>{signOutLabel}</button>}
+            {authenticated && <button type="button" className="workspace-signout" onClick={() => void signOut()}>{copy.nav.signOut}</button>}
           </div>
         </div>
       </header>
@@ -96,8 +140,8 @@ export function SiteHeader() {
             </select>
           </label>
           {authenticated ? <>
-            <LinkButton href={accountHref} variant="ghost" className="nav-login">{accountLabel}</LinkButton>
-            <Button variant="primary" onClick={() => void signOut()} className="nav-cta">{locale === "ar" ? "تسجيل الخروج" : locale === "en" ? "Sign out" : "Déconnexion"}</Button>
+            <LinkButton href={accountHref} variant="ghost" className="nav-login">{copy.nav.account}</LinkButton>
+            <Button variant="primary" onClick={() => void signOut()} className="nav-cta">{copy.nav.signOut}</Button>
           </> : <>
             <LinkButton href={localePath(locale, "/login")} variant="ghost" className="nav-login">{copy.nav.login}</LinkButton>
             <LinkButton href={localePath(locale, "/register")} variant="accent" className="nav-cta">{copy.nav.signup}</LinkButton>
@@ -113,11 +157,11 @@ export function SiteHeader() {
         </nav>
         <div className="mobile-drawer-actions">
           {authenticated ? <>
-            <LinkButton href={accountHref} variant="ghost" className="drawer-login">{accountLabel}</LinkButton>
-            <Button variant="primary" onClick={() => { setOpen(false); void signOut(); }} className="drawer-cta">{locale === "en" ? "Sign out" : locale === "ar" ? "تسجيل الخروج" : "Déconnexion"}</Button>
+            <LinkButton href={accountHref} variant="ghost" className="drawer-login" onClick={() => setOpen(false)}>{copy.nav.account}</LinkButton>
+            <Button variant="primary" onClick={() => { setOpen(false); void signOut(); }} className="drawer-cta">{copy.nav.signOut}</Button>
           </> : <>
-            <LinkButton href={localePath(locale, "/login")} variant="ghost" className="drawer-login">{copy.nav.login}</LinkButton>
-            <LinkButton href={localePath(locale, "/register")} variant="accent" className="drawer-cta">{copy.nav.signup}</LinkButton>
+            <LinkButton href={localePath(locale, "/login")} variant="ghost" className="drawer-login" onClick={() => setOpen(false)}>{copy.nav.login}</LinkButton>
+            <LinkButton href={localePath(locale, "/register")} variant="accent" className="drawer-cta" onClick={() => setOpen(false)}>{copy.nav.signup}</LinkButton>
           </>}
         </div>
         <div className="mobile-language-switch" aria-label={copy.nav.language}>
