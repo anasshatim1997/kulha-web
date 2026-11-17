@@ -12,8 +12,11 @@ describe("public offer formatters", () => {
   });
 
   it("formats pickup windows in Africa/Casablanca for all supported locales", () => {
-    const start = "2026-11-10T14:00:00Z";
-    const end = "2026-11-10T16:00:00Z";
+    // Mid-July: Morocco is on UTC+1 (outside Ramadan), so 14:00Z must render as 15:00 in Casablanca.
+    // Avoid autumn/winter dates here: the tz database models Morocco's Ramadan clock change, which makes
+    // the offset on those dates depend on the Node/ICU tzdata version.
+    const start = "2026-07-10T14:00:00Z";
+    const end = "2026-07-10T16:00:00Z";
     for (const locale of ["fr", "en", "ar"] as const) {
       expect(formatPickupWindow(start, end, locale)).toContain("·");
     }
