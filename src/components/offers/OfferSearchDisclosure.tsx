@@ -52,23 +52,34 @@ export function OfferSearchDisclosure({ locale, values }: { locale: SiteLocale; 
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  useEffect(() => {
+  // When the URL's search term changes (back/forward, a filter link), reset the box to match it.
+  // Adjusting state during render avoids an extra effect-driven render pass.
+  const [syncedQ, setSyncedQ] = useState(values.q);
+  if (syncedQ !== values.q) {
+    setSyncedQ(values.q);
     setQuery(values.q ?? "");
     setSuggestions([]);
     setActiveIndex(-1);
     setIsDismissed(false);
-  }, [values.q]);
+  }
 
-  useEffect(() => {
-    const normalized = query.trim();
-    if (isDismissed || normalized.length < 2) {
+  const normalized = query.trim();
+  const searchActive = !isDismissed && normalized.length >= 2;
+  // Drop any results and spinners the moment searching stops being active (short or dismissed query).
+  const [wasSearchActive, setWasSearchActive] = useState(searchActive);
+  if (wasSearchActive !== searchActive) {
+    setWasSearchActive(searchActive);
+    if (!searchActive) {
       setSuggestions([]);
       setIsLoading(false);
       setHasSearched(false);
       setHasError(false);
       setActiveIndex(-1);
-      return;
     }
+  }
+
+  useEffect(() => {
+    if (!searchActive) return;
 
     const controller = new AbortController();
     const timer = window.setTimeout(async () => {
@@ -101,7 +112,7 @@ export function OfferSearchDisclosure({ locale, values }: { locale: SiteLocale; 
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [isDismissed, query, values.city, values.district]);
+  }, [searchActive, normalized, values.city, values.district]);
 
   function clearQuery() {
     setQuery("");

@@ -16,7 +16,10 @@ export function useEmailTokenFragment(): { token: string | null; ready: boolean 
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    // Syncing from the URL (an external system that is unavailable during SSR/hydration) on mount is
+    // the intended use of an effect here. Reading it in the initial state would cause a hydration mismatch.
     const candidate = parseEmailTokenFragment(window.location.hash);
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (candidate) setToken(candidate);
     if (window.location.hash) {
       // Fragments are not sent in HTTP requests; clearing this also keeps the bearer token out of
@@ -24,6 +27,7 @@ export function useEmailTokenFragment(): { token: string | null; ready: boolean 
       window.history.replaceState(window.history.state, "", `${window.location.pathname}${window.location.search}`);
     }
     setReady(true);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   return { token, ready };

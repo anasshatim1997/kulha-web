@@ -2138,8 +2138,10 @@ body:has(.auth-layout) main {
    the same placement the live OfferCard uses (.kulha-offer-art-price). */
 .basket-listing-media { position: relative; display: grid; }
 .basket-listing-media .basket-visual-brand { top: 13px; bottom: auto; inset-inline-start: 14px; inset-inline-end: auto; }
-.basket-listing-price-tag { position: absolute; z-index: 2; inset-inline-end: 12px; inset-block-end: 13px; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
-.basket-listing-price-tag > small { padding: 2px 8px; border-radius: 999px; background: rgb(7 51 36 / .74); color: #fff8eb; font-size: 9px; font-weight: 800; letter-spacing: .02em; line-height: 1.3; white-space: nowrap; }
+.basket-listing-buy { display: flex; align-items: flex-end; gap: 12px; }
+.basket-listing-price { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; flex: 0 0 auto; }
+.basket-listing-price > small { color: #6d7d71; font-size: 9px; font-weight: 800; letter-spacing: .03em; line-height: 1.2; white-space: nowrap; }
+.basket-listing-buy .basket-view-button { flex: 1 1 0; width: auto; min-width: 0; }
 .basket-listing-content { padding: 16px 17px 17px; }
 .basket-listing-shop { display: flex; align-items: center; gap: 6px; color: #9b711f; font-size: 10px; font-weight: 900; line-height: 1.4; }
 .basket-listing-shop span { color: #dda91f; }
@@ -2205,8 +2207,9 @@ body:has(.auth-layout) main {
     .basket-listing-description { min-height: 0; font-size: 10px; }
     .basket-listing-meta { gap: 4px; margin-top: 8px; padding: 7px 0; font-size: 8px; }
     .basket-listing-media .basket-visual-brand { top: 7px; inset-inline-start: 7px; }
-    .basket-listing-price-tag { inset-inline-end: 8px; inset-block-end: 9px; gap: 4px; }
-    .basket-listing-price-tag > small { padding: 2px 6px; font-size: 8px; }
+    .basket-listing-buy { gap: 8px; flex-wrap: wrap; }
+    .basket-listing-buy .basket-view-button { flex: 1 1 96px; }
+    .basket-listing-price > small { font-size: 8px; }
     .basket-view-button { min-height: 34px; padding: 6px 9px; font-size: 10px; }
     .basket-view-button b { width: 20px; height: 20px; }
     .basket-discovery-disclaimer { grid-template-columns: auto 1fr; align-items: start; padding: 14px; }

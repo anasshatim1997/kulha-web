@@ -312,11 +312,16 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
         return spread > 0.16 ? 11 : spread > 0.09 ? 12 : spread > 0.045 ? 13 : 14;
     }, [stores, focusOffer]);
 
-    useEffect(() => {
+    // Re-seed the map whenever the server-provided offers, the focused offer or the city change.
+    // This is derived-state syncing, so it runs during render (React re-renders straight away) instead of
+    // in an effect that would paint the stale map first and then cascade another render.
+    const [syncedInputs, setSyncedInputs] = useState<{ initialOffers: PublicOffer[]; focusOffer: PublicOfferDetail | null; city: string | undefined } | null>(null);
+    const inputFocus = focusOffer ?? null;
+    if (!syncedInputs || syncedInputs.initialOffers !== initialOffers || syncedInputs.focusOffer !== inputFocus || syncedInputs.city !== values.city) {
+        setSyncedInputs({ initialOffers, focusOffer: inputFocus, city: values.city });
         const combined = mergeOffers(initialOffers, focusOffer ? [focusOffer] : []);
         const nextStores = groupOffersIntoMapStores(combined);
         const nextUnlocated = groupOffersWithoutCoordinates(combined);
-        offersRef.current = combined;
         setOffers(combined);
         commitStores(nextStores);
         setUnlocatedStores(nextUnlocated);
@@ -327,7 +332,7 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
             ? { latitude: focusedStore.latitude, longitude: focusedStore.longitude }
             : averageMapCoordinate(nextStores);
         setCenter(initialPosition ?? cityCenter(focusOffer?.merchant.city ?? values.city));
-    }, [initialOffers, focusOffer, values.city]);
+    }
 
     function setGeolocationState(next: GeolocationState) {
         locationStateRef.current = next;

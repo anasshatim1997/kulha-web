@@ -69,12 +69,16 @@ export function AccountPanel() {
     const [profileError, setProfileError] = useState<string | null>(null);
     const [active, setActive] = useState<"reservations" | "details">("reservations");
 
-    useEffect(() => {
+    // Re-seed the form whenever the session state changes. Done during render (not in an effect) so we
+    // don't paint stale values first; React re-renders immediately with the updated state.
+    const [syncedState, setSyncedState] = useState(state);
+    if (syncedState !== state) {
+        setSyncedState(state);
         if (state.status === "authenticated") {
             setFullName(state.user.fullName);
             setPhone(state.user.phone ?? "");
         }
-    }, [state]);
+    }
 
     // The sidebar entries work as tabs: one panel at a time, so the screen never needs to scroll.
     // The hash keeps deep links (/account#ac-details) and the back button working.

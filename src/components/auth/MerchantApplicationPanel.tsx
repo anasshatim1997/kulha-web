@@ -236,8 +236,8 @@ export function MerchantApplicationPanel() {
     const [hoursTouched, setHoursTouched] = useState(false);
     const [hoursErrorDay, setHoursErrorDay] = useState<DayKey | undefined>(undefined);
     const [previousHours, setPreviousHours] = useState<string | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [loadError, setLoadError] = useState<string | null>(null);
+    const [settledKey, setSettledKey] = useState<string | null>(null);
+    const [loadFailure, setLoadFailure] = useState<{ key: string; message: string } | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const [resending, setResending] = useState(false);
     const [fieldError, setFieldError] = useState<string | null>(null);
@@ -246,15 +246,18 @@ export function MerchantApplicationPanel() {
     const [locating, setLocating] = useState(false);
     const [locateStatus, setLocateStatus] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
 
+    // Loading state is derived from "which request has settled" instead of being toggled inside the
+    // effect, so a retry (reloadKey) or a different user automatically counts as loading again.
+    const userId = user?.id ?? null;
+    const emailVerified = Boolean(user?.emailVerified);
+    const canLoad = state.status !== "loading" && userId !== null && emailVerified;
+    const requestKey = canLoad ? `${userId}:${reloadKey}` : null;
+    const loading = requestKey !== null && settledKey !== requestKey;
+    const loadError = requestKey !== null && loadFailure?.key === requestKey ? loadFailure.message : null;
+
     useEffect(() => {
-        if (state.status === "loading") return;
-        if (!user || !user.emailVerified) {
-            setLoading(false);
-            return;
-        }
+        if (requestKey === null) return;
         let active = true;
-        setLoading(true);
-        setLoadError(null);
         api.get<MerchantRecord>("/merchants/me")
             .then((record) => {
                 if (!active) return;
@@ -280,12 +283,12 @@ export function MerchantApplicationPanel() {
                     setMerchant(null);
                     setValues(emptyValues());
                 } else {
-                    setLoadError(describeError(error));
+                    setLoadFailure({ key: requestKey, message: describeError(error) });
                 }
             })
-            .finally(() => { if (active) setLoading(false); });
+            .finally(() => { if (active) setSettledKey(requestKey); });
         return () => { active = false; };
-    }, [state.status, user?.id, user?.emailVerified, reloadKey]);
+    }, [requestKey]);
 
     async function resendVerification() {
         if (!user) return;

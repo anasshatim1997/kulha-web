@@ -31,29 +31,30 @@ export function OfferList({ locale }: { locale: string }) {
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(0);
   const [reload, setReload] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  // Loading is derived from which request has settled (see OfferForm for the same pattern).
+  const requestKey = `${status}|${page}|${reload}`;
+  const [settled, setSettled] = useState<{ key: string; failed: boolean } | null>(null);
+  const loading = settled?.key !== requestKey;
+  const error = settled?.key === requestKey && settled.failed;
 
   useEffect(() => {
     const controller = new AbortController();
     const query = new URLSearchParams({ page: String(page), size: String(PAGE_SIZE) });
     if (status) query.set("status", status);
-    setLoading(true);
-    setError(false);
     fetch(`/api/bff/merchant/offers?${query.toString()}`, { cache: "no-store", signal: controller.signal })
       .then(async response => {
         if (!response.ok) throw new Error(`Request failed: ${response.status}`);
         return await response.json() as Page;
       })
-      .then(setData)
-      .catch(() => {
-        if (!controller.signal.aborted) setError(true);
+      .then(value => {
+        setData(value);
+        setSettled({ key: requestKey, failed: false });
       })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
+      .catch(() => {
+        if (!controller.signal.aborted) setSettled({ key: requestKey, failed: true });
       });
     return () => controller.abort();
-  }, [status, page, reload]);
+  }, [status, page, requestKey]);
 
   const pageCount = Math.max(1, Math.ceil((data?.total ?? 0) / PAGE_SIZE));
   return <div className="mw-stack" aria-busy={loading}>

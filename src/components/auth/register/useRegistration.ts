@@ -31,27 +31,27 @@ export function useRegistration({ locale, audience }: { locale: SiteLocale; audi
   const [step, setStep] = useState<1 | 2>(1);
   const [policiesAcknowledged, setPoliciesAcknowledged] = useState(false);
   const [showPolicyDialog, setShowPolicyDialog] = useState(false);
-  const [emailStatus, setEmailStatus] = useState<EmailStatus>("idle");
+  const [emailCheck, setEmailCheck] = useState<{ email: string; status: Exclude<EmailStatus, "idle" | "checking"> } | null>(null);
 
   const normalizedEmail = values.email.trim().toLowerCase();
   const validEmail = registerSchema.pick({ email: true }).safeParse({ email: normalizedEmail }).success;
   const destination = localePath(locale, merchant ? "/merchant/dashboard" : "/offers");
   const loginAfterRegister = `${localePath(locale, "/login")}?email=${encodeURIComponent(normalizedEmail)}&next=${encodeURIComponent(destination)}`;
 
+  // Derived: a result only counts for the email it was fetched for, otherwise we are still checking.
+  const emailStatus: EmailStatus =
+    step !== 1 || !validEmail ? "idle" : emailCheck?.email === normalizedEmail ? emailCheck.status : "checking";
+
   useEffect(() => {
-    if (step !== 1 || !validEmail) {
-      setEmailStatus("idle");
-      return;
-    }
+    if (step !== 1 || !validEmail) return;
     let active = true;
-    setEmailStatus("checking");
     const timer = setTimeout(async () => {
       try {
         const result = await api.post<{ exists: boolean; verified: boolean }>("/auth/email-status", { email: normalizedEmail }, { timeoutMs: 10000 });
         if (!active) return;
-        setEmailStatus(!result.exists ? "available" : result.verified ? "registered-verified" : "registered-unverified");
+        setEmailCheck({ email: normalizedEmail, status: !result.exists ? "available" : result.verified ? "registered-verified" : "registered-unverified" });
       } catch {
-        if (active) setEmailStatus("error");
+        if (active) setEmailCheck({ email: normalizedEmail, status: "error" });
       }
     }, 450);
     return () => {

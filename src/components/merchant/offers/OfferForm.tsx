@@ -41,9 +41,13 @@ export function OfferForm({ locale, offerId }: { locale: string; offerId?: strin
   const t = offerCopy(locale);
   const router = useRouter();
   const [offer, setOffer] = useState<Offer | null>(null);
-  const [loading, setLoading] = useState(Boolean(offerId));
-  const [loadError, setLoadError] = useState(false);
   const [loadAttempt, setLoadAttempt] = useState(0);
+  // Loading is derived from which request has settled, so editing a different offer or retrying
+  // counts as loading again without calling setState synchronously inside the effect.
+  const requestKey = offerId ? `${offerId}:${loadAttempt}` : null;
+  const [settled, setSettled] = useState<{ key: string; failed: boolean } | null>(null);
+  const loading = requestKey !== null && settled?.key !== requestKey;
+  const loadError = requestKey !== null && settled?.key === requestKey && settled.failed;
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -62,10 +66,8 @@ export function OfferForm({ locale, offerId }: { locale: string; offerId?: strin
   const duplicateKey = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!offerId) return;
+    if (!offerId || requestKey === null) return;
     const controller = new AbortController();
-    setLoading(true);
-    setLoadError(false);
     fetch(`/api/bff/merchant/offers/${offerId}`, { cache: "no-store", signal: controller.signal })
       .then(async response => {
         if (!response.ok) throw new Error(String(response.status));
@@ -84,15 +86,13 @@ export function OfferForm({ locale, offerId }: { locale: string; offerId?: strin
         setAllergenCodes(value.allergens);
         setAllergensUnknown(value.allergensStatus === "UNKNOWN");
         setFoodNotes(value.foodNotes ?? "");
+        setSettled({ key: requestKey, failed: false });
       })
       .catch(() => {
-        if (!controller.signal.aborted) setLoadError(true);
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
+        if (!controller.signal.aborted) setSettled({ key: requestKey, failed: true });
       });
     return () => controller.abort();
-  }, [offerId, loadAttempt]);
+  }, [offerId, requestKey]);
 
   function clearFieldError(field: string) {
     setFieldErrors(current => {

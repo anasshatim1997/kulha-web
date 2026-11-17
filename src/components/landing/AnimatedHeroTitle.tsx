@@ -4,20 +4,19 @@ import { useEffect, useState } from "react";
 
 export function AnimatedHeroTitle({ phrases }: { phrases: readonly string[] }) {
   const initialPhrase = phrases[0] ?? "KULHA!";
-  const [visibleText, setVisibleText] = useState(initialPhrase);
+  // The animated text is tied to the phrases it was produced from, so a new `phrases` prop
+  // falls back to the first phrase without needing a synchronous reset inside the effect.
+  const [animated, setAnimated] = useState<{ source: readonly string[]; text: string } | null>(null);
+  const visibleText = animated && animated.source === phrases ? animated.text : initialPhrase;
 
   useEffect(() => {
-    if (!phrases.length) {
-      setVisibleText("KULHA!");
-      return;
-    }
+    if (phrases.length < 2) return;
 
     const firstPhrase = phrases[0];
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion || phrases.length === 1) {
-      setVisibleText(firstPhrase);
-      return;
-    }
+    if (reducedMotion) return;
+
+    const setVisibleText = (text: string) => setAnimated({ source: phrases, text });
 
     let timer: ReturnType<typeof setTimeout> | undefined;
     let phraseIndex = 0;
@@ -56,7 +55,6 @@ export function AnimatedHeroTitle({ phrases }: { phrases: readonly string[] }) {
       }
     }
 
-    setVisibleText(firstPhrase);
     timer = setTimeout(tick, 2600);
     return () => { if (timer) clearTimeout(timer); };
   }, [phrases]);

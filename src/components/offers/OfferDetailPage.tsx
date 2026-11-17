@@ -4,9 +4,9 @@ import { publicOfferCopy } from "@/lib/offers/public-copy";
 import { OfferDetail } from "@/components/offers/OfferDetail";
 
 export async function OfferDetailPage({ locale, id }: { locale: SiteLocale; id: string }) {
+  let offer: Awaited<ReturnType<typeof getPublicOffer>>;
   try {
-    const offer = await getPublicOffer(id);
-    return <div className="kulha-offer-detail-page" lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><OfferDetail offer={offer} locale={locale} /></div>;
+    offer = await getPublicOffer(id);
   } catch {
     const t = publicOfferCopy(locale);
     return (
@@ -16,4 +16,5 @@ export async function OfferDetailPage({ locale, id }: { locale: SiteLocale; id: 
       </div>
     );
   }
+  return <div className="kulha-offer-detail-page" lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><OfferDetail offer={offer} locale={locale} /></div>;
 }

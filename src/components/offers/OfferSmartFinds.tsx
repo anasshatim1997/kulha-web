@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import type { PublicOffer } from "@/lib/offers/public-api";
 import { publicOfferCopy } from "@/lib/offers/public-copy";
@@ -8,6 +9,8 @@ import { PriceSticker } from "@/components/ui/PriceSticker";
 
 export function OfferSmartFinds({ items, freshItems = items, locale }: { items: PublicOffer[]; freshItems?: PublicOffer[]; locale: SiteLocale }) {
   const t = publicOfferCopy(locale);
+  // Captured once so render stays pure (Date.now() must not be called while rendering).
+  const [now] = useState(() => Date.now());
   if (items.length < 2) return null;
 
   const bestValue = [...items]
@@ -15,9 +18,9 @@ export function OfferSmartFinds({ items, freshItems = items, locale }: { items: 
     .sort((a, b) => ((b.originalPriceMinor! - b.priceMinor) / b.originalPriceMinor!) - ((a.originalPriceMinor! - a.priceMinor) / a.originalPriceMinor!))[0];
   const almostGone = items.filter((offer) => offer.availableUnits > 0 && offer.availableUnits <= 2)
     .sort((a, b) => a.availableUnits - b.availableUnits)[0];
-  const freshCutoff = Date.now() - 48 * 60 * 60 * 1000;
+  const freshCutoff = now - 48 * 60 * 60 * 1000;
   const freshArrival = freshItems
-    .filter((offer) => offer.publishedAt && Date.parse(offer.publishedAt) >= freshCutoff && Date.parse(offer.publishedAt) <= Date.now())
+    .filter((offer) => offer.publishedAt && Date.parse(offer.publishedAt) >= freshCutoff && Date.parse(offer.publishedAt) <= now)
     .sort((a, b) => Date.parse(b.publishedAt!) - Date.parse(a.publishedAt!))[0];
   const picks = [
     bestValue ? { offer: bestValue, label: t.bestSavings, kind: "saving" } : null,

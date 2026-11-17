@@ -34,24 +34,24 @@ export function RegisterForm({ locale = "fr", initialAccountType = null }: { loc
   const [policiesAcknowledged, setPoliciesAcknowledged] = useState(false);
   const [showPolicyDialog, setShowPolicyDialog] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
-  const [emailStatus, setEmailStatus] = useState<"idle" | "checking" | "available" | "registered-unverified" | "registered-verified" | "error">("idle");
+  type EmailCheckResult = "available" | "registered-unverified" | "registered-verified" | "error";
+  const [emailCheck, setEmailCheck] = useState<{ email: string; status: EmailCheckResult } | null>(null);
   const normalizedEmail = values.email.trim().toLowerCase();
   const validEmail = registerSchema.pick({ email: true }).safeParse({ email: normalizedEmail }).success;
+  // Derived: a result only counts for the email it was fetched for, otherwise we are still checking.
+  const emailStatus: "idle" | "checking" | EmailCheckResult =
+    step !== 1 || !validEmail ? "idle" : emailCheck?.email === normalizedEmail ? emailCheck.status : "checking";
 
   useEffect(() => {
-    if (step !== 1 || !validEmail) {
-      setEmailStatus("idle");
-      return;
-    }
+    if (step !== 1 || !validEmail) return;
     let active = true;
-    setEmailStatus("checking");
     const timer = setTimeout(async () => {
       try {
         const result = await api.post<{ exists: boolean; verified: boolean }>("/auth/email-status", { email: normalizedEmail }, { timeoutMs: 10000 });
         if (!active) return;
-        setEmailStatus(!result.exists ? "available" : result.verified ? "registered-verified" : "registered-unverified");
+        setEmailCheck({ email: normalizedEmail, status: !result.exists ? "available" : result.verified ? "registered-verified" : "registered-unverified" });
       } catch {
-        if (active) setEmailStatus("error");
+        if (active) setEmailCheck({ email: normalizedEmail, status: "error" });
       }
     }, 450);
     return () => {

@@ -252,8 +252,6 @@ export function OfferStoreMapCanvas({
   route,
   zoomLabel,
   mapLoadingLabel,
-  zoomInLabel,
-  zoomOutLabel,
   userLocationLabel,
   initialZoom = 13,
   locale,
@@ -311,11 +309,7 @@ export function OfferStoreMapCanvas({
 
 
   useEffect(() => {
-    if (!hasStores) {
-      setStatus("loading");
-      setErrorMessage("");
-      return;
-    }
+    if (!hasStores) return;
     const container = containerRef.current;
     if (!container) return;
     const mapContainer: HTMLDivElement = container;
@@ -516,6 +510,9 @@ export function OfferStoreMapCanvas({
     void initialize();
     return () => {
       disposed = true;
+      // The map is torn down, so the next initialisation (or an empty store list) starts from "loading".
+      setStatus("loading");
+      setErrorMessage("");
       if (tileHealthTimer !== null) window.clearTimeout(tileHealthTimer);
       resizeObserver?.disconnect();
       for (const record of markersRef.current.values()) record.marker.remove();

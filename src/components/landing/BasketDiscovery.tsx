@@ -150,15 +150,17 @@ export function BasketDiscovery({ locale }: { locale: SiteLocale }) {
                     return <article className="basket-listing-card" key={offer.id}>
                         <div className="basket-listing-media">
                             <div className={`basket-listing-visual basket-visual-${offer.visual}`} style={{ backgroundImage: `linear-gradient(180deg, rgb(7 51 36 / .05), rgb(7 51 36 / .28)), url("${offer.photo}")` }} aria-hidden="true"><span className="basket-visual-brand">KULHA!</span></div>
-                            {/* Sibling of the (aria-hidden) photo so the price stays exposed to assistive tech. Same bottom-end overlay placement as the live OfferCard. */}
-                            <div className="basket-listing-price-tag"><small>{t.priceLabel}</small><PriceSticker priceMinor={offer.price * 100} originalPriceMinor={offer.usual * 100} locale={locale} size="md" /></div>
                         </div>
                         <div className="basket-listing-content">
                             <div className="basket-listing-shop"><span>✳</span>{offer.shop[locale]}</div>
                             <h3>{offer.title[locale]}</h3>
                             <p className="basket-listing-description">{offer.detail[locale]}</p>
                             <div className="basket-listing-meta"><span>⌖ {areaName(offer.area)} · {t.sample.toLowerCase()}</span><span>◷ {offer.window[locale]}</span><span>▣ {offer.remaining} {t.remaining}</span></div>
-                            <button className="basket-view-button" type="button" onClick={() => setSelected(offer)}>{t.view}<b aria-hidden="true">↗</b></button>
+                            {/* Price sits with the call to action (not over the photo) so the food stays visible and the price is the last thing read before "view". */}
+                            <div className="basket-listing-buy">
+                                <div className="basket-listing-price"><small>{t.priceLabel}</small><PriceSticker priceMinor={offer.price * 100} originalPriceMinor={offer.usual * 100} locale={locale} size="md" /></div>
+                                <button className="basket-view-button" type="button" onClick={() => setSelected(offer)}>{t.view}<b aria-hidden="true">↗</b></button>
+                            </div>
                         </div>
                     </article>;
                 })}
