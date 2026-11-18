@@ -52,10 +52,13 @@ describe("public offer components", () => {
     });
 
 
-    it("uses restrained outline icons for offer categories instead of emoji", () => {
-        const html = render(<OfferCategoryNav locale="fr" search={{}} />);
-        expect(html.match(/class="kulha-category-icon"/g)).toHaveLength(8);
-        expect(html).toContain('stroke="currentColor"');
+    it("renders text-only category chips (no icons, no emoji) with the active one marked", () => {
+        const html = render(<OfferCategoryNav locale="en" search={{ category: "BREAD_PASTRY" }} />);
+        expect(html.match(/<a /g)).toHaveLength(8);
+        for (const label of ["All", "Surprise", "Bakery", "Meals", "Groceries", "Fruit &amp; veg", "Drinks", "Other"]) expect(html).toContain(`>${label}</a>`);
+        expect(html).toContain('class="is-active"');
+        expect(html).toContain('aria-current="page"');
+        expect(html).not.toContain("<svg");
         expect(html).not.toContain("🥐");
         expect(html).not.toContain("🛍️");
         expect(html).not.toContain("🧺");
@@ -87,7 +90,7 @@ describe("public offer components", () => {
 
     it("shows the exact available-unit count and never invents a low-stock threshold", () => {
         const html = render(<OfferCard offer={{ ...baseOffer, availableUnits: 2 }} locale="en" />);
-        expect(html).toContain("2 baskets left");
+        expect(html).toContain("2 left");
         expect(html).not.toContain("Only 2 left");
         expect(html).not.toContain("Category illustration");
         expect(html).toContain('aria-label="Bread basket,');
@@ -147,9 +150,10 @@ describe("public offer components", () => {
         const html = render(<OfferLoadingState locale="ar" />);
         expect(html).toContain('aria-busy="true"');
         expect(html).toContain("جارٍ تحميل السلال");
-        expect(html.match(/kulha-offer-skeleton/g)).toHaveLength(6);
+        expect(html.match(/kulha-offer-skeleton/g)).toHaveLength(4);
         expect(html).toContain("kulha-offers-loading-page");
-        expect(html).toContain("kulha-loading-sidebar");
+        expect(html).toContain("kulha-loading-categories");
+        expect(html).toContain("kulha-loading-refine-row");
         expect(html).toContain("kulha-loading-search");
         expect(html).toContain("kulha-loading-results-title");
         expect(html).toContain("kulha-skeleton-art");
@@ -175,16 +179,16 @@ describe("public offer components", () => {
         expect(html).toContain('name="pickupFromLocal"');
         expect(html).toContain('name="pickupFrom"');
         expect(html).toContain('class="kulha-area-form"');
-        expect(html).toContain("الحي");
+        expect(html).toContain("المنطقة");
         expect(html).toContain("عوامل التصفية النشطة");
-        expect(html).toContain("إظهار السلال النافدة أيضاً");
+        expect(html).toContain("إظهار السلال النافدة");
         expect(html).toContain("q=%D8%AE%D8%A8%D8%B2");
         expect(html).toContain("category=BREAD_PASTRY");
         expect(html).toContain("availableOnly=false");
         expect(html).toContain('aria-label="عوامل تصفية السلال"');
         expect(html).toContain('class="kulha-custom-filter-disclosure"');
         expect(html).toContain('href="/ar/offers?category=BREAD_PASTRY&amp;maxPriceMinor=1250');
-        expect(html).toContain('href="/ar/offers?q=%D8%AE%D8%A8%D8%B2&amp;maxPriceMinor=1250');
+        expect(html).toContain('href="/ar/offers?q=%D8%AE%D8%A8%D8%B2&amp;category=BREAD_PASTRY&amp;city=');
         expect(html).toContain('<bdi dir="auto">');
         const filterForm = html.match(/<form\b(?=[^>]*class="kulha-area-form")[^>]*>([\s\S]*?)<\/form>/);
         expect(filterForm).not.toBeNull();
@@ -200,8 +204,9 @@ describe("public offer components", () => {
     it("keeps the advanced location and custom-time fields available in a native GET form", () => {
         const html = render(<OfferFilterBar locale="en" values={{ city: "Casablanca", maxPriceMinor: "2500" }} pickupRanges={pickupRanges} />);
         expect(html).toContain('class="kulha-custom-filter-disclosure"');
-        expect(html).toContain("Refine results");
-        expect(html).toContain("All cities");
+        expect(html).toContain("Custom pickup time");
+        expect(html).toContain("All areas");
+        expect(html).toContain('name="city" value="Casablanca"');
         expect(html).toContain('name="pickupFromLocal"');
         expect(html).toContain('name="pickupFrom"');
         expect(html).toContain("Casablanca");

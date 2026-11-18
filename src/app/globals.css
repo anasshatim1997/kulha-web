@@ -1960,7 +1960,7 @@ body:has(.auth-layout) main {
 .playground-price-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 15px; padding: 18px 0 14px; }
 .playground-price-row>div { display: grid; gap: 4px; }
 .playground-price-row small,.merchant-preview-pricing small { color: #7e8d82; font-size: 10px; font-weight: 850; }
-.playground-price-row del { color: #7b877e; font-size: 19px; font-weight: 850; }
+.playground-price-row:not(.playground-price-row-sticker) del { color: #7b877e; font-size: 19px; font-weight: 850; }
 .playground-price-main { text-align: end; }
 .playground-price-main strong { color: #073324; font-size: 30px; font-weight: 1000; letter-spacing: -.04em; }
 .playground-saving-row { display: flex; align-items: center; gap: 8px; padding: 11px 12px; border-radius: 12px; background: #edf5e9; color: #315846; font-size: 12px; }
@@ -2138,10 +2138,9 @@ body:has(.auth-layout) main {
    the same placement the live OfferCard uses (.kulha-offer-art-price). */
 .basket-listing-media { position: relative; display: grid; }
 .basket-listing-media .basket-visual-brand { top: 13px; bottom: auto; inset-inline-start: 14px; inset-inline-end: auto; }
-.basket-listing-buy { display: flex; align-items: flex-end; gap: 12px; }
-.basket-listing-price { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; flex: 0 0 auto; }
-.basket-listing-price > small { color: #6d7d71; font-size: 9px; font-weight: 800; letter-spacing: .03em; line-height: 1.2; white-space: nowrap; }
-.basket-listing-buy .basket-view-button { flex: 1 1 0; width: auto; min-width: 0; }
+.basket-listing-details { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; padding: 12px 0; border-top: 1px solid #eee8dc; }
+.basket-listing-details .basket-listing-meta { flex: 1 1 auto; min-width: 0; margin: 0; padding: 0; border: 0; }
+.basket-listing-price { flex: 0 0 auto; display: flex; align-items: center; padding-top: 4px; }
 .basket-listing-content { padding: 16px 17px 17px; }
 .basket-listing-shop { display: flex; align-items: center; gap: 6px; color: #9b711f; font-size: 10px; font-weight: 900; line-height: 1.4; }
 .basket-listing-shop span { color: #dda91f; }
@@ -2207,9 +2206,7 @@ body:has(.auth-layout) main {
     .basket-listing-description { min-height: 0; font-size: 10px; }
     .basket-listing-meta { gap: 4px; margin-top: 8px; padding: 7px 0; font-size: 8px; }
     .basket-listing-media .basket-visual-brand { top: 7px; inset-inline-start: 7px; }
-    .basket-listing-buy { gap: 8px; flex-wrap: wrap; }
-    .basket-listing-buy .basket-view-button { flex: 1 1 96px; }
-    .basket-listing-price > small { font-size: 8px; }
+    .basket-listing-details { gap: 8px; margin-top: 8px; padding: 8px 0; }
     .basket-view-button { min-height: 34px; padding: 6px 9px; font-size: 10px; }
     .basket-view-button b { width: 20px; height: 20px; }
     .basket-discovery-disclaimer { grid-template-columns: auto 1fr; align-items: start; padding: 14px; }
@@ -12767,9 +12764,9 @@ body:has(.kulha-map-page-shell) #contenu { flex: 1 1 auto; min-height: 0; }
     .kulha-price-sticker--lg { --ps-min: 128px; --ps-major: 34px; --ps-frac: 15px; --ps-pad: 9px 15px 11px; }
 }
 .playground-price-row-sticker { align-items: flex-start; justify-content: flex-start; padding: 14px 0 16px; }
-.playground-price-row-sticker > div { display: grid; justify-items: start; gap: 6px; }
+.playground-price-row-sticker > div { display: grid; justify-items: start; gap: 10px; }
 .merchant-preview-pricing-sticker { grid-template-columns: minmax(0, 1fr); }
-.merchant-preview-pricing-sticker > div { justify-items: start; }
+.merchant-preview-pricing-sticker > div { justify-items: start; gap: 10px; }
 .app-phone-feature .app-phone-tile .kulha-price-sticker,
 .app-phone-feature .app-shop-order .kulha-price-sticker { transform: scale(.68); transform-origin: left top; }
 .app-phone-feature .app-phone-tile small:has(.kulha-price-sticker),
@@ -13936,3 +13933,959 @@ body:has(.kulha-map-page-shell) #contenu { flex: 1 1 auto; min-height: 0; }
 .kulha-offers-page .kulha-offers-toolbar > .kulha-inline-filter-bar:not(.kulha-loading-filters) > .kulha-filter-expanded[hidden] {
     display: none !important;
 }
+
+/* ---- Landing first-load gate ----
+   The overlay is server-rendered so it covers the page from first paint. Until LandingLoadGate marks the
+   root ready, every animation inside the landing page stays paused on its first frame, then they all
+   start together. */
+.landing-gate { position: fixed; inset: 0; z-index: 9990; opacity: 1; transition: opacity .45s ease; }
+.landing-gate[data-phase="leaving"] { opacity: 0; pointer-events: none; }
+.landing[data-landing-ready="false"] *,
+.landing[data-landing-ready="false"] *::before,
+.landing[data-landing-ready="false"] *::after { animation-play-state: paused !important; }
+@media (prefers-reduced-motion: reduce) { .landing-gate { transition-duration: .01ms; } }
+
+.kulha-offers-redesign {
+    --offer-cream: #fbf3e6;
+    --offer-paper: #fffdf8;
+    --offer-forest: #073324;
+    --offer-muted: #586f61;
+    background: var(--offer-cream);
+}
+.kulha-offers-redesign .kulha-offers-hero {
+    background: var(--offer-cream);
+    color: var(--offer-forest);
+}
+.kulha-offers-redesign .kulha-offers-hero-inner {
+    width: min(100%, 1440px);
+    min-height: 0;
+    align-items: center;
+    padding: 30px clamp(18px, 4.4vw, 64px) 20px;
+}
+.kulha-offers-redesign .kulha-offers-intro h1 {
+    max-width: 800px;
+    color: var(--offer-forest);
+    font-size: clamp(29px, 3vw, 40px);
+    font-weight: 950;
+    letter-spacing: -.045em;
+    line-height: 1.08;
+}
+.kulha-offers-redesign .kulha-offers-intro-copy {
+    max-width: 760px;
+    margin-top: 7px;
+    color: var(--offer-muted);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+.kulha-location-control-wrap { position: relative; flex: 0 0 auto; }
+.kulha-location-control {
+    display: inline-flex;
+    min-height: 50px;
+    align-items: center;
+    gap: 10px;
+    padding: 0 17px;
+    border: 1px solid #e4d8c2;
+    border-radius: 999px;
+    background: #fffdf8;
+    color: var(--offer-forest);
+    font-size: 14px;
+    font-weight: 900;
+    box-shadow: 0 2px 5px rgb(7 51 36 / .025);
+    cursor: pointer;
+    transition: border-color .16s ease, background .16s ease;
+}
+.kulha-location-control:hover { border-color: #9ab49f; background: #fff; }
+.kulha-location-control:disabled { cursor: progress; opacity: .72; }
+.kulha-location-control > svg:first-child { width: 18px; height: 18px; flex: 0 0 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.kulha-location-chevron { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.kulha-location-feedback { position: absolute; z-index: 12; inset-block-start: calc(100% + 6px); inset-inline-end: 0; width: min(340px, calc(100vw - 36px)); margin: 0; padding: 9px 12px; border: 1px solid #e5c7bd; border-radius: 11px; background: #fff8f5; color: #8b3325; font-size: 12px; font-weight: 750; box-shadow: 0 8px 24px rgb(7 51 36 / .08); }
+.kulha-offers-redesign .kulha-offers-content {
+    max-width: 1440px;
+    padding: 4px clamp(18px, 4.4vw, 64px) 54px;
+}
+.kulha-offers-redesign .kulha-marketplace-layout { display: block; }
+.kulha-offers-redesign .kulha-marketplace-main { display: flex; min-width: 0; flex-direction: column; gap: 15px; }
+.kulha-offers-redesign .kulha-offers-toolbar {
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 16px !important;
+    width: 100% !important;
+    margin: 0 !important;
+}
+.kulha-offers-redesign .kulha-offers-toolbar > .kulha-search-disclosure {
+    display: block !important;
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+}
+.kulha-offers-redesign .kulha-search-disclosure .kulha-offers-search {
+    position: relative;
+    inset: auto;
+    display: flex;
+    width: 100%;
+    min-height: 60px;
+    padding: 6px 16px 6px 24px;
+    border: 1px solid #e4d8c2;
+    border-radius: 999px;
+    background: #fffdf8;
+    box-shadow: none;
+}
+.kulha-offers-redesign .kulha-search-disclosure .kulha-offers-search input { min-height: 44px; color: var(--offer-forest); font-size: 16px; font-weight: 700; }
+.kulha-offers-redesign .kulha-search-disclosure .kulha-offers-search input::placeholder { color: #63786a; opacity: 1; }
+.kulha-offers-redesign .kulha-search-disclosure .kulha-search-icon { color: #617768; }
+.kulha-offers-redesign .kulha-search-disclosure .kulha-search-submit { display: none; }
+.kulha-offers-redesign .kulha-search-disclosure .kulha-search-clear { min-width: 34px; min-height: 34px; padding: 0; border-radius: 50%; background: #eef2e9; color: var(--offer-forest); }
+.kulha-offers-view-switch {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    align-items: center;
+    gap: 4px;
+    padding: 5px;
+    border: 1px solid #efe5cd;
+    border-radius: 999px;
+    background: #f1e8d1;
+}
+.kulha-offers-view-switch > span,
+.kulha-offers-view-switch > a {
+    display: inline-flex;
+    min-height: 48px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 17px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--offer-forest);
+    font-size: 14px;
+    font-weight: 900;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.kulha-offers-view-switch > .is-active { background: var(--offer-forest); color: #fffdf8; }
+.kulha-offers-view-switch > span svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.kulha-offers-view-switch .kulha-map-open-button { min-height: 48px; padding-inline: 17px; border: 0; border-radius: 999px; background: transparent; font-size: 14px; }
+.kulha-offers-view-switch .kulha-map-open-button:hover { background: rgb(255 255 255 / .5); transform: none; }
+.kulha-offers-redesign .kulha-marketplace-sidebar { display: block; width: 100%; min-width: 0; margin: 1px 0 0; }
+.kulha-offers-redesign .kulha-sidebar-panel,
+.kulha-offers-redesign .kulha-sidebar-categories { width: 100%; border: 0; background: transparent; box-shadow: none; padding: 0; }
+.kulha-offers-redesign .kulha-category-nav {
+    display: flex;
+    gap: 9px;
+    overflow-x: auto;
+    padding: 2px 1px 7px;
+    scrollbar-width: none;
+}
+.kulha-offers-redesign .kulha-category-nav::-webkit-scrollbar { display: none; }
+.kulha-offers-redesign .kulha-category-nav a {
+    min-height: 46px;
+    gap: 8px;
+    padding: 7px 15px;
+    border-color: #e4e5d9;
+    border-radius: 999px;
+    background: #fffdf8;
+    color: #254c38;
+    font-size: 13px;
+    font-weight: 850;
+    white-space: nowrap;
+}
+.kulha-offers-redesign .kulha-category-nav a.is-active { border-color: var(--offer-forest); background: var(--offer-forest); color: #fffdf8; }
+.kulha-offers-redesign .kulha-category-nav a > .kulha-category-icon { display: inline-grid; width: 21px; height: 21px; place-items: center; font-size: 0; }
+.kulha-offers-redesign .kulha-category-nav a > .kulha-category-icon svg { display: block; width: 20px; height: 20px; }
+.kulha-offers-refine-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-width: 0; padding-top: 1px; }
+.kulha-offers-pickup-quick { display: flex; min-width: 0; align-items: center; gap: 9px; }
+.kulha-offers-pickup-label { margin-inline-end: 3px; color: #617365; font-size: 12px; font-weight: 950; letter-spacing: .07em; text-transform: uppercase; }
+.kulha-offers-pickup-chip {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    border: 1px solid #e2e5d9;
+    border-radius: 999px;
+    background: #f7f8f0;
+    color: #315640;
+    font-size: 13px;
+    font-weight: 850;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background .16s ease, border-color .16s ease;
+}
+.kulha-offers-pickup-chip:hover { border-color: #9cb6a1; background: #eff4eb; }
+.kulha-offers-pickup-chip.is-active { border-color: var(--offer-forest); background: var(--offer-forest); color: #fffdf8; }
+.kulha-offers-sort-filter { display: flex; flex: 0 0 auto; align-items: center; gap: 10px; }
+.kulha-sort-control {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 8px;
+    padding: 0 13px;
+    border: 1px solid #e4d8c2;
+    border-radius: 999px;
+    background: #fffdf8;
+    color: var(--offer-forest);
+}
+.kulha-sort-control > svg:first-child { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.kulha-sort-control select { max-width: 145px; border: 0; outline: 0; appearance: none; background: transparent; color: var(--offer-forest); font: inherit; font-size: 13px; font-weight: 900; cursor: pointer; }
+.kulha-sort-chevron { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.kulha-offers-redesign .kulha-filter-shell.kulha-inline-filter-bar { position: relative; display: block !important; width: auto !important; max-width: none !important; min-width: 0; }
+.kulha-offers-redesign .kulha-filter-toggle-row { display: flex; width: auto; min-width: 0; align-items: center; gap: 9px; }
+.kulha-offers-redesign .kulha-filter-toggle {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 8px;
+    padding: 0 15px;
+    border: 1px solid #e4d8c2;
+    border-radius: 999px;
+    background: #fffdf8;
+    color: var(--offer-forest);
+    font-size: 13px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+.kulha-offers-redesign .kulha-filter-toggle > svg:first-child { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.kulha-offers-redesign .kulha-filter-toggle-chevron { width: 14px; height: 14px; margin-inline-start: 1px; }
+.kulha-offers-redesign .kulha-filter-toggle-count { display: grid; width: 21px; height: 21px; place-items: center; border-radius: 50%; background: var(--offer-forest); color: white; font-size: 11px; }
+.kulha-offers-redesign .kulha-filter-reset { color: var(--offer-forest); font-size: 12px; font-weight: 850; }
+.kulha-offers-redesign .kulha-filter-expanded {
+    position: absolute;
+    z-index: 60;
+    inset-block-start: calc(100% + 10px);
+    inset-inline-end: 0;
+    display: grid;
+    width: min(570px, calc(100vw - 36px));
+    max-height: min(75vh, 700px);
+    overflow: auto;
+    padding: 20px;
+    border: 1px solid #e6ddca;
+    border-radius: 20px;
+    background: #fffdf8;
+    box-shadow: 0 18px 40px rgb(7 51 36 / .17);
+}
+.kulha-offers-redesign .kulha-filter-expanded[hidden] { display: none !important; }
+.kulha-offers-redesign .kulha-filter-heading h3 { color: var(--offer-forest); }
+.kulha-offers-redesign .kulha-filter-heading p { color: #617365; }
+.kulha-offers-redesign .kulha-filter-expanded .kulha-filter-quick-row { display: none; }
+.kulha-offers-redesign .kulha-active-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: -1px 0 0; color: #315640; }
+.kulha-offers-redesign .kulha-active-filters-title { color: #617365; font-size: 12px; font-weight: 900; }
+.kulha-offers-redesign .kulha-filter-chip { min-height: 36px; padding: 4px 11px; border: 0; background: #e8f0e6; color: #254c38; font-size: 12px; }
+.kulha-offers-redesign .kulha-filter-chip > span:nth-child(2) { color: #254c38; }
+.kulha-offers-redesign .kulha-filter-clear-all { color: var(--offer-forest); font-size: 12px; }
+.kulha-offers-redesign .kulha-offers-results { gap: 18px; margin-top: 1px; }
+.kulha-offers-redesign .kulha-results-heading { align-items: center; }
+.kulha-offers-redesign .kulha-results-heading h2 { margin: 0; color: var(--offer-forest); font-size: 20px; font-weight: 950; letter-spacing: -.025em; }
+.kulha-offers-redesign .kulha-results-heading-meta { display: flex; align-items: center; gap: 12px; }
+.kulha-offers-redesign .kulha-results-count { margin: 0; color: #52685a; font-size: 12px; }
+.kulha-offers-redesign .kulha-results-count strong { color: var(--offer-forest); font-size: 18px; }
+.kulha-offers-redesign .kulha-offer-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.kulha-offers-redesign .kulha-offer-card { border-color: #eadfca; border-radius: 26px; background: #fffdf8; box-shadow: 0 8px 21px rgb(7 51 36 / .045); }
+.kulha-offers-redesign .kulha-offer-card:hover { border-color: #c4d4c3; box-shadow: 0 12px 28px rgb(7 51 36 / .08); }
+.kulha-offers-redesign .kulha-offer-art { min-height: 215px; }
+.kulha-offers-redesign .kulha-offer-art-image { width: 166px; height: 135px; }
+.kulha-offers-redesign .kulha-offer-card-main { gap: 8px; padding: 16px 18px 19px; }
+.kulha-offers-redesign .kulha-offer-merchant { color: #617768; font-size: 13px; }
+.kulha-offers-redesign .kulha-offer-card-main h3 { min-height: 0; margin: -2px 0 1px; font-size: 19px; line-height: 1.25; }
+.kulha-offers-redesign .kulha-offer-card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 2px; }
+.kulha-offers-redesign .kulha-offer-pickup-chip,
+.kulha-offers-redesign .kulha-offer-availability { display: inline-flex; min-height: 32px; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 999px; background: #edf2e9; color: #315640; font-size: 12px; font-weight: 850; line-height: 1.25; }
+.kulha-offers-redesign .kulha-offer-pickup-chip > span { font-size: 14px; }
+.kulha-offers-redesign .kulha-offer-availability { background: #fff1cd; color: #78500c; }
+.kulha-offers-redesign .kulha-offer-card-bottom { margin-top: 0; }
+.kulha-offers-redesign .kulha-offer-location { font-size: 12px; color: #65796a; }
+.kulha-offers-redesign .kulha-offers-notify-banner {
+    display: flex;
+    min-height: 92px;
+    align-items: center;
+    gap: 18px;
+    margin-top: 24px;
+    padding: 18px 24px;
+    border-radius: 25px;
+    background: var(--offer-forest);
+    color: #fffdf8;
+}
+.kulha-offers-notify-icon { display: grid; width: 30px; height: 30px; flex: 0 0 30px; place-items: center; color: #fdbE2e; }
+.kulha-offers-notify-icon svg { width: 27px; height: 27px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.kulha-offers-notify-banner > div:nth-child(2) { min-width: 0; flex: 1; }
+.kulha-offers-notify-banner h2 { margin: 0; color: #fffdf8; font-size: 18px; font-weight: 950; line-height: 1.3; }
+.kulha-offers-notify-banner p { margin: 2px 0 0; color: #c7d7cd; font-size: 14px; font-weight: 700; line-height: 1.45; }
+.kulha-offers-notify-banner > a { display: inline-flex; min-height: 49px; flex: 0 0 auto; align-items: center; justify-content: center; padding: 0 23px; border-radius: 15px; background: #fdbE2e; color: #073324; font-size: 14px; font-weight: 950; text-decoration: none; transition: transform .16s ease, background .16s ease; }
+.kulha-offers-notify-banner > a:hover { transform: translateY(-1px); background: #ffd15d; }
+.kulha-offers-redesign :is(.kulha-search-disclosure, .kulha-filter-shell) { z-index: auto; }
+.kulha-offers-redesign .kulha-search-suggestions { z-index: 70; }
+.kulha-offers-redesign .kulha-offers-notify-banner a:focus-visible,
+.kulha-offers-redesign .kulha-location-control:focus-visible,
+.kulha-offers-redesign .kulha-offers-pickup-chip:focus-visible,
+.kulha-offers-redesign .kulha-sort-control:focus-within { outline: 3px solid #b77924; outline-offset: 3px; }
+@media (max-width: 1100px) {
+    .kulha-offers-redesign .kulha-offer-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+    .kulha-offers-redesign .kulha-offer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .kulha-offers-refine-row { align-items: flex-start; flex-direction: column; }
+    .kulha-offers-sort-filter { width: 100%; justify-content: flex-end; }
+}
+@media (max-width: 759px) {
+    .kulha-offers-redesign .kulha-offers-hero-inner { align-items: flex-start; flex-direction: column; gap: 16px; padding: 26px 18px 16px; }
+    .kulha-offers-redesign .kulha-offers-intro h1 { font-size: clamp(29px, 7vw, 37px); }
+    .kulha-offers-redesign .kulha-offers-intro-copy { font-size: 14px; }
+    .kulha-location-control { min-height: 45px; font-size: 13px; }
+    .kulha-offers-redesign .kulha-offers-content { padding: 3px 16px 38px; }
+    .kulha-offers-redesign .kulha-offers-toolbar { flex-wrap: wrap !important; gap: 10px !important; }
+    .kulha-offers-redesign .kulha-offers-toolbar > .kulha-search-disclosure { flex-basis: 100% !important; }
+    .kulha-offers-view-switch { align-self: flex-end; margin-inline-start: auto; }
+    .kulha-offers-view-switch > span,
+    .kulha-offers-view-switch > a,
+    .kulha-offers-view-switch .kulha-map-open-button { min-height: 41px; font-size: 12px; }
+    .kulha-offers-redesign .kulha-category-nav { gap: 7px; margin-inline: -1px; }
+    .kulha-offers-redesign .kulha-category-nav a { min-height: 42px; padding-inline: 12px; font-size: 12px; }
+    .kulha-offers-refine-row { gap: 10px; }
+    .kulha-offers-pickup-quick { width: 100%; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+    .kulha-offers-pickup-quick::-webkit-scrollbar { display: none; }
+    .kulha-offers-pickup-label { flex: 0 0 auto; font-size: 10px; }
+    .kulha-offers-pickup-chip { min-height: 39px; padding-inline: 13px; font-size: 12px; }
+    .kulha-offers-sort-filter { justify-content: space-between; }
+    .kulha-sort-control { min-height: 42px; padding-inline: 10px; }
+    .kulha-sort-control select { max-width: 130px; font-size: 12px; }
+    .kulha-offers-redesign .kulha-filter-toggle { min-height: 42px; padding-inline: 12px; font-size: 12px; }
+    .kulha-offers-redesign .kulha-active-filters { margin-top: -2px; }
+    .kulha-offers-redesign .kulha-results-heading h2 { font-size: 19px; }
+    .kulha-offers-redesign .kulha-offer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+    .kulha-offers-redesign .kulha-offer-art { min-height: 170px; }
+    .kulha-offers-redesign .kulha-offer-art-image { width: 145px; height: 116px; }
+    .kulha-offers-redesign .kulha-offer-card-main { padding: 13px 13px 15px; }
+    .kulha-offers-redesign .kulha-offer-card-main h3 { font-size: 16px; }
+    .kulha-offers-redesign .kulha-offer-merchant { font-size: 11px; }
+    .kulha-offers-redesign .kulha-offer-pickup-chip,
+    .kulha-offers-redesign .kulha-offer-availability { min-height: 29px; padding: 3px 8px; font-size: 10px; }
+    .kulha-offers-notify-banner { gap: 12px; min-height: 0; padding: 16px; border-radius: 20px; }
+    .kulha-offers-notify-banner h2 { font-size: 15px; }
+    .kulha-offers-notify-banner p { font-size: 12px; }
+    .kulha-offers-notify-banner > a { min-height: 43px; padding-inline: 13px; font-size: 12px; }
+}
+@media (max-width: 520px) {
+    .kulha-offers-redesign .kulha-offer-grid { grid-template-columns: minmax(0, 1fr); }
+    .kulha-offers-redesign .kulha-offer-art { min-height: 190px; }
+    .kulha-offers-redesign .kulha-offer-art-image { width: 175px; height: 137px; }
+    .kulha-offers-redesign .kulha-offer-card-main h3 { font-size: 18px; }
+    .kulha-offers-redesign .kulha-offer-merchant { font-size: 12px; }
+    .kulha-offers-notify-banner { align-items: flex-start; flex-wrap: wrap; }
+    .kulha-offers-notify-banner > div:nth-child(2) { flex-basis: calc(100% - 46px); }
+    .kulha-offers-notify-banner > a { margin-inline-start: 42px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .kulha-location-control,
+    .kulha-offers-pickup-chip,
+    .kulha-offers-notify-banner > a { transition: none; }
+}
+.kulha-offers-redesign .kulha-offers-toolbar > .kulha-offers-view-switch { display: flex !important; }
+
+.kulha-offers-redesign .kulha-offer-art .kulha-offer-countdown {
+    position: absolute;
+    z-index: 2;
+    inset-block-start: 13px;
+    inset-inline-start: 13px;
+    display: inline-flex;
+    min-height: 32px;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: #ffbd2e;
+    color: #3e300c;
+    font-size: 12px;
+    font-weight: 950;
+    line-height: 1.25;
+}
+.kulha-offers-redesign .kulha-offer-art .kulha-offer-countdown::before { content: "◷"; font-size: 15px; line-height: 1; }
+
+/* Offers redesign layout overrides: keep the legacy sidebar grid from constraining the new page. */
+.kulha-offers-page.kulha-offers-redesign .kulha-marketplace-layout {
+    display: grid !important;
+    width: 100% !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0 !important;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-marketplace-main {
+    display: flex;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    grid-column: 1 / -1;
+    flex-direction: column;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-marketplace-sidebar {
+    position: static;
+    width: 100%;
+    min-width: 0;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-marketplace-sidebar .kulha-category-nav {
+    display: flex !important;
+    width: 100%;
+    min-width: 0;
+    flex-flow: row nowrap;
+    gap: 9px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 2px 1px 7px;
+    scrollbar-width: none;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-marketplace-sidebar .kulha-category-nav::-webkit-scrollbar {
+    display: none;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-marketplace-sidebar .kulha-category-nav > a {
+    display: inline-flex;
+    width: auto;
+    min-width: max-content;
+    max-width: none;
+    min-height: 46px;
+    flex: 0 0 auto;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-toolbar > .kulha-search-disclosure {
+    display: block;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    flex: 1 1 0%;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-toolbar > .kulha-offers-view-switch {
+    display: flex !important;
+    width: auto !important;
+    min-width: max-content;
+    max-width: 100%;
+    flex: 0 0 auto !important;
+    grid-template-columns: none !important;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-results,
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-grid {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+}
+
+
+/* Offers page final layout refinements: long location labels, compact toolbar and tighter results spacing. */
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-hero-inner {
+    display: flex !important;
+    width: min(100%, 1440px);
+    min-height: 0;
+    flex-flow: row nowrap !important;
+    align-items: flex-start !important;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 22px clamp(18px, 4.4vw, 64px) 12px;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-intro {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+    width: auto;
+    gap: 0;
+    margin: 0;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-intro h1 {
+    width: auto;
+    max-width: 100%;
+    margin: 0;
+    overflow-wrap: normal;
+    line-height: 1.08;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-intro-copy {
+    max-width: 760px;
+    margin: 7px 0 0;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-location-control-wrap {
+    flex: 0 1 320px;
+    width: clamp(210px, 24vw, 320px);
+    min-width: 0;
+    max-width: 320px;
+    margin-inline-start: auto;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-location-control {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    justify-content: flex-start;
+    overflow: hidden;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-location-control-label {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-location-control > svg,
+.kulha-offers-page.kulha-offers-redesign .kulha-location-chevron {
+    flex: 0 0 auto;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-marketplace-main {
+    gap: 8px !important;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-toolbar {
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-toolbar > .kulha-search-disclosure {
+    display: block !important;
+    flex: 1 1 0% !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-toolbar > .kulha-offers-view-switch {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: max-content;
+    max-width: none !important;
+    align-items: center;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-search-disclosure .kulha-offers-search {
+    width: 100%;
+    min-width: 0;
+    min-height: 54px;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-marketplace-sidebar {
+    margin: 0 !important;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-refine-row {
+    padding-top: 0;
+    gap: 10px;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-results-heading {
+    margin: 0 0 10px;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-results {
+    gap: 12px;
+    margin-top: 0;
+}
+
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-grid {
+    gap: 18px;
+}
+
+@media (max-width: 900px) {
+    .kulha-offers-page.kulha-offers-redesign .kulha-offers-hero-inner {
+        gap: 16px;
+    }
+
+    .kulha-offers-page.kulha-offers-redesign .kulha-location-control-wrap {
+        flex-basis: 250px;
+        width: clamp(190px, 27vw, 250px);
+    }
+}
+
+@media (max-width: 759px) {
+    .kulha-offers-page.kulha-offers-redesign .kulha-offers-hero-inner {
+        align-items: stretch !important;
+        flex-direction: column !important;
+        gap: 10px;
+        padding: 20px 18px 10px;
+    }
+
+    .kulha-offers-page.kulha-offers-redesign .kulha-offers-intro {
+        width: 100%;
+    }
+
+    .kulha-offers-page.kulha-offers-redesign .kulha-location-control-wrap {
+        flex: 0 1 auto;
+        width: min(100%, 360px);
+        max-width: 100%;
+        margin-inline-start: 0;
+    }
+
+    .kulha-offers-page.kulha-offers-redesign .kulha-offers-content {
+        padding-top: 2px;
+    }
+
+    .kulha-offers-page.kulha-offers-redesign .kulha-marketplace-main {
+        gap: 8px !important;
+    }
+
+    .kulha-offers-page.kulha-offers-redesign .kulha-offers-toolbar {
+        flex-flow: row nowrap !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+
+    .kulha-offers-page.kulha-offers-redesign .kulha-offers-toolbar > .kulha-search-disclosure {
+        flex: 1 1 0% !important;
+        width: auto !important;
+        min-width: 0 !important;
+    }
+
+    .kulha-offers-page.kulha-offers-redesign .kulha-search-disclosure .kulha-offers-search {
+        min-height: 46px;
+        padding-inline: 12px;
+    }
+
+    .kulha-offers-page.kulha-offers-redesign .kulha-search-disclosure .kulha-offers-search input {
+        min-width: 0;
+        font-size: 13px;
+    }
+
+    .kulha-offers-page.kulha-offers-redesign .kulha-offers-view-switch {
+        flex: 0 0 auto !important;
+        gap: 2px;
+        padding: 3px;
+    }
+
+    .kulha-offers-page.kulha-offers-redesign .kulha-offers-view-switch > span,
+    .kulha-offers-page.kulha-offers-redesign .kulha-offers-view-switch > a,
+    .kulha-offers-page.kulha-offers-redesign .kulha-offers-view-switch .kulha-map-open-button {
+        min-height: 38px;
+        gap: 5px;
+        padding-inline: 9px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 380px) {
+    .kulha-offers-page.kulha-offers-redesign .kulha-offers-toolbar {
+        gap: 6px !important;
+    }
+
+    .kulha-offers-page.kulha-offers-redesign .kulha-offers-view-switch > span,
+    .kulha-offers-page.kulha-offers-redesign .kulha-offers-view-switch > a,
+    .kulha-offers-page.kulha-offers-redesign .kulha-offers-view-switch .kulha-map-open-button {
+        padding-inline: 7px;
+        font-size: 10px;
+    }
+}
+
+/* ==========================================================================
+   KULHA offers marketplace — designer reference (authoritative, keep last).
+   Measured from the 1280px design: 56px gutters, pill controls, 4-up cards,
+   anchored Filters popover with a dimmed page underneath.
+   Colours: forest #073324 · muted #5b7163 · line #e8dfcd · paper #fffdf8 · sun #fdbe2e
+   ========================================================================== */
+.kulha-offers-page.kulha-offers-redesign { --ko-forest:#073324; --ko-muted:#5b7163; --ko-line:#e8dfcd; --ko-paper:#fffdf8; --ko-sun:#fdbe2e; --ko-gutter:clamp(20px,4.4vw,64px); position:relative; min-height:0 !important; background:transparent !important; color:var(--ko-forest); padding:0 0 56px !important; }
+.kulha-offers-page.kulha-offers-redesign * { box-sizing:border-box; }
+
+/* ---- hero ---- */
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-hero { position:static !important; height:auto !important; min-height:0 !important; margin:0 !important; padding:0 !important; border:0 !important; background:transparent !important; overflow:visible !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-hero-inner { display:flex !important; flex-flow:row nowrap !important; align-items:center !important; justify-content:space-between !important; gap:24px !important; width:100% !important; max-width:1440px !important; height:auto !important; min-height:0 !important; margin:0 auto !important; padding:24px var(--ko-gutter) 0 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-intro { display:block !important; flex:1 1 auto !important; min-width:0 !important; height:auto !important; margin:0 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-intro h1 { margin:0 !important; color:var(--ko-forest) !important; font-size:36px !important; font-weight:900 !important; line-height:1.1 !important; letter-spacing:-.045em !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-intro-copy { display:block !important; max-width:none !important; margin:6px 0 0 !important; color:var(--ko-muted) !important; font-size:15px !important; font-weight:650 !important; line-height:1.4 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-location-control-wrap { position:relative; flex:none !important; width:auto !important; margin:0 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-location-control { display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:9px !important; width:auto !important; min-width:0 !important; height:46px !important; min-height:0 !important; margin:0 !important; padding:0 16px !important; border:1px solid var(--ko-line) !important; border-radius:999px !important; background:var(--ko-paper) !important; box-shadow:none !important; color:var(--ko-forest) !important; font-size:13px !important; font-weight:800 !important; white-space:nowrap; }
+.kulha-offers-page.kulha-offers-redesign .kulha-location-control > svg { flex:none; width:18px !important; height:18px !important; fill:none !important; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+.kulha-offers-page.kulha-offers-redesign .kulha-location-control .kulha-location-control-label { flex:none !important; width:auto !important; max-width:260px; overflow:hidden; text-overflow:ellipsis; text-align:start !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-location-control .kulha-location-chevron { margin-inline-start:2px; }
+.kulha-offers-page.kulha-offers-redesign .kulha-location-feedback { position:absolute; inset-inline-end:0; top:calc(100% + 8px); z-index:30; width:max-content; max-width:min(320px,80vw); margin:0; padding:10px 14px; border:1px solid var(--ko-line); border-radius:14px; background:var(--ko-paper); font-size:13px; font-weight:700; }
+
+/* ---- content column ---- */
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-content { width:100% !important; max-width:1440px !important; margin:0 auto !important; padding:26px var(--ko-gutter) 0 !important; background:transparent !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-marketplace-layout { display:block !important; width:100% !important; max-width:none !important; min-height:0 !important; margin:0 !important; padding:0 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-marketplace-main { display:flex !important; flex-direction:column !important; gap:0 !important; width:100% !important; min-width:0 !important; min-height:0 !important; margin:0 !important; padding:0 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-marketplace-main > * { flex:0 0 auto !important; }
+
+/* search + List/Map */
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-toolbar { position:relative !important; z-index:auto !important; display:flex !important; flex-flow:row nowrap !important; align-items:center !important; gap:16px !important; width:100% !important; height:auto !important; min-height:0 !important; margin:0 !important; padding:0 !important; border:0 !important; background:transparent !important; box-shadow:none !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-toolbar > .kulha-search-disclosure { position:relative; display:block !important; flex:1 1 auto !important; width:auto !important; min-width:0 !important; max-width:none !important; margin:0 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-search-disclosure .kulha-offers-search { display:flex !important; align-items:center !important; gap:12px !important; width:100% !important; min-width:0 !important; height:53px !important; min-height:0 !important; margin:0 !important; padding:0 8px 0 22px !important; border:1px solid var(--ko-line) !important; border-radius:999px !important; background:var(--ko-paper) !important; box-shadow:none !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-search-disclosure .kulha-offers-search:focus-within { border-color:var(--ko-forest) !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-search-disclosure .kulha-search-icon { display:grid; flex:none; place-items:center; color:var(--ko-muted) !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-search-disclosure .kulha-search-icon svg { width:20px !important; height:20px !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-search-disclosure input[type="search"],
+.kulha-offers-page.kulha-offers-redesign .kulha-search-disclosure input[type="text"] { flex:1 1 auto !important; min-width:0 !important; height:100% !important; padding:0 !important; border:0 !important; outline:0 !important; background:transparent !important; color:var(--ko-forest) !important; font-size:15px !important; font-weight:650 !important; box-shadow:none !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-search-disclosure input::placeholder { color:var(--ko-muted); opacity:1; }
+.kulha-offers-page.kulha-offers-redesign .kulha-search-disclosure .kulha-search-submit { display:none !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-search-disclosure .kulha-search-clear { flex:none; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-view-switch { display:flex !important; flex:0 0 auto !important; align-items:center !important; gap:2px !important; width:auto !important; min-width:0 !important; height:53px !important; margin:0 !important; padding:4px !important; border:0 !important; border-radius:999px !important; background:#f0e7d1 !important; box-shadow:inset 0 0 0 1px rgb(232 223 205 / .8) !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-view-switch > span,
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-view-switch > a { display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:8px !important; height:45px !important; min-height:0 !important; margin:0 !important; padding:0 18px !important; border:0 !important; border-radius:999px !important; background:transparent !important; box-shadow:none !important; color:#3d5646 !important; font-size:13.5px !important; font-weight:800 !important; line-height:1 !important; text-decoration:none !important; white-space:nowrap; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-view-switch > span.is-active { background:var(--ko-forest) !important; color:#fffdf8 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-view-switch svg { flex:none; width:19px !important; height:19px !important; fill:none !important; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+
+/* category chips */
+.kulha-offers-page.kulha-offers-redesign .kulha-marketplace-sidebar { display:block !important; position:static !important; width:100% !important; height:auto !important; min-height:0 !important; margin:17px 0 0 !important; padding:0 !important; border:0 !important; background:transparent !important; box-shadow:none !important; overflow:visible !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-sidebar-panel,
+.kulha-offers-page.kulha-offers-redesign .kulha-sidebar-categories { display:block !important; width:100% !important; height:auto !important; min-height:0 !important; margin:0 !important; padding:0 !important; border:0 !important; background:transparent !important; box-shadow:none !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-category-nav { display:flex !important; flex-flow:row wrap !important; gap:7px !important; width:100% !important; height:auto !important; margin:0 !important; padding:0 !important; overflow:visible !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-category-nav > a { display:inline-flex !important; flex:0 0 auto !important; align-items:center !important; justify-content:center !important; height:40px !important; min-height:0 !important; margin:0 !important; padding:0 17px !important; border:1px solid var(--ko-line) !important; border-radius:999px !important; background:var(--ko-paper) !important; box-shadow:none !important; color:#234a37 !important; font-size:13px !important; font-weight:800 !important; line-height:1 !important; text-decoration:none !important; white-space:nowrap; transition:background-color .15s,color .15s,border-color .15s; }
+.kulha-offers-page.kulha-offers-redesign .kulha-category-nav > a:hover { border-color:#cdbf9f !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-category-nav > a.is-active { border-color:var(--ko-forest) !important; background:var(--ko-forest) !important; color:#fffdf8 !important; }
+
+/* pickup + sort + filters row */
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-refine-row { position:relative !important; z-index:auto !important; display:flex !important; flex-flow:row nowrap !important; align-items:center !important; justify-content:space-between !important; gap:16px !important; width:100% !important; height:auto !important; min-height:0 !important; margin:12px 0 0 !important; padding:0 !important; border:0 !important; background:transparent !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-pickup-quick { display:flex !important; flex-flow:row wrap !important; align-items:center !important; gap:8px !important; min-width:0 !important; margin:0 !important; padding:0 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-pickup-label { margin-inline-end:4px !important; color:var(--ko-muted) !important; font-size:10.5px !important; font-weight:900 !important; letter-spacing:.12em !important; text-transform:uppercase; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-pickup-chip { display:inline-flex !important; align-items:center !important; justify-content:center !important; height:38px !important; min-height:0 !important; margin:0 !important; padding:0 15px !important; border:1px solid #e6e3d4 !important; border-radius:999px !important; background:#f4f3e9 !important; box-shadow:none !important; color:#234a37 !important; font-size:12.5px !important; font-weight:800 !important; line-height:1 !important; text-decoration:none !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-pickup-chip.is-active { border-color:var(--ko-forest) !important; background:var(--ko-forest) !important; color:#fffdf8 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-sort-filter { position:static !important; display:flex !important; flex:0 0 auto !important; align-items:center !important; gap:10px !important; margin:0 !important; padding:0 !important; }
+
+.kulha-offers-page.kulha-offers-redesign .kulha-sort-control {min-height:0 !important;min-width:154px; position:relative; display:inline-flex !important; align-items:center !important; gap:10px; height:40px !important; margin:0 !important; padding:0 14px !important; border:1px solid var(--ko-line) !important; border-radius:999px !important; background:var(--ko-paper) !important; box-shadow:none !important; color:var(--ko-forest) !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-sort-control > svg { flex:none; width:18px !important; height:18px !important; fill:none !important; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; pointer-events:none; }
+.kulha-offers-page.kulha-offers-redesign .kulha-sort-control select {field-sizing:content;width:auto !important;line-height:38px !important; appearance:none !important; -webkit-appearance:none !important; height:100% !important; min-width:0 !important; margin:0 !important; padding:0 22px 0 0 !important; border:0 !important; outline:0 !important; background:transparent !important; color:var(--ko-forest) !important; font-size:13px !important; font-weight:800 !important; cursor:pointer; }
+.kulha-offers-page.kulha-offers-redesign .kulha-sort-control .kulha-sort-chevron { position:absolute !important; inset-inline-end:12px; top:50%; width:16px !important; height:16px !important; transform:translateY(-50%); }
+
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-shell.kulha-inline-filter-bar { position:static !important; z-index:auto !important; display:block !important; width:auto !important; margin:0 !important; padding:0 !important; border:0 !important; background:transparent !important; box-shadow:none !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-toggle { display:inline-flex !important; align-items:center !important; gap:10px !important; width:auto !important; height:40px !important; min-height:0 !important; margin:0 !important; padding:0 12px 0 14px !important; border:1px solid var(--ko-line) !important; border-radius:999px !important; background:var(--ko-paper) !important; box-shadow:none !important; color:var(--ko-forest) !important; font-size:13px !important; font-weight:800 !important; line-height:1 !important; cursor:pointer; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-toggle.is-open,
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-toggle[aria-expanded="true"] { border:2px solid var(--ko-forest) !important; padding-inline:15px 13px !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-toggle > svg { flex:none; width:18px !important; height:18px !important; fill:none !important; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-toggle-count { display:inline-grid !important; flex:none; place-items:center; min-width:20px; height:20px; margin:0 !important; padding:0 6px; border-radius:999px; background:var(--ko-forest) !important; color:#fffdf8 !important; font-size:11px; font-weight:900; line-height:1; }
+
+/* ---- result bar: count + chips + clear all ---- */
+.kulha-offers-page.kulha-offers-redesign .kulha-results-bar {flex-wrap:nowrap !important;height:30px; display:flex !important; flex-flow:row wrap !important; align-items:center !important; gap:8px 10px !important; min-height:30px; margin:14px 0 0 !important; padding:0 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-results-bar-count { margin:0 6px 0 0 !important; color:var(--ko-forest) !important; font-size:15px !important; font-weight:900 !important; line-height:1.2 !important; letter-spacing:-.01em !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-active-filters { display:contents !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-chip { display:inline-flex !important; align-items:center !important; gap:8px !important; height:29px !important; margin:0 !important; padding:0 10px 0 12px !important; border:0 !important; border-radius:999px !important; background:#e3ecdf !important; box-shadow:none !important; color:#234a37 !important; font-size:12px !important; font-weight:800 !important; line-height:1 !important; text-decoration:none !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-chip svg { flex:none; width:14px !important; height:14px !important; fill:none !important; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-clear-all { margin:0 0 0 2px !important; padding:0 !important; border:0 !important; background:transparent !important; color:var(--ko-forest) !important; font-size:12px !important; font-weight:800 !important; text-decoration:underline !important; text-underline-offset:3px; }
+.kulha-offers-page.kulha-offers-redesign .kulha-results-progress { margin-inline-start:auto; }
+
+/* ---- results + cards ---- */
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-results { margin:11px 0 0 !important; padding:0 !important; border:0 !important; background:transparent !important; box-shadow:none !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-grid { display:grid !important; grid-template-columns:repeat(4,minmax(0,1fr)) !important; gap:20px !important; align-items:stretch !important; margin:0 !important; padding:0 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-card { position:relative; display:flex !important; min-width:0 !important; height:100% !important; margin:0 !important; padding:0 !important; overflow:hidden !important; border:1px solid #efe6d5 !important; border-radius:24px !important; background:var(--ko-paper) !important; box-shadow:0 2px 6px rgb(7 51 36 / .04), 0 12px 28px rgb(7 51 36 / .05) !important; transition:transform .18s,box-shadow .18s; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-card:hover { transform:translateY(-2px); box-shadow:0 2px 6px rgb(7 51 36 / .05), 0 18px 36px rgb(7 51 36 / .09) !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-card-link { display:flex !important; flex-direction:column !important; width:100% !important; height:100% !important; min-width:0 !important; padding:0 !important; color:inherit !important; text-decoration:none !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art { position:relative !important; display:block !important; flex:none !important; width:100% !important; height:192px !important; min-height:0 !important; margin:0 !important; padding:0 !important; overflow:hidden !important; isolation:isolate; border:0 !important; border-radius:0 !important; box-shadow:none !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art::before,
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art::after { display:none !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art.is-bakery { background:linear-gradient(135deg,#f8e8c8 0%,#fbf1de 100%) !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art.is-meals { background:linear-gradient(135deg,#e6efe3 0%,#f1f5ec 100%) !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art.is-grocery { background:linear-gradient(135deg,#e9f0df 0%,#f3f6ea 100%) !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art.is-produce { background:linear-gradient(135deg,#f7e1d4 0%,#faeee6 100%) !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art.is-drinks { background:linear-gradient(135deg,#dfe9f0 0%,#eef3f5 100%) !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art.is-surprise { background:linear-gradient(135deg,#f6e8cc 0%,#faf1de 100%) !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art.is-other { background:linear-gradient(135deg,#e7ecdc 0%,#f2f4e9 100%) !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art-mark { position:absolute; inset-inline-start:50%; top:48px; width:60px; height:60px; margin-inline-start:-30px; color:#7a9383; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art .kulha-offer-countdown { position:absolute !important; z-index:3; inset-block-start:13px !important; inset-inline-start:13px !important; inset-inline-end:auto !important; display:inline-flex !important; align-items:center !important; gap:7px !important; height:28px !important; margin:0 !important; padding:0 12px 0 10px !important; border:0 !important; border-radius:999px !important; background:var(--ko-sun) !important; box-shadow:none !important; color:#3d2a00 !important; font-size:12px !important; font-weight:900 !important; line-height:1 !important; white-space:nowrap; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-countdown::before,
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-countdown::after,
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-pickup-chip::before,
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-pickup-chip::after { content:none !important; display:none !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-countdown svg { flex:none; width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art .kulha-offer-status { position:absolute !important; z-index:3; inset-block-start:13px !important; inset-inline-end:13px !important; inset-inline-start:auto !important; display:inline-flex !important; align-items:center !important; height:25px !important; margin:0 !important; padding:0 12px !important; border:0 !important; border-radius:999px !important; background:#b82522 !important; box-shadow:none !important; color:#fff !important; font-size:12px !important; font-weight:900 !important; line-height:1 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-card.is-sold-out .kulha-offer-art-mark { opacity:.7; }
+
+/* price plate + discount tab */
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art .kulha-offer-art-price,
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art .kulha-price-sticker--overlay { position:absolute !important; z-index:2 !important; inset-inline-end:13px !important; inset-inline-start:auto !important; inset-block-end:13px !important; inset-block-start:auto !important; display:inline-flex !important; flex-direction:column; align-items:flex-end; margin:0 !important; transform:none !important; visibility:visible !important; opacity:1 !important; pointer-events:none; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art .kulha-price-sticker__discount {align-self:flex-start; position:relative !important; z-index:2; inset:auto !important; display:inline-flex !important; align-items:center; height:19px; margin:0 0 -9px 6px !important; padding:0 10px !important; border:0 !important; border-radius:999px !important; background:var(--ko-sun) !important; box-shadow:none !important; transform:none !important; color:#4a3200 !important; font-size:11px !important; font-weight:900 !important; line-height:1 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art .kulha-price-sticker__plate { position:relative !important; z-index:1; display:flex !important; flex-direction:column; align-items:flex-end; gap:0 !important; min-width:0; margin:0 !important; padding:15px 11px 8px !important; border:0 !important; border-radius:15px !important; background:var(--ko-paper) !important; box-shadow:0 6px 18px rgb(7 51 36 / .14) !important; transform:none !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art .kulha-price-sticker__old { margin:0 0 -1px !important; color:#5b7163 !important; font-size:10.5px !important; font-weight:800 !important; line-height:1.2 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art .kulha-price-sticker__amount { display:inline-flex !important; align-items:baseline !important; gap:2px !important; margin:0 !important; color:var(--ko-forest) !important; line-height:1 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art .kulha-price-sticker__major { font-size:27px !important; font-weight:900 !important; letter-spacing:-.04em; line-height:1 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art .kulha-price-sticker__fraction { align-self:flex-start; margin-top:2px; font-size:12px !important; font-weight:900 !important; line-height:1 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-art .kulha-price-sticker__currency { margin-inline-start:3px; font-size:10.5px !important; font-weight:800 !important; line-height:1 !important; }
+
+/* card body */
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-card-main { display:flex !important; flex:1 1 auto !important; flex-direction:column !important; gap:4px !important; min-width:0 !important; margin:0 !important; padding:14px 17px 14px !important; border:0 !important; background:transparent !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-merchant { margin:0 !important; color:var(--ko-muted) !important; font-size:12.5px !important; font-weight:700 !important; line-height:1.3 !important; letter-spacing:0 !important; text-transform:none !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-card-main h3 { margin:0 !important; color:var(--ko-forest) !important; font-size:17.5px !important; font-weight:900 !important; line-height:1.2 !important; letter-spacing:-.02em !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-card-meta { display:flex !important; flex-flow:row wrap !important; align-items:center !important; gap:8px !important; margin:3px 0 0 !important; padding:0 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-pickup-chip,
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-availability,
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-restock { display:inline-flex !important; align-items:center !important; gap:7px !important; height:28px !important; margin:0 !important; padding:0 11px !important; border:0 !important; border-radius:999px !important; box-shadow:none !important; font-size:12px !important; font-weight:800 !important; line-height:1 !important; white-space:nowrap; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-pickup-chip { background:#edf0e6 !important; color:#234a37 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-pickup-chip svg { flex:none; width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-availability { background:#fdf0cf !important; color:#6b4a00 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-restock { background:#efe6d3 !important; color:#6a5a3a !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offer-card.is-sold-out .kulha-offer-card-main h3 { color:#264a39 !important; }
+
+/* ---- notify banner ---- */
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-notify-banner { display:flex !important; align-items:center !important; gap:10px !important; width:100% !important; min-height:80px; margin:22px 0 0 !important; padding:14px 22px 14px 26px !important; border:0 !important; border-radius:22px !important; background:#073324 !important; box-shadow:none !important; color:#fffdf8 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-notify-icon { display:grid !important; flex:none; place-items:center; width:30px !important; height:30px !important; margin:0 !important; padding:0 !important; background:transparent !important; color:var(--ko-sun) !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-notify-icon svg { width:28px !important; height:28px !important; fill:none !important; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-notify-banner > div:nth-child(2) { flex:1 1 auto; min-width:0; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-notify-banner h2 { margin:0 !important; color:#fffdf8 !important; font-size:17px !important; font-weight:900 !important; line-height:1.2 !important; letter-spacing:-.02em !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-notify-banner p { margin:3px 0 0 !important; color:#d3e2d8 !important; font-size:13px !important; font-weight:650 !important; line-height:1.35 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-offers-notify-banner > a { display:inline-flex !important; flex:none; align-items:center; justify-content:center; height:44px; margin:0 !important; padding:0 24px !important; border-radius:14px !important; background:var(--ko-sun) !important; box-shadow:none !important; color:#073324 !important; font-size:14px !important; font-weight:900 !important; text-decoration:none !important; white-space:nowrap; }
+
+/* ---- Filters popover (anchored under the Filters button) ---- */
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-backdrop { position:fixed !important; inset:0 !important; z-index:1000 !important; display:block !important; width:auto !important; height:auto !important; margin:0 !important; padding:0 !important; border:0 !important; border-radius:0 !important; background:rgb(24 32 26 / .42) !important; backdrop-filter:none !important; cursor:default; animation:ko-fade-in .22s ease-out both; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-backdrop.is-closing { animation:ko-fade-out .15s ease-in both; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-expanded { --ko-arrow:var(--ko-pop-arrow,62px); position:fixed !important; z-index:1001 !important; inset-block-start:var(--ko-pop-top,300px) !important; inset-inline-end:var(--ko-pop-inline,var(--ko-gutter)) !important; inset-inline-start:auto !important; transform:none; display:flex !important; flex-direction:column; width:min(540px,calc(100vw - 2 * var(--ko-gutter))) !important; max-width:none !important; max-height:calc(100dvh - var(--ko-pop-top,300px) - 16px) !important; margin:0 !important; padding:0 !important; overflow:visible !important; border:1px solid var(--ko-line) !important; border-radius:28px !important; background:var(--ko-paper) !important;
+  transform-origin:calc(100% - var(--ko-arrow)) -10px; animation:ko-pop-in .26s cubic-bezier(.2,.8,.25,1) both; will-change:transform,opacity;
+  box-shadow:0 28px 70px rgb(7 35 24 / .32), 0 4px 14px rgb(7 35 24 / .12) !important; }
+
+[dir="rtl"] .kulha-offers-page.kulha-offers-redesign .kulha-filter-expanded { transform-origin:var(--ko-arrow) -10px; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-expanded.is-closing { animation:ko-pop-out .15s ease-in both; }
+@media (min-width:760px) { .kulha-offers-page.kulha-offers-redesign .kulha-filter-toggle.is-open { position:relative; z-index:1002; } }
+@keyframes ko-pop-in { from { opacity:0; transform:translateY(-10px) scale(.96); } to { opacity:1; transform:none; } }
+@keyframes ko-pop-out { to { opacity:0; transform:translateY(-8px) scale(.97); } }
+@keyframes ko-fade-in { from { opacity:0; } }
+@keyframes ko-fade-out { to { opacity:0; } }
+@keyframes ko-sheet-in { from { opacity:0; transform:translateY(calc(-50% + 22px)) scale(.97); } to { opacity:1; transform:translateY(-50%); } }
+@keyframes ko-sheet-out { to { opacity:0; transform:translateY(calc(-50% + 14px)) scale(.98); } }
+@media (prefers-reduced-motion:reduce) { .kulha-offers-page.kulha-offers-redesign .kulha-filter-backdrop, .kulha-offers-page.kulha-offers-redesign .kulha-filter-expanded { animation:none !important; } }
+/* the content scrolls inside the popover so it never runs off-screen; the arrow stays outside the scroller */
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-dialog-body { display:grid; grid-template-columns:minmax(0,1fr); align-content:start; min-height:0; padding:22px 25px 20px; overflow-y:auto; overscroll-behavior:contain; border-radius:inherit; scrollbar-width:thin; scrollbar-color:#d9cfb8 transparent; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-expanded::before { content:"" !important; position:absolute !important; inset-block-start:-9px !important; inset-inline-end:calc(var(--ko-arrow) - 10px) !important; inset-inline-start:auto !important; z-index:2; width:20px !important; height:20px !important; transform:rotate(45deg) !important; border:0 !important; border-radius:3px; background:var(--ko-paper) !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-expanded[hidden] { display:none !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-dialog-top { position:relative; z-index:1; display:flex !important; align-items:center; justify-content:space-between; gap:16px; margin:0 0 17px !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-dialog-top h2 { margin:0 !important; color:var(--ko-forest) !important; font-size:23px !important; font-weight:900 !important; line-height:1.1 !important; letter-spacing:-.04em !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-dialog-actions { display:flex !important; align-items:center; gap:22px !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-dialog-actions .kulha-filter-reset {line-height:1 !important;height:36px;align-items:center; display:inline-flex !important; margin:0 !important; padding:0 !important; border:0 !important; background:transparent !important; color:var(--ko-forest) !important; font-size:13px !important; font-weight:800 !important; text-decoration:underline !important; text-underline-offset:3px; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-close { display:grid !important; place-items:center; width:36px !important; height:36px !important; margin:0 !important; padding:0 !important; border:0 !important; border-radius:50% !important; background:#f3eee2 !important; color:var(--ko-forest) !important; cursor:pointer; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-close svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2.1; stroke-linecap:round; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-heading { display:none !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-expanded .kulha-filter-quick-row,
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-expanded .kulha-filter-price-quick { display:grid !important; gap:6px !important; margin:0 0 16px !important; padding:0 !important; border:0 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-section-label { display:block; margin:0 !important; color:var(--ko-muted) !important; font-size:12.5px !important; font-weight:900 !important; letter-spacing:.12em !important; text-transform:uppercase; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-price-chips { display:flex !important; flex-flow:row wrap !important; gap:8px !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-expanded .kulha-quick-chip { display:inline-flex !important; align-items:center !important; justify-content:center !important; height:40px !important; min-height:0 !important; margin:0 !important; padding:0 14px !important; border:1px solid var(--ko-line) !important; border-radius:999px !important; background:var(--ko-paper) !important; box-shadow:none !important; color:#234a37 !important; font-size:14px !important; font-weight:800 !important; line-height:1 !important; text-decoration:none !important; cursor:pointer; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-expanded .kulha-quick-chip.is-active { border-color:var(--ko-forest) !important; background:var(--ko-forest) !important; color:#fffdf8 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-area-form { display:grid !important; grid-template-columns:minmax(0,1fr) !important; width:100% !important; max-width:none !important; gap:0 !important; margin:0 !important; padding:0 !important; border:0 !important; background:transparent !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-fields-grid { display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:14px !important; margin:2px 0 0 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-fields-grid > label { display:grid !important; gap:6px !important; min-width:0; margin:0 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-fields-grid > label > span:first-child { color:var(--ko-muted) !important; font-size:12.5px !important; font-weight:900 !important; letter-spacing:.12em !important; text-transform:uppercase; }
+.kulha-offers-page.kulha-offers-redesign .kulha-select { position:relative; display:block !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-select select { appearance:none !important; -webkit-appearance:none !important; width:100% !important; height:48px !important; min-height:0 !important; margin:0 !important; padding:0 40px 0 16px !important; border:1px solid var(--ko-line) !important; border-radius:16px !important; background:var(--ko-paper) !important; box-shadow:none !important; color:var(--ko-forest) !important; font-size:14px !important; font-weight:800 !important; cursor:pointer; }
+.kulha-offers-page.kulha-offers-redesign .kulha-select > svg { position:absolute; inset-inline-end:15px; top:50%; width:20px; height:20px; margin-top:-10px; fill:none; stroke:var(--ko-forest); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; pointer-events:none; }
+.kulha-offers-page.kulha-offers-redesign .kulha-filter-extra-row { display:grid !important; grid-template-columns:minmax(0,1fr) !important; gap:8px !important; margin:14px 0 0 !important; padding:9px 0 0 !important; border:0 !important; border-top:1px solid #efe6d5 !important; background:transparent !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-include-soldout-toggle {height:28px; position:relative; display:flex !important; align-items:center; justify-content:space-between; gap:12px; margin:0 !important; padding:0 !important; color:var(--ko-forest) !important; font-size:14px !important; font-weight:800 !important; cursor:pointer; }
+.kulha-offers-page.kulha-offers-redesign .kulha-include-soldout-toggle input { position:absolute; inset:0; width:100% !important; height:100% !important; margin:0; opacity:0; cursor:pointer; }
+.kulha-offers-page.kulha-offers-redesign .kulha-switch { position:relative; flex:none; width:46px; height:28px; border-radius:999px; background:#dcd3bd; transition:background-color .18s; }
+.kulha-offers-page.kulha-offers-redesign .kulha-switch::after { content:""; position:absolute; top:3px; inset-inline-start:3px; width:22px; height:22px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgb(7 35 24 / .25); transition:transform .18s; }
+.kulha-offers-page.kulha-offers-redesign .kulha-include-soldout-toggle input:checked ~ .kulha-switch { background:var(--ko-forest); }
+.kulha-offers-page.kulha-offers-redesign .kulha-include-soldout-toggle input:checked ~ .kulha-switch::after { transform:translateX(18px); }
+[dir="rtl"] .kulha-offers-page.kulha-offers-redesign .kulha-include-soldout-toggle input:checked ~ .kulha-switch::after { transform:translateX(-18px); }
+.kulha-offers-page.kulha-offers-redesign .kulha-include-soldout-toggle input:focus-visible ~ .kulha-switch { outline:3px solid var(--ko-sun); outline-offset:2px; }
+.kulha-offers-page.kulha-offers-redesign .kulha-custom-filter-disclosure { display:block !important; width:100% !important; min-width:0 !important; margin:0 !important; border:1px solid var(--ko-line) !important; border-radius:16px !important; background:#fcfbf4 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-custom-filter-disclosure summary {margin:0 !important;min-height:0 !important;border-radius:0 !important;box-shadow:none !important;background:transparent !important;border:0 !important;width:100% !important; display:flex !important; align-items:center; gap:12px; height:45px; padding:0 17px !important; color:var(--ko-forest) !important; font-size:14px !important; font-weight:800 !important; list-style:none; cursor:pointer; }
+.kulha-offers-page.kulha-offers-redesign .kulha-custom-filter-disclosure summary::-webkit-details-marker { display:none; }
+.kulha-offers-page.kulha-offers-redesign .kulha-custom-filter-disclosure summary svg { flex:none; width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.kulha-offers-page.kulha-offers-redesign .kulha-custom-filter-disclosure summary span { flex:1 1 auto; color:inherit !important; font:inherit !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-custom-filter-disclosure summary::after,
+.kulha-offers-page.kulha-offers-redesign .kulha-custom-filter-disclosure summary::before { content:none !important; display:none !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-custom-filter-disclosure summary .kulha-summary-chevron { width:20px; height:20px; transition:transform .18s; }
+.kulha-offers-page.kulha-offers-redesign .kulha-custom-filter-disclosure[open] summary .kulha-summary-chevron { transform:rotate(180deg); }
+.kulha-offers-page.kulha-offers-redesign .kulha-custom-filter-disclosure .kulha-filter-fields { position:static !important; inset:auto !important; z-index:auto !important; transform:none !important; width:auto !important; max-width:none !important; margin:0 !important; border:0 !important; border-radius:0 !important; box-shadow:none !important; background:transparent !important; display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:12px !important; padding:2px 16px 16px !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-custom-filter-disclosure .kulha-filter-fields label { display:grid; gap:7px; min-width:0; color:var(--ko-muted); font-size:12.5px; font-weight:800; }
+.kulha-offers-page.kulha-offers-redesign .kulha-custom-filter-disclosure .kulha-filter-fields input { width:100% !important; min-width:0 !important; height:42px !important; min-height:0 !important; padding:0 10px !important; overflow:hidden; border:1px solid var(--ko-line); border-radius:12px; background:var(--ko-paper); color:var(--ko-forest); font-size:14px; font-weight:700; }
+.kulha-offers-page.kulha-offers-redesign .kulha-area-form .kulha-filter-actions { display:flex !important; gap:12px !important; margin:7px 0 0 !important; padding:0 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-area-form .kulha-filter-actions button { height:52px !important; min-height:0 !important; margin:0 !important; padding:0 22px !important; border-radius:16px !important; box-shadow:none !important; font-size:15px !important; font-weight:900 !important; line-height:1 !important; cursor:pointer; }
+.kulha-offers-page.kulha-offers-redesign .kulha-area-form .kulha-filter-actions .kulha-filter-cancel {padding:0 !important;min-width:0 !important; flex:0 0 86px !important; width:86px !important; border:1px solid var(--ko-line) !important; background:var(--ko-paper) !important; color:var(--ko-forest) !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-area-form .kulha-filter-actions button[type="submit"] { flex:1 1 auto !important; border:0 !important; background:var(--ko-forest) !important; color:#fffdf8 !important; }
+.kulha-offers-page.kulha-offers-redesign .kulha-area-form .kulha-filter-actions button[disabled] { opacity:.7; cursor:progress; }
+
+/* ---- loading skeleton (same geometry as the page above) ---- */
+.kulha-loading-block { position:relative; display:block; overflow:hidden; background:#ebe3d0; }
+.kulha-loading-block::after { content:""; position:absolute; inset:0; transform:translateX(-100%); background:linear-gradient(90deg,transparent,rgb(255 253 248 / .7),transparent); animation:kulha-loading-sweep 1.4s ease-in-out infinite; }
+@keyframes kulha-loading-sweep { to { transform:translateX(100%); } }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-hero-title { width:min(330px,60vw); height:42px; border-radius:12px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-hero-subtitle { width:min(470px,70vw); height:16px; margin-top:12px; border-radius:8px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-location { flex:none; width:206px; height:46px; border-radius:999px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-search { display:flex; flex:1 1 auto; align-items:center; gap:14px; min-width:0; min-height:0 !important; height:53px; padding:0 22px; border:1px solid var(--ko-line); border-radius:999px; background:var(--ko-paper); }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-search-icon { flex:none; width:20px; height:20px; border-radius:50%; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-search-input { width:min(300px,50%); height:14px; border-radius:7px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-view-switch { display:flex !important; flex:0 0 189px !important; width:189px !important; align-items:center; gap:2px; height:53px !important; padding:4px !important; border-radius:999px; background:#f0e7d1; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-view-button { flex:1 1 50% !important; width:auto !important; height:45px !important; border-radius:999px; background:#e2d8bf; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-view-button.is-active { background:#cfd9cf; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-categories { display:flex; flex-flow:row wrap; gap:8px; margin-top:17px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-category-pill { flex:none; height:40px; border-radius:999px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-refine-row { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:14px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-pickup,
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-sort-filter { display:flex; align-items:center; gap:8px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-pickup-label { width:58px; height:12px; margin-inline-end:4px; border-radius:6px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-pickup-chip { height:38px; border-radius:999px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-sort { width:154px; height:40px; border-radius:999px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-filter-button { width:124px; height:40px; border-radius:999px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-results-bar { display:flex; align-items:center; gap:10px; min-height:30px; margin:16px 0 12px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-results-title { width:84px; height:18px; margin-inline-end:6px; border-radius:7px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-results-chip { width:120px; height:30px; border-radius:999px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-results-chip.is-short { width:104px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-offer-grid-skeleton { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:20px; margin:0; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-offer-skeleton { display:flex; flex-direction:column; min-width:0; overflow:hidden; border:1px solid #efe6d5; border-radius:24px; background:var(--ko-paper); box-shadow:0 2px 6px rgb(7 51 36 / .04), 0 12px 28px rgb(7 51 36 / .05); }
+.kulha-offers-page.kulha-offers-loading-page .kulha-skeleton-art { position:relative; display:block; flex:none; height:192px; overflow:hidden; background:#f4ecd9; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-skeleton-art > .kulha-loading-block { position:absolute; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-skeleton-countdown { top:13px; inset-inline-start:13px; width:132px; height:28px; border-radius:999px; background:#ecd9a0; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-skeleton-art-shape { top:56px; inset-inline-start:50%; width:44px; height:50px; margin-inline-start:-22px; border-radius:12px; background:#dfd6bf; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-skeleton-price { inset-inline-end:13px; bottom:13px; width:100px; height:68px; border-radius:16px; background:#fffdf8; box-shadow:0 6px 18px rgb(7 51 36 / .1); }
+.kulha-offers-page.kulha-offers-loading-page .kulha-skeleton-price::after { background:linear-gradient(90deg,transparent,rgb(7 51 36 / .06),transparent); }
+.kulha-offers-page.kulha-offers-loading-page .kulha-skeleton-body { display:flex; flex-direction:column; gap:8px; padding:17px 17px 18px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-skeleton-line { height:13px; border-radius:7px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-skeleton-line.is-merchant { width:52%; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-skeleton-line.is-title { width:78%; height:19px; margin-top:2px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-skeleton-card-meta { display:flex; gap:8px; margin-top:6px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-skeleton-pickup { width:148px; height:28px; border-radius:999px; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-skeleton-availability { width:56px; height:28px; border-radius:999px; background:#f2e4b8; }
+.kulha-offers-page.kulha-offers-loading-page .kulha-loading-banner { position:relative; overflow:hidden; height:80px; margin-top:22px; border-radius:22px; background:#e9e0cb; }
+
+/* ---- responsive ---- */
+@media (max-width:1100px) {
+  .kulha-offers-page.kulha-offers-redesign .kulha-offer-grid,
+  .kulha-offers-page.kulha-offers-loading-page .kulha-offer-grid-skeleton { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+}
+@media (max-width:859px) {
+  .kulha-offers-page.kulha-offers-redesign .kulha-offers-refine-row { flex-wrap:wrap !important; }
+  .kulha-offers-page.kulha-offers-redesign .kulha-offers-pickup-quick { flex:1 1 100%; }
+  .kulha-offers-page.kulha-offers-redesign .kulha-offers-sort-filter { flex:1 1 100%; justify-content:flex-start; }
+}
+@media (max-width:759px) {
+  .kulha-offers-page.kulha-offers-redesign .kulha-offers-hero-inner { align-items:flex-start !important; padding-top:18px !important; }
+  .kulha-offers-page.kulha-offers-redesign .kulha-offers-intro h1 { font-size:30px !important; }
+  .kulha-offers-page.kulha-offers-redesign .kulha-offers-intro-copy { font-size:14px !important; }
+  .kulha-offers-page.kulha-offers-redesign .kulha-location-control { height:42px !important; padding:0 14px !important; }
+  .kulha-offers-page.kulha-offers-redesign .kulha-location-control .kulha-location-control-label { display:none; }
+  .kulha-offers-page.kulha-offers-redesign .kulha-offers-toolbar { gap:8px !important; }
+  .kulha-offers-page.kulha-offers-redesign .kulha-search-disclosure .kulha-offers-search { height:48px !important; padding-inline:16px 6px !important; }
+  .kulha-offers-page.kulha-offers-redesign .kulha-offers-view-switch { height:48px !important; }
+  .kulha-offers-page.kulha-offers-redesign .kulha-offers-view-switch > span,
+  .kulha-offers-page.kulha-offers-redesign .kulha-offers-view-switch > a { height:40px !important; padding:0 12px !important; font-size:0 !important; gap:0 !important; }
+  .kulha-offers-page.kulha-offers-redesign .kulha-category-nav { flex-wrap:nowrap !important; margin-inline:calc(-1 * var(--ko-gutter)) !important; width:calc(100% + 2 * var(--ko-gutter)) !important; padding-inline:var(--ko-gutter) !important; overflow-x:auto !important; scroll-snap-type:none !important; scroll-padding:0 !important; scrollbar-width:none; }
+  .kulha-offers-page.kulha-offers-redesign .kulha-category-nav::-webkit-scrollbar { display:none; }
+  .kulha-offers-page.kulha-offers-redesign .kulha-offer-grid,
+  .kulha-offers-page.kulha-offers-loading-page .kulha-offer-grid-skeleton { grid-template-columns:minmax(0,1fr) !important; }
+  .kulha-offers-page.kulha-offers-redesign .kulha-offers-notify-banner { flex-wrap:wrap; padding:18px !important; }
+  .kulha-offers-page.kulha-offers-redesign .kulha-offers-notify-banner > a { width:100%; }
+  /* popover becomes a centred sheet with a full-screen dim */
+  .kulha-offers-page.kulha-offers-redesign .kulha-filter-expanded { inset-block-start:50% !important; inset-inline:12px !important; width:auto !important; max-height:86dvh !important; transform:translateY(-50%); clip-path:none !important; border-radius:22px !important; transform-origin:50% 50%; animation:ko-sheet-in .28s cubic-bezier(.2,.8,.25,1) both; }
+  .kulha-offers-page.kulha-offers-redesign .kulha-filter-expanded.is-closing { animation:ko-sheet-out .15s ease-in both; }
+  .kulha-offers-page.kulha-offers-redesign .kulha-filter-dialog-body { padding:20px 17px; }
+  .kulha-offers-page.kulha-offers-redesign .kulha-filter-expanded::before { display:none !important; }
+  .kulha-offers-page.kulha-offers-redesign .kulha-area-form .kulha-filter-actions { position:sticky; inset-block-end:-20px; z-index:2; margin:10px -17px -20px !important; padding:12px 17px 16px !important; flex-direction:row !important; flex-wrap:nowrap !important; background:linear-gradient(to bottom, rgb(255 253 248 / 0), #fffdf8 18px) !important; }
+  .kulha-offers-page.kulha-offers-redesign .kulha-filter-fields-grid { grid-template-columns:minmax(0,1fr) !important; }
+  .kulha-offers-page.kulha-offers-loading-page .kulha-loading-location { width:46px; }
+  .kulha-offers-page.kulha-offers-loading-page .kulha-loading-categories { flex-wrap:nowrap; overflow:hidden; }
+  .kulha-offers-page.kulha-offers-loading-page .kulha-loading-pickup { overflow:hidden; }
+  .kulha-offers-page.kulha-offers-loading-page .kulha-loading-view-switch { flex-basis:100px; }
+  .kulha-offers-page.kulha-offers-loading-page .kulha-loading-sort-filter { display:none; }
+}
+@media (prefers-reduced-motion:reduce) { .kulha-loading-block::after { animation:none; opacity:.4; } }

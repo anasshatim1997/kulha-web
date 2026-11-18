@@ -41,7 +41,7 @@ describe("public offer list page", () => {
         expect(html).toContain('lang="ar"');
         expect(html).toContain('dir="rtl"');
         expect(html).toContain("السلال المتاحة");
-        expect(html).toContain('<strong><bdi dir="auto">1</bdi></strong>');
+        expect(html).toContain('<bdi dir="auto">1</bdi> سلة');
         expect(html).toContain("سلة خبز");
         expect(html).toContain("موعد الاستلام");
         expect(html).not.toContain("دليل KULHA!");
@@ -52,7 +52,7 @@ describe("public offer list page", () => {
         expect(html).not.toContain("الاستلام من المتجر فقط");
         expect(html).not.toContain("سلال من فائض المتاجر المحلية بأسعار أفضل.");
         expect(html).toContain('class="kulha-offer-grid"');
-        expect(html).toContain("عرض الخريطة");
+        expect(html).toContain("الخريطة");
     });
 
     it("keeps categories in the sidebar and renders filters inline without a modal", async () => {
@@ -87,7 +87,7 @@ describe("public offer list page", () => {
         expect(html).toContain('class="kulha-area-form"');
         expect(html).not.toContain('class="kulha-booking-note"');
         expect(html).not.toContain('kulha-category-nav-mobile');
-        expect(html).toContain("Rechercher un panier ou un aliment");
+        expect(html).toContain("Rechercher un panier, un commerce ou un aliment");
         expect(html).toContain("Maintenant");
         expect(html).toContain("Ce soir");
         expect(html).toContain("Demain");
@@ -95,7 +95,7 @@ describe("public offer list page", () => {
         expect(html).not.toContain("Retrait en magasin uniquement");
         expect(html).toContain('class="kulha-offer-grid"');
         expect(html).toContain("msemen");
-        expect(html).toContain("Voir la carte");
+        expect(html).toContain("Carte");
     });
 
     it("keeps the discovery page focused without a floating help button or booking banner", async () => {

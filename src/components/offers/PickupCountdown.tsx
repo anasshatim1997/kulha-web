@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { publicOfferCopy } from "@/lib/offers/public-copy";
+import { offerDesignCopy } from "@/lib/offers/design-copy";
 
 function minutesUntil(instant: string): number | null {
   const timestamp = new Date(instant).getTime();
@@ -18,6 +19,14 @@ export function getPickupCountdownDuration(minutes: number, locale: SiteLocale):
   return hours > 0
     ? `${hours} ${t.hoursShort} ${remainingMinutes} ${t.minutesShort}`
     : `${remainingMinutes} ${t.minutesShort}`;
+}
+
+/** Compact "1h 20m" form used on the card pill; `getPickupCountdownDuration` stays the long, spoken form. */
+function compactDuration(minutes: number, locale: SiteLocale): string {
+  if (locale !== "en") return getPickupCountdownDuration(minutes, locale);
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return hours > 0 ? `${hours}h ${rest}m` : `${rest}m`;
 }
 
 export function PickupCountdown({ pickupEnd, locale }: { pickupEnd: string; locale: SiteLocale }) {
@@ -44,7 +53,12 @@ export function PickupCountdown({ pickupEnd, locale }: { pickupEnd: string; loca
   }, [pickupEnd]);
 
   if (minutes === null) return null;
-  const duration = getPickupCountdownDuration(minutes, locale);
+  const duration = compactDuration(minutes, locale);
 
-  return <span className="kulha-offer-countdown">{t.pickupEndsIn} <bdi>{duration}</bdi></span>;
+  return (
+    <span className="kulha-offer-countdown" title={`${t.pickupEndsIn} ${getPickupCountdownDuration(minutes, locale)}`}>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg>
+      <span>{offerDesignCopy(locale).endsIn} <bdi>{duration}</bdi></span>
+    </span>
+  );
 }

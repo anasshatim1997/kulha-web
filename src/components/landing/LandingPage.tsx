@@ -3,15 +3,27 @@ import Image from "next/image";
 import { siteCopy, type SiteLocale } from "@/lib/i18n/site-copy";
 import { AnimatedHeroTitle } from "@/components/landing/AnimatedHeroTitle";
 import { MarketplacePlayground } from "@/components/landing/MarketplacePlayground";
+import { LandingLoadGate } from "@/components/landing/LandingLoadGate";
 import { BasketDiscovery } from "@/components/landing/BasketDiscovery";
 import { localePath } from "@/lib/navigation";
+
+const LOADING_COPY: Record<SiteLocale, { message: string; label: string }> = {
+    fr: { message: "On prépare votre page…", label: "Chargement de la page" },
+    en: { message: "Getting your page ready…", label: "Loading page" },
+    ar: { message: "نحضّر صفحتك…", label: "جارٍ تحميل الصفحة" },
+};
 
 export function LandingPage({ locale = "fr" }: { locale?: SiteLocale }) {
     const t = siteCopy[locale];
     const href = (path: string) => localePath(locale, path);
 
     return (
-        <div className={`landing locale-${locale}`} dir={t.dir} lang={t.localeTag}>
+        <>
+        {/* Without JS the gate can never open: show the page and let animations run normally. */}
+        <noscript><style>{".landing-gate{display:none!important}.landing[data-landing-ready=false] *{animation-play-state:running!important}"}</style></noscript>
+        {/* Must stay directly before the .landing root: the gate finds the root as its next sibling. */}
+        <LandingLoadGate message={LOADING_COPY[locale].message} label={LOADING_COPY[locale].label} />
+        <div className={`landing locale-${locale}`} dir={t.dir} lang={t.localeTag} data-landing-ready="false">
             <section className="hero-section" aria-labelledby="hero-title">
                 <video
                     className="hero-video"
@@ -64,5 +76,6 @@ export function LandingPage({ locale = "fr" }: { locale?: SiteLocale }) {
                 <div className="faq-cta" dir={t.dir}><div><span>KULHA! · MAROC</span><h3>{t.cta.title}</h3><p>{t.cta.lead}</p></div><Link href={href("/register")} className="button button-yellow">{t.cta.primary}<span aria-hidden="true">↗</span></Link></div>
             </section>
         </div>
+        </>
     );
 }

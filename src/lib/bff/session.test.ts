@@ -165,8 +165,14 @@ describe("handleVerifyEmail", () => {
     vi.unstubAllEnvs();
   });
 
-  const verify = (origin: string | null = APP_ORIGIN) =>
-    handleVerifyEmail(request("/api/auth/verify-email", { method: "POST", origin, body: { token: "t".repeat(43) } }));
+    const verify = (origin: string = APP_ORIGIN) =>
+        handleVerifyEmail(
+            request("/api/auth/verify-email", {
+                method: "POST",
+                origin,
+                body: { token: "t".repeat(43) },
+            }),
+        );
 
   it("signs the person in with HttpOnly cookies and never returns the tokens to the page", async () => {
     const fetchMock = stubFetch();

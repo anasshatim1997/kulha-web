@@ -12,7 +12,7 @@ export function searchFromParams(params: Record<string, string | string[] | unde
     return [key, value];
   }).filter(([, value]) => value !== undefined));
   const search = mapped as OfferSearch;
-  search.city = normalizeOfferCity(search.city ?? "Casablanca");
+  search.city = normalizeOfferCity(search.city);
   search.district = normalizeOfferDistrict(search.district, search.city);
   for (const key of ["pickupFrom", "pickupTo"] as const) {
     const localValue = first(params[`${key}Local`]);

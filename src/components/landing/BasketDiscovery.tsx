@@ -155,12 +155,12 @@ export function BasketDiscovery({ locale }: { locale: SiteLocale }) {
                             <div className="basket-listing-shop"><span>✳</span>{offer.shop[locale]}</div>
                             <h3>{offer.title[locale]}</h3>
                             <p className="basket-listing-description">{offer.detail[locale]}</p>
-                            <div className="basket-listing-meta"><span>⌖ {areaName(offer.area)} · {t.sample.toLowerCase()}</span><span>◷ {offer.window[locale]}</span><span>▣ {offer.remaining} {t.remaining}</span></div>
-                            {/* Price sits with the call to action (not over the photo) so the food stays visible and the price is the last thing read before "view". */}
-                            <div className="basket-listing-buy">
-                                <div className="basket-listing-price"><small>{t.priceLabel}</small><PriceSticker priceMinor={offer.price * 100} originalPriceMinor={offer.usual * 100} locale={locale} size="md" /></div>
-                                <button className="basket-view-button" type="button" onClick={() => setSelected(offer)}>{t.view}<b aria-hidden="true">↗</b></button>
+                            <div className="basket-listing-details">
+                                <div className="basket-listing-meta"><span>⌖ {areaName(offer.area)} · {t.sample.toLowerCase()}</span><span>◷ {offer.window[locale]}</span><span>▣ {offer.remaining} {t.remaining}</span></div>
+                                {/* The price fills the free space beside the details; the button below keeps the full width. */}
+                                <div className="basket-listing-price"><span className="sr-only">{t.priceLabel}</span><PriceSticker priceMinor={offer.price * 100} originalPriceMinor={offer.usual * 100} locale={locale} size="md" /></div>
                             </div>
+                            <button className="basket-view-button" type="button" onClick={() => setSelected(offer)}>{t.view}<b aria-hidden="true">↗</b></button>
                         </div>
                     </article>;
                 })}

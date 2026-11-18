@@ -179,7 +179,8 @@ function withPosition(offers: PublicOffer[], position: Position): PublicOffer[] 
 
 function cityCenter(city?: string): Position {
     const normalized = city?.trim().toLocaleLowerCase();
-    if (!normalized || normalized === "casablanca") return CASABLANCA_CENTER;
+    if (!normalized) return MOROCCO_CENTER;
+    if (normalized === "casablanca") return CASABLANCA_CENTER;
     if (normalized === "rabat") return { latitude: 34.0209, longitude: -6.8416 };
     if (normalized === "marrakech") return { latitude: 31.6295, longitude: -7.9811 };
     if (normalized === "tanger" || normalized === "tangier") return { latitude: 35.7595, longitude: -5.8340 };
@@ -222,7 +223,6 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
     const [permissionState, setPermissionState] = useState<PermissionSnapshot>("unknown");
     const [cameraRevision, setCameraRevision] = useState(0);
     const [fallbackLoading, setFallbackLoading] = useState(initialLoadFailed);
-    const [geocodingKey, setGeocodingKey] = useState<string | null>(null);
     const [message, setMessage] = useState(initialLoadFailed ? t.mapServiceError : "");
     const [mobileView, setMobileView] = useState<MobileView>("map");
     const [query, setQuery] = useState(values.q ?? "");
@@ -249,6 +249,20 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
     const permissionCleanupRef = useRef<(() => void) | null>(null);
     const locateMeRef = useRef<(recenter?: boolean) => Promise<void>>(async () => {});
     const locateInFlight = useRef<Promise<void> | null>(null);
+
+    const bootstrapRef = useRef<{
+        initialLoadFailed: boolean;
+        initialOffersLength: number;
+        initialTotal: number;
+        loadMapOffers: () => Promise<void>;
+        loadAdditionalMapOffers: (total: number) => Promise<void>;
+    }>({
+        initialLoadFailed,
+        initialOffersLength: initialOffers.length,
+        initialTotal,
+        loadMapOffers: async () => {},
+        loadAdditionalMapOffers: async () => {},
+    });
 
     const selectedEntry = useMemo<StoreEntry | null>(() => {
         return stores.find((store) => store.key === selectedKey)
@@ -357,15 +371,31 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
 
     useEffect(() => {
         const bootstrapTimer = window.setTimeout(() => {
-            if (initialLoadFailed) void loadMapOffers();
-            else if (initialTotal > initialOffers.length) void loadAdditionalMapOffers(initialTotal);
+            const bootstrap = bootstrapRef.current;
+
+            if (bootstrap.initialLoadFailed) {
+                void bootstrap.loadMapOffers();
+            } else if (bootstrap.initialTotal > bootstrap.initialOffersLength) {
+                void bootstrap.loadAdditionalMapOffers(bootstrap.initialTotal);
+            }
+
             void locateMeRef.current(false);
         }, 0);
+
         return () => {
             window.clearTimeout(bootstrapTimer);
+
             locationRequestId.current += 1;
-            stopLocationWatch();
-            removePermissionListener();
+
+            const watchId = locationWatchId.current;
+
+            if (watchId !== null && typeof navigator !== "undefined" && navigator.geolocation) {
+                navigator.geolocation.clearWatch(watchId);
+                locationWatchId.current = null;
+            }
+
+            permissionCleanupRef.current?.();
+            permissionCleanupRef.current = null;
         };
     }, []);
 
@@ -397,7 +427,14 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
                 if (!cancelled) setMessage(t.mapGeocodeUnavailable);
             });
         return () => { cancelled = true; };
-    }, [focusOffer, initialOffers, locale]);
+    }, [
+        focusOffer,
+        initialOffers,
+        locale,
+        t.mapApproximateAreaOnly,
+        t.mapApproximatePin,
+        t.mapGeocodeUnavailable,
+    ]);
 
     function applyDevicePosition(position: Position, recenter = false) {
         const isFirstFix = !firstGpsFixApplied.current;
@@ -434,7 +471,7 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
             try {
                 const page = await searchOffersForMap({
                     ...values,
-                    city: values.city ?? "Casablanca",
+                    city: values.city,
                     page: String(pageIndex),
                     size: "50",
                     availableOnly: "true",
@@ -462,7 +499,7 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
     async function loadMapOffers() {
         const requestId = ++catalogRequestId.current;
         setFallbackLoading(true);
-        const city = values.city ?? "Casablanca";
+        const city = values.city;
         try {
             const page = await searchOffersForMap({
                 ...values,
@@ -495,6 +532,14 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
             if (requestId === catalogRequestId.current) setFallbackLoading(false);
         }
     }
+
+    bootstrapRef.current = {
+        initialLoadFailed,
+        initialOffersLength: initialOffers.length,
+        initialTotal,
+        loadMapOffers,
+        loadAdditionalMapOffers,
+    };
 
     async function runLocate(recenter = false): Promise<void> {
         const requestId = ++locationRequestId.current;
@@ -630,7 +675,6 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
     locateMeRef.current = locateMe;
 
     async function locateUnpinnedStore(candidate: OfferMapStoreCandidate): Promise<OfferMapStore | null> {
-        setGeocodingKey(candidate.key);
         setMessage("");
         try {
             const location = await geocodePublicShop({
@@ -668,7 +712,6 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
             setMessage(t.mapGeocodeUnavailable);
             return null;
         } finally {
-            setGeocodingKey(null);
         }
     }
 

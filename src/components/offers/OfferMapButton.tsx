@@ -16,9 +16,9 @@ type SingleMapProps = {
   offer: PublicOfferDetail;
 };
 
-type Props = NearbyMapProps | SingleMapProps;
+type Props = (NearbyMapProps | SingleMapProps) & { label?: string };
 
-function mapHref(props: Props): string {
+function mapHref(props: NearbyMapProps | SingleMapProps): string {
   const query = new URLSearchParams();
   if (props.mode === "single") {
     query.set("offerId", props.offer.id);
@@ -45,7 +45,7 @@ export function OfferMapButton(props: Props) {
         <path d="M8.5 4.5v13M15.5 6.5v13" />
         <path d="M12 8.1c0 2.1-2.6 4.1-2.6 4.1S6.8 10.2 6.8 8.1a2.6 2.6 0 1 1 5.2 0Z" transform="translate(5.2 0) scale(.78)" />
       </svg>
-      <span>{t.mapOpen}</span>
+      <span>{props.label ?? t.mapOpen}</span>
     </Link>
   );
 }

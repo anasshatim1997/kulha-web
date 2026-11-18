@@ -9,8 +9,8 @@ describe("public offer URL filters", () => {
     });
   });
 
-  it("defaults the public marketplace to Casablanca", () => {
-    expect(searchFromParams({}).city).toBe("Casablanca");
+  it("does not assume a city before the visitor shares their location", () => {
+    expect(searchFromParams({}).city).toBeUndefined();
   });
 
   it("keeps checkbox false when unchecked and true when selected", () => {

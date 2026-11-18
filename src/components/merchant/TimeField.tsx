@@ -185,6 +185,7 @@ export function TimeField({ value, onChange, label, locale, id, invalid, disable
                 ref={triggerRef}
                 id={id}
                 type="button"
+                role="combobox"
                 className={`mw-time${open ? " mw-time-open" : ""}`}
                 aria-label={`${label}${parsed ? `, ${value}` : ""}`}
                 aria-haspopup="dialog"
@@ -195,7 +196,10 @@ export function TimeField({ value, onChange, label, locale, id, invalid, disable
                 disabled={disabled}
                 onClick={() => setOpen((current) => !current)}
                 onKeyDown={(event) => {
-                    if (event.key === "ArrowDown" && !open) { event.preventDefault(); setOpen(true); }
+                    if (event.key === "ArrowDown" && !open) {
+                        event.preventDefault();
+                        setOpen(true);
+                    }
                 }}
             >
                 <bdi dir="ltr" className="mw-time-value">{parsed ? `${pad(parsed.h)}:${pad(parsed.m)}` : "--:--"}</bdi>

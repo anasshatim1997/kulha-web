@@ -29,7 +29,7 @@ export async function OfferMapPage({ locale, params }: { locale: SiteLocale; par
     : null;
 
   const values = searchFromParams(params);
-  values.city = values.city ?? focusOffer?.merchant.city ?? "Casablanca";
+  values.city = values.city ?? focusOffer?.merchant.city;
   values.page = "0";
   values.size = "50";
   values.availableOnly = "true";

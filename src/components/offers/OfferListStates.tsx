@@ -55,79 +55,85 @@ export function OfferErrorState({ locale, href }: { locale: SiteLocale; href: st
   );
 }
 
+/**
+ * Loading skeleton. Every block sits where the real page puts the same thing (headline + location,
+ * search + List/Map, category chips, pickup + sort/filters, result row, basket cards, notify banner),
+ * so nothing jumps when the real content streams in.
+ */
 export function OfferLoadingState({ locale }: { locale: SiteLocale }) {
   const t = publicOfferCopy(locale);
+  const block = (className: string, key?: number) => <span className={`kulha-loading-block ${className}`} key={key} />;
   return (
-    <div className="kulha-offers-page kulha-offers-loading-page" lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} aria-busy="true" aria-label={t.loading}>
-      <span className="sr-only">{t.loading}</span>
+    <div className="kulha-offers-page kulha-offers-redesign kulha-offers-loading-page" lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} aria-busy="true" aria-label={t.loading}>
+      <span className="sr-only" role="status">{t.loading}</span>
       <section className="kulha-offers-hero kulha-offers-hero-compact" aria-hidden="true">
         <div className="kulha-offers-hero-inner">
           <div className="kulha-offers-intro">
-            <span className="kulha-loading-block kulha-loading-kicker" />
-            <span className="kulha-loading-block kulha-loading-hero-title" />
+            {block("kulha-loading-hero-title")}
+            {block("kulha-loading-hero-subtitle")}
           </div>
+          {block("kulha-loading-location")}
         </div>
       </section>
 
       <main className="kulha-offers-content" aria-hidden="true">
         <div className="kulha-marketplace-layout">
-          <aside className="kulha-marketplace-sidebar">
-            <div className="kulha-sidebar-panel kulha-loading-sidebar">
-              <div className="kulha-sidebar-categories">
-                <span className="kulha-loading-block kulha-loading-sidebar-title" />
-                <div className="kulha-loading-category-list">
-                  {Array.from({ length: 8 }, (_, index) => (
-                    <div className="kulha-loading-category" key={index}>
-                      <span className="kulha-loading-block kulha-loading-category-icon" />
-                      <span className={`kulha-loading-block kulha-loading-category-label is-${index % 3}`} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </aside>
-
           <div className="kulha-marketplace-main">
-            <div className="kulha-offers-toolbar">
+            <div className="kulha-offers-toolbar kulha-loading-toolbar">
               <div className="kulha-loading-search">
-                <span className="kulha-loading-block kulha-loading-search-icon" />
-                <span className="kulha-loading-block kulha-loading-search-input" />
-                <span className="kulha-loading-block kulha-loading-search-action" />
+                {block("kulha-loading-search-icon")}
+                {block("kulha-loading-search-input")}
               </div>
-              <div className="kulha-filter-shell kulha-inline-filter-bar kulha-loading-filters">
-                <span className="kulha-loading-block kulha-loading-filter-toggle" />
+              <div className="kulha-loading-view-switch">
+                {block("kulha-loading-view-button is-active")}
+                {block("kulha-loading-view-button")}
               </div>
             </div>
 
-            <section className="kulha-offers-results">
-              <div className="kulha-results-heading">
-                <div className="kulha-loading-results-title-group">
-                  <span className="kulha-loading-block kulha-loading-results-eyebrow" />
-                  <span className="kulha-loading-block kulha-loading-results-title" />
-                </div>
-                <span className="kulha-loading-block kulha-loading-results-count" />
+            <div className="kulha-loading-categories">
+              {[56, 92, 86, 78, 100, 112, 84, 78].map((width, index) => (
+                <span className="kulha-loading-block kulha-loading-category-pill" style={{ width }} key={index} />
+              ))}
+            </div>
+
+            <div className="kulha-loading-refine-row">
+              <div className="kulha-loading-pickup">
+                {block("kulha-loading-pickup-label")}
+                {[64, 88, 96].map((width, index) => <span className="kulha-loading-block kulha-loading-pickup-chip" style={{ width }} key={index} />)}
               </div>
-              <div className="kulha-offer-grid kulha-offer-grid-skeleton">
-                {Array.from({ length: 6 }, (_, index) => (
-                  <article className="kulha-offer-skeleton" key={index}>
-                    <div className="kulha-skeleton-art"><span className="kulha-loading-block kulha-skeleton-art-shape" /></div>
-                    <div className="kulha-skeleton-body">
-                      <span className="kulha-loading-block kulha-skeleton-line is-merchant" />
-                      <span className="kulha-loading-block kulha-skeleton-line is-title" />
-                      <span className="kulha-loading-block kulha-skeleton-line is-title-short" />
-                      <div className="kulha-skeleton-card-meta">
-                        <span className="kulha-loading-block kulha-skeleton-pickup" />
-                        <span className="kulha-loading-block kulha-skeleton-availability" />
-                      </div>
-                      <div className="kulha-skeleton-card-bottom">
-                        <span className="kulha-loading-block kulha-skeleton-line is-location" />
-                        <span className="kulha-loading-block kulha-skeleton-price" />
-                      </div>
+              <div className="kulha-loading-sort-filter">
+                {block("kulha-loading-sort")}
+                {block("kulha-loading-filter-button")}
+              </div>
+            </div>
+
+            <div className="kulha-loading-results-bar">
+              {block("kulha-loading-results-title")}
+              {block("kulha-loading-results-chip")}
+              {block("kulha-loading-results-chip is-short")}
+            </div>
+
+            <div className="kulha-offer-grid kulha-offer-grid-skeleton">
+              {Array.from({ length: 4 }, (_, index) => (
+                <article className="kulha-offer-skeleton" key={index}>
+                  <div className="kulha-skeleton-art">
+                    {block("kulha-skeleton-countdown")}
+                    {block("kulha-skeleton-art-shape")}
+                    {block("kulha-skeleton-price")}
+                  </div>
+                  <div className="kulha-skeleton-body">
+                    {block("kulha-skeleton-line is-merchant")}
+                    {block("kulha-skeleton-line is-title")}
+                    <div className="kulha-skeleton-card-meta">
+                      {block("kulha-skeleton-pickup")}
+                      {block("kulha-skeleton-availability")}
                     </div>
-                  </article>
-                ))}
-              </div>
-            </section>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <div className="kulha-loading-banner" />
           </div>
         </div>
       </main>

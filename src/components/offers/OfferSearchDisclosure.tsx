@@ -6,6 +6,7 @@ import type { SiteLocale } from "@/lib/i18n/site-copy";
 import type { OfferSearch, PublicOfferSuggestion } from "@/lib/offers/public-api";
 import { PriceSticker } from "@/components/ui/PriceSticker";
 import { publicOfferCopy, offerCategoryLabel } from "@/lib/offers/public-copy";
+import { offerDesignCopy } from "@/lib/offers/design-copy";
 import { fetchPublicOfferSuggestions, offerSuggestionHref } from "@/lib/offers/suggestions";
 
 function offersPath(locale: SiteLocale): string {
@@ -171,7 +172,7 @@ export function OfferSearchDisclosure({ locale, values }: { locale: SiteLocale; 
           name="q"
           type="search"
           maxLength={80}
-          placeholder={t.searchPlaceholder}
+          placeholder={offerDesignCopy(locale).searchPlaceholder}
           value={query}
           autoComplete="off"
           dir="auto"

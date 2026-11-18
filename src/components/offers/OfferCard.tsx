@@ -1,33 +1,45 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { formatPickupWindow } from "@/lib/offers/format";
 import { PriceSticker } from "@/components/ui/PriceSticker";
+import { PickupCountdown } from "@/components/offers/PickupCountdown";
 import { getMadPriceDisplayParts } from "@/lib/offers/price-display";
 import { publicOfferCopy } from "@/lib/offers/public-copy";
+import { offerDesignCopy, formatDistance } from "@/lib/offers/design-copy";
 import type { PublicOffer } from "@/lib/offers/public-api";
 
-const categoryArt: Record<string, { image?: string; width?: number; height?: number; glyph: string; className: string }> = {
-  BREAD_PASTRY: { image: "/offer-art/baguette.webp", width: 274, height: 440, glyph: "🥐", className: "is-bakery" },
-  PREPARED_MEALS: { glyph: "🍲", className: "is-meals" },
-  GROCERIES: { image: "/offer-art/greens.webp", width: 868, height: 472, glyph: "🛍️", className: "is-grocery" },
-  FRUIT_VEG: { image: "/offer-art/produce.webp", width: 514, height: 286, glyph: "🥬", className: "is-produce" },
-  DRINKS: { glyph: "🧃", className: "is-drinks" },
-  SURPRISE_BASKET: { glyph: "🧺", className: "is-surprise" },
-  OTHER: { image: "/offer-art/leaf.webp", width: 235, height: 258, glyph: "✳", className: "is-other" },
+/** Each category keeps its own soft tint; the artwork itself is the shared basket mark from the design. */
+const categoryTint: Record<string, string> = {
+  BREAD_PASTRY: "is-bakery",
+  PREPARED_MEALS: "is-meals",
+  GROCERIES: "is-grocery",
+  FRUIT_VEG: "is-produce",
+  DRINKS: "is-drinks",
+  SURPRISE_BASKET: "is-surprise",
+  OTHER: "is-other",
 };
 
-export function OfferCard({ offer, locale, priority = false }: { offer: PublicOffer; locale: SiteLocale; priority?: boolean }) {
+function BasketMark() {
+  return (
+    <svg className="kulha-offer-art-mark" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+      <path d="M21 25v-4a11 11 0 0 1 22 0v4" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
+      <path d="M12.5 25h39l-3 29a3 3 0 0 1-3 2.7H18.5a3 3 0 0 1-3-2.7l-3-29Z" stroke="currentColor" strokeWidth="4.5" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function OfferCard({ offer, locale }: { offer: PublicOffer; locale: SiteLocale; priority?: boolean }) {
   const t = publicOfferCopy(locale);
-  const art = categoryArt[offer.category] ?? categoryArt.OTHER;
+  const d = offerDesignCopy(locale);
+  const tint = categoryTint[offer.category] ?? categoryTint.OTHER;
   const href = locale === "fr" ? `/offers/${offer.id}` : `/${locale}/offers/${offer.id}`;
   const hasReferencePrice = offer.originalPriceMinor !== null && offer.originalPriceMinor > offer.priceMinor;
   const soldOut = offer.availableUnits === 0;
   const pickupWindow = offer.pickupStart && offer.pickupEnd
-    ? formatPickupWindow(offer.pickupStart, offer.pickupEnd, locale)
+    ? formatPickupWindow(offer.pickupStart, offer.pickupEnd, locale).replace(" · ", " ")
     : t.notProvided;
-  const location = [offer.merchant.district, offer.merchant.city].filter(Boolean).join(", ");
-  const availableLabel = t.unitsAvailable.replace("{count}", String(offer.availableUnits));
+  const distance = formatDistance(offer.distanceKm, locale);
+  const availableLabel = d.left.replace("{count}", String(offer.availableUnits));
 
   return (
     <article className={`kulha-offer-card${soldOut ? " is-sold-out" : ""}`}>
@@ -36,12 +48,10 @@ export function OfferCard({ offer, locale, priority = false }: { offer: PublicOf
         className="kulha-offer-card-link"
         aria-label={`${offer.title}, ${getMadPriceDisplayParts(offer.priceMinor, locale).full}, ${t.pickupWindowLabel}: ${pickupWindow}`}
       >
-        <div className={`kulha-offer-art ${art.className}`} aria-hidden="true">
-          {art.image ? (
-            <Image src={art.image} alt="" width={art.width ?? 500} height={art.height ?? 400} unoptimized
-              sizes="(max-width: 759px) 112px, (max-width: 1100px) 180px, 220px"
-              priority={priority} className="kulha-offer-art-image" />
-          ) : <span className="kulha-offer-art-glyph">{art.glyph}</span>}
+        <div className={`kulha-offer-art ${tint}`} aria-hidden="true">
+          {offer.pickupEnd && !soldOut && <PickupCountdown pickupEnd={offer.pickupEnd} locale={locale} />}
+          {soldOut && <span className="kulha-offer-status">{t.soldOut}</span>}
+          <BasketMark />
           <PriceSticker
             priceMinor={offer.priceMinor}
             originalPriceMinor={hasReferencePrice ? offer.originalPriceMinor : null}
@@ -50,18 +60,20 @@ export function OfferCard({ offer, locale, priority = false }: { offer: PublicOf
             placement="overlay"
             className="kulha-offer-art-price"
           />
-          {soldOut && <span className="kulha-offer-status">{t.soldOut}</span>}
         </div>
         <div className="kulha-offer-card-main">
-          <p className="kulha-offer-merchant"><bdi dir="auto">{offer.merchant.name}</bdi></p>
+          <p className="kulha-offer-merchant">
+            <bdi dir="auto">{offer.merchant.name}</bdi>
+            {distance && <> <span aria-hidden="true">·</span> <bdi dir="ltr">{distance}</bdi></>}
+          </p>
           <h3><bdi dir="auto">{offer.title}</bdi></h3>
           <div className="kulha-offer-card-meta">
-            <span className="kulha-offer-pickup-chip"><span aria-hidden="true">◷</span><bdi dir="auto">{pickupWindow}</bdi></span>
+            <span className="kulha-offer-pickup-chip">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg>
+              <bdi dir="auto">{pickupWindow}</bdi>
+            </span>
             {offer.availableUnits > 0 && <span className="kulha-offer-availability"><bdi dir="auto">{availableLabel}</bdi></span>}
-          </div>
-          <div className="kulha-offer-card-bottom">
-            <span className="kulha-offer-location"><bdi dir="auto">{location || t.notProvided}</bdi></span>
-
+            {soldOut && <span className="kulha-offer-restock">{d.notifyRestock}</span>}
           </div>
         </div>
       </Link>
