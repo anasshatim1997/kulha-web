@@ -1,0 +1,235 @@
+.page {
+  width: min(100% - 48px, 1440px);
+  margin: 0 auto;
+  padding: 34px 0 64px;
+  color: var(--green, #073324);
+  font-family: var(--font-nunito, Nunito), var(--font-noto-arabic, "Noto Sans Arabic"), ui-rounded, system-ui, sans-serif;
+}
+.page h1, .page h2, .page p { margin-top: 0; }
+.page a, .page button { -webkit-tap-highlight-color: transparent; }
+.pageTop { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 22px; }
+.backLink { display: inline-flex; align-items: center; gap: 10px; color: #536c5e; font-weight: 850; }
+.backLink span { font-size: 27px; line-height: .8; }
+.breadcrumbs { display: flex; align-items: center; gap: 14px; color: #718074; font-size: 14px; font-weight: 850; }
+.breadcrumbs strong { color: var(--green, #073324); }
+.headingRow { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin: 0 0 28px; }
+.headingRow h1, .listHeader h1 { margin: 0; color: var(--green, #073324); font-size: clamp(32px, 3.1vw, 46px); font-weight: 1000; letter-spacing: -.045em; line-height: 1.08; }
+.stepNumber { color: #6b7d70; font-size: 12px; font-weight: 1000; letter-spacing: .13em; }
+.checkoutGrid { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(320px, .95fr); align-items: start; gap: 40px; }
+.checkoutMain { display: grid; gap: 20px; min-width: 0; }
+.productCard, .panel, .summaryCard, .confirmationSummary, .codeCard, .nextCard, .instructionCard, .reservationCard, .emptyCard, .stateCard {
+  background: #fffdf9;
+  border: 1px solid #eadfc9;
+  border-radius: 29px;
+  box-shadow: 0 12px 30px rgb(7 51 36 / 4%);
+}
+.productCard { min-height: 176px; display: flex; align-items: center; gap: 20px; padding: 27px 29px; }
+.bagIllustration, .smallBag, .reservationMark {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 19px;
+  width: 122px;
+  height: 122px;
+  background: #e1ebdd;
+  color: var(--green, #073324);
+  font-size: 60px;
+  font-weight: 900;
+}
+.productInfo { min-width: 0; flex: 1; }
+.merchantName { display: block; color: #5c7465; font-size: 14px; font-weight: 900; }
+.productInfo h2 { margin: 6px 0 12px; font-size: clamp(21px, 2vw, 27px); font-weight: 1000; line-height: 1.1; letter-spacing: -.03em; }
+.pill, .statusPill { display: inline-flex; align-items: center; width: fit-content; padding: 7px 13px; border-radius: 99px; background: #eef2e8; color: #3e614a; font-size: 12px; font-weight: 950; }
+.productPrice { flex: 0 0 auto; align-self: center; font-size: 21px; font-weight: 1000; white-space: nowrap; }
+.panel { padding: 26px 29px; }
+.sectionLabel { margin-bottom: 14px; color: #5a7163; font-size: 13px; font-weight: 1000; letter-spacing: .1em; text-transform: uppercase; }
+.quantityRow { display: flex; align-items: center; gap: 30px; flex-wrap: wrap; }
+.stepper { display: inline-flex; align-items: center; gap: 26px; }
+.stepper button { display: grid; place-items: center; width: 61px; height: 61px; border: 1px solid #e6d9c2; border-radius: 18px; background: #fff; color: var(--green, #073324); font-size: 27px; transition: background .15s, border-color .15s; }
+.stepper button:hover:not(:disabled) { border-color: var(--green, #073324); background: #f4f7f0; }
+.stepper button:disabled { cursor: not-allowed; color: #b9b5a9; background: #fff; }
+.stepper output { min-width: 26px; text-align: center; font-size: 34px; font-weight: 1000; }
+.quantityNote { display: grid; gap: 3px; color: #607769; font-size: 14px; }
+.quantityNote strong { color: #496a54; font-size: 15px; font-weight: 900; }
+.inlineError { color: #b74739; font-weight: 850; }
+.pickupRows { display: grid; gap: 18px; }
+.pickupRow { display: flex; align-items: flex-start; gap: 15px; color: var(--green, #073324); }
+.detailIcon { display: grid; place-items: center; flex: 0 0 26px; width: 26px; font-size: 24px; line-height: 1.1; }
+.pickupRow div { display: grid; gap: 2px; min-width: 0; }
+.pickupRow strong { font-size: 15px; font-weight: 950; }
+.pickupRow span:not(.detailIcon) { color: #627568; font-size: 14px; font-weight: 750; }
+.pickupRow small { color: #718174; font-size: 13px; }
+.summaryCard { position: sticky; top: 22px; padding: 27px 28px 26px; }
+.summaryCard h2 { margin: 0 0 15px; padding-bottom: 15px; border-bottom: 1px solid #eee4d4; font-size: 24px; font-weight: 1000; letter-spacing: -.035em; }
+.summaryLine { display: flex; justify-content: space-between; gap: 14px; color: #63786a; font-size: 15px; font-weight: 800; }
+.summaryLine strong { color: var(--green, #073324); white-space: nowrap; font-weight: 1000; }
+.summaryDivider { height: 1px; margin: 18px 0 22px; background: #eee4d4; }
+.totalLine { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 24px; }
+.totalLine strong { font-size: 16px; font-weight: 1000; }
+.totalLine b { font-size: clamp(22px, 2.4vw, 31px); font-weight: 1000; white-space: nowrap; }
+.notice { display: flex; align-items: flex-start; gap: 12px; margin: 0 0 21px; padding: 15px 16px; border-radius: 18px; background: #eef3e9; color: #496451; }
+.notice span { font-size: 23px; line-height: 1.1; }
+.notice p { margin: 0; font-size: 14px; font-weight: 800; line-height: 1.5; }
+.confirmButton, .primaryButton, .primarySmallButton, .dangerButton, .secondaryButton, .secondarySmallButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border: 1px solid transparent;
+  border-radius: 17px;
+  padding: 0 19px;
+  font-size: 14px;
+  font-weight: 1000;
+  text-align: center;
+  transition: transform .15s, background .15s, border-color .15s;
+}
+.confirmButton, .primaryButton, .primarySmallButton { background: var(--green, #073324); color: #fffdf6; }
+.confirmButton { width: 100%; min-height: 70px; font-size: 17px; }
+.confirmButton:hover:not(:disabled), .primaryButton:hover, .primarySmallButton:hover { background: #0b4933; transform: translateY(-1px); }
+.confirmButton:disabled { opacity: .45; cursor: not-allowed; }
+.secondaryButton, .secondarySmallButton { border-color: #e8dcc8; background: #fffefa; color: var(--green, #073324); }
+.secondaryButton:hover, .secondarySmallButton:hover { border-color: #9eb29f; background: #f6f8f1; }
+.terms { margin: 15px 0 0; color: #6f8073; text-align: center; font-size: 12px; font-weight: 750; line-height: 1.7; }
+.formError { margin: 0 0 12px; color: #b23b30; font-size: 14px; font-weight: 850; }
+.stateCard { padding: 26px; color: #536d5e; font-weight: 850; }
+.stateCard p { margin: 0 0 13px; }
+.stateCard a { display: inline-flex; margin-top: 12px; color: var(--green, #073324); font-weight: 950; }
+.stateCard button { margin-top: 10px; }
+
+.successHeader { display: grid; justify-items: center; text-align: center; margin: 2px 0 31px; }
+.successIcon { width: 85px; height: 85px; margin-bottom: 21px; display: grid; place-items: center; border-radius: 50%; background: var(--green, #073324); color: var(--yellow, #fdbe2e); font-size: 44px; font-weight: 800; }
+.successHeader h1 { margin: 0 0 9px; font-size: clamp(30px, 3vw, 43px); font-weight: 1000; letter-spacing: -.045em; }
+.successHeader p { margin: 0; color: #607568; font-size: 17px; font-weight: 800; }
+.confirmationGrid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(280px, .75fr); gap: 26px; }
+.confirmationSummary { padding: 26px 28px; }
+.confirmationProduct { display: flex; align-items: center; gap: 15px; padding-bottom: 17px; border-bottom: 1px solid #eee4d5; }
+.smallBag { width: 72px; height: 72px; border-radius: 16px; font-size: 35px; }
+.confirmationProduct > div:nth-child(2) { min-width: 0; flex: 1; }
+.confirmationProduct > div:nth-child(2) > span { color: #607568; font-size: 14px; font-weight: 900; }
+.confirmationProduct h2 { margin: 2px 0 0; font-size: 22px; font-weight: 1000; line-height: 1.15; }
+.statusPill { flex-shrink: 0; background: #fff2d1; color: #825500; }
+.definitionList { display: grid; margin: 0; }
+.definitionList > div { display: flex; justify-content: space-between; gap: 24px; padding: 13px 0; border-bottom: 1px solid #f0e7da; }
+.definitionList > div:last-child { border-bottom: 0; }
+.definitionList dt { color: #65796b; font-size: 14px; font-weight: 800; }
+.definitionList dd { margin: 0; color: var(--green, #073324); text-align: end; font-size: 14px; font-weight: 950; overflow-wrap: anywhere; }
+.codeCard { min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 28px; text-align: center; background: #fff; }
+.codeCaption { margin-bottom: 13px; color: #607568; font-size: 12px; font-weight: 1000; letter-spacing: .13em; text-transform: uppercase; }
+.pickupCode { color: var(--green, #073324); font-size: clamp(36px, 4.5vw, 53px); font-weight: 1000; letter-spacing: .19em; line-height: 1.1; overflow-wrap: anywhere; }
+.codeCard p { max-width: 310px; margin: 15px 0 0; color: #64786a; font-size: 14px; font-weight: 750; line-height: 1.55; }
+.nextCard { margin-top: 22px; padding: 25px 27px 27px; }
+.nextCard h2 { margin: 0 0 17px; color: #607568; font-size: 12px; font-weight: 1000; letter-spacing: .13em; text-transform: uppercase; }
+.nextSteps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.nextSteps > div { display: flex; align-items: flex-start; gap: 13px; }
+.nextSteps > div > b { display: grid; place-items: center; flex: 0 0 39px; width: 39px; height: 39px; border-radius: 50%; background: var(--yellow, #fdbe2e); color: var(--green, #073324); font-size: 17px; font-weight: 1000; }
+.nextSteps > div > div { display: grid; gap: 2px; }
+.nextSteps strong { font-size: 15px; font-weight: 1000; }
+.nextSteps span { color: #66796c; font-size: 13px; font-weight: 750; line-height: 1.5; }
+.actionRow { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 27px; }
+.actionRow .primaryButton, .actionRow .secondaryButton { min-height: 58px; padding-inline: 25px; }
+.listHeader { margin: 1px 0 25px; }
+.listHeader p { margin: 10px 0 0; color: #63796a; font-size: 16px; font-weight: 800; }
+.tabs { display: flex; align-items: stretch; gap: 27px; border-bottom: 1px solid #e5dac7; margin-bottom: 24px; }
+.tabs button { display: inline-flex; align-items: center; gap: 9px; border: 0; border-bottom: 3px solid transparent; padding: 0 4px 14px; background: transparent; color: #687b6e; font-size: 15px; font-weight: 950; }
+.tabs button > span { display: grid; place-items: center; min-width: 24px; height: 24px; padding: 0 6px; border-radius: 99px; background: #eee6d3; color: #687b6e; font-size: 11px; }
+.tabs button.activeTab { color: var(--green, #073324); border-bottom-color: var(--green, #073324); }
+.tabs button.activeTab > span { background: var(--green, #073324); color: #fff; }
+.listResults { min-height: 250px; }
+.emptyCard { min-height: 270px; display: grid; align-content: center; justify-items: center; padding: 30px; text-align: center; }
+.emptyIcon { display: grid; place-items: center; width: 72px; height: 72px; margin-bottom: 12px; border-radius: 20px; background: #e2ecde; color: var(--green, #073324); font-size: 37px; }
+.emptyCard h2 { margin: 0 0 7px; font-size: 21px; font-weight: 1000; }
+.emptyCard p { max-width: 420px; margin: 0 0 17px; color: #657a6c; font-size: 14px; font-weight: 750; }
+.earlierLabel { margin: 26px 0 13px; color: #63786a; font-size: 12px; font-weight: 1000; letter-spacing: .12em; text-transform: uppercase; }
+.reservationCards { display: grid; gap: 15px; }
+.reservationCard { display: grid; grid-template-columns: 88px minmax(0, 1fr) minmax(115px, auto) auto; align-items: center; gap: 19px; min-height: 143px; padding: 20px; }
+.reservationMark { width: 88px; height: 88px; border-radius: 17px; font-size: 43px; }
+.reservationDescription { min-width: 0; }
+.referenceLine { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 7px; }
+.referenceLine .statusPill { padding: 5px 11px; font-size: 11px; }
+.referenceText { color: #728175; font-size: 12px; font-weight: 850; }
+.reservationDescription .merchantName { font-size: 13px; }
+.reservationDescription h2 { margin: 2px 0 4px; font-size: 20px; font-weight: 1000; line-height: 1.15; }
+.pickupText { display: flex; align-items: center; gap: 7px; margin: 0; color: #5c7464; font-size: 13px; font-weight: 850; }
+.pickupText span { font-size: 16px; }
+.cardPrice { white-space: nowrap; font-size: 21px; font-weight: 1000; }
+.cardActions { display: flex; align-items: center; justify-content: flex-end; gap: 9px; }
+.primarySmallButton, .secondarySmallButton { min-height: 44px; padding-inline: 17px; border-radius: 15px; white-space: nowrap; }
+.inlinePickupCode { display: inline-flex; align-items: center; gap: 9px; margin-top: 9px; padding: 6px 10px; border-radius: 10px; background: #eef3e9; color: #496451; font-size: 12px; }
+.inlinePickupCode strong { color: var(--green, #073324); letter-spacing: .13em; }
+
+.detailGrid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(280px, .75fr); gap: 24px; align-items: start; }
+.detailCodeColumn { display: grid; gap: 17px; }
+.detailCodeColumn .codeCard { min-height: 265px; }
+.instructionCard { padding: 21px 24px; }
+.instructionCard h2 { margin: 0 0 8px; font-size: 16px; font-weight: 1000; }
+.instructionCard p { margin: 0; color: #64796a; font-size: 14px; line-height: 1.6; font-weight: 750; }
+.detailFooter { display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-wrap: wrap; margin-top: 22px; }
+.cancelArea { margin-inline-end: auto; }
+.dangerButton { background: #fff0ec; border-color: #f2d1ca; color: #ad3d30; }
+.dangerButton:hover:not(:disabled) { background: #ffe5df; }
+.cancelConfirm { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; color: #a93b2e; font-size: 14px; font-weight: 850; }
+.cancelConfirm .secondaryButton, .cancelConfirm .dangerButton { min-height: 42px; }
+
+@media (max-width: 980px) {
+  .checkoutGrid { grid-template-columns: minmax(0, 1.35fr) minmax(285px, .85fr); gap: 20px; }
+  .productCard { padding: 22px; }
+  .bagIllustration { width: 95px; height: 95px; font-size: 48px; }
+  .reservationCard { grid-template-columns: 76px minmax(0, 1fr) minmax(100px, auto); }
+  .reservationMark { width: 76px; height: 76px; }
+  .cardActions { grid-column: 2 / -1; justify-content: flex-start; }
+}
+@media (max-width: 740px) {
+  .page { width: min(100% - 30px, 600px); padding: 23px 0 40px; }
+  .pageTop { align-items: flex-start; }
+  .breadcrumbs { display: none; }
+  .headingRow { margin-bottom: 19px; }
+  .checkoutGrid, .confirmationGrid, .detailGrid { grid-template-columns: minmax(0, 1fr); gap: 15px; }
+  .checkoutMain { gap: 14px; }
+  .productCard { min-height: 120px; gap: 13px; padding: 17px; border-radius: 22px; }
+  .bagIllustration { width: 72px; height: 72px; border-radius: 15px; font-size: 39px; }
+  .productInfo h2 { font-size: 18px; }
+  .productPrice { font-size: 15px; }
+  .panel { padding: 20px 18px; border-radius: 22px; }
+  .quantityRow { gap: 16px; }
+  .stepper { gap: 15px; }
+  .stepper button { width: 49px; height: 49px; border-radius: 14px; }
+  .stepper output { font-size: 28px; }
+  .summaryCard { position: static; padding: 21px 19px; border-radius: 22px; }
+  .summaryCard h2 { font-size: 21px; }
+  .confirmButton { min-height: 58px; }
+  .successHeader { margin-bottom: 22px; }
+  .successIcon { width: 68px; height: 68px; font-size: 35px; margin-bottom: 14px; }
+  .successHeader p { font-size: 14px; }
+  .confirmationSummary { padding: 20px 18px; border-radius: 22px; }
+  .confirmationProduct { gap: 10px; flex-wrap: wrap; }
+  .smallBag { width: 57px; height: 57px; font-size: 28px; }
+  .confirmationProduct h2 { font-size: 18px; }
+  .definitionList > div { gap: 12px; }
+  .definitionList dt, .definitionList dd { font-size: 12px; }
+  .codeCard { min-height: 225px; padding: 22px; border-radius: 22px; }
+  .pickupCode { font-size: 38px; }
+  .nextCard { padding: 20px 18px; border-radius: 22px; }
+  .nextSteps { grid-template-columns: minmax(0, 1fr); gap: 15px; }
+  .nextSteps span { font-size: 13px; }
+  .actionRow { display: grid; grid-template-columns: 1fr; }
+  .actionRow a { width: 100%; }
+  .tabs { gap: 13px; overflow-x: auto; margin-inline: -3px; }
+  .tabs button { gap: 6px; padding-inline: 3px; white-space: nowrap; font-size: 13px; }
+  .reservationCard { grid-template-columns: 64px minmax(0, 1fr); gap: 12px; padding: 15px; border-radius: 22px; }
+  .reservationMark { width: 64px; height: 64px; font-size: 32px; }
+  .reservationDescription h2 { font-size: 17px; }
+  .cardPrice { grid-column: 2; font-size: 18px; }
+  .cardActions { grid-column: 2; }
+  .detailFooter { display: grid; grid-template-columns: 1fr; }
+  .detailFooter > a, .cancelArea, .cancelArea button { width: 100%; }
+  .cancelConfirm { align-items: stretch; }
+}
+@media (max-width: 420px) {
+  .page { width: min(100% - 22px, 390px); }
+  .productCard { gap: 10px; }
+  .productPrice { max-width: 95px; white-space: normal; text-align: end; }
+  .referenceLine { gap: 6px; }
+  .referenceText { font-size: 10px; }
+  .tabs { gap: 8px; }
+  .tabs button { font-size: 12px; }
+}

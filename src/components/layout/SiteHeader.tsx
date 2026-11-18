@@ -20,7 +20,6 @@ export function SiteHeader() {
   const { state, signOut } = useSession();
   const locale = localeFromPath(pathname) as SiteLocale;
   const copy = siteCopy[locale];
-  // Make the two sides of the marketplace visible immediately: customers and shops.
   const links = [
     [copy.nav.customers, localePath(locale, "/offers"), "nav-customer-link"],
     [copy.nav.how, localePath(locale, "/how-it-works"), ""],
@@ -66,9 +65,25 @@ export function SiteHeader() {
 
   if (isCustomerWorkspace && !isAuthPage && !isWorkspace) {
     const discoverHref = localePath(locale, "/offers");
+    const mapHref = localePath(locale, "/offers/map");
+    const reservationsHref = localePath(locale, "/reservations");
     const customerAccountHref = localePath(locale, "/account");
-    const onOffers = /^\/(?:(?:en|ar)\/)?offers(?:\/|$)/.test(pathname);
+    const onMap = /^\/(?:(?:en|ar)\/)?offers\/map(?:\/|$)/.test(pathname);
+    const onReservations = /^\/(?:(?:en|ar)\/)?reservations(?:\/|$)/.test(pathname);
+    const onOffers = /^\/(?:(?:en|ar)\/)?offers(?:\/|$)/.test(pathname) && !onMap;
     const onAccount = isCustomerAccountPath(pathname);
+    const profileInitial = state.status === "authenticated"
+      ? (state.user.fullName?.trim().slice(0, 1) || state.user.email.slice(0, 1)).toLocaleUpperCase(locale)
+      : "?";
+    const labels = {
+      map: locale === "ar" ? "الخريطة" : locale === "en" ? "Map" : "Carte",
+      reservations: locale === "ar" ? "حجوزاتي" : locale === "en" ? "My reservations" : "Mes réservations",
+      profile: locale === "ar" ? "ملفي" : locale === "en" ? "Profile" : "Mon profil",
+    };
+    const switchLanguage = (value: SiteLocale) => {
+      window.dispatchEvent(new Event("kulha:navigation-start"));
+      router.push(switchLocalePath(pathname, value));
+    };
     return (
       <>
         <header className="site-header site-header-workspace site-header-customer" dir={copy.dir}>
@@ -76,28 +91,34 @@ export function SiteHeader() {
             <Link href={discoverHref} aria-label="Kulha! — discover baskets" className="brand-link"><Logo /></Link>
             <nav className="workspace-nav" aria-label={locale === "ar" ? "مساحة الزبون" : locale === "en" ? "Customer navigation" : "Navigation client"}>
               <Link href={discoverHref} aria-current={onOffers ? "page" : undefined}>{copy.nav.discover}</Link>
-              <Link href={customerAccountHref} aria-current={onAccount ? "page" : undefined}>{copy.nav.account}</Link>
+              <Link href={mapHref} aria-current={onMap ? "page" : undefined}>{labels.map}</Link>
+              <Link href={reservationsHref} aria-current={onReservations ? "page" : undefined}>{labels.reservations}</Link>
             </nav>
             <div className="workspace-actions">
               <label className="language-select-label">
                 <span className="sr-only">{copy.nav.language}</span>
-                <select aria-label={copy.nav.language} value={locale} onChange={(event) => { window.dispatchEvent(new Event("kulha:navigation-start")); router.push(switchLocalePath(pathname, event.target.value as SiteLocale)); }}>
+                <select aria-label={copy.nav.language} value={locale} onChange={(event) => switchLanguage(event.target.value as SiteLocale)}>
                   {localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
                 </select>
               </label>
+              <Link href={customerAccountHref} aria-label={labels.profile} title={labels.profile}
+                aria-current={onAccount ? "page" : undefined}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#e7dac4] bg-[#fdbe2e] text-sm font-black text-[#073324]">
+                {profileInitial}
+              </Link>
             </div>
           </div>
         </header>
         <nav className="customer-mobile-tabs" aria-label={locale === "ar" ? "التنقل" : locale === "en" ? "App navigation" : "Navigation de l’application"} dir={copy.dir}>
           <Link href={discoverHref} aria-current={onOffers ? "page" : undefined}><span aria-hidden="true">⌕</span><small>{copy.nav.discover}</small></Link>
-          <Link href={customerAccountHref} aria-current={onAccount ? "page" : undefined}><span aria-hidden="true">♙</span><small>{copy.nav.account}</small></Link>
+          <Link href={mapHref} aria-current={onMap ? "page" : undefined}><span aria-hidden="true">⌖</span><small>{labels.map}</small></Link>
+          <Link href={reservationsHref} aria-current={onReservations ? "page" : undefined}><span aria-hidden="true">▤</span><small>{labels.reservations}</small></Link>
         </nav>
       </>
     );
   }
 
   if (isWorkspace) {
-    // Focused merchant shell: logo, the two workspace pages, language and sign out. No marketing links.
     const workspaceLinks = [
       [locale === "ar" ? "لوحة المتجر" : locale === "en" ? "Dashboard" : "Tableau de bord", localePath(locale, "/merchant/dashboard"), /\/merchant\/(dashboard|apply)\/?$/.test(pathname)],
       [locale === "ar" ? "عروضي" : locale === "en" ? "My offers" : "Mes offres", localePath(locale, "/merchant/offers"), /\/merchant\/offers/.test(pathname)],

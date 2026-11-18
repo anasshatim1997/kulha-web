@@ -65,6 +65,23 @@ describe("forwardToBackend", () => {
     expect(authorizationOf(fetchMock.mock.calls[0])).toBeUndefined();
   });
 
+  it("forwards the active application locale for localized reservation text", async () => {
+    const fetchMock = stubFetch();
+    fetchMock.mockResolvedValueOnce(jsonResponse({ items: [] }));
+
+    const response = await forwardToBackend(
+      request("/api/bff/reservations?status=upcoming", {
+        cookies: { kulha_at: "tok" },
+        headers: { "x-kulha-locale": "ar" },
+      }),
+      ["reservations"],
+    );
+
+    expect(response.status).toBe(200);
+    const headers = fetchMock.mock.calls[0][1]?.headers as Record<string, string>;
+    expect(headers["Accept-Language"]).toBe("ar");
+  });
+
   it("forwards the JSON body and the query string", async () => {
     const fetchMock = stubFetch();
     fetchMock.mockResolvedValueOnce(jsonResponse({ items: [] }));
