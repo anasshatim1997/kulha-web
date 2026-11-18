@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type FormEvent, type MouseEvent } from "react";
+import { useCallback, useRef, useState, type FormEvent, type MouseEvent } from "react";
 import { useToast } from "@/components/feedback/ToastProvider";
 import { api } from "@/lib/api/client";
 import { describeError } from "@/lib/api/errors";
@@ -10,10 +10,8 @@ import { localePath } from "@/lib/navigation";
 import { fieldErrors, registerSchema } from "@/lib/validation/schemas";
 
 export type Audience = "CUSTOMER" | "MERCHANT";
-export type EmailStatus = "idle" | "checking" | "available" | "registered-unverified" | "registered-verified" | "error";
-
 /**
- * Everything the two sign-up forms share: the two steps, e-mail availability check, policy acknowledgement,
+ * Everything the two sign-up forms share: the two steps, policy acknowledgement,
  * the Google shortcut and the account request. Customers and shop owners differ only in where they go next
  * and in the words they read, which the forms pass in.
  */
@@ -31,34 +29,9 @@ export function useRegistration({ locale, audience }: { locale: SiteLocale; audi
   const [step, setStep] = useState<1 | 2>(1);
   const [policiesAcknowledged, setPoliciesAcknowledged] = useState(false);
   const [showPolicyDialog, setShowPolicyDialog] = useState(false);
-  const [emailCheck, setEmailCheck] = useState<{ email: string; status: Exclude<EmailStatus, "idle" | "checking"> } | null>(null);
-
   const normalizedEmail = values.email.trim().toLowerCase();
-  const validEmail = registerSchema.pick({ email: true }).safeParse({ email: normalizedEmail }).success;
   const destination = localePath(locale, merchant ? "/merchant/dashboard" : "/offers");
   const loginAfterRegister = `${localePath(locale, "/login")}?email=${encodeURIComponent(normalizedEmail)}&next=${encodeURIComponent(destination)}`;
-
-  // Derived: a result only counts for the email it was fetched for, otherwise we are still checking.
-  const emailStatus: EmailStatus =
-    step !== 1 || !validEmail ? "idle" : emailCheck?.email === normalizedEmail ? emailCheck.status : "checking";
-
-  useEffect(() => {
-    if (step !== 1 || !validEmail) return;
-    let active = true;
-    const timer = setTimeout(async () => {
-      try {
-        const result = await api.post<{ exists: boolean; verified: boolean }>("/auth/email-status", { email: normalizedEmail }, { timeoutMs: 10000 });
-        if (!active) return;
-        setEmailCheck({ email: normalizedEmail, status: !result.exists ? "available" : result.verified ? "registered-verified" : "registered-unverified" });
-      } catch {
-        if (active) setEmailCheck({ email: normalizedEmail, status: "error" });
-      }
-    }, 450);
-    return () => {
-      active = false;
-      clearTimeout(timer);
-    };
-  }, [normalizedEmail, step, validEmail]);
 
   // Where the person was heading when the consent dialog interrupted them (the Google button), if anywhere.
   const pendingGoogleHref = useRef<string | null>(null);
@@ -166,7 +139,7 @@ export function useRegistration({ locale, audience }: { locale: SiteLocale; audi
     locale, t, audience, merchant,
     values, setField, confirmPassword, onPasswordChange, onConfirmChange,
     errors, formError, pending, done, step, backToDetails, onSubmit,
-    normalizedEmail, validEmail, emailStatus,
+    normalizedEmail,
     policiesAcknowledged, showPolicyDialog, openPolicyDialog, closePolicyDialog, acceptPolicies, requirePoliciesBeforeGoogle,
     destination, loginAfterRegister,
   };
