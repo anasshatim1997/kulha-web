@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type FormEvent, type MouseEvent } from "react";
+import { useCallback, useRef, useState, type FormEvent, type MouseEvent } from "react";
 import { useToast } from "@/components/feedback/ToastProvider";
 import { api } from "@/lib/api/client";
 import { describeError } from "@/lib/api/errors";
@@ -32,7 +32,6 @@ export function useRegistration({ locale, audience }: { locale: SiteLocale; audi
   const normalizedEmail = values.email.trim().toLowerCase();
   const destination = localePath(locale, merchant ? "/merchant/dashboard" : "/offers");
   const loginAfterRegister = `${localePath(locale, "/login")}?email=${encodeURIComponent(normalizedEmail)}&next=${encodeURIComponent(destination)}`;
-
 
   // Where the person was heading when the consent dialog interrupted them (the Google button), if anywhere.
   const pendingGoogleHref = useRef<string | null>(null);
