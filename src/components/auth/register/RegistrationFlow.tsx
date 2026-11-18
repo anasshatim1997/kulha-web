@@ -9,7 +9,6 @@ import { GoogleOAuthButton } from "@/components/auth/GoogleOAuthButton";
 import { PolicyAcknowledgementModal } from "@/components/auth/PolicyAcknowledgementModal";
 import { SubmitProgress } from "@/components/auth/SubmitProgress";
 import { localePath } from "@/lib/navigation";
-import emailHintStyles from "@/components/auth/RegistrationEmailHint.module.css";
 import policyReviewStyles from "@/components/auth/PolicyReviewPrompt.module.css";
 import s from "@/components/auth/Register.module.css";
 import type { Registration } from "./useRegistration";
@@ -49,22 +48,6 @@ export function RegistrationFlow({ reg, nameLabel }: { reg: Registration; nameLa
           <>
             <TextField id="fullName" name="fullName" label={nameLabel} autoComplete="name" autoCapitalize="words" placeholder={t.fullNamePlaceholder} value={values.fullName} onChange={(e) => reg.setField("fullName", e.target.value)} error={errors.fullName} required />
             <TextField id="email" name="email" label={t.email} type="email" autoComplete="email" inputMode="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} placeholder="nom@exemple.com" value={values.email} onChange={(e) => reg.setField("email", e.target.value)} error={errors.email} required />
-            {reg.validEmail && reg.emailStatus !== "idle" && (
-              <div className={emailHintStyles.panel} role="status" aria-live="polite">
-                {reg.emailStatus === "checking" && <p className={emailHintStyles.message}>{t.emailChecking}</p>}
-                {reg.emailStatus === "available" && <p className={emailHintStyles.message}>{t.emailAvailable}</p>}
-                {(reg.emailStatus === "registered-verified" || reg.emailStatus === "registered-unverified") && (
-                  <>
-                    <p className={emailHintStyles.message}>{reg.emailStatus === "registered-verified" ? t.emailRegisteredVerified : t.emailRegisteredUnverified}</p>
-                    <div className={emailHintStyles.actions}>
-                      <Link href={`${localePath(locale, "/login")}?email=${encodeURIComponent(reg.normalizedEmail)}`}>{t.loginSubmit}</Link>
-                      <Link href={`${localePath(locale, "/forgot-password")}?email=${encodeURIComponent(reg.normalizedEmail)}`}>{t.forgot}</Link>
-                    </div>
-                  </>
-                )}
-                {reg.emailStatus === "error" && <p className={emailHintStyles.message}>{t.emailCheckError}</p>}
-              </div>
-            )}
             <TextField id="phone" name="phone" label={t.phone} type="tel" autoComplete="tel" inputMode="tel" placeholder="+212 6 12 34 56 78" value={values.phone} onChange={(e) => reg.setField("phone", e.target.value)} error={errors.phone} />
             <Button type="submit" variant="accent" className={s.cta}>{t.continueToPassword}</Button>
           </>
