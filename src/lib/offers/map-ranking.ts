@@ -22,7 +22,7 @@ export type OfferMapStore = OfferMapStoreCandidate & {
  * At country scale, aggregate nearby shops into count clusters. Once the map
  * reaches city scale, switch to one readable avatar/initial pin per shop.
  */
-export const MAP_STORE_CLUSTER_MAX_ZOOM = 9;
+export const MAP_STORE_CLUSTER_MAX_ZOOM = 11;
 export const MAP_STORE_AVATAR_MIN_ZOOM = MAP_STORE_CLUSTER_MAX_ZOOM + 1;
 
 export function shouldShowMapStoreAvatars(zoom: number): boolean {
