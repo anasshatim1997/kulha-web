@@ -90,9 +90,9 @@ export function SiteHeader() {
           <div className="nav-shell">
             <Link href={discoverHref} aria-label="Kulha! — discover baskets" className="brand-link"><Logo /></Link>
             <nav className="workspace-nav" aria-label={locale === "ar" ? "مساحة الزبون" : locale === "en" ? "Customer navigation" : "Navigation client"}>
-              <Link href={discoverHref} aria-current={onOffers ? "page" : undefined}>{copy.nav.discover}</Link>
-              <Link href={mapHref} aria-current={onMap ? "page" : undefined}>{labels.map}</Link>
-              <Link href={reservationsHref} aria-current={onReservations ? "page" : undefined}>{labels.reservations}</Link>
+              <Link href={discoverHref} aria-current={onOffers ? "page" : undefined}><span className="workspace-nav-icon" aria-hidden="true">⌕</span>{copy.nav.discover}</Link>
+              <Link href={mapHref} aria-current={onMap ? "page" : undefined}><span className="workspace-nav-icon" aria-hidden="true">⌖</span>{labels.map}</Link>
+              <Link href={reservationsHref} aria-current={onReservations ? "page" : undefined}><span className="workspace-nav-icon" aria-hidden="true">▤</span>{labels.reservations}</Link>
             </nav>
             <div className="workspace-actions">
               <label className="language-select-label">
@@ -130,7 +130,7 @@ export function SiteHeader() {
           <Link href={home} aria-label="Kulha!" className="brand-link"><Logo /></Link>
           {isMerchant && (
             <nav className="workspace-nav" aria-label={locale === "ar" ? "مساحة المتجر" : locale === "en" ? "Shop workspace" : "Espace commerçant"}>
-              {workspaceLinks.map(([label, href, active]) => <Link key={href} href={href} aria-current={active ? "page" : undefined}>{label}</Link>)}
+              {workspaceLinks.map(([label, href, active], index) => <Link key={href} href={href} aria-current={active ? "page" : undefined}><span className="workspace-nav-icon" aria-hidden="true">{["▦","＋","▣"][index]}</span>{label}</Link>)}
             </nav>
           )}
           <div className="workspace-actions">
