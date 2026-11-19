@@ -798,7 +798,7 @@ export function OfferStoreMapCanvas({
                             maxzoom: 12,
                             layout: {
                                 "text-field": ["get", "point_count_abbreviated"],
-                                "text-font": ["Open Sans Bold"],
+                                "text-font": ["Noto Sans Medium"],
                                 "text-size": 13,
                                 "text-allow-overlap": true,
                             },
@@ -819,20 +819,6 @@ export function OfferStoreMapCanvas({
                             },
                         });
 
-                        map.addLayer({
-                            id: "kulha-store-single-labels",
-                            type: "symbol",
-                            source: "kulha-store-clusters",
-                            filter: ["!", ["has", "point_count"]],
-                            maxzoom: 12,
-                            layout: {
-                                "text-field": ["get", "initials"],
-                                "text-font": ["Open Sans Bold"],
-                                "text-size": 10,
-                                "text-allow-overlap": true,
-                            },
-                            paint: { "text-color": "#fffaf1" },
-                        });
                     }
 
                     const source = map.getSource("kulha-store-clusters") as GeoJSONSource | undefined;
