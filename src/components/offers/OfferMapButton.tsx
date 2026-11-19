@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MapPin } from "lucide-react";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import type { OfferSearch, PublicOfferDetail } from "@/lib/offers/public-api";
 import { localizedOfferPath } from "@/lib/offers/paths";
@@ -40,11 +41,7 @@ export function OfferMapButton(props: Props) {
   const t = publicOfferCopy(props.locale);
   return (
     <Link href={mapHref(props)} className="kulha-map-open-button">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="m3.5 6.5 5-2 7 2 5-2v13l-5 2-7-2-5 2v-13Z" />
-        <path d="M8.5 4.5v13M15.5 6.5v13" />
-        <path d="M12 8.1c0 2.1-2.6 4.1-2.6 4.1S6.8 10.2 6.8 8.1a2.6 2.6 0 1 1 5.2 0Z" transform="translate(5.2 0) scale(.78)" />
-      </svg>
+      <MapPin size={18} strokeWidth={2.1} aria-hidden="true" />
       <span>{props.label ?? t.mapOpen}</span>
     </Link>
   );
