@@ -366,12 +366,16 @@ export function OfferFilterBar({
                                    pickupRanges,
                                    total,
                                    initialOpen = false,
+                                   basePath,
+                                   triggerClassName,
                                }: {
     locale: SiteLocale;
     values: OfferSearch;
     pickupRanges: QuickPickupRanges;
     total?: number;
     initialOpen?: boolean;
+    basePath?: string;
+    triggerClassName?: string;
 }) {
     const t = publicOfferCopy(locale);
     const d = offerDesignCopy(locale);
