@@ -121,10 +121,10 @@ describe("offer map initial viewport", () => {
 
 describe("map store avatar visibility", () => {
   it("switches from clusters to individual shop avatars at city zoom", () => {
-    expect(MAP_STORE_CLUSTER_MAX_ZOOM).toBe(9);
-    expect(MAP_STORE_AVATAR_MIN_ZOOM).toBe(10);
-    expect(shouldShowMapStoreAvatars(9.99)).toBe(false);
-    expect(shouldShowMapStoreAvatars(10)).toBe(true);
+    expect(MAP_STORE_CLUSTER_MAX_ZOOM).toBe(11);
+    expect(MAP_STORE_AVATAR_MIN_ZOOM).toBe(12);
+    expect(shouldShowMapStoreAvatars(11.99)).toBe(false);
+    expect(shouldShowMapStoreAvatars(12)).toBe(true);
     expect(shouldShowMapStoreAvatars(14)).toBe(true);
   });
 
