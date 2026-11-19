@@ -117,6 +117,9 @@
 .definitionList > div:last-child { border-bottom:0; }
 .definitionList dt { color:#65796b; font-size:14px; font-weight:800; }
 .definitionList dd { margin:0; color:var(--green,#073324); text-align:end; font-size:15px; font-weight:950; overflow-wrap:anywhere; }
+.definitionList dd .mapLink { display:inline-flex; align-items:center; gap:6px; margin-inline-start:10px; padding:5px 10px; border:1px solid #f0d5c9; border-radius:99px; background:#fff2ed; color:#b83e2c; font-size:12px; font-weight:950; white-space:nowrap; vertical-align:middle; transition:background .15s,border-color .15s,transform .15s; }
+.definitionList dd .mapLink:hover { border-color:#e8b4a5; background:#ffe7df; transform:translateY(-1px); }
+.definitionList dd .mapLink span { font-size:15px; line-height:1; }
 .codeCard { min-height:330px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:24px; text-align:center; border-top:4px solid var(--yellow,#fdbe2e); background:linear-gradient(145deg,#fffdf9 0%,#fff7eb 100%); }
 .codeCaption { margin-bottom:5px; color:#506b59; font-size:13px; font-weight:1000; letter-spacing:.1em; text-transform:uppercase; }
 .kulha-pickup-qr { display:block; width:min(100%,220px); height:auto; aspect-ratio:1; image-rendering:pixelated; }
