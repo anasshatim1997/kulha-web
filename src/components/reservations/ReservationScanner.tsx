@@ -11,9 +11,9 @@ type Detector = { detect(video: HTMLVideoElement): Promise<Hit[]> };
 type DetectorCtor = new (options: { formats: string[] }) => Detector;
 
 const copy = {
-  fr: { title:"Scanner un retrait", intro:"Scannez le QR du client ou saisissez son code.", start:"Ouvrir la caméra", stop:"Fermer", manual:"Saisie manuelle", ref:"Référence de réservation", code:"Code de retrait", collect:"Valider le retrait", loading:"Validation…", success:"Panier remis au client", another:"Scanner un autre panier", camera:"Caméra indisponible. Vérifiez les permissions ou utilisez la saisie manuelle.", unsupported:"Le scan QR n’est pas pris en charge sur cet appareil.", invalid:"QR ou code invalide, déjà utilisé ou hors du créneau.", forbidden:"Réservé aux comptes commerçants.", loadingPage:"Chargement…" },
-  en: { title:"Pickup scanner", intro:"Scan the customer's QR or enter their pickup code.", start:"Open camera", stop:"Close", manual:"Manual entry", ref:"Reservation reference", code:"Pickup code", collect:"Confirm collection", loading:"Validating…", success:"Basket handed to customer", another:"Scan another basket", camera:"Camera unavailable. Check permissions or use manual entry.", unsupported:"QR scanning is not supported on this device.", invalid:"QR or code is invalid, already used, or outside the pickup window.", forbidden:"Available to merchant accounts only.", loadingPage:"Loading…" },
-  ar: { title:"ماسح الاستلام", intro:"امسح رمز QR الخاص بالزبون أو أدخل رمز الاستلام.", start:"فتح الكاميرا", stop:"إغلاق", manual:"إدخال يدوي", ref:"مرجع الحجز", code:"رمز الاستلام", collect:"تأكيد الاستلام", loading:"جارٍ التحقق…", success:"تم تسليم السلة للزبون", another:"مسح سلة أخرى", camera:"الكاميرا غير متاحة. تحقق من الأذونات أو استخدم الإدخال اليدوي.", unsupported:"مسح QR غير مدعوم على هذا الجهاز.", invalid:"رمز QR أو الاستلام غير صالح أو سبق استخدامه أو انتهى موعد الاستلام.", forbidden:"متاح لحسابات التجار فقط.", loadingPage:"جارٍ التحميل…" },
+  fr: { title:"Scanner un retrait", intro:"Scannez le QR du client ou saisissez son code.", start:"Ouvrir la caméra", stop:"Fermer", manual:"Saisie manuelle", ref:"Référence de réservation", code:"Code de retrait", collect:"Valider le retrait", loading:"Validation…", success:"Panier remis au client", another:"Scanner un autre panier", camera:"Caméra indisponible. Vérifiez les permissions ou utilisez la saisie manuelle.", unsupported:"Le scan QR n’est pas pris en charge sur cet appareil.", invalid:"QR ou code invalide, déjà utilisé ou hors du créneau.", expired:"Le créneau est terminé. Le panier n’a pas été remis.",forbidden:"Réservé aux comptes commerçants.", loadingPage:"Chargement…" },
+  en: { title:"Pickup scanner", intro:"Scan the customer's QR or enter their pickup code.", start:"Open camera", stop:"Close", manual:"Manual entry", ref:"Reservation reference", code:"Pickup code", collect:"Confirm collection", loading:"Validating…", success:"Basket handed to customer", another:"Scan another basket", camera:"Camera unavailable. Check permissions or use manual entry.", unsupported:"QR scanning is not supported on this device.", invalid:"QR or code is invalid, already used, or outside the pickup window.", expired:"The pickup window has expired. The basket was not collected.",forbidden:"Available to merchant accounts only.", loadingPage:"Loading…" },
+  ar: { title:"ماسح الاستلام", intro:"امسح رمز QR الخاص بالزبون أو أدخل رمز الاستلام.", start:"فتح الكاميرا", stop:"إغلاق", manual:"إدخال يدوي", ref:"مرجع الحجز", code:"رمز الاستلام", collect:"تأكيد الاستلام", loading:"جارٍ التحقق…", success:"تم تسليم السلة للزبون", another:"مسح سلة أخرى", camera:"الكاميرا غير متاحة. تحقق من الأذونات أو استخدم الإدخال اليدوي.", unsupported:"مسح QR غير مدعوم على هذا الجهاز.", invalid:"رمز QR أو الاستلام غير صالح أو سبق استخدامه أو انتهى موعد الاستلام.", expired:"انتهى موعد الاستلام. لم يتم تسليم السلة.",forbidden:"متاح لحسابات التجار فقط.", loadingPage:"جارٍ التحميل…" },
 } as const;
 
 export function ReservationScanner({ locale }: { locale: SiteLocale }) {
@@ -35,10 +35,11 @@ export function ReservationScanner({ locale }: { locale: SiteLocale }) {
     busy.current=true;setWorking(true);setMessage("");
     try {
       const value=await api.post<Reservation>("/reservations/collect",body);
+      if(value.status!=="COMPLETED"){setMessage(t.expired);stop();return;}
       setResult(value);setReference("");setPickupCode("");stop();
     } catch {setMessage(t.invalid);stop();}
     finally {busy.current=false;setWorking(false);}
-  },[stop,t.invalid]);
+  },[stop,t.invalid,t.expired]);
 
   async function start(){
     setCameraError("");

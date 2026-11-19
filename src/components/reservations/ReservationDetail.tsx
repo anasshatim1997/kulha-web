@@ -116,8 +116,10 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
         <aside className={styles.detailCodeColumn}>
           <section className={styles.codeCard}>
             <span className={styles.codeCaption}>{t.pickupCode}</span>
-            {reservation.pickupQrPayload && <ReservationQrCode payload={reservation.pickupQrPayload} label={t.pickupCode} />}
-            <strong className={styles.pickupCodeFallback}>{reservation.pickupCode}</strong>
+            {reservation.status === "CONFIRMED" ? <>
+              {reservation.pickupQrPayload && <ReservationQrCode payload={reservation.pickupQrPayload} label={t.pickupCode} />}
+              <strong className={styles.pickupCodeFallback}>{reservation.pickupCode}</strong>
+            </> : <strong className={styles.statusPill}>{reservation.statusLabel}</strong>}
             <p>{reservation.pickupInstructions}</p>
           </section>
           <section className={styles.instructionCard}>
