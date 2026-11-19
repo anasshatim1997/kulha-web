@@ -144,25 +144,88 @@
   .kd-know dt, .kd-know dd { font-size: 14px; }
 }
 
-/* Desktop: keep pickup information and the map action in the natural page flow. */
-@media (min-width: 1000px) {
-  .kd { padding:24px 0 56px; }
-  .kd-layout { align-items:start; }
-  .kd-stage { min-height:clamp(440px,58vh,560px); }
-  .kd-info { gap:16px; align-content:start; }
-  .kd .kd-know .kulha-map-open-button {
-    min-height:42px;
-    margin-top:10px;
-    padding:0 16px;
-    border-color:#efc8bb;
-    border-radius:999px;
-    background:#fff0e9;
-    color:#b83e2c;
-    font-size:14px;
-    font-weight:900;
+/* The map action sits beside Reserve, as one part of the decision/booking controls. */
+.kd-buy__row .kulha-map-open-button {
+  flex:0 0 auto;
+  min-height:48px;
+  padding:0 15px;
+  border-color:#efc8bb;
+  border-radius:16px;
+  background:#fff0e9;
+  color:#b83e2c;
+  font-size:14px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.kd-buy__row .kulha-map-open-button:hover { border-color:#e8a18e; background:#ffe6dc; }
+.kd-buy__row .kulha-map-open-button svg { width:18px; height:18px; }
+
+/* At normal desktop sizes the complete two-column offer view fits beneath the header.
+   Smaller windows retain natural scrolling rather than clipping the pickup controls. */
+@media (min-width:1101px) and (min-height:680px) {
+  html:has(.kd), body:has(.kd) { height:100dvh; overflow:hidden; }
+  body:has(.kd) > main { display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+  body:has(.kd) .kulha-offer-detail-page {
+    display:flex;
+    flex:1 1 auto;
+    flex-direction:column;
+    min-height:0;
+    padding:0;
   }
-  .kd .kd-know .kulha-map-open-button:hover { border-color:#e8a18e; background:#ffe6dc; }
-  .kd .kd-know .kulha-map-open-button svg { width:18px; height:18px; }
+  .kd {
+    display:flex;
+    flex:1 1 auto;
+    flex-direction:column;
+    width:min(1120px,calc(100% - 48px));
+    height:auto;
+    min-height:0;
+    padding:8px 0 14px;
+  }
+  .kd-back { flex:0 0 auto; min-height:30px; margin-bottom:6px; }
+  .kd-layout {
+    flex:1 1 auto;
+    min-height:0;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:clamp(20px,3vw,40px);
+    align-items:stretch;
+  }
+  .kd-stage { height:100%; min-height:0; border-radius:26px; }
+  .kd-info { min-height:0; gap:clamp(6px,1vh,10px); align-content:space-between; }
+  .kd-merchant { gap:10px; }
+  .kd-merchant__mark { width:40px; height:40px; font-size:13px; }
+  .kd-merchant strong { font-size:15px; }
+  .kd-merchant span { font-size:13px; }
+  .kd-info h1 { font-size:clamp(26px,4vh,40px); }
+  .kd-description {
+    display:-webkit-box;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:2;
+    overflow:hidden;
+    font-size:14px;
+    line-height:1.45;
+  }
+  .kd-facts { gap:8px; }
+  .kd-fact { gap:9px; padding:clamp(8px,1.2vh,12px) 11px; }
+  .kd-fact .kd-icon { width:21px; height:21px; }
+  .kd-fact h2 { font-size:12px; }
+  .kd-fact p { font-size:14px; }
+  .kd-buy { gap:14px; padding:9px 14px; border-radius:22px; }
+  .kd-buy__action { gap:8px; }
+  .kd-saving { font-size:13px; }
+  .kd-reserve { min-height:46px; padding-inline:13px; border-radius:14px; font-size:15px; }
+  .kd-buy__row { gap:8px; }
+  .kd-buy__row .kulha-map-open-button { min-height:46px; padding-inline:12px; border-radius:14px; font-size:13px; }
+  .kd-share { width:46px; height:46px; }
+  .kd-share .kd-icon { width:19px; height:19px; }
+  .kd-know h2 { padding-bottom:6px; font-size:12px; }
+  .kd-know dl > div { gap:14px; padding:clamp(5px,1vh,8px) 0; }
+  .kd-know dt, .kd-know dd { font-size:13px; }
+}
+@media (min-width:1101px) and (min-height:680px) and (max-height:760px) {
+  .kd-info { gap:6px; }
+  .kd-fact { padding-block:7px; }
+  .kd-buy { padding-block:7px; }
+  .kd-know dl > div { padding-block:5px; }
 }
 
 /* ---- Loading skeleton: same grid as the page ---- */
