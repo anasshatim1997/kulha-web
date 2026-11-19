@@ -11,6 +11,7 @@ import { useSession } from "@/components/session/SessionProvider";
 import { formatPickupDate, formatPickupWindow } from "@/lib/offers/format";
 import type { Reservation, ReservationAvailability } from "@/lib/reservations/types";
 import styles from "./ReservationScreens.module.css";
+import { ReservationLoading } from "./ReservationLoading";
 
 function money(minor: number, locale: SiteLocale): string {
   return new Intl.NumberFormat(reservationLocaleTag(locale), {
@@ -23,25 +24,6 @@ function ErrorState({ text, onRetry, retry }: { text: string; onRetry?: () => vo
 }
 
 
-function AvailabilityLoading({ label }: { label: string }) {
-  return (
-    <section className={styles.availabilityLoading} role="status" aria-live="polite">
-      <div className={styles.availabilityLoaderMark} aria-hidden="true">
-        <svg viewBox="0 0 48 48" fill="none">
-          <path d="M13 17h22l-2 24H15l-2-24Z" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" />
-          <path d="M18 17v-4a6 6 0 0 1 12 0v4" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
-          <path d="M24 24c-4 1-6 4-6 8 4 0 7-2 8-6 1 3 3 4 6 4 0-4-3-6-8-6Z" fill="#ee3f29" />
-        </svg>
-        <span />
-      </div>
-      <div className={styles.availabilityLoaderCopy}>
-        <strong className={styles.availabilityBrandWord}>KULHA<span>!</span></strong>
-        <p>{label}</p>
-        <div className={styles.availabilityLoaderTrack} aria-hidden="true"><span /></div>
-      </div>
-    </section>
-  );
-}
 
 export function ReservationCheckout({ offerId, locale }: { offerId: string; locale: SiteLocale }) {
   const t = reservationCopy(locale);
@@ -144,7 +126,7 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
         {loading && availability && <span className={styles.availabilityRefreshing} role="status">{t.loading}</span>}
       </div>
 
-      {loading && !availability ? <AvailabilityLoading label={t.loading} /> :
+      {loading && !availability ? <ReservationLoading label={t.loading} /> :
         error ? <ErrorState text={error} onRetry={loadAvailability} retry={t.retry} /> :
         !availability || !availability.slots.length ? <ErrorState text={t.unavailable} onRetry={loadAvailability} retry={t.retry} /> : (
           <div className={styles.checkoutGrid} aria-busy={loading}>
