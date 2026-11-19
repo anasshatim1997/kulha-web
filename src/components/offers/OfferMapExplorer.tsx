@@ -828,7 +828,7 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
     ) : null;
 
     return (
-        <main className="km" lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
+        <div className="km" lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
             <header className="km-topbar">
                 <Link href={backHref} className="km-round" aria-label={t.back} title={t.back}><MapIcon name="back" /></Link>
                 <label className="km-search">
@@ -970,6 +970,6 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
                     </div>
                 </section>
             </div>
-        </main>
+        </div>
     );
 }
