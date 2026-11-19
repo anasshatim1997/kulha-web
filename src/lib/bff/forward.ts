@@ -12,13 +12,9 @@ import { copyResponse, problemResponse } from "./responses";
 const MAX_BODY_BYTES = 100_000;
 const METHODS = new Set(["GET", "POST", "PUT", "PATCH", "DELETE"]);
 
-/**
- * Backend-for-frontend: the browser calls /api/bff/..., this function adds the access token from the
- * HttpOnly cookie, refreshes it when it has expired, and returns the API's answer.
- */
+/** Browser calls stay on this origin; access and refresh tokens remain in HttpOnly cookies. */
 export async function forwardToBackend(request: NextRequest, segments: string[]): Promise<NextResponse> {
   const config = getConfig();
-
   const clientIp = trustedProxyClientIp(request.headers);
   const path = resolveBackendPath(segments);
   if (!path) return problemResponse(404, "Not found");
@@ -57,6 +53,10 @@ export async function forwardToBackend(request: NextRequest, segments: string[])
   if (idempotencyKey !== null) forwardedHeaders["Idempotency-Key"] = idempotencyKey;
   const correlationId = request.headers.get("X-Correlation-Id");
   if (correlationId !== null) forwardedHeaders["X-Correlation-Id"] = correlationId;
+  const locale = request.headers.get("x-kulha-locale");
+  if (locale === "fr" || locale === "en" || locale === "ar") {
+    forwardedHeaders["Accept-Language"] = locale;
+  }
 
   const call = () => backendRequest(`${path}${request.nextUrl.search}`, {
     method: request.method,

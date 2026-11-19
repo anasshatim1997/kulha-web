@@ -16,6 +16,19 @@ describe("api client", () => {
     expect((fetchMock.mock.calls[0][1] as RequestInit).credentials).toBe("same-origin");
   });
 
+  it("forwards the active locale on BFF reservation mutations", async () => {
+    const fetchMock = stubFetch();
+    fetchMock.mockResolvedValueOnce(jsonResponse({ status: "CANCELLED" }));
+    vi.stubGlobal("window", { location: { pathname: "/ar/reservations/ABC-123" } });
+
+    await api.patch("/reservations/ABC-123/cancel");
+
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/bff/reservations/ABC-123/cancel");
+    expect(init.method).toBe("PATCH");
+    expect((init.headers as Record<string, string>)["x-kulha-locale"]).toBe("ar");
+  });
+
   it("sends JSON bodies", async () => {
     const fetchMock = stubFetch();
     fetchMock.mockResolvedValueOnce(new Response(null, { status: 202 }));
