@@ -50,7 +50,7 @@ export function ReservationConfirmation({ reference, locale }: { reference: stri
   return (
     <div className={styles.page + " " + styles.confirmationPage + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
       <header className={styles.successHeader}>
-        <span className={styles.successIcon} aria-hidden="true">✓</span>
+        <span className={styles.successIcon} aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="m12 25 8 8 17-18" /></svg></span>
         <h1>{t.confirmed}</h1>
         <p>{t.saved}</p>
       </header>
