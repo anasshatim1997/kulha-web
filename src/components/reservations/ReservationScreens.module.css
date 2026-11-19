@@ -1,728 +1,261 @@
+/* KULHA reservation experience — generous, legible and pickup-first. */
 .page {
-  width: min(100% - 48px, 1440px);
+  width: min(calc(100% - 48px), 1180px);
   margin: 0 auto;
-  padding: 34px 0 64px;
+  padding: 28px 0 52px;
   color: var(--green, #073324);
   font-family: var(--font-nunito, Nunito), var(--font-noto-arabic, "Noto Sans Arabic"), ui-rounded, system-ui, sans-serif;
 }
 .page h1, .page h2, .page p { margin-top: 0; }
 .page a, .page button { -webkit-tap-highlight-color: transparent; }
-.pageTop { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 22px; }
-.backLink { display: inline-flex; align-items: center; gap: 10px; color: #536c5e; font-weight: 850; }
-.backLink span { font-size: 27px; line-height: .8; }
-.breadcrumbs { display: flex; align-items: center; gap: 14px; color: #718074; font-size: 14px; font-weight: 850; }
-.breadcrumbs strong { color: var(--green, #073324); }
-.headingRow { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin: 0 0 28px; }
-.headingRow h1, .listHeader h1 { margin: 0; color: var(--green, #073324); font-size: clamp(32px, 3.1vw, 46px); font-weight: 1000; letter-spacing: -.045em; line-height: 1.08; }
-.stepNumber { color: #6b7d70; font-size: 12px; font-weight: 1000; letter-spacing: .13em; }
-.checkoutGrid { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(320px, .95fr); align-items: start; gap: 40px; }
-.checkoutMain { display: grid; gap: 20px; min-width: 0; }
+.page button { cursor: pointer; }
+.pageTop { display:flex; align-items:center; justify-content:space-between; gap:18px; margin-bottom:20px; }
+.backLink { display:inline-flex; align-items:center; gap:10px; color:#456653; font-size:15px; font-weight:900; }
+.backLink span { color:var(--red,#ee3f29); font-size:28px; line-height:.8; }
+.breadcrumbs { display:flex; align-items:center; gap:14px; color:#718074; font-size:14px; font-weight:850; }
+.breadcrumbs strong { color:var(--green,#073324); }
+.headingRow { display:flex; align-items:center; justify-content:space-between; gap:20px; margin:0 0 24px; }
+.headingRow h1, .listHeader h1 { margin:0; color:var(--green,#073324); font-size:clamp(30px,3vw,42px); font-weight:1000; letter-spacing:-.045em; line-height:1.1; }
+.stepNumber { color:#6b7d70; font-size:13px; font-weight:1000; letter-spacing:.13em; }
+.checkoutGrid { display:grid; grid-template-columns:minmax(0,1.55fr) minmax(310px,.85fr); align-items:start; gap:26px; }
+.checkoutMain { display:grid; gap:16px; min-width:0; }
 .productCard, .panel, .summaryCard, .confirmationSummary, .codeCard, .nextCard, .instructionCard, .reservationCard, .emptyCard, .stateCard {
-  background: #fffdf9;
-  border: 1px solid #eadfc9;
-  border-radius: 29px;
-  box-shadow: 0 12px 30px rgb(7 51 36 / 4%);
+  background:#fffdf9; border:1px solid #eadfc9; border-radius:24px;
+  box-shadow:0 10px 28px rgb(7 51 36 / 5%);
 }
-.productCard { min-height: 176px; display: flex; align-items: center; gap: 20px; padding: 27px 29px; }
+.productCard { min-height:136px; display:flex; align-items:center; gap:20px; padding:22px 24px; }
 .bagIllustration, .smallBag, .reservationMark {
-  flex: 0 0 auto;
-  display: grid;
-  place-items: center;
-  border-radius: 19px;
-  width: 122px;
-  height: 122px;
-  background: #e1ebdd;
-  color: var(--green, #073324);
-  font-size: 60px;
-  font-weight: 900;
+  flex:0 0 auto; display:grid; place-items:center; border-radius:18px;
+  width:96px; height:96px; background:#f8e7dc; color:var(--red,#ee3f29);
+  font-size:48px; font-weight:900;
 }
-.productInfo { min-width: 0; flex: 1; }
-.merchantName { display: block; color: #5c7465; font-size: 14px; font-weight: 900; }
-.productInfo h2 { margin: 6px 0 12px; font-size: clamp(21px, 2vw, 27px); font-weight: 1000; line-height: 1.1; letter-spacing: -.03em; }
-.pill, .statusPill { display: inline-flex; align-items: center; width: fit-content; padding: 7px 13px; border-radius: 99px; background: #eef2e8; color: #3e614a; font-size: 12px; font-weight: 950; }
-.productPrice { flex: 0 0 auto; align-self: center; font-size: 21px; font-weight: 1000; white-space: nowrap; }
-.panel { padding: 26px 29px; }
-.sectionLabel { margin-bottom: 14px; color: #5a7163; font-size: 13px; font-weight: 1000; letter-spacing: .1em; text-transform: uppercase; }
-.quantityRow { display: flex; align-items: center; gap: 30px; flex-wrap: wrap; }
-.stepper { display: inline-flex; align-items: center; gap: 26px; }
-.stepper button { display: grid; place-items: center; width: 61px; height: 61px; border: 1px solid #e6d9c2; border-radius: 18px; background: #fff; color: var(--green, #073324); font-size: 27px; transition: background .15s, border-color .15s; }
-.stepper button:hover:not(:disabled) { border-color: var(--green, #073324); background: #f4f7f0; }
-.stepper button:disabled { cursor: not-allowed; color: #b9b5a9; background: #fff; }
-.stepper output { min-width: 26px; text-align: center; font-size: 34px; font-weight: 1000; }
-.quantityNote { display: grid; gap: 3px; color: #607769; font-size: 14px; }
-.quantityNote strong { color: #496a54; font-size: 15px; font-weight: 900; }
-.inlineError { color: #b74739; font-weight: 850; }
-.pickupRows { display: grid; gap: 18px; }
-.pickupRow { display: flex; align-items: flex-start; gap: 15px; color: var(--green, #073324); }
-.detailIcon { display: grid; place-items: center; flex: 0 0 26px; width: 26px; font-size: 24px; line-height: 1.1; }
-.pickupRow div { display: grid; gap: 2px; min-width: 0; }
-.pickupRow strong { font-size: 15px; font-weight: 950; }
-.pickupRow span:not(.detailIcon) { color: #627568; font-size: 14px; font-weight: 750; }
-.pickupRow small { color: #718174; font-size: 13px; }
-.summaryCard { position: sticky; top: 22px; padding: 27px 28px 26px; }
-.summaryCard h2 { margin: 0 0 15px; padding-bottom: 15px; border-bottom: 1px solid #eee4d4; font-size: 24px; font-weight: 1000; letter-spacing: -.035em; }
-.summaryLine { display: flex; justify-content: space-between; gap: 14px; color: #63786a; font-size: 15px; font-weight: 800; }
-.summaryLine strong { color: var(--green, #073324); white-space: nowrap; font-weight: 1000; }
-.summaryDivider { height: 1px; margin: 18px 0 22px; background: #eee4d4; }
-.totalLine { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 24px; }
-.totalLine strong { font-size: 16px; font-weight: 1000; }
-.totalLine b { font-size: clamp(22px, 2.4vw, 31px); font-weight: 1000; white-space: nowrap; }
-.notice { display: flex; align-items: flex-start; gap: 12px; margin: 0 0 21px; padding: 15px 16px; border-radius: 18px; background: #eef3e9; color: #496451; }
-.notice span { font-size: 23px; line-height: 1.1; }
-.notice p { margin: 0; font-size: 14px; font-weight: 800; line-height: 1.5; }
+.productInfo { min-width:0; flex:1; }
+.merchantName { display:block; color:#55705f; font-size:15px; font-weight:900; }
+.productInfo h2 { margin:5px 0 10px; font-size:clamp(21px,2vw,27px); font-weight:1000; line-height:1.15; letter-spacing:-.03em; }
+.pill, .statusPill { display:inline-flex; align-items:center; width:fit-content; padding:7px 12px; border-radius:99px; background:#eaf2e6; color:#28553b; font-size:13px; font-weight:950; }
+.productPrice { flex:0 0 auto; display:grid; justify-items:end; gap:3px; font-size:21px; font-weight:1000; white-space:nowrap; }
+.originalPrice { color:#718174; font-size:14px; font-weight:800; }
+.panel { padding:22px 24px; }
+.sectionLabel { margin-bottom:13px; color:#526e5b; font-size:14px; font-weight:1000; letter-spacing:.07em; text-transform:uppercase; }
+.quantityRow { display:flex; align-items:center; gap:26px; flex-wrap:wrap; }
+.stepper { display:inline-flex; align-items:center; gap:18px; }
+.stepper button { display:grid; place-items:center; width:52px; height:52px; border:1px solid #e6d9c2; border-radius:15px; background:#fff; color:var(--green,#073324); font-size:26px; transition:background .15s,border-color .15s; }
+.stepper button:hover:not(:disabled) { border-color:var(--red,#ee3f29); background:#fff2ed; }
+.stepper button:disabled { cursor:not-allowed; color:#b9b5a9; background:#fff; }
+.stepper output { min-width:28px; text-align:center; font-size:30px; font-weight:1000; }
+.quantityNote { display:grid; gap:4px; color:#607769; font-size:14px; }
+.quantityNote strong { color:#41654d; font-size:15px; font-weight:950; }
+.inlineError { color:#b74739; font-weight:850; }
+.pickupRows { display:grid; gap:15px; }
+.pickupRow { display:flex; align-items:flex-start; gap:14px; color:var(--green,#073324); }
+.detailIcon { display:grid; place-items:center; flex:0 0 30px; width:30px; font-size:24px; line-height:1.1; color:var(--red,#ee3f29); }
+.pickupRow div { display:grid; gap:3px; min-width:0; }
+.pickupRow strong { font-size:15px; font-weight:950; }
+.pickupRow span:not(.detailIcon) { color:#627568; font-size:14px; font-weight:750; overflow-wrap:anywhere; }
+.pickupRow small { color:#718174; font-size:13px; line-height:1.45; }
+.summaryCard { position:sticky; top:22px; padding:25px; border-top:4px solid var(--yellow,#fdbe2e); }
+.summaryCard h2 { margin:0 0 16px; padding-bottom:14px; border-bottom:1px solid #eee4d4; font-size:23px; font-weight:1000; letter-spacing:-.035em; }
+.summaryLine { display:flex; justify-content:space-between; gap:14px; padding:5px 0; color:#63786a; font-size:15px; font-weight:800; }
+.summaryLine strong { color:var(--green,#073324); white-space:nowrap; font-weight:1000; }
+.summaryLine del { color:#748176; font-size:14px; font-weight:850; }
+.summaryDivider { height:1px; margin:16px 0 19px; background:#eee4d4; }
+.totalLine { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:20px; }
+.totalLine strong { font-size:16px; font-weight:1000; }
+.totalLine b { font-size:clamp(23px,2.5vw,31px); font-weight:1000; white-space:nowrap; }
+.notice { display:flex; align-items:flex-start; gap:11px; margin:0 0 18px; padding:14px 15px; border-radius:15px; background:#fff2d9; color:#77551a; }
+.notice span { color:#b57a16; font-size:22px; line-height:1.1; }
+.notice p { margin:0; font-size:14px; font-weight:800; line-height:1.5; }
 .confirmButton, .primaryButton, .primarySmallButton, .dangerButton, .secondaryButton, .secondarySmallButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  border: 1px solid transparent;
-  border-radius: 17px;
-  padding: 0 19px;
-  font-size: 14px;
-  font-weight: 1000;
-  text-align: center;
-  transition: transform .15s, background .15s, border-color .15s;
+  display:inline-flex; align-items:center; justify-content:center; min-height:48px;
+  border:1px solid transparent; border-radius:14px; padding:0 19px;
+  font-size:15px; font-weight:1000; text-align:center;
+  transition:transform .15s,background .15s,border-color .15s;
 }
-.confirmButton, .primaryButton, .primarySmallButton { background: var(--green, #073324); color: #fffdf6; }
-.confirmButton { width: 100%; min-height: 70px; font-size: 17px; }
-.confirmButton:hover:not(:disabled), .primaryButton:hover, .primarySmallButton:hover { background: #0b4933; transform: translateY(-1px); }
-.confirmButton:disabled { opacity: .45; cursor: not-allowed; }
-.secondaryButton, .secondarySmallButton { border-color: #e8dcc8; background: #fffefa; color: var(--green, #073324); }
-.secondaryButton:hover, .secondarySmallButton:hover { border-color: #9eb29f; background: #f6f8f1; }
-.terms { margin: 15px 0 0; color: #6f8073; text-align: center; font-size: 12px; font-weight: 750; line-height: 1.7; }
-.formError { margin: 0 0 12px; color: #b23b30; font-size: 14px; font-weight: 850; }
-.stateCard { padding: 26px; color: #536d5e; font-weight: 850; }
-.stateCard p { margin: 0 0 13px; }
-.stateCard a { display: inline-flex; margin-top: 12px; color: var(--green, #073324); font-weight: 950; }
-.stateCard button { margin-top: 10px; }
+.confirmButton, .primaryButton, .primarySmallButton { background:var(--green,#073324); color:#fffdf6; }
+.confirmButton { width:100%; min-height:56px; border-radius:15px; font-size:16px; }
+.confirmButton:hover:not(:disabled), .primaryButton:hover, .primarySmallButton:hover { background:#0b4933; transform:translateY(-1px); }
+.confirmButton:disabled { opacity:.48; cursor:not-allowed; }
+.secondaryButton, .secondarySmallButton { border-color:#e8dcc8; background:#fffefa; color:var(--green,#073324); }
+.secondaryButton:hover, .secondarySmallButton:hover { border-color:#d5a18e; background:#fff4ef; }
+.terms { margin:12px 0 0; color:#6f8073; text-align:center; font-size:13px; font-weight:750; line-height:1.55; }
+.formError { margin:0 0 12px; color:#b23b30; font-size:14px; font-weight:850; }
+.stateCard { padding:24px; color:#536d5e; font-size:16px; font-weight:850; }
+.stateCard p { margin:0 0 13px; }
+.stateCard a { display:inline-flex; margin-top:12px; color:var(--green,#073324); font-weight:950; }
+.stateCard button { margin-top:10px; }
 
-.successHeader { display: grid; justify-items: center; text-align: center; margin: 2px 0 31px; }
-.successIcon { width: 85px; height: 85px; margin-bottom: 21px; display: grid; place-items: center; border-radius: 50%; background: var(--green, #073324); color: var(--yellow, #fdbe2e); font-size: 44px; font-weight: 800; }
-.successHeader h1 { margin: 0 0 9px; font-size: clamp(30px, 3vw, 43px); font-weight: 1000; letter-spacing: -.045em; }
-.successHeader p { margin: 0; color: #607568; font-size: 17px; font-weight: 800; }
-.confirmationGrid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(280px, .75fr); gap: 26px; }
-.confirmationSummary { padding: 26px 28px; }
-.confirmationProduct { display: flex; align-items: center; gap: 15px; padding-bottom: 17px; border-bottom: 1px solid #eee4d5; }
-.smallBag { width: 72px; height: 72px; border-radius: 16px; font-size: 35px; }
-.confirmationProduct > div:nth-child(2) { min-width: 0; flex: 1; }
-.confirmationProduct > div:nth-child(2) > span { color: #607568; font-size: 14px; font-weight: 900; }
-.confirmationProduct h2 { margin: 2px 0 0; font-size: 22px; font-weight: 1000; line-height: 1.15; }
-.statusPill { flex-shrink: 0; background: #fff2d1; color: #825500; }
-.definitionList { display: grid; margin: 0; }
-.definitionList > div { display: flex; justify-content: space-between; gap: 24px; padding: 13px 0; border-bottom: 1px solid #f0e7da; }
-.definitionList > div:last-child { border-bottom: 0; }
-.definitionList dt { color: #65796b; font-size: 14px; font-weight: 800; }
-.definitionList dd { margin: 0; color: var(--green, #073324); text-align: end; font-size: 14px; font-weight: 950; overflow-wrap: anywhere; }
-.codeCard { min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 28px; text-align: center; background: #fff; }
-.codeCaption { margin-bottom: 13px; color: #607568; font-size: 12px; font-weight: 1000; letter-spacing: .13em; text-transform: uppercase; }
-.pickupCode { color: var(--green, #073324); font-size: clamp(36px, 4.5vw, 53px); font-weight: 1000; letter-spacing: .19em; line-height: 1.1; overflow-wrap: anywhere; }
-.codeCard p { max-width: 310px; margin: 15px 0 0; color: #64786a; font-size: 14px; font-weight: 750; line-height: 1.55; }
-.nextCard { margin-top: 22px; padding: 25px 27px 27px; }
-.nextCard h2 { margin: 0 0 17px; color: #607568; font-size: 12px; font-weight: 1000; letter-spacing: .13em; text-transform: uppercase; }
-.nextSteps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.nextSteps > div { display: flex; align-items: flex-start; gap: 13px; }
-.nextSteps > div > b { display: grid; place-items: center; flex: 0 0 39px; width: 39px; height: 39px; border-radius: 50%; background: var(--yellow, #fdbe2e); color: var(--green, #073324); font-size: 17px; font-weight: 1000; }
-.nextSteps > div > div { display: grid; gap: 2px; }
-.nextSteps strong { font-size: 15px; font-weight: 1000; }
-.nextSteps span { color: #66796c; font-size: 13px; font-weight: 750; line-height: 1.5; }
-.actionRow { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 27px; }
-.actionRow .primaryButton, .actionRow .secondaryButton { min-height: 58px; padding-inline: 25px; }
-.listHeader { margin: 1px 0 25px; }
-.listHeader p { margin: 10px 0 0; color: #63796a; font-size: 16px; font-weight: 800; }
-.tabs { display: flex; align-items: stretch; gap: 27px; border-bottom: 1px solid #e5dac7; margin-bottom: 24px; }
-.tabs button { display: inline-flex; align-items: center; gap: 9px; border: 0; border-bottom: 3px solid transparent; padding: 0 4px 14px; background: transparent; color: #687b6e; font-size: 15px; font-weight: 950; }
-.tabs button > span { display: grid; place-items: center; min-width: 24px; height: 24px; padding: 0 6px; border-radius: 99px; background: #eee6d3; color: #687b6e; font-size: 11px; }
-.tabs button.activeTab { color: var(--green, #073324); border-bottom-color: var(--green, #073324); }
-.tabs button.activeTab > span { background: var(--green, #073324); color: #fff; }
-.listResults { min-height: 250px; }
-.emptyCard { min-height: 270px; display: grid; align-content: center; justify-items: center; padding: 30px; text-align: center; }
-.emptyIcon { display: grid; place-items: center; width: 72px; height: 72px; margin-bottom: 12px; border-radius: 20px; background: #e2ecde; color: var(--green, #073324); font-size: 37px; }
-.emptyCard h2 { margin: 0 0 7px; font-size: 21px; font-weight: 1000; }
-.emptyCard p { max-width: 420px; margin: 0 0 17px; color: #657a6c; font-size: 14px; font-weight: 750; }
-.earlierLabel { margin: 26px 0 13px; color: #63786a; font-size: 12px; font-weight: 1000; letter-spacing: .12em; text-transform: uppercase; }
-.reservationCards { display: grid; gap: 15px; }
-.reservationCard { display: grid; grid-template-columns: 88px minmax(0, 1fr) minmax(115px, auto) auto; align-items: center; gap: 19px; min-height: 143px; padding: 20px; }
-.reservationMark { width: 88px; height: 88px; border-radius: 17px; font-size: 43px; }
-.reservationDescription { min-width: 0; }
-.referenceLine { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 7px; }
-.referenceLine .statusPill { padding: 5px 11px; font-size: 11px; }
-.referenceText { color: #728175; font-size: 12px; font-weight: 850; }
-.reservationDescription .merchantName { font-size: 13px; }
-.reservationDescription h2 { margin: 2px 0 4px; font-size: 20px; font-weight: 1000; line-height: 1.15; }
-.pickupText { display: flex; align-items: center; gap: 7px; margin: 0; color: #5c7464; font-size: 13px; font-weight: 850; }
-.pickupText span { font-size: 16px; }
-.cardPrice { white-space: nowrap; font-size: 21px; font-weight: 1000; }
-.cardActions { display: flex; align-items: center; justify-content: flex-end; gap: 9px; }
-.primarySmallButton, .secondarySmallButton { min-height: 44px; padding-inline: 17px; border-radius: 15px; white-space: nowrap; }
-.inlinePickupCode { display: inline-flex; align-items: center; gap: 9px; margin-top: 9px; padding: 6px 10px; border-radius: 10px; background: #eef3e9; color: #496451; font-size: 12px; }
-.inlinePickupCode strong { color: var(--green, #073324); letter-spacing: .13em; }
+.availabilityLoading { display:flex; align-items:center; gap:20px; padding:24px; border:1px solid #eadfc9; border-radius:22px; background:#fffdf9; box-shadow:0 10px 28px rgb(7 51 36 / 5%); }
+.availabilityLoaderMark { position:relative; display:grid; place-items:center; flex:0 0 64px; width:64px; height:64px; border-radius:19px; background:#fff0e9; color:var(--green,#073324); }
+.availabilityLoaderMark svg { width:43px; height:43px; }
+.availabilityLoaderMark > span { position:absolute; right:7px; bottom:7px; width:10px; height:10px; border-radius:50%; background:var(--red,#ee3f29); box-shadow:0 0 0 4px #fff; }
+.availabilityLoaderCopy { min-width:0; flex:1; }
+.availabilityBrandWord { color:var(--green,#073324); font-size:17px; font-weight:1000; letter-spacing:-.04em; }
+.availabilityBrandWord span { color:var(--red,#ee3f29); }
+.availabilityLoaderCopy p { margin:4px 0 10px; color:#607568; font-size:15px; font-weight:800; }
+.availabilityLoaderTrack { height:5px; overflow:hidden; border-radius:99px; background:#eee5d8; }
+.availabilityLoaderTrack span { display:block; width:40%; height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--yellow,#fdbe2e),var(--red,#ee3f29)); animation:kulha-loading-sweep 1.2s ease-in-out infinite alternate; }
+@keyframes kulha-loading-sweep { from { transform:translateX(-12%); } to { transform:translateX(150%); } }
 
-.detailGrid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(280px, .75fr); gap: 24px; align-items: start; }
-.detailCodeColumn { display: grid; gap: 17px; }
-.detailCodeColumn .codeCard { min-height: 265px; }
-.instructionCard { padding: 21px 24px; }
-.instructionCard h2 { margin: 0 0 8px; font-size: 16px; font-weight: 1000; }
-.instructionCard p { margin: 0; color: #64796a; font-size: 14px; line-height: 1.6; font-weight: 750; }
-.detailFooter { display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-wrap: wrap; margin-top: 22px; }
-.cancelArea { margin-inline-end: auto; }
-.dangerButton { background: #fff0ec; border-color: #f2d1ca; color: #ad3d30; }
-.dangerButton:hover:not(:disabled) { background: #ffe5df; }
-.cancelConfirm { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; color: #a93b2e; font-size: 14px; font-weight: 850; }
-.cancelConfirm .secondaryButton, .cancelConfirm .dangerButton { min-height: 42px; }
+.successHeader { display:grid; justify-items:center; text-align:center; margin:0 0 25px; }
+.successIcon { width:66px; height:66px; margin-bottom:14px; display:grid; place-items:center; border-radius:50%; background:var(--red,#ee3f29); color:#fffdf8; font-size:36px; font-weight:900; box-shadow:0 6px 0 rgb(238 63 41 / 13%); }
+.successHeader h1 { margin:0 0 7px; font-size:clamp(30px,3vw,42px); font-weight:1000; letter-spacing:-.045em; }
+.successHeader p { margin:0; color:#607568; font-size:16px; font-weight:800; }
+.confirmationGrid { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(270px,.75fr); gap:20px; align-items:stretch; }
+.confirmationSummary { padding:24px; border-top:4px solid var(--red,#ee3f29); }
+.confirmationProduct { display:flex; align-items:center; gap:14px; padding-bottom:16px; border-bottom:1px solid #eee4d5; }
+.smallBag { width:66px; height:66px; border-radius:16px; font-size:33px; }
+.confirmationProduct > div:nth-child(2) { min-width:0; flex:1; }
+.confirmationProduct > div:nth-child(2) > span { color:#607568; font-size:14px; font-weight:900; }
+.confirmationProduct h2 { margin:3px 0 0; font-size:21px; font-weight:1000; line-height:1.18; }
+.statusPill { flex-shrink:0; background:#e9f2e6; color:#28553b; }
+.definitionList { display:grid; margin:0; }
+.definitionList > div { display:flex; justify-content:space-between; gap:20px; padding:12px 0; border-bottom:1px solid #f0e7da; }
+.definitionList > div:last-child { border-bottom:0; }
+.definitionList dt { color:#65796b; font-size:14px; font-weight:800; }
+.definitionList dd { margin:0; color:var(--green,#073324); text-align:end; font-size:15px; font-weight:950; overflow-wrap:anywhere; }
+.codeCard { min-height:330px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:24px; text-align:center; border-top:4px solid var(--yellow,#fdbe2e); background:linear-gradient(145deg,#fffdf9 0%,#fff7eb 100%); }
+.codeCaption { margin-bottom:5px; color:#506b59; font-size:13px; font-weight:1000; letter-spacing:.1em; text-transform:uppercase; }
+.kulha-pickup-qr { display:block; width:min(100%,220px); height:auto; aspect-ratio:1; image-rendering:pixelated; }
+.pickupCode { color:var(--green,#073324); font-size:clamp(32px,4vw,48px); font-weight:1000; letter-spacing:.16em; line-height:1.1; overflow-wrap:anywhere; }
+.pickupCodeFallback { color:var(--green,#073324); font-size:25px; font-weight:1000; letter-spacing:.14em; line-height:1.15; }
+.codeCard p { max-width:320px; margin:8px 0 0; color:#64786a; font-size:14px; font-weight:750; line-height:1.5; }
+.nextCard { margin-top:20px; padding:24px; }
+.nextCard h2 { margin:0 0 16px; color:#607568; font-size:14px; font-weight:1000; letter-spacing:.1em; text-transform:uppercase; }
+.nextSteps { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+.nextSteps > div { display:flex; align-items:flex-start; gap:12px; }
+.nextSteps > div > b { display:grid; place-items:center; flex:0 0 38px; width:38px; height:38px; border-radius:50%; background:var(--yellow,#fdbe2e); color:var(--green,#073324); font-size:17px; font-weight:1000; }
+.nextSteps > div > div { display:grid; gap:3px; }
+.nextSteps strong { font-size:15px; font-weight:1000; }
+.nextSteps span { color:#66796c; font-size:14px; font-weight:750; line-height:1.5; }
+.actionRow { display:flex; justify-content:center; flex-wrap:wrap; gap:12px; margin-top:22px; }
+.actionRow .primaryButton, .actionRow .secondaryButton { min-height:52px; padding-inline:24px; }
+.listHeader { margin:0 0 23px; }
+.listHeader p { margin:9px 0 0; color:#63796a; font-size:16px; font-weight:800; }
+.tabs { display:flex; align-items:stretch; gap:24px; border-bottom:1px solid #e5dac7; margin-bottom:22px; }
+.tabs button { display:inline-flex; align-items:center; gap:9px; border:0; border-bottom:3px solid transparent; padding:0 4px 13px; background:transparent; color:#687b6e; font-size:15px; font-weight:950; white-space:nowrap; }
+.tabs button > span { display:grid; place-items:center; min-width:25px; height:25px; padding:0 6px; border-radius:99px; background:#eee6d3; color:#687b6e; font-size:12px; }
+.tabs button.activeTab { color:var(--green,#073324); border-bottom-color:var(--red,#ee3f29); }
+.tabs button.activeTab > span { background:var(--red,#ee3f29); color:#fff; }
+.listResults { min-height:220px; }
+.emptyCard { min-height:270px; display:grid; align-content:center; justify-items:center; padding:30px; text-align:center; }
+.emptyIcon { display:grid; place-items:center; width:72px; height:72px; margin-bottom:14px; border-radius:20px; background:#fff0e9; color:var(--red,#ee3f29); font-size:37px; }
+.emptyCard h2 { margin:0 0 8px; font-size:23px; font-weight:1000; }
+.emptyCard p { max-width:440px; margin:0 0 18px; color:#657a6c; font-size:15px; font-weight:750; line-height:1.55; }
+.earlierLabel { margin:24px 0 13px; color:#63786a; font-size:13px; font-weight:1000; letter-spacing:.1em; text-transform:uppercase; }
+.reservationCards { display:grid; gap:13px; }
+.reservationCard { display:grid; grid-template-columns:82px minmax(0,1fr) minmax(120px,auto) auto; align-items:center; gap:17px; min-height:130px; padding:18px; }
+.reservationMark { width:82px; height:82px; border-radius:17px; font-size:40px; }
+.reservationDescription { min-width:0; }
+.referenceLine { display:flex; flex-wrap:wrap; align-items:center; gap:9px; margin-bottom:7px; }
+.referenceLine .statusPill { padding:5px 10px; font-size:12px; }
+.referenceText { color:#728175; font-size:13px; font-weight:850; }
+.reservationDescription .merchantName { font-size:14px; }
+.reservationDescription h2 { margin:3px 0 6px; font-size:20px; font-weight:1000; line-height:1.18; }
+.pickupText { display:flex; align-items:center; gap:7px; margin:0; color:#5c7464; font-size:14px; font-weight:850; }
+.pickupText span { color:var(--red,#ee3f29); font-size:17px; }
+.cardPrice { white-space:nowrap; font-size:20px; font-weight:1000; }
+.cardActions { display:flex; align-items:center; justify-content:flex-end; gap:9px; }
+.primarySmallButton, .secondarySmallButton { min-height:43px; padding-inline:15px; border-radius:13px; white-space:nowrap; font-size:14px; }
+.inlinePickupCode { display:inline-flex; align-items:center; gap:9px; margin-top:10px; padding:8px 11px; border-radius:10px; background:#fff2d9; color:#77551a; font-size:13px; }
+.inlinePickupCode strong { color:var(--green,#073324); letter-spacing:.13em; }
+.detailGrid { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(270px,.8fr); gap:20px; align-items:start; }
+.detailCodeColumn { display:grid; gap:14px; }
+.detailCodeColumn .codeCard { min-height:300px; }
+.instructionCard { padding:20px 22px; border-inline-start:4px solid var(--yellow,#fdbe2e); }
+.instructionCard h2 { margin:0 0 8px; font-size:17px; font-weight:1000; }
+.instructionCard p { margin:0; color:#64796a; font-size:15px; line-height:1.6; font-weight:750; }
+.detailFooter { display:flex; align-items:center; justify-content:flex-end; gap:12px; flex-wrap:wrap; margin-top:22px; }
+.cancelArea { margin-inline-end:auto; }
+.dangerButton { background:#fff0ec; border-color:#f2d1ca; color:#ad3d30; }
+.dangerButton:hover:not(:disabled) { background:#ffe5df; }
+.cancelConfirm { display:flex; align-items:center; flex-wrap:wrap; gap:10px; color:#a93b2e; font-size:14px; font-weight:850; }
+.cancelConfirm .secondaryButton, .cancelConfirm .dangerButton { min-height:42px; }
+
+.cancelOverlay { position:fixed; inset:0; z-index:1000; display:grid; place-items:center; padding:20px; background:rgb(7 27 19 / 58%); backdrop-filter:blur(4px); }
+.cancelDialog { width:min(100%,560px); max-height:min(88dvh,720px); overflow-y:auto; overscroll-behavior:contain; display:grid; gap:15px; padding:24px; border:1px solid #e9ddcc; border-radius:23px; background:#fffdf9; box-shadow:0 24px 80px rgb(0 0 0 / 22%); }
+.cancelDialogHead { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; }
+.cancelDialogHead strong { color:var(--green,#073324); font-size:21px; font-weight:1000; }
+.cancelDialogHead p { margin:6px 0 0; color:#687a6d; font-size:14px; font-weight:750; line-height:1.5; }
+.cancelDialogClose { display:grid; flex:0 0 38px; width:38px; height:38px; place-items:center; border:1px solid #eadfce; border-radius:50%; background:#fff; color:#536b5d; font-size:24px; }
+.cancelReasons { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; padding:0; margin:0; border:0; }
+.cancelReasons legend { margin-bottom:9px; color:#536b5d; font-size:14px; font-weight:950; }
+.cancelReasons label { display:flex; align-items:center; gap:10px; min-height:46px; padding:10px 12px; border:1px solid #eee5d9; border-radius:12px; background:#fff; color:#415c4c; font-size:14px; font-weight:800; line-height:1.35; cursor:pointer; }
+.cancelReasons label:has(input:checked) { border-color:var(--red,#ee3f29); background:#fff4ef; }
+.cancelReasons input { width:17px; height:17px; flex:0 0 17px; accent-color:var(--red,#ee3f29); }
+.cancelComment { display:grid; gap:7px; color:#536b5d; font-size:14px; font-weight:900; }
+.cancelComment textarea { width:100%; min-height:76px; padding:11px 13px; border:1px solid #e6dccd; border-radius:12px; background:#fff; color:#173c2d; resize:vertical; font-size:14px; }
+.cancelDialogActions { display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
+.cancelDialogActions button { min-height:46px; border-radius:13px; font-size:14px; }
+.cancelSuccess { margin:14px 0 0; padding:13px 16px; border-radius:13px; background:#eaf3e7; color:#28553b; font-size:15px; font-weight:900; }
 
 @media (max-width: 980px) {
-  .checkoutGrid { grid-template-columns: minmax(0, 1.35fr) minmax(285px, .85fr); gap: 20px; }
-  .productCard { padding: 22px; }
-  .bagIllustration { width: 95px; height: 95px; font-size: 48px; }
-  .reservationCard { grid-template-columns: 76px minmax(0, 1fr) minmax(100px, auto); }
-  .reservationMark { width: 76px; height: 76px; }
-  .cardActions { grid-column: 2 / -1; justify-content: flex-start; }
+  .checkoutGrid { grid-template-columns:minmax(0,1.25fr) minmax(285px,.85fr); gap:18px; }
+  .productCard { padding:19px; }
+  .bagIllustration { width:82px; height:82px; }
+  .reservationCard { grid-template-columns:72px minmax(0,1fr) minmax(105px,auto); }
+  .reservationMark { width:72px; height:72px; }
+  .cardActions { grid-column:2 / -1; justify-content:flex-start; }
 }
 @media (max-width: 740px) {
-  .page { width: min(100% - 30px, 600px); padding: 23px 0 40px; }
-  .pageTop { align-items: flex-start; }
-  .breadcrumbs { display: none; }
-  .headingRow { margin-bottom: 19px; }
-  .checkoutGrid, .confirmationGrid, .detailGrid { grid-template-columns: minmax(0, 1fr); gap: 15px; }
-  .checkoutMain { gap: 14px; }
-  .productCard { min-height: 120px; gap: 13px; padding: 17px; border-radius: 22px; }
-  .bagIllustration { width: 72px; height: 72px; border-radius: 15px; font-size: 39px; }
-  .productInfo h2 { font-size: 18px; }
-  .productPrice { font-size: 15px; }
-  .panel { padding: 20px 18px; border-radius: 22px; }
-  .quantityRow { gap: 16px; }
-  .stepper { gap: 15px; }
-  .stepper button { width: 49px; height: 49px; border-radius: 14px; }
-  .stepper output { font-size: 28px; }
-  .summaryCard { position: static; padding: 21px 19px; border-radius: 22px; }
-  .summaryCard h2 { font-size: 21px; }
-  .confirmButton { min-height: 58px; }
-  .successHeader { margin-bottom: 22px; }
-  .successIcon { width: 68px; height: 68px; font-size: 35px; margin-bottom: 14px; }
-  .successHeader p { font-size: 14px; }
-  .confirmationSummary { padding: 20px 18px; border-radius: 22px; }
-  .confirmationProduct { gap: 10px; flex-wrap: wrap; }
-  .smallBag { width: 57px; height: 57px; font-size: 28px; }
-  .confirmationProduct h2 { font-size: 18px; }
-  .definitionList > div { gap: 12px; }
-  .definitionList dt, .definitionList dd { font-size: 12px; }
-  .codeCard { min-height: 225px; padding: 22px; border-radius: 22px; }
-  .pickupCode { font-size: 38px; }
-  .nextCard { padding: 20px 18px; border-radius: 22px; }
-  .nextSteps { grid-template-columns: minmax(0, 1fr); gap: 15px; }
-  .nextSteps span { font-size: 13px; }
-  .actionRow { display: grid; grid-template-columns: 1fr; }
-  .actionRow a { width: 100%; }
-  .tabs { gap: 13px; overflow-x: auto; margin-inline: -3px; }
-  .tabs button { gap: 6px; padding-inline: 3px; white-space: nowrap; font-size: 13px; }
-  .reservationCard { grid-template-columns: 64px minmax(0, 1fr); gap: 12px; padding: 15px; border-radius: 22px; }
-  .reservationMark { width: 64px; height: 64px; font-size: 32px; }
-  .reservationDescription h2 { font-size: 17px; }
-  .cardPrice { grid-column: 2; font-size: 18px; }
-  .cardActions { grid-column: 2; }
-  .detailFooter { display: grid; grid-template-columns: 1fr; }
-  .detailFooter > a, .cancelArea, .cancelArea button { width: 100%; }
-  .cancelConfirm { align-items: stretch; }
-}
-@media (max-width: 420px) {
-  .page { width: min(100% - 22px, 390px); }
-  .productCard { gap: 10px; }
-  .productPrice { max-width: 95px; white-space: normal; text-align: end; }
-  .referenceLine { gap: 6px; }
-  .referenceText { font-size: 10px; }
-  .tabs { gap: 8px; }
-  .tabs button { font-size: 12px; }
-}
-
-.productPrice { display: grid; justify-items: end; gap: 2px; }
-.originalPrice { color: #718174; font-size: 13px; font-weight: 800; }
-.summaryLine del { color: #748176; font-size: 14px; font-weight: 850; }
-
-
-/* Compact, task-first reservation layouts: remove oversized card padding and duplicate explanation panels. */
-.page { padding-top: 18px; padding-bottom: 30px; }
-.pageTop { margin-bottom: 14px; }
-.headingRow { margin-bottom: 16px; }
-.checkoutMain { gap: 12px; }
-.productCard { min-height: 128px; padding: 18px 21px; border-radius: 22px; }
-.bagIllustration { width: 86px; height: 86px; border-radius: 16px; font-size: 44px; }
-.panel { padding: 18px 21px; border-radius: 21px; }
-.pickupRows { gap: 11px; }
-.pickupRow { gap: 11px; }
-.stepper button { width: 52px; height: 52px; border-radius: 14px; }
-.stepper { gap: 18px; }
-.summaryCard { padding: 20px 22px; border-radius: 22px; }
-.summaryCard h2 { margin-bottom: 11px; padding-bottom: 11px; font-size: 21px; }
-.summaryDivider { margin: 12px 0 15px; }
-.totalLine { margin-bottom: 15px; }
-.notice { margin-bottom: 13px; padding: 11px 13px; }
-.confirmButton { min-height: 54px; border-radius: 14px; }
-.terms { margin-top: 9px; }
-.successHeader { margin: 0 0 16px; }
-.successIcon { width: 60px; height: 60px; margin-bottom: 9px; font-size: 32px; }
-.successHeader h1 { font-size: clamp(26px, 2.5vw, 35px); }
-.successHeader p { font-size: 14px; }
-.confirmationGrid { grid-template-columns: minmax(0, 1.3fr) minmax(250px, .7fr); gap: 15px; }
-.confirmationSummary { padding: 17px 21px; border-radius: 22px; }
-.confirmationProduct { padding-bottom: 10px; gap: 11px; }
-.smallBag { width: 54px; height: 54px; border-radius: 13px; font-size: 26px; }
-.confirmationProduct h2 { font-size: 19px; }
-.definitionList > div { padding: 8px 0; }
-.definitionList dt, .definitionList dd { font-size: 13px; }
-.codeCard { min-height: 0; padding: 18px; border-radius: 22px; gap: 4px; }
-.codeCaption { margin-bottom: 7px; }
-.kulha-pickup-qr { display: block; width: min(100%, 210px); height: auto; aspect-ratio: 1; image-rendering: pixelated; }
-.pickupCode { font-size: 32px; }
-.pickupCodeFallback { color: var(--green, #073324); font-size: 28px; font-weight: 1000; letter-spacing: .16em; line-height: 1.15; }
-.codeCard p { margin-top: 7px; font-size: 12px; }
-.actionRow { margin-top: 14px; gap: 9px; }
-.actionRow .primaryButton, .actionRow .secondaryButton { min-height: 46px; padding-inline: 17px; border-radius: 13px; }
-.listHeader { margin-bottom: 15px; }
-.listHeader h1 { font-size: clamp(27px, 2.7vw, 37px); }
-.listHeader p { margin-top: 5px; font-size: 14px; }
-.tabs { gap: 18px; margin-bottom: 15px; }
-.tabs button { padding-bottom: 10px; }
-.listResults { min-height: 0; }
-.emptyCard { min-height: 190px; padding: 20px; border-radius: 22px; }
-.reservationCards { gap: 10px; }
-.reservationCard { min-height: 110px; padding: 14px; border-radius: 20px; }
-.reservationMark { width: 68px; height: 68px; font-size: 34px; }
-.reservationDescription h2 { font-size: 17px; }
-.detailGrid { gap: 13px; }
-.detailCodeColumn { gap: 10px; }
-.detailCodeColumn .codeCard { min-height: 0; }
-.instructionCard { padding: 13px 17px; border-radius: 19px; }
-.instructionCard h2 { margin-bottom: 4px; font-size: 14px; }
-.instructionCard p { font-size: 13px; }
-.detailFooter { margin-top: 14px; }
-.cancelDialog {
-  display: grid; gap: 10px; max-width: 530px; padding: 15px;
-  border: 1px solid #eed8cf; border-radius: 18px; background: #fffdfa;
-  box-shadow: 0 8px 24px rgb(7 51 36 / 6%);
-}
-.cancelDialogHead { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-.cancelDialogHead strong { font-size: 15px; font-weight: 1000; }
-.cancelDialogHead p { margin: 3px 0 0; color: #687a6d; font-size: 12px; font-weight: 700; }
-.cancelDialogClose { display: grid; flex: 0 0 31px; width: 31px; height: 31px; place-items: center; border: 1px solid #eadfce; border-radius: 50%; background: #fff; color: #536b5d; font-size: 20px; }
-.cancelReasons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 0; margin: 0; border: 0; }
-.cancelReasons legend { margin-bottom: 7px; color: #536b5d; font-size: 12px; font-weight: 900; }
-.cancelReasons label { display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 7px 9px; border: 1px solid #eee5d9; border-radius: 11px; background: #fff; color: #415c4c; font-size: 12px; font-weight: 800; cursor: pointer; }
-.cancelReasons input { accent-color: #073324; }
-.cancelComment { display: grid; gap: 5px; color: #536b5d; font-size: 12px; font-weight: 900; }
-.cancelComment textarea { width: 100%; min-height: 56px; padding: 9px 11px; border: 1px solid #e6dccd; border-radius: 11px; background: #fff; color: #173c2d; resize: vertical; font-size: 13px; }
-.cancelDialogActions { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
-.cancelDialogActions button { min-height: 39px; border-radius: 12px; font-size: 12px; }
-.cancelSuccess { margin: 12px 0 0; color: #326342; font-size: 13px; font-weight: 900; }
-@media (max-width: 740px) {
-  .page { padding-top: 14px; padding-bottom: 22px; }
-  .productCard { min-height: 104px; padding: 13px; }
-  .bagIllustration { width: 62px; height: 62px; font-size: 33px; }
-  .panel { padding: 15px; }
-  .checkoutGrid, .confirmationGrid, .detailGrid { gap: 10px; }
-  .confirmationGrid { grid-template-columns: minmax(0, 1fr); }
-  .codeCard { min-height: 0; }
-  .codeCard p { max-width: 100%; }
-  .cancelReasons { grid-template-columns: minmax(0,1fr); }
-  .cancelDialogActions { display: grid; grid-template-columns: 1fr 1fr; }
-}
-
-
-/* Final compact reservation layout: fit the task, not decorative whitespace, into the viewport. */
-.page { width:min(100% - 36px, 1180px); padding:12px 0 18px; }
-.pageTop { margin-bottom:9px; }
-.headingRow { margin:0 0 12px; }
-.headingRow h1,.listHeader h1 { font-size:clamp(21px,2vw,28px); line-height:1.12; }
-.page .listHeader { margin:0 0 10px; }
-.page .listHeader p { margin-top:4px; font-size:12px; }
-.checkoutGrid { grid-template-columns:minmax(0,1.35fr) minmax(270px,.75fr); gap:14px; }
-.checkoutMain { gap:9px; }
-.productCard { min-height:88px; padding:12px 15px; gap:12px; border-radius:17px; }
-.bagIllustration { width:54px; height:54px; border-radius:12px; font-size:28px; }
-.productInfo h2 { margin:3px 0 5px; font-size:17px; }
-.productInfo .merchantName { font-size:11px; }
-.productPrice { font-size:15px; }
-.panel { padding:12px 15px; border-radius:17px; }
-.sectionLabel { margin-bottom:8px; font-size:10px; }
-.quantityRow { gap:13px; }
-.stepper { gap:10px; }
-.stepper button { width:38px; height:38px; border-radius:11px; font-size:19px; }
-.stepper output { font-size:21px; }
-.quantityNote { font-size:11px; }
-.pickupRows { gap:7px; }
-.pickupRow { gap:8px; }
-.pickupRow strong { font-size:12px; }
-.pickupRow span,.pickupRow small { font-size:11px; line-height:1.3; }
-.detailIcon { width:28px; height:28px; flex-basis:28px; }
-.summaryCard { position:sticky; top:12px; padding:15px; border-radius:18px; }
-.summaryCard h2 { margin-bottom:8px; padding-bottom:8px; font-size:17px; }
-.summaryLine { padding-block:5px; font-size:12px; }
-.summaryDivider { margin:8px 0 10px; }
-.totalLine { margin-bottom:9px; gap:8px; }
-.totalLine strong { font-size:12px; }
-.totalLine b { font-size:19px; }
-.notice { margin-bottom:8px; padding:8px 10px; font-size:11px; }
-.notice p { font-size:11px; line-height:1.35; }
-.confirmButton { min-height:43px; border-radius:11px; font-size:13px; }
-.terms { margin-top:6px; font-size:10px; line-height:1.35; }
-.formError { margin-bottom:7px; font-size:12px; }
-.successHeader { display:flex; align-items:center; justify-content:center; gap:10px; margin:0 0 10px; text-align:start; }
-.successIcon { width:34px; height:34px; flex:0 0 34px; margin:0; font-size:18px; }
-.successHeader h1 { margin:0 0 2px; font-size:23px; line-height:1.1; }
-.successHeader p { margin:0; font-size:11px; line-height:1.3; }
-.confirmationGrid { grid-template-columns:minmax(0,1.25fr) minmax(210px,.55fr); gap:12px; align-items:stretch; }
-.confirmationSummary { padding:13px 15px; border-radius:17px; }
-.confirmationProduct { gap:9px; padding-bottom:8px; }
-.confirmationProduct > div:nth-child(2) > span { font-size:11px; }
-.confirmationProduct h2 { font-size:15px; line-height:1.15; }
-.smallBag { width:40px; height:40px; border-radius:10px; font-size:21px; }
-.statusPill { padding:4px 8px; font-size:10px; }
-.definitionList > div { gap:12px; padding:5px 0; }
-.definitionList dt,.definitionList dd { font-size:11px; line-height:1.3; }
-.codeCard { min-height:0; justify-content:center; gap:3px; padding:12px; border-radius:17px; }
-.codeCaption { margin-bottom:3px; font-size:10px; }
-.kulha-pickup-qr { width:min(100%,118px); max-height:118px; }
-.pickupCodeFallback { font-size:17px; letter-spacing:.12em; }
-.codeCard p { max-width:230px; margin-top:5px; font-size:10px; line-height:1.35; }
-.actionRow { margin-top:10px; gap:8px; }
-.actionRow .primaryButton,.actionRow .secondaryButton { min-height:38px; padding-inline:14px; border-radius:10px; font-size:11px; }
-.detailTopActions { display:flex; align-items:center; gap:8px; }
-.detailTopActions .dangerButton { min-height:34px; padding:0 12px; border-radius:10px; font-size:11px; }
-.detailGrid { grid-template-columns:minmax(0,1.2fr) minmax(200px,.6fr); gap:12px; }
-.detailGrid .confirmationSummary { padding:13px 15px; }
-.detailGrid .confirmationProduct { padding-bottom:8px; }
-.detailGrid .definitionList > div { padding:5px 0; }
-.detailCodeColumn { gap:8px; }
-.detailCodeColumn .codeCard { min-height:0; padding:11px; }
-.detailCodeColumn .kulha-pickup-qr { width:min(100%,112px); max-height:112px; }
-.detailCodeColumn .codeCard p { font-size:10px; line-height:1.35; }
-.instructionCard { padding:10px 13px; border-radius:13px; }
-.instructionCard h2 { margin-bottom:3px; font-size:11px; }
-.instructionCard p { font-size:11px; line-height:1.35; }
-.detailFooter { margin-top:10px; gap:8px; }
-.detailFooter .primaryButton,.detailFooter .secondaryButton { min-height:36px; padding-inline:12px; font-size:11px; border-radius:10px; }
-
-/* Cancellation is a real overlay; it does not expand the reservation page or hide the action. */
-.cancelOverlay { position:fixed; inset:0; z-index:1000; display:grid; place-items:center; padding:16px; background:rgb(7 27 19 / 54%); backdrop-filter:blur(3px); }
-.cancelDialog { position:relative; width:min(100%, 460px); max-height:min(88dvh, 610px); overflow-y:auto; overscroll-behavior:contain; display:grid; gap:9px; padding:16px; border:1px solid #e9ddcc; border-radius:18px; background:#fffdf9; box-shadow:0 24px 80px rgb(0 0 0 / 22%); }
-.cancelDialogHead strong { font-size:15px; }
-.cancelDialogHead p { font-size:11px; }
-.cancelReasons { grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px; }
-.cancelReasons legend { margin-bottom:5px; font-size:11px; }
-.cancelReasons label { min-height:31px; padding:5px 7px; gap:6px; border-radius:9px; font-size:10px; line-height:1.25; }
-.cancelReasons input { width:13px; height:13px; flex:0 0 13px; }
-.cancelComment { gap:4px; font-size:11px; }
-.cancelComment textarea { min-height:46px; padding:7px 9px; font-size:11px; }
-.cancelDialogActions { gap:7px; }
-.cancelDialogActions button { min-height:35px; padding-inline:11px; font-size:11px; }
-.cancelSuccess { margin:6px 0; font-size:11px; }
-
-@media (max-width:740px) {
-  .page { width:min(100% - 22px,560px); padding:10px 0 16px; }
-  .pageTop { align-items:center; gap:8px; margin-bottom:8px; }
-  .detailTopActions { gap:6px; }
-  .detailTopActions .dangerButton { min-height:32px; padding-inline:9px; font-size:10px; }
-  .headingRow { margin-bottom:10px; }
-  .headingRow h1,.listHeader h1 { font-size:22px; }
-  .checkoutGrid,.confirmationGrid,.detailGrid { grid-template-columns:minmax(0,1fr); gap:8px; }
-  .checkoutMain { gap:8px; }
-  .productCard { min-height:72px; padding:9px 11px; }
-  .bagIllustration { width:44px; height:44px; font-size:23px; }
-  .panel { padding:10px 12px; }
-  .summaryCard { position:static; padding:12px; }
-  .successHeader { justify-content:flex-start; margin-bottom:8px; }
-  .successHeader h1 { font-size:21px; }
-  .confirmationSummary { padding:11px 13px; }
-  .codeCard { display:grid; grid-template-columns:1fr auto; justify-items:center; align-items:center; min-height:0; padding:9px 12px; }
-  .codeCaption { grid-column:1/-1; }
-  .kulha-pickup-qr { width:88px; max-height:88px; grid-row:2/4; grid-column:2; }
-  .pickupCodeFallback { font-size:15px; }
-  .codeCard p { grid-column:1/-1; max-width:none; }
-  .actionRow { display:flex; justify-content:flex-start; flex-wrap:wrap; }
-  .actionRow a { width:auto; }
-  .detailGrid .confirmationSummary { padding:11px 13px; }
-  .detailCodeColumn { grid-template-columns:1fr; }
-  .detailCodeColumn .codeCard { display:grid; grid-template-columns:1fr auto; justify-items:center; }
-  .detailCodeColumn .kulha-pickup-qr { width:88px; max-height:88px; grid-row:2/4; grid-column:2; }
-  .detailFooter { display:flex; justify-content:flex-end; }
-  .detailFooter > a { width:auto; }
-  .cancelDialog { width:min(100%,460px); padding:13px; gap:8px; }
-  .cancelReasons { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .cancelReasons label { min-height:32px; }
-}
-@media (max-width:380px) {
-  .cancelReasons { grid-template-columns:minmax(0,1fr); }
-}
-
-
-/* KULHA balance pass: restore confident type sizes and real brand colour, without adding page height. */
-.page { width:min(100% - 36px,1180px); padding:14px 0 16px; }
-.pageTop { margin-bottom:10px; }
-.headingRow { margin:0 0 14px; }
-.headingRow h1,.listHeader h1 { font-size:clamp(27px,2.2vw,34px); line-height:1.12; }
-.page .listHeader { margin:0 0 12px; }
-.page .listHeader p { margin-top:5px; font-size:14px; }
-.checkoutGrid { grid-template-columns:minmax(0,1.35fr) minmax(290px,.75fr); gap:16px; }
-.checkoutMain { gap:10px; }
-.productCard { min-height:102px; padding:14px 18px; gap:14px; border-radius:19px; }
-.bagIllustration { width:64px; height:64px; border-radius:15px; font-size:34px; }
-.productInfo h2 { margin:4px 0 6px; font-size:20px; line-height:1.16; }
-.productInfo .merchantName { font-size:13px; }
-.productPrice { font-size:17px; }
-.panel { padding:14px 18px; border-radius:19px; }
-.sectionLabel { margin-bottom:9px; font-size:12px; letter-spacing:.08em; }
-.quantityRow { gap:16px; }
-.stepper { gap:13px; }
-.stepper button { width:43px; height:43px; border-radius:12px; font-size:21px; }
-.stepper output { font-size:25px; }
-.quantityNote { font-size:13px; }
-.quantityNote strong { font-size:14px; }
-.pickupRows { gap:9px; }
-.pickupRow { gap:10px; }
-.pickupRow strong { font-size:14px; }
-.pickupRow span:not(.detailIcon) { font-size:13px; line-height:1.35; }
-.pickupRow small { font-size:12px; line-height:1.35; }
-.detailIcon { width:26px; height:26px; flex-basis:26px; font-size:22px; }
-.summaryCard { top:12px; padding:18px 19px; border-radius:19px; }
-.summaryCard h2 { margin-bottom:10px; padding-bottom:10px; font-size:20px; }
-.summaryLine { padding-block:5px; font-size:14px; }
-.summaryDivider { margin:10px 0 12px; }
-.totalLine { margin-bottom:11px; gap:10px; }
-.totalLine strong { font-size:14px; }
-.totalLine b { font-size:23px; }
-.notice { margin-bottom:10px; padding:10px 12px; gap:9px; }
-.notice span { font-size:19px; }
-.notice p { font-size:13px; line-height:1.4; }
-.confirmButton { min-height:47px; border-radius:12px; font-size:14px; }
-.terms { margin-top:7px; font-size:11.5px; line-height:1.4; }
-.formError { margin-bottom:8px; font-size:13px; }
-.successHeader { margin:0 0 12px; }
-.successIcon { width:44px; height:44px; flex:0 0 44px; margin:0; background:var(--red,#ee3f29); color:#fffdf8; font-size:25px; box-shadow:0 5px 0 rgb(238 63 41 / .13); }
-.successHeader h1 { margin:0 0 3px; font-size:29px; line-height:1.12; }
-.successHeader p { margin:0; font-size:14px; line-height:1.35; }
-.confirmationGrid { grid-template-columns:minmax(0,1.25fr) minmax(230px,.65fr); gap:14px; align-items:stretch; }
-.confirmationSummary { padding:16px 18px; border-top:4px solid var(--red,#ee3f29); border-radius:18px; }
-.confirmationProduct { gap:11px; padding-bottom:10px; }
-.confirmationProduct > div:nth-child(2) > span { font-size:13px; }
-.confirmationProduct h2 { font-size:19px; line-height:1.18; }
-.smallBag { width:52px; height:52px; border-radius:13px; font-size:27px; background:#f8e7dc; color:var(--red,#ee3f29); }
-.statusPill { padding:5px 10px; font-size:11px; background:#e9f2e6; color:#28553b; }
-.definitionList > div { gap:14px; padding:7px 0; }
-.definitionList dt,.definitionList dd { font-size:13px; line-height:1.35; }
-.codeCard { min-height:0; justify-content:center; gap:5px; padding:14px; border-top:4px solid var(--yellow,#fdbe2e); border-radius:18px; background:linear-gradient(145deg,#fffdf9 0%,#fff7eb 100%); }
-.codeCaption { margin-bottom:4px; color:#506b59; font-size:12px; letter-spacing:.1em; }
-.kulha-pickup-qr { width:min(100%,132px); max-height:132px; }
-.pickupCodeFallback { font-size:20px; letter-spacing:.12em; }
-.codeCard p { max-width:250px; margin-top:5px; font-size:12px; line-height:1.4; }
-.actionRow { margin-top:11px; gap:9px; }
-.actionRow .primaryButton,.actionRow .secondaryButton { min-height:43px; padding-inline:16px; border-radius:11px; font-size:13px; }
-.detailTopActions { display:flex; align-items:center; gap:9px; }
-.detailTopActions .dangerButton { min-height:38px; padding:0 14px; border-radius:11px; font-size:13px; }
-.detailGrid { grid-template-columns:minmax(0,1.2fr) minmax(220px,.7fr); gap:14px; }
-.detailGrid .confirmationSummary { padding:16px 18px; }
-.detailGrid .confirmationProduct { padding-bottom:10px; }
-.detailGrid .definitionList > div { padding:7px 0; }
-.detailCodeColumn { gap:10px; }
-.detailCodeColumn .codeCard { min-height:0; padding:14px; }
-.detailCodeColumn .kulha-pickup-qr { width:min(100%,126px); max-height:126px; }
-.detailCodeColumn .codeCard p { font-size:12px; line-height:1.4; }
-.instructionCard { padding:11px 14px; border-radius:14px; border-inline-start:3px solid var(--yellow,#fdbe2e); }
-.instructionCard h2 { margin-bottom:4px; font-size:13px; }
-.instructionCard p { font-size:13px; line-height:1.4; }
-.detailFooter { margin-top:11px; gap:9px; }
-.detailFooter .primaryButton,.detailFooter .secondaryButton { min-height:41px; padding-inline:14px; font-size:13px; border-radius:11px; }
-.cancelDialogHead strong { font-size:17px; }
-.cancelDialogHead p { font-size:13px; }
-.cancelReasons legend { font-size:13px; }
-.cancelReasons label { min-height:36px; font-size:12px; }
-.cancelComment { font-size:13px; }
-.cancelComment textarea { min-height:54px; font-size:13px; }
-.cancelDialogActions button { min-height:40px; font-size:13px; }
-.cancelSuccess { font-size:13px; }
-
-/* Availability is a branded moment, not a generic loading line. */
-.availabilityLoading {
-  display:grid;
-  grid-template-columns:66px minmax(0,1fr);
-  align-items:center;
-  gap:12px 16px;
-  width:min(100%,620px);
-  min-height:160px;
-  margin:clamp(32px,7vh,76px) auto 0;
-  padding:20px 23px 17px;
-  border:1px solid #f0c7bb;
-  border-radius:22px;
-  background:
-    radial-gradient(circle at 100% 0%,rgb(238 63 41 / .10),transparent 38%),
-    radial-gradient(circle at 0% 100%,rgb(253 190 46 / .17),transparent 42%),
-    linear-gradient(135deg,#fffdf8 0%,#fff8ee 100%);
-  box-shadow:0 12px 34px rgb(7 51 36 / .07);
-}
-.availabilityLoaderMark {
-  position:relative;
-  display:grid;
-  width:64px;
-  height:64px;
-  place-items:center;
-  border:2px solid #f4c5b8;
-  border-radius:21px;
-  background:#fff0e9;
-  color:var(--green,#073324);
-  box-shadow:inset 0 0 0 5px #fffaf3;
-}
-.availabilityLoaderMark svg { width:39px; height:39px; }
-.availabilityLoaderMark > span {
-  position:absolute;
-  top:5px;
-  inset-inline-end:5px;
-  width:11px;
-  height:11px;
-  border:2px solid #fff8ee;
-  border-radius:50%;
-  background:var(--red,#ee3f29);
-  animation:kulha-availability-pulse 1.1s ease-in-out infinite;
-}
-.availabilityLoaderCopy { min-width:0; }
-.availabilityBrandWord { display:block; margin-bottom:4px; color:var(--green,#073324); font-size:14px; font-weight:1000; letter-spacing:.08em; }
-.availabilityBrandWord span { color:var(--red,#ee3f29); }
-.availabilityLoaderCopy p { margin:0; color:#254b37; font-size:16px; font-weight:900; line-height:1.35; }
-.availabilityLoaderTrack {
-  height:7px;
-  overflow:hidden;
-  margin-top:12px;
-  border-radius:999px;
-  background:linear-gradient(90deg,#f8ddd4 0 34%,#ffedbd 34% 67%,#e1edda 67% 100%);
-}
-.availabilityLoaderTrack span {
-  display:block;
-  width:34%;
-  height:100%;
-  border-radius:inherit;
-  background:linear-gradient(90deg,var(--red,#ee3f29),var(--yellow,#fdbe2e),var(--leaf,#7ec34a));
-  animation:kulha-availability-progress 1.35s ease-in-out infinite;
-}
-@keyframes kulha-availability-pulse { 50% { transform:scale(.68); opacity:.7; } }
-@keyframes kulha-availability-progress { from { transform:translateX(-115%); } to { transform:translateX(310%); } }
-:dir(rtl) .availabilityLoaderTrack span { animation-name:kulha-availability-progress-rtl; }
-@keyframes kulha-availability-progress-rtl { from { transform:translateX(310%); } to { transform:translateX(-115%); } }
-
-/* CSS-module sizing for the transaction viewport; document-level overflow lives in globals.css. */
-.page:global(.kulha-reservation-viewport) { min-width:0; }
-@media (min-width:900px) and (min-height:680px) {
-  .page:global(.kulha-reservation-viewport) { flex:1 1 auto; height:100%; min-height:0; overflow:hidden; }
-  .page:global(.kulha-reservation-viewport) > .checkoutGrid,
-  .page:global(.kulha-reservation-viewport) > .confirmationGrid,
-  .page:global(.kulha-reservation-viewport) > .detailGrid { min-height:0; }
-}
-@media (max-width:740px) and (min-height:760px) {
-  .page:global(.kulha-reservation-viewport) { flex:1 1 auto; height:100%; min-height:0; overflow:hidden; }
-}
-@media (max-width:740px) {
-  .page { width:min(100% - 22px,560px); padding:9px 0 12px; }
-  .pageTop { align-items:center; gap:7px; margin-bottom:7px; }
-  .headingRow { margin-bottom:8px; }
-  .headingRow h1,.listHeader h1 { font-size:25px; }
-  .checkoutGrid,.confirmationGrid,.detailGrid { grid-template-columns:minmax(0,1fr); gap:8px; }
-  .checkoutMain { gap:8px; }
-  .productCard { min-height:82px; padding:10px 12px; gap:10px; }
-  .bagIllustration { width:50px; height:50px; font-size:26px; }
-  .productInfo h2 { font-size:18px; }
-  .productInfo .merchantName { font-size:12px; }
+  .page { width:min(calc(100% - 28px),600px); padding:20px 0 36px; }
+  .pageTop { align-items:flex-start; gap:10px; margin-bottom:14px; }
+  .headingRow { margin-bottom:17px; }
+  .headingRow h1,.listHeader h1 { font-size:clamp(27px,6vw,34px); }
+  .checkoutGrid,.confirmationGrid,.detailGrid { grid-template-columns:minmax(0,1fr); gap:13px; }
+  .checkoutMain { gap:12px; }
+  .productCard { min-height:112px; gap:12px; padding:14px; border-radius:19px; }
+  .bagIllustration { width:66px; height:66px; border-radius:14px; font-size:34px; }
+  .productInfo h2 { font-size:19px; }
   .productPrice { font-size:16px; }
-  .panel { padding:11px 13px; }
-  .sectionLabel { margin-bottom:7px; font-size:11.5px; }
-  .stepper { gap:11px; }
-  .stepper button { width:40px; height:40px; font-size:20px; }
-  .stepper output { font-size:23px; }
-  .quantityNote { font-size:12.5px; }
-  .quantityNote strong { font-size:13.5px; }
-  .pickupRows { gap:8px; }
-  .pickupRow { gap:8px; }
-  .pickupRow strong { font-size:13px; }
-  .pickupRow span:not(.detailIcon) { font-size:12.5px; }
-  .pickupRow small { font-size:12px; }
-  .summaryCard { position:static; padding:12px 14px; }
-  .summaryCard h2 { margin-bottom:7px; padding-bottom:7px; font-size:18px; }
-  .summaryLine { padding-block:4px; font-size:13px; }
-  .summaryDivider { margin:7px 0 9px; }
-  .totalLine { margin-bottom:8px; }
-  .totalLine strong { font-size:13px; }
-  .totalLine b { font-size:21px; }
-  .notice { margin-bottom:8px; padding:8px 10px; }
-  .notice p { font-size:12.5px; }
-  .confirmButton { min-height:43px; font-size:13px; }
-  .terms { margin-top:5px; font-size:11px; }
-  .successHeader { justify-content:flex-start; margin-bottom:8px; }
-  .successIcon { width:39px; height:39px; flex-basis:39px; font-size:22px; }
-  .successHeader h1 { font-size:25px; }
-  .successHeader p { font-size:13px; }
-  .confirmationSummary { padding:12px 14px; }
-  .confirmationProduct { gap:9px; padding-bottom:8px; }
-  .confirmationProduct > div:nth-child(2) > span { font-size:12px; }
-  .confirmationProduct h2 { font-size:17px; }
-  .smallBag { width:46px; height:46px; font-size:24px; }
-  .definitionList > div { gap:10px; padding:5px 0; }
-  .definitionList dt,.definitionList dd { font-size:12.5px; }
-  .codeCard { display:grid; grid-template-columns:1fr auto; justify-items:center; align-items:center; min-height:0; padding:10px 12px; gap:4px; }
-  .codeCaption { grid-column:1/-1; }
-  .kulha-pickup-qr { width:94px; max-height:94px; grid-row:2/4; grid-column:2; }
-  .pickupCodeFallback { font-size:18px; }
-  .codeCard p { grid-column:1/-1; max-width:none; font-size:12px; }
-  .actionRow { display:flex; justify-content:flex-start; flex-wrap:wrap; margin-top:8px; }
-  .actionRow a { width:auto; }
-  .actionRow .primaryButton,.actionRow .secondaryButton { min-height:42px; font-size:12.5px; }
-  .detailGrid .confirmationSummary { padding:12px 14px; }
-  .detailCodeColumn { grid-template-columns:1fr; }
-  .detailCodeColumn .codeCard { display:grid; grid-template-columns:1fr auto; justify-items:center; }
-  .detailCodeColumn .kulha-pickup-qr { width:94px; max-height:94px; grid-row:2/4; grid-column:2; }
-  .detailFooter { display:flex; justify-content:flex-end; margin-top:8px; }
-  .detailFooter > a { width:auto; min-height:40px; font-size:12.5px; }
-  .detailTopActions { gap:6px; }
-  .detailTopActions .dangerButton { min-height:34px; padding-inline:10px; font-size:12px; }
-  .cancelDialog { width:min(100%,460px); padding:13px; gap:8px; }
-  .cancelReasons { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .cancelReasons label { min-height:34px; font-size:12px; }
-  .cancelDialogHead strong { font-size:16px; }
-  .cancelDialogHead p { font-size:12px; }
-  .cancelComment { font-size:12px; }
-  .availabilityLoading { min-height:142px; margin:clamp(20px,5vh,40px) auto 0; padding:17px; grid-template-columns:56px minmax(0,1fr); gap:10px 12px; border-radius:18px; }
-  .availabilityLoaderMark { width:54px; height:54px; border-radius:17px; }
-  .availabilityLoaderMark svg { width:33px; height:33px; }
-  .availabilityLoaderCopy p { font-size:15px; }
+  .panel { padding:17px 16px; border-radius:19px; }
+  .quantityRow { gap:16px; }
+  .stepper { gap:14px; }
+  .stepper button { width:47px; height:47px; }
+  .stepper output { font-size:27px; }
+  .summaryCard { position:static; padding:20px 18px; border-radius:19px; }
+  .summaryCard h2 { font-size:21px; }
+  .confirmButton { min-height:54px; }
+  .successHeader { display:grid; justify-items:center; text-align:center; margin-bottom:18px; }
+  .successIcon { width:58px; height:58px; font-size:31px; margin-bottom:9px; }
+  .successHeader h1 { font-size:30px; }
+  .successHeader p { font-size:15px; }
+  .confirmationSummary { padding:19px 17px; border-radius:19px; }
+  .confirmationProduct { gap:10px; flex-wrap:wrap; }
+  .smallBag { width:56px; height:56px; font-size:28px; }
+  .confirmationProduct h2 { font-size:19px; }
+  .definitionList > div { gap:12px; padding:10px 0; }
+  .definitionList dt,.definitionList dd { font-size:13px; }
+  .codeCard { min-height:0; padding:20px 16px; border-radius:19px; }
+  .kulha-pickup-qr { width:min(100%,190px); }
+  .pickupCodeFallback { font-size:22px; }
+  .codeCard p { max-width:100%; font-size:14px; }
+  .actionRow { display:grid; grid-template-columns:1fr; margin-top:16px; }
+  .actionRow a { width:100%; min-height:50px; }
+  .tabs { gap:18px; overflow-x:auto; margin-inline:-2px; padding-bottom:1px; }
+  .tabs button { gap:7px; padding-inline:2px; font-size:14px; }
+  .reservationCard { grid-template-columns:62px minmax(0,1fr); gap:11px; padding:14px; border-radius:19px; }
+  .reservationMark { width:62px; height:62px; font-size:31px; }
+  .reservationDescription h2 { font-size:18px; }
+  .cardPrice { grid-column:2; font-size:19px; }
+  .cardActions { grid-column:2; flex-wrap:wrap; }
+  .detailFooter { display:grid; grid-template-columns:1fr; }
+  .detailFooter > a,.cancelArea,.cancelArea button { width:100%; }
+  .cancelDialog { width:min(100%,560px); padding:19px; gap:13px; }
+  .cancelReasons { grid-template-columns:1fr; gap:7px; }
+  .cancelReasons label { min-height:43px; }
+  .cancelDialogActions { display:grid; grid-template-columns:1fr 1fr; }
+  .availabilityLoading { padding:18px; gap:14px; }
 }
-@media (max-height:760px) and (max-width:740px) {
-  .page { padding-block:6px 8px; }
-  .pageTop { margin-bottom:5px; }
-  .headingRow { margin-bottom:6px; }
-  .checkoutMain { gap:6px; }
-  .checkoutGrid,.confirmationGrid,.detailGrid { gap:6px; }
-  .productCard { min-height:74px; padding:8px 10px; }
-  .bagIllustration { width:44px; height:44px; }
-  .panel { padding:9px 11px; }
-  .pickupRows { gap:6px; }
-  .pickupRow strong { font-size:12.5px; }
-  .pickupRow span:not(.detailIcon) { font-size:12px; }
-  .summaryCard { padding:10px 12px; }
-  .summaryCard h2 { font-size:17px; }
-  .summaryLine { font-size:12.5px; }
-  .notice { padding:7px 9px; }
-  .notice p { font-size:12px; }
-  .confirmButton { min-height:40px; }
-  .successHeader { margin-bottom:6px; }
-  .confirmationSummary { padding:10px 12px; }
-  .definitionList > div { padding:4px 0; }
-  .codeCard { padding:8px 10px; }
-  .kulha-pickup-qr { width:84px; max-height:84px; }
-  .actionRow .primaryButton,.actionRow .secondaryButton { min-height:38px; }
-  .availabilityLoading { min-height:126px; margin-top:12px; padding:13px; }
+@media (max-width: 390px) {
+  .page { width:min(calc(100% - 22px),390px); }
+  .productCard { gap:9px; }
+  .productPrice { max-width:100px; white-space:normal; text-align:end; }
+  .referenceLine { gap:6px; }
+  .referenceText { font-size:11px; }
+  .tabs { gap:12px; }
+  .cancelDialogActions { grid-template-columns:1fr; }
 }
-@media (max-width:380px) {
-  .page { width:min(100% - 18px,360px); }
-  .cancelReasons { grid-template-columns:minmax(0,1fr); }
-  .availabilityLoading { grid-template-columns:48px minmax(0,1fr); gap:9px; padding:12px; }
-  .availabilityLoaderMark { width:46px; height:46px; }
-  .availabilityLoaderMark svg { width:29px; height:29px; }
-}
-@media (prefers-reduced-motion:reduce) {
-  .availabilityLoaderMark > span,.availabilityLoaderTrack span { animation:none; }
-  .availabilityLoaderTrack span { width:100%; }
+@media (prefers-reduced-motion: reduce) {
+  .availabilityLoaderTrack span { animation:none; }
+  .confirmButton,.primaryButton,.primarySmallButton,.secondaryButton,.secondarySmallButton { transition:none; }
 }
