@@ -125,7 +125,6 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
             <span className={styles.statusPill}>{reservation.statusLabel}</span>
           </div>
           <dl className={styles.definitionList}>
-            <div><dt>{t.reference}</dt><dd>{reservation.reference}</dd></div>
             <div><dt>{t.pickupWindow}</dt><dd>{formatPickupWindow(reservation.pickupStart, reservation.pickupEnd, locale)}</dd></div>
             <div><dt>{t.address}</dt><dd>{address}</dd></div>
             <div><dt>{t.quantityLabel}</dt><dd>× {reservation.quantity}</dd></div>
