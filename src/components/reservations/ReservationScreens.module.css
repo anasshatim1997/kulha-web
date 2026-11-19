@@ -613,6 +613,9 @@
   .page:global(.kulha-reservation-viewport) > .confirmationGrid,
   .page:global(.kulha-reservation-viewport) > .detailGrid { min-height:0; }
 }
+@media (max-width:740px) and (min-height:760px) {
+  .page:global(.kulha-reservation-viewport) { flex:1 1 auto; height:100%; min-height:0; overflow:hidden; }
+}
 @media (max-width:740px) {
   .page { width:min(100% - 22px,560px); padding:9px 0 12px; }
   .pageTop { align-items:center; gap:7px; margin-bottom:7px; }
