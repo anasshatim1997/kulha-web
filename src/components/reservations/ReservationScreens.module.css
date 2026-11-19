@@ -259,3 +259,6 @@
   .availabilityLoaderTrack span { animation:none; }
   .confirmButton,.primaryButton,.primarySmallButton,.secondaryButton,.secondarySmallButton { transition:none; }
 }
+
+.cancelDialogHead .cancelImpact { margin-top:8px; padding:10px 12px; border-radius:11px; background:#fff2d9; color:#77551a; font-size:13px; font-weight:850; }
+.cancelDialogHead .cancelReservationContext { margin-top:8px; color:#315b40; font-size:14px; font-weight:950; }
