@@ -7,7 +7,7 @@ import { offerCategoryLabel, publicOfferCopy } from "@/lib/offers/public-copy";
 import { formatPickupWindow } from "@/lib/offers/format";
 import { localizedOfferPath } from "@/lib/offers/paths";
 import type { OfferSearch, PublicOffer, PublicOfferDetail } from "@/lib/offers/public-api";
-import { averageMapCoordinate, groupOffersIntoMapStores, groupOffersWithoutCoordinates, hasMapCoordinates, type MapCoordinate, type OfferMapStore, type OfferMapStoreCandidate } from "@/lib/offers/map-ranking";
+import { averageMapCoordinate, groupOffersIntoMapStores, groupOffersWithoutCoordinates, hasMapCoordinates, initialMapZoom, type MapCoordinate, type OfferMapStore, type OfferMapStoreCandidate } from "@/lib/offers/map-ranking";
 import { geocodePublicShop } from "@/lib/offers/map-geocoding";
 import { getDrivingRoute, searchOffersForMap, type DrivingRoute, type RouteMode } from "@/lib/offers/nearby-client";
 import { OfferStoreMapCanvas } from "@/components/offers/OfferStoreMapCanvas";
@@ -307,14 +307,10 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
             ?? (visibleIds.has(activeStore.bestOffer.id) ? activeStore.bestOffer : activeStore.offers.find((offer) => visibleIds.has(offer.id))))
         ?? null
         : null;
-    const mapZoom = useMemo(() => {
-        if (focusOffer) return 15;
-        if (stores.length < 2) return 14;
-        const latitudes = stores.map((store) => store.latitude);
-        const longitudes = stores.map((store) => store.longitude);
-        const spread = Math.max(Math.max(...latitudes) - Math.min(...latitudes), Math.max(...longitudes) - Math.min(...longitudes));
-        return spread > 0.16 ? 11 : spread > 0.09 ? 12 : spread > 0.045 ? 13 : 14;
-    }, [stores, focusOffer]);
+    const mapZoom = useMemo(
+        () => focusOffer ? 15 : values.city ? initialMapZoom(stores) : 6.5,
+        [stores, focusOffer, values.city],
+    );
 
     // Re-seed the map whenever the server-provided offers, the focused offer or the city change.
     // This is derived-state syncing, so it runs during render (React re-renders straight away) instead of
@@ -334,7 +330,9 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
         setSelectedKey(firstStore?.key ?? nextUnlocated[0]?.key ?? null);
         const initialPosition = focusedStore
             ? { latitude: focusedStore.latitude, longitude: focusedStore.longitude }
-            : averageMapCoordinate(nextStores);
+            : values.city
+                ? averageMapCoordinate(nextStores)
+                : MOROCCO_CENTER;
         setCenter(initialPosition ?? cityCenter(focusOffer?.merchant.city ?? values.city));
     }
 
@@ -456,33 +454,59 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
         const requestId = ++catalogRequestId.current;
         const pageSize = 50;
         const pageCount = Math.max(1, Math.ceil(total / pageSize));
-        for (let pageIndex = 1; pageIndex < pageCount; pageIndex += 1) {
-            try {
-                const page = await searchOffersForMap({
-                    ...values,
-                    city: values.city,
-                    page: String(pageIndex),
-                    size: "50",
-                    availableOnly: "true",
-                });
-                if (requestId !== catalogRequestId.current) return;
-                const combined = mergeOffers(offersRef.current, page.items);
-                offersRef.current = combined;
-                const origin = userLocationRef.current ?? undefined;
-                const nextStores = groupOffersIntoMapStores(combined, Date.now(), origin);
-                const nextUnlocated = groupOffersWithoutCoordinates(combined);
-                setOffers(combined);
-                commitStores(nextStores);
-                setUnlocatedStores(nextUnlocated);
-                setSelectedKey((current) =>
-                    nextStores.some((store) => store.key === current) || nextUnlocated.some((store) => store.key === current)
-                        ? current
-                        : nextStores[0]?.key ?? nextUnlocated[0]?.key ?? null,
-                );
-            } catch {
-                return;
+        if (pageCount <= 1) return;
+
+        // The public API caps pages at 50. Fetch remaining pages with a small
+        // concurrency limit, then group/render once instead of rebuilding every
+        // store marker after each of the 19 follow-up requests.
+        const pages: PublicOffer[][] = [];
+        let nextPageIndex = 1;
+        let hadPageFailure = false;
+        const workerCount = Math.min(5, pageCount - 1);
+
+        const loadWorker = async () => {
+            while (requestId === catalogRequestId.current) {
+                const pageIndex = nextPageIndex++;
+                if (pageIndex >= pageCount) return;
+                try {
+                    const page = await searchOffersForMap({
+                        ...values,
+                        city: values.city,
+                        page: String(pageIndex),
+                        size: String(pageSize),
+                        availableOnly: "true",
+                    });
+                    if (requestId !== catalogRequestId.current) return;
+                    pages[pageIndex] = page.items;
+                } catch {
+                    hadPageFailure = true;
+                }
             }
-        }
+        };
+
+        await Promise.all(Array.from({ length: workerCount }, () => loadWorker()));
+        if (requestId !== catalogRequestId.current) return;
+
+        const fetchedPages = pages.filter((page): page is PublicOffer[] => Array.isArray(page));
+        const combined = mergeOffers(offersRef.current, ...fetchedPages);
+        offersRef.current = combined;
+
+        const origin = userLocationRef.current ?? undefined;
+        const nextStores = groupOffersIntoMapStores(combined, Date.now(), origin);
+        const nextUnlocated = groupOffersWithoutCoordinates(combined);
+
+        setOffers(combined);
+        commitStores(nextStores);
+        setUnlocatedStores(nextUnlocated);
+        setSelectedKey((current) =>
+            nextStores.some((store) => store.key === current) || nextUnlocated.some((store) => store.key === current)
+                ? current
+                : nextStores[0]?.key ?? nextUnlocated[0]?.key ?? null,
+        );
+
+        // Keep the user's initial city or national camera stable while later
+        // catalogue pages arrive; only the store data changes in the background.
+        if (hadPageFailure) setMessage(t.mapServiceError);
     }
 
     async function loadMapOffers() {

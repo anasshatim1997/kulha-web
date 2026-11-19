@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groupOffersIntoMapStores, groupOffersWithoutCoordinates, scoreMapOffer } from "./map-ranking";
+import { groupOffersIntoMapStores, groupOffersWithoutCoordinates, initialMapZoom, scoreMapOffer } from "./map-ranking";
 import type { PublicOffer } from "./public-api";
 
 const now = Date.parse("2026-11-08T12:00:00Z");
@@ -85,4 +85,35 @@ it("keeps eligible shops without GPS coordinates visible as map-list candidates"
   expect(candidates).toHaveLength(1);
   expect(candidates[0].merchant.name).toBe("Maarif Market");
   expect(candidates[0].bestOffer.id).toBe("unpinned-one");
+});
+
+
+describe("offer map initial viewport", () => {
+  it("fits a country-wide set of Moroccan stores instead of zooming into one city", () => {
+    const zoom = initialMapZoom([
+      { latitude: 35.7595, longitude: -5.8340 },
+      { latitude: 34.0209, longitude: -6.8416 },
+      { latitude: 31.6295, longitude: -7.9811 },
+      { latitude: 30.4278, longitude: -9.5981 },
+      { latitude: 34.0331, longitude: -5.0003 },
+    ]);
+
+    expect(zoom).toBeGreaterThanOrEqual(5);
+    expect(zoom).toBeLessThanOrEqual(7);
+  });
+
+  it("zooms into a city when store locations are close together", () => {
+    const zoom = initialMapZoom([
+      { latitude: 33.5890, longitude: -7.6200 },
+      { latitude: 33.5960, longitude: -7.6100 },
+      { latitude: 33.5830, longitude: -7.6300 },
+    ]);
+
+    expect(zoom).toBeGreaterThanOrEqual(12);
+    expect(zoom).toBeLessThanOrEqual(14);
+  });
+
+  it("uses the close-up default for a single store", () => {
+    expect(initialMapZoom([{ latitude: 33.5890, longitude: -7.6200 }])).toBe(14);
+  });
 });

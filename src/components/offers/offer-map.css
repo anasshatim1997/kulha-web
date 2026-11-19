@@ -766,3 +766,9 @@
     padding-bottom: max(16px, env(safe-area-inset-bottom));
   }
 }
+
+/* Large load-test catalogues stay responsive: the scroll list paints rows as they enter view. */
+.km-list > .km-row {
+  content-visibility: auto;
+  contain-intrinsic-size: 104px;
+}
