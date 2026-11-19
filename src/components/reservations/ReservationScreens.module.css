@@ -97,7 +97,11 @@
 @keyframes kulha-loading-sweep { from { transform:translateX(-12%); } to { transform:translateX(150%); } }
 
 .successHeader { display:grid; justify-items:center; text-align:center; margin:0 0 25px; }
-.successIcon { width:66px; height:66px; margin-bottom:14px; display:grid; place-items:center; border-radius:50%; background:var(--red,#ee3f29); color:#fffdf8; font-size:36px; font-weight:900; box-shadow:0 6px 0 rgb(238 63 41 / 13%); }
+.successIcon { width:68px; height:68px; margin-bottom:14px; display:grid; place-items:center; border:1px solid #b8dfc1; border-radius:50%; background:#e7f5e9; color:#218447; box-shadow:0 7px 0 rgb(33 132 71 / 10%),0 12px 28px rgb(33 132 71 / 10%); animation:kulha-success-pop .48s cubic-bezier(.2,1.5,.45,1) both; }
+.successIcon svg { width:42px; height:42px; overflow:visible; }
+.successIcon path { stroke:currentColor; stroke-width:4.5; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:42; stroke-dashoffset:42; animation:kulha-success-draw .55s .18s ease-out forwards; }
+@keyframes kulha-success-pop { from { opacity:0; transform:scale(.72); } to { opacity:1; transform:scale(1); } }
+@keyframes kulha-success-draw { to { stroke-dashoffset:0; } }
 .successHeader h1 { margin:0 0 7px; font-size:clamp(30px,3vw,42px); font-weight:1000; letter-spacing:-.045em; }
 .successHeader p { margin:0; color:#607568; font-size:16px; font-weight:800; }
 .confirmationGrid { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(270px,.75fr); gap:20px; align-items:stretch; }
@@ -171,19 +175,25 @@
 .cancelConfirm { display:flex; align-items:center; flex-wrap:wrap; gap:10px; color:#a93b2e; font-size:14px; font-weight:850; }
 .cancelConfirm .secondaryButton, .cancelConfirm .dangerButton { min-height:42px; }
 
-.cancelOverlay { position:fixed; inset:0; z-index:1000; display:grid; place-items:center; padding:20px; background:rgb(7 27 19 / 58%); backdrop-filter:blur(4px); }
-.cancelDialog { width:min(100%,560px); max-height:min(88dvh,720px); overflow-y:auto; overscroll-behavior:contain; display:grid; gap:15px; padding:24px; border:1px solid #e9ddcc; border-radius:23px; background:#fffdf9; box-shadow:0 24px 80px rgb(0 0 0 / 22%); }
+.cancelOverlay { position:fixed; inset:0; z-index:1000; display:grid; place-items:center; padding:20px; background:rgb(7 27 19 / 64%); backdrop-filter:blur(8px); animation:kulha-cancel-backdrop .18s ease-out both; }
+@keyframes kulha-cancel-backdrop { from { opacity:0; } to { opacity:1; } }
+.cancelDialog { position:relative; width:min(100%,580px); max-height:min(88dvh,720px); overflow-y:auto; overscroll-behavior:contain; display:grid; gap:16px; padding:28px; border:1px solid #f0dfc9; border-radius:26px; background:radial-gradient(circle at 100% 0%,rgb(253 190 46 / 13%),transparent 34%),#fffdf9; box-shadow:0 28px 90px rgb(0 0 0 / 28%); animation:kulha-cancel-enter .24s cubic-bezier(.2,1.25,.45,1) both; }
+.cancelDialog::before { content:""; position:absolute; inset:0 0 auto; height:5px; border-radius:26px 26px 0 0; background:linear-gradient(90deg,var(--red,#ee3f29),var(--yellow,#fdbe2e)); }
+@keyframes kulha-cancel-enter { from { opacity:0; transform:translateY(12px) scale(.98); } to { opacity:1; transform:translateY(0) scale(1); } }
 .cancelDialogHead { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; }
-.cancelDialogHead strong { color:var(--green,#073324); font-size:21px; font-weight:1000; }
+.cancelDialogHead strong { display:block; color:var(--green,#073324); font-size:23px; font-weight:1000; letter-spacing:-.025em; }
 .cancelDialogHead p { margin:6px 0 0; color:#687a6d; font-size:14px; font-weight:750; line-height:1.5; }
-.cancelDialogClose { display:grid; flex:0 0 38px; width:38px; height:38px; place-items:center; border:1px solid #eadfce; border-radius:50%; background:#fff; color:#536b5d; font-size:24px; }
+.cancelDialogClose { display:grid; flex:0 0 40px; width:40px; height:40px; place-items:center; border:1px solid #eadfce; border-radius:13px; background:#fff; color:#536b5d; font-size:24px; transition:background .15s,color .15s,transform .15s; }
+.cancelDialogClose:hover { background:#fff0ec; color:var(--red,#ee3f29); transform:rotate(90deg); }
 .cancelReasons { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; padding:0; margin:0; border:0; }
 .cancelReasons legend { margin-bottom:9px; color:#536b5d; font-size:14px; font-weight:950; }
-.cancelReasons label { display:flex; align-items:center; gap:10px; min-height:46px; padding:10px 12px; border:1px solid #eee5d9; border-radius:12px; background:#fff; color:#415c4c; font-size:14px; font-weight:800; line-height:1.35; cursor:pointer; }
-.cancelReasons label:has(input:checked) { border-color:var(--red,#ee3f29); background:#fff4ef; }
+.cancelReasons label { display:flex; align-items:center; gap:10px; min-height:48px; padding:11px 13px; border:1px solid #eee5d9; border-radius:14px; background:#fff; color:#415c4c; font-size:14px; font-weight:800; line-height:1.35; cursor:pointer; transition:border-color .15s,background .15s,transform .15s; }
+.cancelReasons label:hover { border-color:#d9c7ae; transform:translateY(-1px); }
+.cancelReasons label:has(input:checked) { border-color:var(--red,#ee3f29); background:#fff1ec; box-shadow:inset 0 0 0 1px rgb(238 63 41 / 12%); }
 .cancelReasons input { width:17px; height:17px; flex:0 0 17px; accent-color:var(--red,#ee3f29); }
 .cancelComment { display:grid; gap:7px; color:#536b5d; font-size:14px; font-weight:900; }
-.cancelComment textarea { width:100%; min-height:76px; padding:11px 13px; border:1px solid #e6dccd; border-radius:12px; background:#fff; color:#173c2d; resize:vertical; font-size:14px; }
+.cancelComment textarea { width:100%; min-height:76px; padding:12px 14px; border:1px solid #e6dccd; border-radius:13px; background:#fff; color:#173c2d; resize:none; font-size:14px; line-height:1.5; transition:border-color .18s,box-shadow .18s; }
+.cancelComment textarea:focus { border-color:var(--green,#073324); box-shadow:0 0 0 3px rgb(7 51 36 / 9%); outline:0; }
 .cancelDialogActions { display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
 .cancelDialogActions button { min-height:46px; border-radius:13px; font-size:14px; }
 .cancelSuccess { margin:14px 0 0; padding:13px 16px; border-radius:13px; background:#eaf3e7; color:#28553b; font-size:15px; font-weight:900; }
@@ -256,7 +266,8 @@
   .cancelDialogActions { grid-template-columns:1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .availabilityLoaderTrack span { animation:none; }
+  .availabilityLoaderTrack span,.successIcon,.successIcon path,.cancelOverlay,.cancelDialog { animation:none !important; }
+  .successIcon path { stroke-dashoffset:0; }
   .confirmButton,.primaryButton,.primarySmallButton,.secondaryButton,.secondarySmallButton { transition:none; }
 }
 
@@ -267,3 +278,107 @@
 
 .confirmationPage { max-width:1180px; }
 .detailTopActions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+
+
+/* Transaction screens: a complete viewport composition, without page scrolling. */
+.checkoutPage,.confirmationPage { display:flex; flex-direction:column; justify-content:center; min-height:calc(100svh - 82px); padding-block:clamp(10px,2vh,24px); }
+.checkoutPage .pageTop { margin-bottom:10px; }
+.checkoutPage .headingRow { margin-bottom:14px; }
+.checkoutPage .checkoutGrid { gap:20px; }
+.checkoutPage .checkoutMain { gap:12px; }
+.checkoutPage .productCard { min-height:112px; padding:17px 20px; }
+.checkoutPage .bagIllustration { width:78px; height:78px; font-size:40px; }
+.checkoutPage .panel { padding:16px 20px; }
+.checkoutPage .pickupRows { gap:10px; }
+.checkoutPage .summaryCard { padding:20px 22px; }
+.checkoutPage .summaryDivider { margin-block:11px 14px; }
+.checkoutPage .totalLine { margin-bottom:13px; }
+.checkoutPage .notice { margin-bottom:12px; padding:11px 13px; }
+.checkoutPage .terms { margin-top:8px; }
+.confirmationPage { gap:0; }
+.confirmationPage .successHeader { margin-bottom:16px; }
+.confirmationPage .successIcon { width:58px; height:58px; margin-bottom:8px; }
+.confirmationPage .confirmationGrid { gap:16px; }
+.confirmationPage .confirmationSummary { padding:18px 21px; }
+.confirmationPage .definitionList > div { padding:8px 0; }
+.confirmationPage .codeCard { min-height:0; padding:16px; gap:6px; }
+.confirmationPage .kulha-pickup-qr { width:min(100%,174px); }
+.confirmationPage .codeCard p { margin-top:4px; }
+.confirmationPage .actionRow { margin-top:14px; }
+@media (min-width:741px) and (min-height:700px) {
+  html:has(.checkoutPage),body:has(.checkoutPage),html:has(.confirmationPage),body:has(.confirmationPage) { height:100%; overflow:hidden; }
+  body:has(.checkoutPage) > main,body:has(.confirmationPage) > main { min-height:0; overflow:hidden; }
+  body:has(.checkoutPage) .site-footer,body:has(.confirmationPage) .site-footer { display:none; }
+}
+@media (max-width:740px) {
+  .checkoutPage,.confirmationPage { min-height:calc(100svh - 68px); padding-block:8px; }
+  .checkoutPage .pageTop { margin-bottom:5px; }
+  .checkoutPage .headingRow { margin-bottom:8px; }
+  .checkoutPage .headingRow h1 { font-size:clamp(25px,6vw,31px); }
+  .checkoutPage .checkoutGrid { grid-template-columns:minmax(0,1fr); gap:8px; }
+  .checkoutPage .checkoutMain { gap:7px; }
+  .checkoutPage .productCard { min-height:76px; padding:9px 12px; gap:10px; border-radius:16px; }
+  .checkoutPage .bagIllustration { width:54px; height:54px; border-radius:12px; font-size:29px; }
+  .checkoutPage .productInfo h2 { margin:3px 0 5px; font-size:17px; }
+  .checkoutPage .merchantName { font-size:12px; }
+  .checkoutPage .pill { padding:4px 9px; font-size:11px; }
+  .checkoutPage .productPrice { font-size:15px; }
+  .checkoutPage .panel { padding:9px 12px; border-radius:15px; }
+  .checkoutPage .sectionLabel { margin-bottom:6px; font-size:12px; }
+  .checkoutPage .stepper { gap:10px; }
+  .checkoutPage .stepper button { width:36px; height:36px; border-radius:10px; font-size:19px; }
+  .checkoutPage .stepper output { font-size:22px; }
+  .checkoutPage .quantityRow { gap:12px; }
+  .checkoutPage .quantityNote,.checkoutPage .quantityNote strong { font-size:12px; }
+  .checkoutPage .pickupRows { grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
+  .checkoutPage .pickupRow { display:grid; grid-template-columns:22px minmax(0,1fr); gap:5px; }
+  .checkoutPage .detailIcon { width:22px; height:22px; flex-basis:22px; font-size:18px; }
+  .checkoutPage .pickupRow strong { font-size:12px; }
+  .checkoutPage .pickupRow span:not(.detailIcon) { font-size:11.5px; line-height:1.25; }
+  .checkoutPage .pickupRow small { display:none; }
+  .checkoutPage .summaryCard { padding:10px 13px; border-radius:16px; }
+  .checkoutPage .summaryCard h2 { margin-bottom:5px; padding-bottom:5px; font-size:17px; }
+  .checkoutPage .summaryLine { padding:2px 0; font-size:12px; }
+  .checkoutPage .summaryDivider { margin:5px 0 7px; }
+  .checkoutPage .totalLine { margin-bottom:6px; }
+  .checkoutPage .totalLine strong { font-size:13px; }
+  .checkoutPage .totalLine b { font-size:20px; }
+  .checkoutPage .notice { margin-bottom:6px; padding:6px 9px; gap:7px; }
+  .checkoutPage .notice span { font-size:16px; }
+  .checkoutPage .notice p { font-size:11.5px; line-height:1.3; }
+  .checkoutPage .confirmButton { min-height:42px; font-size:14px; }
+  .checkoutPage .terms { margin-top:4px; font-size:10.5px; line-height:1.3; }
+  .confirmationPage { gap:0; }
+  .confirmationPage .successHeader { margin-bottom:9px; }
+  .confirmationPage .successIcon { width:46px; height:46px; margin-bottom:4px; }
+  .confirmationPage .successIcon svg { width:31px; height:31px; }
+  .confirmationPage .successHeader h1 { font-size:25px; }
+  .confirmationPage .successHeader p { font-size:12.5px; line-height:1.35; }
+  .confirmationPage .confirmationGrid { grid-template-columns:minmax(0,1fr); gap:8px; }
+  .confirmationPage .confirmationSummary { padding:10px 13px; border-radius:16px; }
+  .confirmationPage .confirmationProduct { gap:8px; padding-bottom:7px; }
+  .confirmationPage .smallBag { width:42px; height:42px; font-size:22px; }
+  .confirmationPage .confirmationProduct h2 { font-size:16px; }
+  .confirmationPage .confirmationProduct > div:nth-child(2) > span { font-size:11px; }
+  .confirmationPage .statusPill { padding:4px 8px; font-size:10px; }
+  .confirmationPage .definitionList > div { gap:10px; padding:4px 0; }
+  .confirmationPage .definitionList dt,.confirmationPage .definitionList dd { font-size:11.5px; line-height:1.3; }
+  .confirmationPage .codeCard { display:grid; grid-template-columns:minmax(0,1fr) auto; justify-items:center; align-items:center; padding:8px 12px; gap:3px 10px; }
+  .confirmationPage .codeCaption { grid-column:1/-1; margin:0; font-size:11px; }
+  .confirmationPage .kulha-pickup-qr { width:90px; max-height:90px; grid-row:2/4; grid-column:2; }
+  .confirmationPage .pickupCodeFallback { font-size:18px; }
+  .confirmationPage .codeCard p { grid-column:1/-1; max-width:none; margin:0; font-size:11px; line-height:1.25; }
+  .confirmationPage .actionRow { display:flex; gap:7px; margin-top:8px; }
+  .confirmationPage .actionRow a { width:auto; min-height:39px; padding-inline:12px; font-size:12px; }
+  .cancelDialog { padding:21px 17px; gap:12px; }
+  .cancelDialogHead strong { font-size:20px; }
+}
+@media (max-width:390px) {
+  .checkoutPage .pickupRows { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .checkoutPage .pickupRow { grid-template-columns:1fr; }
+  .checkoutPage .pickupRow span:not(.detailIcon) { overflow-wrap:anywhere; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .successIcon,.successIcon path,.cancelOverlay,.cancelDialog { animation:none !important; }
+  .successIcon path { stroke-dashoffset:0; }
+}
