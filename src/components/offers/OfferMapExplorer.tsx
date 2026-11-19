@@ -688,6 +688,9 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
     locateMeRef.current = locateMe;
 
     async function locateUnpinnedStore(candidate: OfferMapStoreCandidate): Promise<OfferMapStore | null> {
+        // A deliberate shop selection takes camera control away from GPS follow mode.
+        setFollowing(false);
+        setUserZoom(15);
         setMessage("");
         try {
             const location = await geocodePublicShop({
@@ -734,6 +737,8 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
         if (requestedMode) setRouteMode(requestedMode);
         const sameTrip = routeStoreKey === store.key && routeOrigin !== null && routeDestination !== null;
         const hasPreviousRoute = sameTrip && route !== null;
+        setFollowing(false);
+        setUserZoom(15);
         setSelectedKey(store.key);
         setCenter(destination);
         setMobileView("map");
@@ -804,6 +809,10 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
 
     async function showOfferOnMap(offer: PublicOffer) {
         clearRoute();
+        // Explicitly focus the selected merchant, even if "Locate me" was active.
+        // Otherwise GPS watch updates keep pulling the camera back to the customer.
+        setFollowing(false);
+        setUserZoom(15);
         setSelectedOfferId(offer.id);
         const store = stores.find((item) => item.offers.some((candidate) => candidate.id === offer.id));
         if (store) {
@@ -960,7 +969,7 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
                             selectedStoreKey={selectedEntry && "latitude" in selectedEntry ? selectedEntry.key : null}
                             route={route}
                             onPreviewStore={previewStore}
-                            onSelectStore={(store) => { clearRoute(); setSelectedOfferId(null); setSelectedKey(store.key); setMobileView("map"); }}
+                            onSelectStore={(store) => { clearRoute(); setFollowing(false); setSelectedOfferId(null); setSelectedKey(store.key); setMobileView("map"); }}
                             zoomLabel={t.mapZoom}
                             mapLoadingLabel={t.mapLoading}
                             zoomInLabel={t.mapZoomIn}
