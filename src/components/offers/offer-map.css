@@ -3,7 +3,7 @@
 .km {
   --km-cream: #fcf3e6; --km-ink: #06331f; --km-muted: #526757; --km-line: #e8dfcd;
   --km-card: #fffdf8; --km-yellow: #fdb827;
-  display: grid; grid-template-rows: auto minmax(0, 1fr); height: calc(100dvh - var(--kulha-header-h, 76px)); min-height: 409px;
+  display: grid; grid-template-rows: auto minmax(0, 1fr); width: 100%; height: 100%; min-height: 0;
   background: var(--km-cream); color: var(--km-ink);
 }
 .km *, .km *::before, .km *::after { box-sizing: border-box; }
