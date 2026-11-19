@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groupOffersIntoMapStores, groupOffersWithoutCoordinates, initialMapZoom, scoreMapOffer } from "./map-ranking";
+import { groupOffersIntoMapStores, groupOffersWithoutCoordinates, initialMapZoom, MAP_STORE_AVATAR_MIN_ZOOM, MAP_STORE_CLUSTER_MAX_ZOOM, scoreMapOffer, shouldShowMapStoreAvatars } from "./map-ranking";
 import type { PublicOffer } from "./public-api";
 
 const now = Date.parse("2026-11-08T12:00:00Z");
@@ -115,5 +115,21 @@ describe("offer map initial viewport", () => {
 
   it("uses the close-up default for a single store", () => {
     expect(initialMapZoom([{ latitude: 33.5890, longitude: -7.6200 }])).toBe(14);
+  });
+});
+
+
+describe("map store avatar visibility", () => {
+  it("switches from clusters to individual shop avatars at city zoom", () => {
+    expect(MAP_STORE_CLUSTER_MAX_ZOOM).toBe(9);
+    expect(MAP_STORE_AVATAR_MIN_ZOOM).toBe(10);
+    expect(shouldShowMapStoreAvatars(9.99)).toBe(false);
+    expect(shouldShowMapStoreAvatars(10)).toBe(true);
+    expect(shouldShowMapStoreAvatars(14)).toBe(true);
+  });
+
+  it("does not show individual avatars for an invalid zoom", () => {
+    expect(shouldShowMapStoreAvatars(Number.NaN)).toBe(false);
+    expect(shouldShowMapStoreAvatars(Number.POSITIVE_INFINITY)).toBe(false);
   });
 });
