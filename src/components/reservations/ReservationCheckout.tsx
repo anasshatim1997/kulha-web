@@ -21,6 +21,27 @@ function ErrorState({ text, onRetry, retry }: { text: string; onRetry?: () => vo
   return <section className={styles.stateCard} role="alert"><p>{text}</p>{onRetry && <button className={styles.secondaryButton} type="button" onClick={onRetry}>{retry}</button>}</section>;
 }
 
+
+function AvailabilityLoading({ label }: { label: string }) {
+  return (
+    <section className={styles.availabilityLoading} role="status" aria-live="polite">
+      <div className={styles.availabilityLoaderMark} aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none">
+          <path d="M13 17h22l-2 24H15l-2-24Z" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" />
+          <path d="M18 17v-4a6 6 0 0 1 12 0v4" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+          <path d="M24 24c-4 1-6 4-6 8 4 0 7-2 8-6 1 3 3 4 6 4 0-4-3-6-8-6Z" fill="#ee3f29" />
+        </svg>
+        <span />
+      </div>
+      <div className={styles.availabilityLoaderCopy}>
+        <strong className={styles.availabilityBrandWord}>KULHA<span>!</span></strong>
+        <p>{label}</p>
+        <div className={styles.availabilityLoaderTrack} aria-hidden="true"><span /></div>
+      </div>
+    </section>
+  );
+}
+
 export function ReservationCheckout({ offerId, locale }: { offerId: string; locale: SiteLocale }) {
   const t = reservationCopy(locale);
   const { state } = useSession();
@@ -101,17 +122,17 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
   const available = Boolean(availability && availability.slots.length > 0 && total !== null && total !== undefined);
 
   if (state.status === "loading") {
-    return <div className={styles.page} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><div className={styles.stateCard} aria-live="polite">{t.loading}</div></div>;
+    return <div className={styles.page + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><AvailabilityLoading label={t.loading} /></div>;
   }
   if (!accountReady) {
-    return <div className={styles.page} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><ErrorState text={t.session} retry={t.retry} /><Link className={styles.primaryButton} href={localePath(locale, "/login")}>{locale === "ar" ? "تسجيل الدخول" : locale === "en" ? "Sign in" : "Se connecter"}</Link></div>;
+    return <div className={styles.page + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><ErrorState text={t.session} retry={t.retry} /><Link className={styles.primaryButton} href={localePath(locale, "/login")}>{locale === "ar" ? "تسجيل الدخول" : locale === "en" ? "Sign in" : "Se connecter"}</Link></div>;
   }
   if (!authenticated) {
-    return <div className={styles.page} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><ErrorState text={t.forbidden} retry={t.retry} /></div>;
+    return <div className={styles.page + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><ErrorState text={t.forbidden} retry={t.retry} /></div>;
   }
   const backHref = localePath(locale, "/offers/" + encodeURIComponent(offerId));
   return (
-    <div className={styles.page} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
+    <div className={styles.page + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
       <div className={styles.pageTop}>
         <Link className={styles.backLink} href={backHref}><span aria-hidden="true">‹</span>{t.back}</Link>
       </div>
