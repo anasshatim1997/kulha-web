@@ -311,7 +311,10 @@
   body:has(.checkoutPage) .site-footer,body:has(.confirmationPage) .site-footer { display:none; }
 }
 @media (max-width:740px) {
-  .checkoutPage,.confirmationPage { min-height:calc(100svh - 68px); padding-block:8px; }
+  html:has(.checkoutPage),body:has(.checkoutPage),html:has(.confirmationPage),body:has(.confirmationPage) { height:100%; overflow:hidden; }
+  body:has(.checkoutPage) > main,body:has(.confirmationPage) > main { min-height:0; overflow:hidden; }
+  body:has(.checkoutPage) .site-footer,body:has(.confirmationPage) .site-footer { display:none; }
+  .checkoutPage,.confirmationPage { min-height:calc(100svh - 68px); height:calc(100svh - 68px); padding-block:8px; overflow:hidden; }
   .checkoutPage .pageTop { margin-bottom:5px; }
   .checkoutPage .headingRow { margin-bottom:8px; }
   .checkoutPage .headingRow h1 { font-size:clamp(25px,6vw,31px); }
