@@ -45,6 +45,20 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
   }
 
   useEffect(() => {
+    if (!confirmCancel) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !cancelling) setConfirmCancel(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [confirmCancel, cancelling]);
+
+  useEffect(() => {
     let active = true;
     api.get<Reservation>("/reservations/" + encodeURIComponent(reference))
       .then((value) => { if (active) setReservation(value); })
@@ -89,7 +103,15 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
 
   return (
     <div className={styles.page} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} data-classification={reservation.classification.toLowerCase()}>
-      <div className={styles.pageTop}><Link className={styles.backLink} href={localePath(locale, "/reservations")}><span aria-hidden="true">‹</span>{t.backToReservations}</Link><span className={styles.statusPill}>{reservation.statusLabel}</span></div>
+      <div className={styles.pageTop}>
+        <Link className={styles.backLink} href={localePath(locale, "/reservations")}><span aria-hidden="true">‹</span>{t.backToReservations}</Link>
+        <div className={styles.detailTopActions}>
+          <span className={styles.statusPill}>{reservation.statusLabel}</span>
+          {isUpcoming && reservation.canCancel && (
+            <button className={styles.dangerButton} type="button" onClick={() => setConfirmCancel(true)}>{t.cancelReservation}</button>
+          )}
+        </div>
+      </div>
       <header className={styles.listHeader}>
         <h1>{isUpcoming ? t.upcomingTitle : t.pastTitle}</h1>
         <p>{reservation.reference}</p>
@@ -104,11 +126,9 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
           </div>
           <dl className={styles.definitionList}>
             <div><dt>{t.reference}</dt><dd>{reservation.reference}</dd></div>
-            <div><dt>{t.basketLabel}</dt><dd>{reservation.offerTitle} × {reservation.quantity}</dd></div>
-            <div><dt>{t.merchant}</dt><dd>{reservation.merchantName}</dd></div>
             <div><dt>{t.pickupWindow}</dt><dd>{formatPickupWindow(reservation.pickupStart, reservation.pickupEnd, locale)}</dd></div>
             <div><dt>{t.address}</dt><dd>{address}</dd></div>
-            <div><dt>{t.unitPrice}</dt><dd>{money(reservation.unitPriceMinor, locale)}</dd></div>
+            <div><dt>{t.quantityLabel}</dt><dd>× {reservation.quantity}</dd></div>
             <div><dt>{t.totalPrice}</dt><dd>{money(reservation.totalPriceMinor, locale)}</dd></div>
           </dl>
         </section>
@@ -120,58 +140,52 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
               {reservation.pickupQrPayload && <ReservationQrCode payload={reservation.pickupQrPayload} label={t.pickupCode} />}
               <strong className={styles.pickupCodeFallback}>{reservation.pickupCode}</strong>
             </> : <strong className={styles.statusPill}>{reservation.statusLabel}</strong>}
-            <p>{reservation.pickupInstructions}</p>
-          </section>
-          <section className={styles.instructionCard}>
-            <h2>{t.pickupInstructions}</h2>
             <p>{reservation.merchantPickupInstructions || reservation.pickupInstructions}</p>
           </section>
         </aside>
       </div>
 
       {reservation.status === "CANCELLED" && <p className={styles.cancelSuccess} role="status">{t.cancelSuccess}</p>}
-      <div className={styles.detailFooter}>
-        {isUpcoming && reservation.canCancel && (
-          <div className={styles.cancelArea}>
-            {!confirmCancel ? (
-              <button className={styles.dangerButton} type="button" onClick={() => setConfirmCancel(true)}>{t.cancelReservation}</button>
-            ) : (
-              <section className={styles.cancelDialog} role="dialog" aria-modal="false" aria-labelledby="cancel-reason-title">
-                <div className={styles.cancelDialogHead}>
-                  <div><strong id="cancel-reason-title">{t.cancelReasonTitle}</strong><p>{t.cancelReasonNote}</p></div>
-                  <button type="button" className={styles.cancelDialogClose} aria-label={t.keepReservation} onClick={() => setConfirmCancel(false)}>×</button>
-                </div>
-                <fieldset className={styles.cancelReasons}>
-                  <legend>{t.cancelReasonQuestion}</legend>
-                  {[
-                    ["NOT_SPECIFIED", t.reasonPreferNot],
-                    ["PICKUP_TIME", t.reasonPickupTime],
-                    ["TOO_FAR", t.reasonTooFar],
-                    ["CHANGED_MIND", t.reasonChangedMind],
-                    ["FOUND_ALTERNATIVE", t.reasonFoundAlternative],
-                    ["OFFER_EXPECTATION", t.reasonOfferExpectation],
-                    ["BOOKED_BY_MISTAKE", t.reasonMistake],
-                    ["OTHER", t.reasonOther],
-                  ].map(([code, label]) => (
-                    <label key={code}>
-                      <input type="radio" name="cancel-reason" value={code} checked={cancelReason === code} onChange={() => setCancelReason(code)} />
-                      <span>{label}</span>
-                    </label>
-                  ))}
-                </fieldset>
-                <label className={styles.cancelComment}>
-                  <span>{t.cancelComment}</span>
-                  <textarea value={cancelComment} onChange={(event) => setCancelComment(event.target.value.slice(0, 500))} maxLength={500} rows={2} placeholder={t.cancelCommentPlaceholder} />
+      {confirmCancel && (
+        <div className={styles.cancelOverlay} role="presentation" onMouseDown={(event) => {
+          if (event.target === event.currentTarget && !cancelling) setConfirmCancel(false);
+        }}>
+          <section className={styles.cancelDialog} role="dialog" aria-modal="true" aria-labelledby="cancel-reason-title">
+            <div className={styles.cancelDialogHead}>
+              <div><strong id="cancel-reason-title">{t.cancelReasonTitle}</strong><p>{t.cancelReasonNote}</p></div>
+              <button type="button" className={styles.cancelDialogClose} aria-label={t.keepReservation} onClick={() => setConfirmCancel(false)}>×</button>
+            </div>
+            <fieldset className={styles.cancelReasons}>
+              <legend>{t.cancelReasonQuestion}</legend>
+              {[
+                ["NOT_SPECIFIED", t.reasonPreferNot],
+                ["PICKUP_TIME", t.reasonPickupTime],
+                ["TOO_FAR", t.reasonTooFar],
+                ["CHANGED_MIND", t.reasonChangedMind],
+                ["FOUND_ALTERNATIVE", t.reasonFoundAlternative],
+                ["OFFER_EXPECTATION", t.reasonOfferExpectation],
+                ["BOOKED_BY_MISTAKE", t.reasonMistake],
+                ["OTHER", t.reasonOther],
+              ].map(([code, label]) => (
+                <label key={code}>
+                  <input type="radio" name="cancel-reason" value={code} checked={cancelReason === code} onChange={() => setCancelReason(code)} />
+                  <span>{label}</span>
                 </label>
-                {cancelError && <p className={styles.formError} role="alert">{cancelError}</p>}
-                <div className={styles.cancelDialogActions}>
-                  <button className={styles.secondaryButton} type="button" disabled={cancelling} onClick={() => setConfirmCancel(false)}>{t.keepReservation}</button>
-                  <button className={styles.dangerButton} type="button" disabled={cancelling} onClick={() => void cancelReservation()}>{cancelling ? t.cancelling : t.confirmCancel}</button>
-                </div>
-              </section>
-            )}
-          </div>
-        )}
+              ))}
+            </fieldset>
+            <label className={styles.cancelComment}>
+              <span>{t.cancelComment}</span>
+              <textarea value={cancelComment} onChange={(event) => setCancelComment(event.target.value.slice(0, 500))} maxLength={500} rows={2} placeholder={t.cancelCommentPlaceholder} />
+            </label>
+            {cancelError && <p className={styles.formError} role="alert">{cancelError}</p>}
+            <div className={styles.cancelDialogActions}>
+              <button className={styles.secondaryButton} type="button" disabled={cancelling} onClick={() => setConfirmCancel(false)}>{t.keepReservation}</button>
+              <button className={styles.dangerButton} type="button" disabled={cancelling} onClick={() => void cancelReservation()}>{cancelling ? t.cancelling : t.confirmCancel}</button>
+            </div>
+          </section>
+        </div>
+      )}
+      <div className={styles.detailFooter}>
         <a className={styles.secondaryButton} href={directions} target="_blank" rel="noreferrer">{t.directions}</a>
         <Link className={styles.primaryButton} href={localePath(locale, "/reservations")}>{t.backToReservations}</Link>
       </div>
