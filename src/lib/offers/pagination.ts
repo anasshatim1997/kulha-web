@@ -26,7 +26,7 @@ export function offerPageNumbers(currentPage: number, totalPages: number, maxVis
 
   const radius = Math.floor(width / 2);
   let start = Math.max(1, current - radius);
-  let end = Math.min(total - 2, start + width - 1);
+  const end = Math.min(total - 2, start + width - 1);
   start = Math.max(1, end - width + 1);
   const pages: OfferPageNumber[] = [0];
   if (start > 1) pages.push("ellipsis");
