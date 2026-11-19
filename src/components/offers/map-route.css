@@ -113,19 +113,82 @@
 @media (max-width: 760px) { .kulha-route-sheet { inset-inline: 10px; bottom: 10px; width: auto; } }
 
 
-/* The shared marketplace filter sheet stays anchored to the map route. */
-.km-topbar .kulha-filter-shell { position: relative; flex: 0 0 auto; margin-inline-start: auto; }
-.km-topbar .kulha-filter-toggle {
-  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-  min-height: 34px; padding: 0 16px; border: 1px solid var(--km-line);
-  border-radius: 999px; background: var(--km-card); color: var(--km-ink);
-  font-size: 11px; font-weight: 850; white-space: nowrap;
+/* Map toolbar filter control: keep the button and its SVG bounded inside the map route. */
+.km-topbar .kulha-filter-shell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  width: max-content;
+  max-width: 100%;
+  min-width: 0;
+  margin-inline-start: auto;
 }
-.km-topbar .kulha-filter-toggle:hover { background: #f4efe3; }
-.km-topbar .kulha-filter-expanded { z-index: 30; }
-.km-topbar .kulha-filter-backdrop { z-index: 29; }
+
+.km-topbar .kulha-filter-toggle {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: max-content !important;
+  max-width: 100%;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px;
+  box-sizing: border-box;
+  padding: 0 16px;
+  border: 1px solid var(--km-line);
+  border-radius: 999px;
+  background: var(--km-card);
+  color: var(--km-ink);
+  font-size: 11px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.km-topbar .kulha-filter-toggle > svg {
+  display: block;
+  flex: 0 0 16px;
+  width: 16px !important;
+  min-width: 16px;
+  max-width: 16px;
+  height: 16px !important;
+  min-height: 16px;
+  max-height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.km-topbar .kulha-filter-toggle:hover {
+  background: #f4efe3;
+}
+
+.km-topbar .kulha-filter-expanded {
+  z-index: 30;
+}
+
+.km-topbar .kulha-filter-backdrop {
+  z-index: 29;
+}
+
 @media (max-width: 760px) {
-  .km-topbar { flex-wrap: wrap; gap: 7px; padding: 10px 12px; }
-  .km-topbar .km-search { order: 3; flex: 1 1 100%; max-width: none; }
-  .km-topbar .kulha-filter-shell { margin-inline-start: 0; }
+  .km-topbar {
+    flex-wrap: wrap;
+    gap: 7px;
+    padding: 10px 12px;
+  }
+
+  .km-topbar .km-search {
+    order: 3;
+    flex: 1 1 100%;
+    max-width: none;
+  }
+
+  .km-topbar .kulha-filter-shell {
+    margin-inline-start: 0;
+  }
 }
