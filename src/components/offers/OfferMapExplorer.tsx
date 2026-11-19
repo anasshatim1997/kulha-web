@@ -308,8 +308,8 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
         ?? null
         : null;
     const mapZoom = useMemo(
-        () => focusOffer ? 15 : initialMapZoom(stores),
-        [stores, focusOffer],
+        () => focusOffer ? 15 : values.city ? initialMapZoom(stores) : 6.5,
+        [stores, focusOffer, values.city],
     );
 
     // Re-seed the map whenever the server-provided offers, the focused offer or the city change.
@@ -330,7 +330,9 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
         setSelectedKey(firstStore?.key ?? nextUnlocated[0]?.key ?? null);
         const initialPosition = focusedStore
             ? { latitude: focusedStore.latitude, longitude: focusedStore.longitude }
-            : averageMapCoordinate(nextStores);
+            : values.city
+                ? averageMapCoordinate(nextStores)
+                : MOROCCO_CENTER;
         setCenter(initialPosition ?? cityCenter(focusOffer?.merchant.city ?? values.city));
     }
 
@@ -502,12 +504,8 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
                 : nextStores[0]?.key ?? nextUnlocated[0]?.key ?? null,
         );
 
-        // Re-centre only while the person has not explicitly chosen their own
-        // location or focused a particular offer.
-        const catalogueCenter = averageMapCoordinate(nextStores);
-        if (catalogueCenter && !userLocationRef.current && !focusOffer) {
-            setCenter(catalogueCenter);
-        }
+        // Keep the user's initial city or national camera stable while later
+        // catalogue pages arrive; only the store data changes in the background.
         if (hadPageFailure) setMessage(t.mapServiceError);
     }
 
