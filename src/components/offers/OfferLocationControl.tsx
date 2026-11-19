@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import type { OfferSearch } from "@/lib/offers/public-api";
 import { publicOfferCopy } from "@/lib/offers/public-copy";
@@ -10,9 +10,6 @@ import { useOfferNearby } from "@/components/offers/OfferNearbyContext";
 
 type LocationState = "idle" | "loading" | "error";
 type ReverseLocation = { label?: string };
-type SavedLocation = { latitude: number; longitude: number; label: string; savedAt: number };
-const SAVED_LOCATION_KEY = "kulha:approved-location:v1";
-const LOCATION_MAX_AGE = 30 * 24 * 60 * 60 * 1000;
 
 function getCurrentPosition(): Promise<GeolocationPosition> {
   return new Promise((resolve, reject) => {
@@ -42,7 +39,6 @@ function getErrorMessage(error: unknown, copy: ReturnType<typeof publicOfferCopy
 
 export function OfferLocationControl({ locale, values }: { locale: SiteLocale; values: OfferSearch }) {
   const copy = publicOfferCopy(locale);
-  const restoreSnapshotRef = useRef({ values, copy });
   const { setResults } = useOfferNearby();
   const [state, setState] = useState<LocationState>("idle");
   const areaLabel = offerAreaLabel(locale, values);
@@ -51,7 +47,7 @@ export function OfferLocationControl({ locale, values }: { locale: SiteLocale; v
   const locationLabel = geoLabel ?? areaLabel ?? copy.nearMeLabel;
   const [message, setMessage] = useState("");
 
-  async function loadLocation(latitude: number, longitude: number, existingLabel?: string) {
+  async function loadLocation(latitude: number, longitude: number) {
     const requestedSize = Number(values.size ?? 20);
     const nearbySize = Number.isInteger(requestedSize) && requestedSize > 0 ? Math.min(requestedSize, 50) : 20;
     const nearbyRequest = searchNearbyOffers({
@@ -65,7 +61,7 @@ export function OfferLocationControl({ locale, values }: { locale: SiteLocale; v
       ...(values.district ? { district: values.district } : {}),
       availableOnly: values.availableOnly !== "false", page: 0, size: nearbySize,
     });
-    const reverseRequest = existingLabel ? Promise.resolve({ label: existingLabel }) : fetch("/api/bff/map/reverse-geocode", {
+    const reverseRequest = fetch("/api/bff/map/reverse-geocode", {
       method: "POST", cache: "no-store", credentials: "same-origin",
       headers: { Accept: "application/json", "Content-Type": "application/json" },
       body: JSON.stringify({ latitude, longitude, locale }),
@@ -75,72 +71,11 @@ export function OfferLocationControl({ locale, values }: { locale: SiteLocale; v
       return await response.json() as ReverseLocation;
     });
     const [nearbyResult, locationResult] = await Promise.allSettled([nearbyRequest, reverseRequest]);
-    const label = locationResult.status === "fulfilled" && locationResult.value.label ? locationResult.value.label : existingLabel ?? copy.nearMeLabel;
+    const label = locationResult.status === "fulfilled" && locationResult.value.label ? locationResult.value.label : copy.nearMeLabel;
     setLocationLabel(label);
-    // Persist the visitor-approved location even if the offers endpoint is temporarily unavailable.
-    try {
-      window.localStorage.setItem(SAVED_LOCATION_KEY, JSON.stringify({ latitude, longitude, label, savedAt: Date.now() } satisfies SavedLocation));
-    } catch { /* Storage can be unavailable in private browsing; the current session still works. */ }
     if (nearbyResult.status === "rejected") throw nearbyResult.reason;
     setResults(nearbyResult.value);
   }
-
-  // A visitor who already granted permission should not have to repeat the action after a reload.
-    useEffect(() => {
-        let cancelled = false;
-
-        try {
-            const raw = window.localStorage.getItem(SAVED_LOCATION_KEY);
-            if (!raw) return;
-
-            const saved = JSON.parse(raw) as SavedLocation;
-
-            if (
-                !Number.isFinite(saved.latitude) ||
-                !Number.isFinite(saved.longitude) ||
-                !saved.savedAt ||
-                Date.now() - saved.savedAt > LOCATION_MAX_AGE
-            ) {
-                window.localStorage.removeItem(SAVED_LOCATION_KEY);
-                return;
-            }
-
-            const snapshot = restoreSnapshotRef.current;
-            const savedLabel = saved.label || snapshot.copy.nearMeLabel;
-            const savedValues = snapshot.values;
-
-            void searchNearbyOffers({
-                latitude: saved.latitude,
-                longitude: saved.longitude,
-                radiusMeters: 5000,
-                ...(savedValues.q ? { q: savedValues.q } : {}),
-                ...(savedValues.category ? { category: savedValues.category } : {}),
-                ...(savedValues.maxPriceMinor ? { maxPriceMinor: Number(savedValues.maxPriceMinor) } : {}),
-                ...(savedValues.pickupFrom ? { pickupFrom: savedValues.pickupFrom } : {}),
-                ...(savedValues.pickupTo ? { pickupTo: savedValues.pickupTo } : {}),
-                ...(savedValues.city ? { city: savedValues.city } : {}),
-                ...(savedValues.district ? { district: savedValues.district } : {}),
-                availableOnly: savedValues.availableOnly !== "false",
-                page: 0,
-                size: Math.min(Math.max(Number(savedValues.size ?? 20), 1), 50),
-            }).then((page) => {
-                if (cancelled) return;
-
-                setLocationLabel(savedLabel);
-                setResults(page);
-            }).catch(() => {
-                if (cancelled) return;
-
-                setLocationLabel(savedLabel);
-                setMessage(snapshot.copy.nearbyServiceError);
-            });
-        } catch {
-        }
-
-        return () => {
-            cancelled = true;
-        };
-    }, [setResults]);
 
   async function locate() {
     setState("loading");
