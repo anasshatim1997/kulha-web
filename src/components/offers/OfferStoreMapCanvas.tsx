@@ -731,6 +731,32 @@ export function OfferStoreMapCanvas({
                     initialLoadEventReceived = true;
                 });
 
+                const handleClusterClick = (event: import("maplibre-gl").MapLayerMouseEvent) => {
+                    const feature = event.features?.[0];
+                    const clusterId = Number(feature?.properties?.cluster_id);
+                    if (!feature || !Number.isFinite(clusterId) || feature.geometry.type !== "Point") return;
+
+                    const point = feature.geometry.coordinates as [number, number];
+                    const clusterSource = map?.getSource("kulha-store-clusters") as GeoJSONSource | undefined;
+                    if (!clusterSource || !map) return;
+                    void clusterSource.getClusterExpansionZoom(clusterId).then((zoom) => {
+                        if (!disposed) map?.easeTo({ center: point, zoom, duration: 450 });
+                    }).catch(() => {});
+                };
+
+                const handleSingleStoreClick = (event: import("maplibre-gl").MapLayerMouseEvent) => {
+                    const key = String(event.features?.[0]?.properties?.storeKey ?? "");
+                    const store = storesRef.current.find((candidate) => candidate.key === key);
+                    if (store) onSelectStoreRef.current(store);
+                };
+
+                const setPointerCursor = () => {
+                    if (map) map.getCanvas().style.cursor = "pointer";
+                };
+                const resetPointerCursor = () => {
+                    if (map) map.getCanvas().style.cursor = "";
+                };
+
                 const installStoreLayers = () => {
                     if (!map || disposed || !map.isStyleLoaded()) return;
 
@@ -811,25 +837,6 @@ export function OfferStoreMapCanvas({
                     const source = map.getSource("kulha-store-clusters") as GeoJSONSource | undefined;
                     source?.setData(storeFeatureCollection(storesRef.current));
 
-                    const handleClusterClick = (event: import("maplibre-gl").MapLayerMouseEvent) => {
-                        const feature = event.features?.[0];
-                        const clusterId = Number(feature?.properties?.cluster_id);
-                        if (!feature || !Number.isFinite(clusterId) || feature.geometry.type !== "Point") return;
-
-                        const point = feature.geometry.coordinates as [number, number];
-                        const clusterSource = map!.getSource("kulha-store-clusters") as GeoJSONSource | undefined;
-                        if (!clusterSource) return;
-                        void clusterSource.getClusterExpansionZoom(clusterId).then((zoom) => {
-                            if (!disposed) map!.easeTo({ center: point, zoom, duration: 450 });
-                        }).catch(() => {});
-                    };
-
-                    const handleSingleStoreClick = (event: import("maplibre-gl").MapLayerMouseEvent) => {
-                        const key = String(event.features?.[0]?.properties?.storeKey ?? "");
-                        const store = storesRef.current.find((candidate) => candidate.key === key);
-                        if (store) onSelectStoreRef.current(store);
-                    };
-
                     map.off("click", "kulha-store-cluster-circles", handleClusterClick);
                     map.on("click", "kulha-store-cluster-circles", handleClusterClick);
                     map.off("click", "kulha-store-single-points", handleSingleStoreClick);
@@ -843,13 +850,6 @@ export function OfferStoreMapCanvas({
                     map.on("mouseenter", "kulha-store-single-points", setPointerCursor);
                     map.off("mouseleave", "kulha-store-single-points", resetPointerCursor);
                     map.on("mouseleave", "kulha-store-single-points", resetPointerCursor);
-                };
-
-                const setPointerCursor = () => {
-                    if (map) map.getCanvas().style.cursor = "pointer";
-                };
-                const resetPointerCursor = () => {
-                    if (map) map.getCanvas().style.cursor = "";
                 };
 
                 map.on("style.load", () => {
