@@ -6,7 +6,11 @@ import type { GeoJSONSource, Map as MapLibreMap, Marker as MapLibreMarker, Popup
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { getMadDiscountPercent, getMadPriceDisplayParts } from "@/lib/offers/price-display";
 import { offerCategoryLabel } from "@/lib/offers/public-copy";
-import { MAP_STORE_AVATAR_MIN_ZOOM, MAP_STORE_CLUSTER_MAX_ZOOM, shouldShowMapStoreAvatars } from "@/lib/offers/map-ranking";
+import {
+    MAP_STORE_AVATAR_MIN_ZOOM,
+    MAP_STORE_CLUSTER_MAX_ZOOM,
+    shouldShowMapStoreAvatars,
+} from "@/lib/offers/map-ranking";
 import type { MapCoordinate, OfferMapStore } from "@/lib/offers/map-ranking";
 import type { DrivingRoute } from "@/lib/offers/nearby-client";
 import { buildGoogleMapsDirectionsUrl } from "@/lib/maps/google-directions";
