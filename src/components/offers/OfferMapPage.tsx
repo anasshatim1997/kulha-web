@@ -32,7 +32,7 @@ export async function OfferMapPage({ locale, params }: { locale: SiteLocale; par
   values.city = values.city ?? focusOffer?.merchant.city;
   values.page = "0";
   values.size = "50";
-  values.availableOnly = "true";
+  values.availableOnly = values.availableOnly ?? "true";
   if (focusOffer) {
     values.city = focusOffer.merchant.city;
     values.district = focusOffer.merchant.district ?? undefined;
@@ -62,6 +62,7 @@ export async function OfferMapPage({ locale, params }: { locale: SiteLocale; par
         backHref={returnHref}
         initialLoadFailed={loaded.failed}
         initialTotal={loaded.total}
+        initialFiltersOpen={first(params.filters) === "open"}
       />
     </div>
   );

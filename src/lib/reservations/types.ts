@@ -32,6 +32,7 @@ export type Reservation = {
   pickupStart: string;
   pickupEnd: string;
   pickupCode: string;
+  pickupQrPayload: string | null;
   quantity: number;
   unitPriceMinor: number;
   totalPriceMinor: number;

@@ -135,8 +135,9 @@ describe("public offer list page", () => {
         listPublicOffersMock.mockResolvedValue({ ...offerPage, page: 0, size: 1, total: 2 });
         const page = await OfferListPage({ locale: "fr", params: { city: "Casablanca", page: "0", size: "1" } });
         const html = renderToStaticMarkup(page);
-        expect(html).toContain("Page 1 / 2");
-        expect(html).toContain("Suivant");
+        expect(html).toContain("Affichage de 1 sur 2 paniers");
+        expect(html).toContain("Voir plus de paniers");
+        expect(html).not.toContain('class="kulha-pagination"');
         expect(html).toContain("city=Casablanca");
         expect(html).toContain("page=1");
     });

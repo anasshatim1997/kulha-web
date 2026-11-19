@@ -9,6 +9,7 @@ import { api } from "@/lib/api/client";
 import { useSession } from "@/components/session/SessionProvider";
 import { formatPickupWindow } from "@/lib/offers/format";
 import type { Reservation } from "@/lib/reservations/types";
+import { ReservationQrCode } from "@/components/reservations/ReservationQrCode";
 import styles from "./ReservationScreens.module.css";
 
 function money(minor: number, locale: SiteLocale): string {
@@ -91,19 +92,13 @@ export function ReservationConfirmation({ reference, locale }: { reference: stri
 
         <section className={styles.codeCard} aria-label={t.pickupCode}>
           <span className={styles.codeCaption}>{t.pickupCode}</span>
-          <strong className={styles.pickupCode}>{reservation.pickupCode}</strong>
+          {reservation.pickupQrPayload
+            ? <ReservationQrCode payload={reservation.pickupQrPayload} label={t.pickupCode} />
+            : <strong className={styles.pickupCodeFallback}>{reservation.pickupCode}</strong>}
+          <strong className={styles.pickupCodeFallback}>{reservation.pickupCode}</strong>
           <p>{reservation.pickupInstructions}</p>
         </section>
       </div>
-
-      <section className={styles.nextCard}>
-        <h2>{t.next}</h2>
-        <div className={styles.nextSteps}>
-          <div><b>1</b><div><strong>{t.goShop}</strong><span>{t.goShopBody}</span></div></div>
-          <div><b>2</b><div><strong>{t.showCode}</strong><span>{t.showCodeBody}</span></div></div>
-          <div><b>3</b><div><strong>{t.payCollect}</strong><span>{t.payCollectBody}</span></div></div>
-        </div>
-      </section>
 
       <div className={styles.actionRow}>
         <Link className={styles.primaryButton} href={detailHref}>{t.viewReservation}</Link>

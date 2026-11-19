@@ -16,6 +16,8 @@ import "@/components/offers/map-route.css";
 import "@/components/offers/offer-map.css";
 import { merchantInitials } from "@/lib/offers/merchant-initials";
 import { PriceSticker } from "@/components/ui/PriceSticker";
+import { OfferFilterBar } from "@/components/offers/OfferFilterBar";
+import { getCasablancaQuickPickupRanges } from "@/lib/time/casablanca";
 
 const CASABLANCA_CENTER: MapCoordinate = { latitude: 33.5731, longitude: -7.5898 };
 const MOROCCO_CENTER: MapCoordinate = { latitude: 31.7917, longitude: -7.0926 };
@@ -28,6 +30,7 @@ type Props = {
     backHref: string;
     initialLoadFailed?: boolean;
     initialTotal?: number;
+    initialFiltersOpen?: boolean;
 };
 
 type Position = MapCoordinate;
@@ -211,7 +214,7 @@ function MapIcon({ name }: { name: "back" | "search" | "bag" | "locate" | "nav" 
     return <svg className="km-icon" viewBox="0 0 24 24" aria-hidden="true">{paths[name]}</svg>;
 }
 
-export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = null, backHref, initialLoadFailed = false, initialTotal = initialOffers.length }: Props) {
+export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = null, backHref, initialLoadFailed = false, initialTotal = initialOffers.length, initialFiltersOpen = false }: Props) {
     const t = publicOfferCopy(locale);
     const [offers, setOffers] = useState<PublicOffer[]>(() => mergeOffers(initialOffers, focusOffer ? [focusOffer] : []));
     const [stores, setStores] = useState<OfferMapStore[]>(() => groupOffersIntoMapStores(mergeOffers(initialOffers, focusOffer ? [focusOffer] : [])));
@@ -304,19 +307,6 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
             ?? (visibleIds.has(activeStore.bestOffer.id) ? activeStore.bestOffer : activeStore.offers.find((offer) => visibleIds.has(offer.id))))
         ?? null
         : null;
-    const activeFilterCount = (["category", "maxPriceMinor", "pickupFrom", "pickupTo", "district", "sort"] as const).filter((key) => Boolean(values[key])).length
-        + (values.availableOnly === "false" ? 1 : 0);
-    const filtersHref = (() => {
-        const params = new URLSearchParams();
-        for (const key of ["category", "maxPriceMinor", "pickupFrom", "pickupTo", "city", "district", "sort"] as const) {
-            if (values[key]) params.set(key, values[key] as string);
-        }
-        if (query.trim()) params.set("q", query.trim());
-        if (values.availableOnly === "false") params.set("availableOnly", "false");
-        params.set("filters", "open");
-        const base = localizedOfferPath(locale, "/offers");
-        return `${base}?${params.toString()}`;
-    })();
     const mapZoom = useMemo(() => {
         if (focusOffer) return 15;
         if (stores.length < 2) return 14;
@@ -846,10 +836,14 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
                     <MapIcon name="search" />
                     <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={mc.search} aria-label={mc.search} />
                 </label>
-                <Link href={filtersHref} className="km-filters" aria-label={mc.filters} title={mc.filters}>
-                    <MapIcon name="sliders" /><span>{mc.filters}</span>
-                    {activeFilterCount > 0 && <b>{activeFilterCount}</b>}
-                </Link>
+                <OfferFilterBar
+                    locale={locale}
+                    values={{ ...values, q: query.trim() || undefined }}
+                    pickupRanges={getCasablancaQuickPickupRanges()}
+                    total={initialTotal}
+                    initialOpen={initialFiltersOpen}
+                    basePath={localizedOfferPath(locale, "/offers/map")}
+                />
             </header>
 
             <div className="km-switch" role="group" aria-label={locale === "ar" ? "عرض الخريطة والعروض" : locale === "fr" ? "Affichage de la carte et des offres" : "Map and offers view"}>

@@ -111,3 +111,21 @@
 .kulha-route-sheet__go:hover { background: #0a4a30; }
 
 @media (max-width: 760px) { .kulha-route-sheet { inset-inline: 10px; bottom: 10px; width: auto; } }
+
+
+/* The shared marketplace filter sheet stays anchored to the map route. */
+.km-topbar .kulha-filter-shell { position: relative; flex: 0 0 auto; margin-inline-start: auto; }
+.km-topbar .kulha-filter-toggle {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  min-height: 34px; padding: 0 16px; border: 1px solid var(--km-line);
+  border-radius: 999px; background: var(--km-card); color: var(--km-ink);
+  font-size: 11px; font-weight: 850; white-space: nowrap;
+}
+.km-topbar .kulha-filter-toggle:hover { background: #f4efe3; }
+.km-topbar .kulha-filter-expanded { z-index: 30; }
+.km-topbar .kulha-filter-backdrop { z-index: 29; }
+@media (max-width: 760px) {
+  .km-topbar { flex-wrap: wrap; gap: 7px; padding: 10px 12px; }
+  .km-topbar .km-search { order: 3; flex: 1 1 100%; max-width: none; }
+  .km-topbar .kulha-filter-shell { margin-inline-start: 0; }
+}
