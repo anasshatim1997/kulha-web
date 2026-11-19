@@ -7,6 +7,7 @@ import {
   MAP_STORE_CLUSTER_MAX_ZOOM,
   scoreMapOffer,
   shouldShowMapStoreAvatars,
+  shouldCenterMapOnUser,
 } from "./map-ranking";
 import type { PublicOffer } from "./public-api";
 
@@ -139,5 +140,34 @@ describe("map store avatar visibility", () => {
   it("does not show individual avatars for an invalid zoom", () => {
     expect(shouldShowMapStoreAvatars(Number.NaN)).toBe(false);
     expect(shouldShowMapStoreAvatars(Number.POSITIVE_INFINITY)).toBe(false);
+  });
+});
+
+describe("map camera target priority", () => {
+  it("centers on the first GPS fix when the user has not selected a shop", () => {
+    expect(shouldCenterMapOnUser({
+      recenter: false,
+      isFirstFix: true,
+      hasFocusedOffer: false,
+      hasManualMapSelection: false,
+    })).toBe(true);
+  });
+
+  it("does not let an in-flight GPS request override a selected shop", () => {
+    expect(shouldCenterMapOnUser({
+      recenter: true,
+      isFirstFix: true,
+      hasFocusedOffer: false,
+      hasManualMapSelection: true,
+    })).toBe(false);
+  });
+
+  it("allows an explicit locate action when no shop selection is active", () => {
+    expect(shouldCenterMapOnUser({
+      recenter: true,
+      isFirstFix: false,
+      hasFocusedOffer: false,
+      hasManualMapSelection: false,
+    })).toBe(true);
   });
 });
