@@ -25,7 +25,7 @@ export function switchLocalePath(pathname: string, locale: SiteLocale): string {
   const parts = withoutPrefix.split("?")[0].split("#")[0].split("/").filter(Boolean);
   const supported = new Set(["how-it-works", "about", "categories", "faq", "for-shops", "pickup-policy", "contact", "terms", "privacy", "login", "register", "account", "offers"]);
   if (parts[0] === "reservations" && parts.length >= 1) return localePath(locale, `/${parts.join("/")}`);
-  if (parts[0] === "merchant" && parts.length >= 2 && ["apply", "dashboard", "offers"].includes(parts[1])) {
+  if (parts[0] === "merchant" && parts.length >= 2 && ["apply", "dashboard", "offers", "reservations"].includes(parts[1])) {
     return localePath(locale, `/${parts.join("/")}`);
   }
   if (parts[0] === "offers" && parts.length <= 3) return localePath(locale, `/${parts.join("/")}`);

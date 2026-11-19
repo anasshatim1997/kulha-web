@@ -61,7 +61,7 @@ function displayInstant(value: string, locale: SiteLocale): string {
     }).format(date);
 }
 
-function filterHref(
+export function filterHref(
     values: OfferSearch,
     locale: SiteLocale,
     overrides: Partial<Record<FilterKey, string>> = {},
@@ -103,8 +103,7 @@ function filterHref(
     query.set("page", "0");
     query.set("size", values.size || "20");
 
-    const listAnchor = basePath === offersPath(locale) ? "#kulha-offers-results" : "";
-    return `${basePath}?${query.toString()}${listAnchor}`;
+    return `${basePath}?${query.toString()}${basePath === offersPath(locale) ? "#kulha-offers-results" : ""}`;
 }
 
 function matchesQuickPickup(
@@ -307,7 +306,7 @@ export function OfferActiveFilters({
 
                     <Link
                         className="kulha-filter-clear-all"
-                        href={activeBasePath}
+                        href={offersPath(locale)}
                         scroll={false}
                     >
                         {d.clearAll}
@@ -657,7 +656,7 @@ export function OfferFilterBar({
                         <div className="kulha-filter-dialog-actions">
                             {hasFilters && (
                                 <Link
-                                    href={offersPath(locale)}
+                                    href={activeBasePath}
                                     scroll={false}
                                     className="kulha-filter-reset"
                                 >

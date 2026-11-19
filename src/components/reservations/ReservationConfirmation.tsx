@@ -92,9 +92,7 @@ export function ReservationConfirmation({ reference, locale }: { reference: stri
 
         <section className={styles.codeCard} aria-label={t.pickupCode}>
           <span className={styles.codeCaption}>{t.pickupCode}</span>
-          {reservation.pickupQrPayload
-            ? <ReservationQrCode payload={reservation.pickupQrPayload} label={t.pickupCode} />
-            : <strong className={styles.pickupCodeFallback}>{reservation.pickupCode}</strong>}
+          {reservation.pickupQrPayload && <ReservationQrCode payload={reservation.pickupQrPayload} label={t.pickupCode} />}
           <strong className={styles.pickupCodeFallback}>{reservation.pickupCode}</strong>
           <p>{reservation.pickupInstructions}</p>
         </section>

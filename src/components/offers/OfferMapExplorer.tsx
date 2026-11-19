@@ -369,7 +369,6 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
                 void bootstrap.loadAdditionalMapOffers(bootstrap.initialTotal);
             }
 
-            void locateMeRef.current(false);
         }, 0);
 
         return () => {

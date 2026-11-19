@@ -60,6 +60,8 @@ function selectedPickup(search: OfferSearch, ranges: ReturnType<typeof getCasabl
 export async function OfferListPage({ locale, params }: { locale: SiteLocale; params: Record<string, string | string[] | undefined> }) {
   const t = publicOfferCopy(locale);
   const search = searchFromParams(params);
+  // This feed is progressively appended; legacy numbered-page URLs now start from page one.
+  search.page = "0";
   const pickupRanges = getCasablancaQuickPickupRanges();
   const activePickup = selectedPickup(search, pickupRanges);
   const openFiltersFromMap = params.filters === "open" || (Array.isArray(params.filters) && params.filters[0] === "open");
@@ -157,7 +159,7 @@ export async function OfferListPage({ locale, params }: { locale: SiteLocale; pa
                     <OfferErrorState locale={locale} href={retryHref} />
                   ) : result?.items.length ? (
                     <>
-                      <OfferProgressiveGrid locale={locale} initialPage={result} search={search} />
+                      <OfferProgressiveGrid key={JSON.stringify(search)} locale={locale} initialPage={result} search={search} />
                     </>
                   ) : (
                     <OfferEmptyState

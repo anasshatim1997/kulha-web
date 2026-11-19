@@ -116,9 +116,7 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
         <aside className={styles.detailCodeColumn}>
           <section className={styles.codeCard}>
             <span className={styles.codeCaption}>{t.pickupCode}</span>
-            {reservation.pickupQrPayload
-              ? <ReservationQrCode payload={reservation.pickupQrPayload} label={t.pickupCode} />
-              : <strong className={styles.pickupCode}>{reservation.pickupCode}</strong>}
+            {reservation.pickupQrPayload && <ReservationQrCode payload={reservation.pickupQrPayload} label={t.pickupCode} />}
             <strong className={styles.pickupCodeFallback}>{reservation.pickupCode}</strong>
             <p>{reservation.pickupInstructions}</p>
           </section>
@@ -133,7 +131,6 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
       <div className={styles.detailFooter}>
         {isUpcoming && reservation.canCancel && (
           <div className={styles.cancelArea}>
-            {cancelError && <p className={styles.formError} role="alert">{cancelError}</p>}
             {!confirmCancel ? (
               <button className={styles.dangerButton} type="button" onClick={() => setConfirmCancel(true)}>{t.cancelReservation}</button>
             ) : (
