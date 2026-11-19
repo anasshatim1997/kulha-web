@@ -14997,3 +14997,29 @@ body:has(.kulha-reservation-viewport) > main { min-height:0; overflow:visible; }
   .workspace-nav a { justify-content:center; gap:6px; padding:8px 7px; font-size:13px; }
   .workspace-nav-icon { width:23px; height:23px; flex-basis:23px; font-size:16px; }
 }
+
+
+/* Real offer photography from the public API imageUrl field. */
+.kulha-offer-real-image {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.kulha-offer-art:has(.kulha-offer-real-image) {
+  background: #e8e4d8;
+}
+.kd-stage { position: relative; }
+.kd-stage .kd-offer-photo {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.kd-stage:has(.kd-offer-photo) .kd-chip { z-index: 2; }

@@ -25,6 +25,7 @@ export type PublicOffer = {
   merchant: PublicMerchant;
   distanceKm?: number | null;
   publishedAt?: string | null;
+  imageUrl?: string | null;
 };
 
 export type PublicOfferDetail = PublicOffer & {

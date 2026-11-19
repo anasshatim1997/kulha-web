@@ -61,7 +61,7 @@ export function OfferDetail({ offer, locale, reserveHref }: { offer: PublicOffer
       <div className="kd-layout">
         <div className={`kd-stage is-${artwork.tone}`} aria-label={offer.title}>
           <span className="kd-chip">{offerCategoryLabel(locale, offer.category)}</span>
-          {artwork.src ? <Image src={artwork.src} alt={offer.title} width={1100} height={1000} priority unoptimized sizes="(max-width: 760px) 92vw, (max-width: 1100px) 48vw, 560px" className="kd-hero" /> : <span className="kd-symbol" role="img" aria-label={offer.title}>{artwork.symbol}</span>}
+          {offer.imageUrl ? <Image src={offer.imageUrl} alt={offer.title} fill priority unoptimized sizes="(max-width: 760px) 92vw, (max-width: 1100px) 48vw, 560px" className="kd-offer-photo" /> : artwork.src ? <Image src={artwork.src} alt={offer.title} width={1100} height={1000} priority unoptimized sizes="(max-width: 760px) 92vw, (max-width: 1100px) 48vw, 560px" className="kd-hero" /> : <span className="kd-symbol" role="img" aria-label={offer.title}>{artwork.symbol}</span>}
           {artwork.accents?.map((src, index) => <Image key={src} src={src} alt="" aria-hidden="true" width={230} height={230} unoptimized className={`kd-accent accent-${index + 1}`} />)}
         </div>
         <div className="kd-info">

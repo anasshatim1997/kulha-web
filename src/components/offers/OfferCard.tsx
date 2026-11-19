@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { formatPickupWindow } from "@/lib/offers/format";
 import { PriceSticker } from "@/components/ui/PriceSticker";
@@ -51,7 +52,7 @@ export function OfferCard({ offer, locale }: { offer: PublicOffer; locale: SiteL
         <div className={`kulha-offer-art ${tint}`} aria-hidden="true">
           {offer.pickupEnd && !soldOut && <PickupCountdown pickupEnd={offer.pickupEnd} locale={locale} />}
           {soldOut && <span className="kulha-offer-status">{t.soldOut}</span>}
-          <BasketMark />
+          {offer.imageUrl ? <Image src={offer.imageUrl} alt={offer.title} fill unoptimized sizes="(max-width: 760px) 92vw, (max-width: 1100px) 48vw, 360px" className="kulha-offer-real-image" /> : <BasketMark />}
           <PriceSticker
             priceMinor={offer.priceMinor}
             originalPriceMinor={hasReferencePrice ? offer.originalPriceMinor : null}
