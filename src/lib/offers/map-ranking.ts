@@ -146,3 +146,28 @@ export function averageMapCoordinate(points: MapCoordinate[]): MapCoordinate | n
     longitude: points.reduce((sum, point) => sum + point.longitude, 0) / points.length,
   };
 }
+
+/**
+ * Pick a useful first viewport from the actual geographic spread.
+ * A fixed zoom for every multi-city catalogue leaves most Moroccan stores
+ * outside the viewport; this keeps national views wide and city views close.
+ */
+export function initialMapZoom(points: MapCoordinate[]): number {
+  if (points.length < 2) return 14;
+
+  const latitudes = points.map((point) => point.latitude);
+  const longitudes = points.map((point) => point.longitude);
+  const latitudeSpan = Math.max(...latitudes) - Math.min(...latitudes);
+  const meanLatitude = (Math.max(...latitudes) + Math.min(...latitudes)) / 2;
+  const longitudeSpan = (Math.max(...longitudes) - Math.min(...longitudes))
+    * Math.cos(meanLatitude * Math.PI / 180);
+  const geographicSpan = Math.max(latitudeSpan, longitudeSpan);
+
+  if (!Number.isFinite(geographicSpan) || geographicSpan <= 0.0001) return 14;
+
+  // Approximately fit 70–75% of a typical map viewport, then cap the zoom
+  // so dense locations remain explorable rather than jumping into the street.
+  const zoom = Math.log2(520 / geographicSpan);
+  return Math.max(5, Math.min(14, zoom));
+}
+
