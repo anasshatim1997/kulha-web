@@ -228,6 +228,59 @@
   .kd-know dl > div { padding-block:5px; }
 }
 
+/* Give the booking column enough room for the full Reserve label and map action. */
+@media (min-width:1101px) and (min-height:680px) {
+  .kd { width:min(1200px,calc(100% - 48px)); }
+  .kd-layout { grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); }
+  .kd-buy { gap:10px; padding-inline:10px; }
+  .kd-buy__row { gap:6px; }
+  .kd-reserve {
+    flex:0 0 auto;
+    min-width:176px;
+    padding-inline:10px;
+    font-size:15px;
+    white-space:nowrap;
+  }
+  .kd-buy__row .kulha-map-open-button {
+    min-height:46px;
+    padding-inline:10px;
+    font-size:13px;
+  }
+  .kd-share { width:44px; height:44px; }
+}
+@media (max-width:720px) {
+  .kd-buy__row {
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    gap:8px;
+  }
+  .kd-buy__row .kd-reserve {
+    grid-column:1;
+    grid-row:1;
+    width:100%;
+    min-width:0;
+    min-height:50px;
+    padding-inline:8px;
+    font-size:14px;
+    white-space:nowrap;
+  }
+  .kd-buy__row .kulha-map-open-button {
+    grid-column:2;
+    grid-row:1;
+    min-height:50px;
+    padding-inline:11px;
+    font-size:13px;
+  }
+  .kd-buy__row .kd-share {
+    grid-column:2;
+    grid-row:2;
+    justify-self:end;
+    width:42px;
+    height:42px;
+  }
+}
+ 
 /* ---- Loading skeleton: same grid as the page ---- */
 .kd-sk { display: block; border-radius: 10px; background: linear-gradient(90deg, #efe6d4 25%, #f8f1e3 50%, #efe6d4 75%); background-size: 200% 100%; animation: kd-shimmer 1.4s linear infinite; }
 .kd-sk--round { border-radius: 50%; }
