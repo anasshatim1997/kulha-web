@@ -169,9 +169,9 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
 
             <aside className={styles.summaryCard} aria-label={t.orderSummary}>
               <h2>{t.orderSummary}</h2>
-              <div className={styles.summaryLine}><span>{t.basketOne}{quantity}</span><strong>{total !== null ? money(total, locale) : "—"}</strong></div>
+              <div className={styles.summaryLine}><span>{t.basketOne}{quantity}</span><strong>{total != null ? money(total, locale) : "—"}</strong></div>
               <div className={styles.summaryDivider} />
-              <div className={styles.totalLine}><strong>{t.totalAtPickup}</strong><b>{total !== null ? money(total, locale) : "—"}</b></div>
+              <div className={styles.totalLine}><strong>{t.totalAtPickup}</strong><b>{total != null ? money(total, locale) : "—"}</b></div>
               <div className={styles.notice}><span aria-hidden="true">♢</span><p>{t.notCharged}</p></div>
               {submitError && <p className={styles.formError} role="alert">{submitError}</p>}
               <button className={styles.confirmButton} type="button" disabled={!available || submitting || loading} onClick={() => void confirmReservation()}>
