@@ -144,27 +144,25 @@
   .kd-know dt, .kd-know dd { font-size: 14px; }
 }
 
-/* ---- Desktop: the whole page fits one screen, no scrolling ---- */
-@media (min-width: 1000px) and (min-height: 640px) {
-  body:has(.kd) .site-footer { display: none; }
-  .kd { display: flex; flex-direction: column; height: calc(100dvh - var(--kulha-header-h, 76px)); padding: 10px 0 18px; overflow: hidden; }
-  .kd-back { flex: 0 0 auto; min-height: 30px; margin-bottom: 6px; }
-  .kd-layout { flex: 1 1 auto; min-height: 0; align-items: stretch; }
-  .kd-stage { height: 100%; min-height: 0; }
-  .kd-info { min-height: 0; gap: clamp(8px, 1.6vh, 14px); align-content: space-between; }
-  .kd-merchant__mark { width: 40px; height: 40px; }
-  .kd-info h1 { font-size: clamp(26px, 4.4vh, 38px); }
-  .kd-description { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 14px; line-height: 1.5; }
-  .kd-fact { padding: clamp(8px, 1.4vh, 12px) 14px; }
-  .kd-buy { padding: clamp(10px, 1.8vh, 16px) 18px 10px 14px; }
-  .kd-know h2 { padding-bottom: 6px; }
-  .kd-know dl > div { padding: clamp(7px, 1.3vh, 11px) 0; }
-  .kd-know dd { display: grid; justify-items: end; gap: 4px; }
-  .kd .kd-know .kulha-map-open-button { min-height: 30px; margin: 2px 0 0; padding: 0 12px; font-size: 12px; }
-  .kd .kd-know .kulha-map-open-button svg { width: 15px; height: 15px; }
-}
-@media (min-width: 1000px) and (min-height: 640px) and (max-height: 780px) {
-  .kd-buy .kulha-price-sticker { transform: scale(.86); transform-origin: left center; }
+/* Desktop: keep pickup information and the map action in the natural page flow. */
+@media (min-width: 1000px) {
+  .kd { padding:24px 0 56px; }
+  .kd-layout { align-items:start; }
+  .kd-stage { min-height:clamp(440px,58vh,560px); }
+  .kd-info { gap:16px; align-content:start; }
+  .kd .kd-know .kulha-map-open-button {
+    min-height:42px;
+    margin-top:10px;
+    padding:0 16px;
+    border-color:#efc8bb;
+    border-radius:999px;
+    background:#fff0e9;
+    color:#b83e2c;
+    font-size:14px;
+    font-weight:900;
+  }
+  .kd .kd-know .kulha-map-open-button:hover { border-color:#e8a18e; background:#ffe6dc; }
+  .kd .kd-know .kulha-map-open-button svg { width:18px; height:18px; }
 }
 
 /* ---- Loading skeleton: same grid as the page ---- */
@@ -181,30 +179,3 @@
 @keyframes kd-shimmer { to { background-position: -200% 0; } }
 @media (prefers-reduced-motion: reduce) { .kd-sk { animation: none; } }
 
-/* ---- Desktop one-screen fix (keep LAST) ----
-   The old rule sized .kd from a --kulha-header-h variable that is never defined, and the
-   page wrapper kept `min-height:100vh` + bottom padding, so the page was always ~90px taller
-   than the screen. Now the viewport is split by flexbox: header (natural height) + main (the rest). */
-@media (min-width: 1000px) and (min-height: 640px) {
-  html:has(.kd), body:has(.kd) { height: 100dvh; overflow: hidden; }
-  body:has(.kd) > main { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
-  body:has(.kd) .kulha-offer-detail-page { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; padding: 0; background: #fcf3e6; }
-  .kd { flex: 1 1 auto; height: auto; min-height: 0; padding: 8px 0 16px; }
-  /* Between 1000px and 1100px keep the two-column layout (the tablet stack is taller than the screen). */
-  .kd-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(20px, 3vw, 44px); }
-  .kd-stage { aspect-ratio: auto; min-height: 0; height: 100%; border-radius: 28px; }
-  .kd-info { gap: clamp(6px, 1.3vh, 12px); }
-  .kd-info h1 { font-size: clamp(24px, 4vh, 38px); }
-  .kd-know dl > div { padding: clamp(5px, 1.1vh, 11px) 0; }
-}
-@media (min-width: 1000px) and (min-height: 640px) and (max-height: 760px) {
-  .kd-description { -webkit-line-clamp: 2; font-size: 13px; line-height: 1.45; }
-  .kd-merchant__mark { width: 34px; height: 34px; font-size: 12px; }
-  .kd-fact { padding: 7px 12px; }
-  .kd-fact p { font-size: 13px; }
-  .kd-buy { gap: 14px; padding: 8px 14px 8px 10px; }
-  .kd-reserve, .kd-share { min-height: 42px; height: 42px; }
-  .kd-share { width: 42px; }
-  .kd-know dt, .kd-know dd { font-size: 13px; }
-  .kd-allergen-note { display: none; }
-}
