@@ -6,6 +6,7 @@ import type { GeoJSONSource, Map as MapLibreMap, Marker as MapLibreMarker, Popup
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { getMadDiscountPercent, getMadPriceDisplayParts } from "@/lib/offers/price-display";
 import { offerCategoryLabel } from "@/lib/offers/public-copy";
+import { MAP_STORE_AVATAR_MIN_ZOOM, MAP_STORE_CLUSTER_MAX_ZOOM, shouldShowMapStoreAvatars } from "@/lib/offers/map-ranking";
 import type { MapCoordinate, OfferMapStore } from "@/lib/offers/map-ranking";
 import type { DrivingRoute } from "@/lib/offers/nearby-client";
 import { buildGoogleMapsDirectionsUrl } from "@/lib/maps/google-directions";
@@ -191,6 +192,7 @@ function storeFeatureCollection(stores: OfferMapStore[]) {
             },
             properties: {
                 storeKey: store.key,
+                storeInitials: merchantInitials(store.merchant.name),
             },
         })),
     };
@@ -766,7 +768,7 @@ export function OfferStoreMapCanvas({
                             data: storeFeatureCollection(storesRef.current),
                             cluster: true,
                             clusterRadius: 48,
-                            clusterMaxZoom: 11,
+                            clusterMaxZoom: MAP_STORE_CLUSTER_MAX_ZOOM,
                         });
 
                         map.addLayer({
@@ -774,7 +776,7 @@ export function OfferStoreMapCanvas({
                             type: "circle",
                             source: "kulha-store-clusters",
                             filter: ["has", "point_count"],
-                            maxzoom: 12,
+                            maxzoom: MAP_STORE_AVATAR_MIN_ZOOM,
                             paint: {
                                 "circle-color": [
                                     "step", ["get", "point_count"],
@@ -794,7 +796,7 @@ export function OfferStoreMapCanvas({
                             type: "symbol",
                             source: "kulha-store-clusters",
                             filter: ["has", "point_count"],
-                            maxzoom: 12,
+                            maxzoom: MAP_STORE_AVATAR_MIN_ZOOM,
                             layout: {
                                 "text-field": ["get", "point_count_abbreviated"],
                                 "text-font": ["Noto Sans Medium"],
@@ -809,12 +811,35 @@ export function OfferStoreMapCanvas({
                             type: "circle",
                             source: "kulha-store-clusters",
                             filter: ["!", ["has", "point_count"]],
-                            maxzoom: 12,
+                            maxzoom: MAP_STORE_AVATAR_MIN_ZOOM,
                             paint: {
                                 "circle-color": "#0c5738",
                                 "circle-radius": 15,
                                 "circle-stroke-color": "#fffaf1",
                                 "circle-stroke-width": 3,
+                            },
+                        });
+
+                        // At neighbourhood zoom, keep the map useful even before
+                        // HTML pins take over: show each unclustered shop's initials
+                        // inside its branded point instead of an anonymous green dot.
+                        map.addLayer({
+                            id: "kulha-store-single-initials",
+                            type: "symbol",
+                            source: "kulha-store-clusters",
+                            filter: ["!", ["has", "point_count"]],
+                            maxzoom: MAP_STORE_AVATAR_MIN_ZOOM,
+                            layout: {
+                                "text-field": ["get", "storeInitials"],
+                                "text-font": ["Noto Sans Medium"],
+                                "text-size": 10,
+                                "text-allow-overlap": true,
+                                "text-ignore-placement": true,
+                            },
+                            paint: {
+                                "text-color": "#fffaf1",
+                                "text-halo-color": "#0c5738",
+                                "text-halo-width": 0.35,
                             },
                         });
 
@@ -1250,7 +1275,7 @@ export function OfferStoreMapCanvas({
         );
 
         const updateMarkerVisibility = () => {
-            const showIndividualPins = map.getZoom() >= 12;
+            const showIndividualPins = shouldShowMapStoreAvatars(map.getZoom());
             for (const record of markers.values()) {
                 record.element.style.visibility = showIndividualPins ? "visible" : "hidden";
                 record.element.style.pointerEvents = showIndividualPins ? "auto" : "none";
