@@ -61,11 +61,12 @@ function displayInstant(value: string, locale: SiteLocale): string {
     }).format(date);
 }
 
-function filterHref(
+export function filterHref(
     values: OfferSearch,
     locale: SiteLocale,
     overrides: Partial<Record<FilterKey, string>> = {},
     omit?: FilterKey,
+    basePath: string = offersPath(locale),
 ): string {
     const query = new URLSearchParams();
 
@@ -102,7 +103,7 @@ function filterHref(
     query.set("page", "0");
     query.set("size", values.size || "20");
 
-    return `${offersPath(locale)}?${query.toString()}#kulha-offers-results`;
+    return `${basePath}?${query.toString()}${basePath === offersPath(locale) ? "#kulha-offers-results" : ""}`;
 }
 
 function matchesQuickPickup(
@@ -137,6 +138,7 @@ function submitGetForm(
     event: FormEvent<HTMLFormElement>,
     locale: SiteLocale,
     navigate: (href: string) => void,
+    basePath: string = offersPath(locale),
 ) {
     event.preventDefault();
 
@@ -158,7 +160,7 @@ function submitGetForm(
     const search = query.toString();
 
     navigate(
-        `${offersPath(locale)}${search ? `?${search}` : ""}#kulha-offers-results`,
+        `${basePath}${search ? `?${search}` : ""}${basePath === offersPath(locale) ? "#kulha-offers-results" : ""}`,
     );
 }
 
@@ -362,16 +364,19 @@ export function OfferFilterBar({
                                    pickupRanges,
                                    total,
                                    initialOpen = false,
+                                   basePath,
                                }: {
     locale: SiteLocale;
     values: OfferSearch;
     pickupRanges: QuickPickupRanges;
     total?: number;
     initialOpen?: boolean;
+    basePath?: string;
 }) {
     const t = publicOfferCopy(locale);
     const d = offerDesignCopy(locale);
     const router = useRouter();
+    const activeBasePath = basePath ?? offersPath(locale);
 
     const [isPending, startTransition] = useTransition();
 
@@ -565,7 +570,7 @@ export function OfferFilterBar({
             href={filterHref(values, locale, {
                 pickupFrom: pickupRanges[key].from,
                 pickupTo: pickupRanges[key].to,
-            })}
+            }, undefined, activeBasePath)}
             scroll={false}
             suppressHydrationWarning
             className={`kulha-quick-chip${
@@ -651,7 +656,7 @@ export function OfferFilterBar({
                         <div className="kulha-filter-dialog-actions">
                             {hasFilters && (
                                 <Link
-                                    href={offersPath(locale)}
+                                    href={activeBasePath}
                                     scroll={false}
                                     className="kulha-filter-reset"
                                 >
@@ -709,7 +714,7 @@ export function OfferFilterBar({
                                     key={value || "any"}
                                     href={filterHref(values, locale, {
                                         maxPriceMinor: value,
-                                    })}
+                                    }, undefined, activeBasePath)}
                                     scroll={false}
                                     className={`kulha-quick-chip${
                                         (values.maxPriceMinor ?? "") === value
@@ -728,11 +733,11 @@ export function OfferFilterBar({
                     <form
                         id="kulha-filter-form"
                         className="kulha-area-form"
-                        action={offersPath(locale)}
+                        action={activeBasePath}
                         method="get"
                         aria-label={t.filterFormLabel}
                         onSubmit={(event) =>
-                            submitGetForm(event, locale, navigate)
+                            submitGetForm(event, locale, navigate, activeBasePath)
                         }
                     >
                         {values.q && (

@@ -237,3 +237,91 @@
 .productPrice { display: grid; justify-items: end; gap: 2px; }
 .originalPrice { color: #718174; font-size: 13px; font-weight: 800; }
 .summaryLine del { color: #748176; font-size: 14px; font-weight: 850; }
+
+
+/* Compact, task-first reservation layouts: remove oversized card padding and duplicate explanation panels. */
+.page { padding-top: 18px; padding-bottom: 30px; }
+.pageTop { margin-bottom: 14px; }
+.headingRow { margin-bottom: 16px; }
+.checkoutMain { gap: 12px; }
+.productCard { min-height: 128px; padding: 18px 21px; border-radius: 22px; }
+.bagIllustration { width: 86px; height: 86px; border-radius: 16px; font-size: 44px; }
+.panel { padding: 18px 21px; border-radius: 21px; }
+.pickupRows { gap: 11px; }
+.pickupRow { gap: 11px; }
+.stepper button { width: 52px; height: 52px; border-radius: 14px; }
+.stepper { gap: 18px; }
+.summaryCard { padding: 20px 22px; border-radius: 22px; }
+.summaryCard h2 { margin-bottom: 11px; padding-bottom: 11px; font-size: 21px; }
+.summaryDivider { margin: 12px 0 15px; }
+.totalLine { margin-bottom: 15px; }
+.notice { margin-bottom: 13px; padding: 11px 13px; }
+.confirmButton { min-height: 54px; border-radius: 14px; }
+.terms { margin-top: 9px; }
+.successHeader { margin: 0 0 16px; }
+.successIcon { width: 60px; height: 60px; margin-bottom: 9px; font-size: 32px; }
+.successHeader h1 { font-size: clamp(26px, 2.5vw, 35px); }
+.successHeader p { font-size: 14px; }
+.confirmationGrid { grid-template-columns: minmax(0, 1.3fr) minmax(250px, .7fr); gap: 15px; }
+.confirmationSummary { padding: 17px 21px; border-radius: 22px; }
+.confirmationProduct { padding-bottom: 10px; gap: 11px; }
+.smallBag { width: 54px; height: 54px; border-radius: 13px; font-size: 26px; }
+.confirmationProduct h2 { font-size: 19px; }
+.definitionList > div { padding: 8px 0; }
+.definitionList dt, .definitionList dd { font-size: 13px; }
+.codeCard { min-height: 0; padding: 18px; border-radius: 22px; gap: 4px; }
+.codeCaption { margin-bottom: 7px; }
+.kulha-pickup-qr { display: block; width: min(100%, 210px); height: auto; aspect-ratio: 1; image-rendering: pixelated; }
+.pickupCode { font-size: 32px; }
+.pickupCodeFallback { color: var(--green, #073324); font-size: 28px; font-weight: 1000; letter-spacing: .16em; line-height: 1.15; }
+.codeCard p { margin-top: 7px; font-size: 12px; }
+.actionRow { margin-top: 14px; gap: 9px; }
+.actionRow .primaryButton, .actionRow .secondaryButton { min-height: 46px; padding-inline: 17px; border-radius: 13px; }
+.listHeader { margin-bottom: 15px; }
+.listHeader h1 { font-size: clamp(27px, 2.7vw, 37px); }
+.listHeader p { margin-top: 5px; font-size: 14px; }
+.tabs { gap: 18px; margin-bottom: 15px; }
+.tabs button { padding-bottom: 10px; }
+.listResults { min-height: 0; }
+.emptyCard { min-height: 190px; padding: 20px; border-radius: 22px; }
+.reservationCards { gap: 10px; }
+.reservationCard { min-height: 110px; padding: 14px; border-radius: 20px; }
+.reservationMark { width: 68px; height: 68px; font-size: 34px; }
+.reservationDescription h2 { font-size: 17px; }
+.detailGrid { gap: 13px; }
+.detailCodeColumn { gap: 10px; }
+.detailCodeColumn .codeCard { min-height: 0; }
+.instructionCard { padding: 13px 17px; border-radius: 19px; }
+.instructionCard h2 { margin-bottom: 4px; font-size: 14px; }
+.instructionCard p { font-size: 13px; }
+.detailFooter { margin-top: 14px; }
+.cancelDialog {
+  display: grid; gap: 10px; max-width: 530px; padding: 15px;
+  border: 1px solid #eed8cf; border-radius: 18px; background: #fffdfa;
+  box-shadow: 0 8px 24px rgb(7 51 36 / 6%);
+}
+.cancelDialogHead { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.cancelDialogHead strong { font-size: 15px; font-weight: 1000; }
+.cancelDialogHead p { margin: 3px 0 0; color: #687a6d; font-size: 12px; font-weight: 700; }
+.cancelDialogClose { display: grid; flex: 0 0 31px; width: 31px; height: 31px; place-items: center; border: 1px solid #eadfce; border-radius: 50%; background: #fff; color: #536b5d; font-size: 20px; }
+.cancelReasons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 0; margin: 0; border: 0; }
+.cancelReasons legend { margin-bottom: 7px; color: #536b5d; font-size: 12px; font-weight: 900; }
+.cancelReasons label { display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 7px 9px; border: 1px solid #eee5d9; border-radius: 11px; background: #fff; color: #415c4c; font-size: 12px; font-weight: 800; cursor: pointer; }
+.cancelReasons input { accent-color: #073324; }
+.cancelComment { display: grid; gap: 5px; color: #536b5d; font-size: 12px; font-weight: 900; }
+.cancelComment textarea { width: 100%; min-height: 56px; padding: 9px 11px; border: 1px solid #e6dccd; border-radius: 11px; background: #fff; color: #173c2d; resize: vertical; font-size: 13px; }
+.cancelDialogActions { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.cancelDialogActions button { min-height: 39px; border-radius: 12px; font-size: 12px; }
+.cancelSuccess { margin: 12px 0 0; color: #326342; font-size: 13px; font-weight: 900; }
+@media (max-width: 740px) {
+  .page { padding-top: 14px; padding-bottom: 22px; }
+  .productCard { min-height: 104px; padding: 13px; }
+  .bagIllustration { width: 62px; height: 62px; font-size: 33px; }
+  .panel { padding: 15px; }
+  .checkoutGrid, .confirmationGrid, .detailGrid { gap: 10px; }
+  .confirmationGrid { grid-template-columns: minmax(0, 1fr); }
+  .codeCard { min-height: 0; }
+  .codeCard p { max-width: 100%; }
+  .cancelReasons { grid-template-columns: minmax(0,1fr); }
+  .cancelDialogActions { display: grid; grid-template-columns: 1fr 1fr; }
+}

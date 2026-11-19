@@ -131,14 +131,16 @@ describe("public offer list page", () => {
         expect(html).toContain("Explorez par catégorie");
     });
 
-    it("renders localized pagination while preserving the URL filters", async () => {
+    it("renders progressive loading while preserving the URL filters", async () => {
         listPublicOffersMock.mockResolvedValue({ ...offerPage, page: 0, size: 1, total: 2 });
         const page = await OfferListPage({ locale: "fr", params: { city: "Casablanca", page: "0", size: "1" } });
         const html = renderToStaticMarkup(page);
-        expect(html).toContain("Page 1 / 2");
-        expect(html).toContain("Suivant");
+        expect(html).toContain("Affichage de 1 sur 2 paniers");
+        expect(html).toContain("Voir plus de paniers");
+        expect(html).not.toContain('class="kulha-pagination"');
         expect(html).toContain("city=Casablanca");
-        expect(html).toContain("page=1");
+        expect(html).not.toContain("page=1");
+        expect(html).toContain("page=0");
     });
 
     it("renders an empty state when the API returns no offers", async () => {
@@ -166,7 +168,7 @@ describe("public offer list page", () => {
         expect(html).toContain("We couldn’t load the baskets");
         expect(html).toContain('action="/en/offers"');
         expect(html).toContain('name="city" value="Casablanca"');
-        expect(html).toContain('name="page" value="2"');
+        expect(html).toContain('name="page" value="0"');
         expect(html).not.toContain("private upstream error");
     });
 

@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { listPublicOffers, type OfferSearch, type PublicOfferPage } from "@/lib/offers/public-api";
 import { publicOfferCopy } from "@/lib/offers/public-copy";
-import { OfferCard } from "@/components/offers/OfferCard";
+import { OfferProgressiveGrid } from "@/components/offers/OfferProgressiveGrid";
 import { OfferSearchDisclosure } from "@/components/offers/OfferSearchDisclosure";
 import { OfferFilterBar, OfferActiveFilters } from "@/components/offers/OfferFilterBar";
 import { OfferEmptyState, OfferErrorState } from "@/components/offers/OfferListStates";
@@ -13,7 +13,6 @@ import { OfferSortSelect } from "@/components/offers/OfferSortSelect";
 import { OfferNearbyProvider } from "@/components/offers/OfferNearbyContext";
 import { OfferNearbyResults } from "@/components/offers/OfferNearbyResults";
 import { searchFromParams } from "@/lib/offers/search-params";
-import { offerPageHref } from "@/lib/offers/pagination";
 import { getCasablancaQuickPickupRanges } from "@/lib/time/casablanca";
 import { OfferResultsProgress } from "@/components/offers/OfferResultsProgress";
 import { OfferMapButton } from "@/components/offers/OfferMapButton";
@@ -61,6 +60,8 @@ function selectedPickup(search: OfferSearch, ranges: ReturnType<typeof getCasabl
 export async function OfferListPage({ locale, params }: { locale: SiteLocale; params: Record<string, string | string[] | undefined> }) {
   const t = publicOfferCopy(locale);
   const search = searchFromParams(params);
+  // This feed is progressively appended; legacy numbered-page URLs now start from page one.
+  search.page = "0";
   const pickupRanges = getCasablancaQuickPickupRanges();
   const activePickup = selectedPickup(search, pickupRanges);
   const openFiltersFromMap = params.filters === "open" || (Array.isArray(params.filters) && params.filters[0] === "open");
@@ -158,18 +159,7 @@ export async function OfferListPage({ locale, params }: { locale: SiteLocale; pa
                     <OfferErrorState locale={locale} href={retryHref} />
                   ) : result?.items.length ? (
                     <>
-                      <div className="kulha-offer-grid">
-                        {result.items.map((offer, index) => <OfferCard key={offer.id} offer={offer} locale={locale} priority={index === 0} />)}
-                      </div>
-                      {result.total > result.size && (
-                        <nav aria-label={t.availableTitle} className="kulha-pagination">
-                          <span>{t.pageLabel} {result.page + 1} / {Math.ceil(result.total / result.size)}</span>
-                          <div>
-                            {result.page > 0 && <Link rel="prev" href={`${offerPageHref(locale, search, result.page - 1)}#kulha-offers-results`}>{t.previous}</Link>}
-                            {(result.page + 1) * result.size < result.total && <Link rel="next" href={`${offerPageHref(locale, search, result.page + 1)}#kulha-offers-results`}>{t.next}</Link>}
-                          </div>
-                        </nav>
-                      )}
+                      <OfferProgressiveGrid key={JSON.stringify(search)} locale={locale} initialPage={result} search={search} />
                     </>
                   ) : (
                     <OfferEmptyState

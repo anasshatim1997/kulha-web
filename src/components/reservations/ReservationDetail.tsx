@@ -9,6 +9,7 @@ import { api } from "@/lib/api/client";
 import { useSession } from "@/components/session/SessionProvider";
 import { formatPickupWindow } from "@/lib/offers/format";
 import type { Reservation } from "@/lib/reservations/types";
+import { ReservationQrCode } from "@/components/reservations/ReservationQrCode";
 import styles from "./ReservationScreens.module.css";
 
 function money(minor: number, locale: SiteLocale): string {
@@ -24,6 +25,8 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
+  const [cancelReason, setCancelReason] = useState("NOT_SPECIFIED");
+  const [cancelComment, setCancelComment] = useState("");
   const [cancelling, setCancelling] = useState(false);
   const [cancelError, setCancelError] = useState<string | null>(null);
 
@@ -56,9 +59,12 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
     try {
       const updated = await api.patch<Reservation>(
         "/reservations/" + encodeURIComponent(reference) + "/cancel",
+        { reasonCode: cancelReason, comment: cancelComment.trim() || undefined },
       );
       setReservation(updated);
       setConfirmCancel(false);
+      setCancelReason("NOT_SPECIFIED");
+      setCancelComment("");
     } catch {
       setCancelError(t.cancelUnavailable);
     } finally {
@@ -110,7 +116,10 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
         <aside className={styles.detailCodeColumn}>
           <section className={styles.codeCard}>
             <span className={styles.codeCaption}>{t.pickupCode}</span>
-            <strong className={styles.pickupCode}>{reservation.pickupCode}</strong>
+            {reservation.status === "CONFIRMED" ? <>
+              {reservation.pickupQrPayload && <ReservationQrCode payload={reservation.pickupQrPayload} label={t.pickupCode} />}
+              <strong className={styles.pickupCodeFallback}>{reservation.pickupCode}</strong>
+            </> : <strong className={styles.statusPill}>{reservation.statusLabel}</strong>}
             <p>{reservation.pickupInstructions}</p>
           </section>
           <section className={styles.instructionCard}>
@@ -120,18 +129,46 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
         </aside>
       </div>
 
+      {reservation.status === "CANCELLED" && <p className={styles.cancelSuccess} role="status">{t.cancelSuccess}</p>}
       <div className={styles.detailFooter}>
         {isUpcoming && reservation.canCancel && (
           <div className={styles.cancelArea}>
-            {cancelError && <p className={styles.formError} role="alert">{cancelError}</p>}
             {!confirmCancel ? (
               <button className={styles.dangerButton} type="button" onClick={() => setConfirmCancel(true)}>{t.cancelReservation}</button>
             ) : (
-              <div className={styles.cancelConfirm} role="group" aria-label={t.cancelConfirm}>
-                <span>{t.cancelConfirm}</span>
-                <button className={styles.dangerButton} type="button" disabled={cancelling} onClick={() => void cancelReservation()}>{cancelling ? t.cancelling : t.cancelReservation}</button>
-                <button className={styles.secondaryButton} type="button" disabled={cancelling} onClick={() => setConfirmCancel(false)}>{t.retry}</button>
-              </div>
+              <section className={styles.cancelDialog} role="dialog" aria-modal="false" aria-labelledby="cancel-reason-title">
+                <div className={styles.cancelDialogHead}>
+                  <div><strong id="cancel-reason-title">{t.cancelReasonTitle}</strong><p>{t.cancelReasonNote}</p></div>
+                  <button type="button" className={styles.cancelDialogClose} aria-label={t.keepReservation} onClick={() => setConfirmCancel(false)}>×</button>
+                </div>
+                <fieldset className={styles.cancelReasons}>
+                  <legend>{t.cancelReasonQuestion}</legend>
+                  {[
+                    ["NOT_SPECIFIED", t.reasonPreferNot],
+                    ["PICKUP_TIME", t.reasonPickupTime],
+                    ["TOO_FAR", t.reasonTooFar],
+                    ["CHANGED_MIND", t.reasonChangedMind],
+                    ["FOUND_ALTERNATIVE", t.reasonFoundAlternative],
+                    ["OFFER_EXPECTATION", t.reasonOfferExpectation],
+                    ["BOOKED_BY_MISTAKE", t.reasonMistake],
+                    ["OTHER", t.reasonOther],
+                  ].map(([code, label]) => (
+                    <label key={code}>
+                      <input type="radio" name="cancel-reason" value={code} checked={cancelReason === code} onChange={() => setCancelReason(code)} />
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                </fieldset>
+                <label className={styles.cancelComment}>
+                  <span>{t.cancelComment}</span>
+                  <textarea value={cancelComment} onChange={(event) => setCancelComment(event.target.value.slice(0, 500))} maxLength={500} rows={2} placeholder={t.cancelCommentPlaceholder} />
+                </label>
+                {cancelError && <p className={styles.formError} role="alert">{cancelError}</p>}
+                <div className={styles.cancelDialogActions}>
+                  <button className={styles.secondaryButton} type="button" disabled={cancelling} onClick={() => setConfirmCancel(false)}>{t.keepReservation}</button>
+                  <button className={styles.dangerButton} type="button" disabled={cancelling} onClick={() => void cancelReservation()}>{cancelling ? t.cancelling : t.confirmCancel}</button>
+                </div>
+              </section>
             )}
           </div>
         )}
