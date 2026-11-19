@@ -233,3 +233,7 @@
   .tabs { gap: 8px; }
   .tabs button { font-size: 12px; }
 }
+
+.productPrice { display: grid; justify-items: end; gap: 2px; }
+.originalPrice { color: #718174; font-size: 13px; font-weight: 800; }
+.summaryLine del { color: #748176; font-size: 14px; font-weight: 850; }

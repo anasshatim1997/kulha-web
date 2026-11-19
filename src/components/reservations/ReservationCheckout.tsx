@@ -97,6 +97,8 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
   const accountReady = state.status === "authenticated";
   const slot = availability?.slots[selectedSlot];
   const total = availability?.totalPriceMinor;
+  const regularTotal = availability?.originalTotalPriceMinor;
+  const savings = availability?.savingsMinor;
   const available = Boolean(availability && availability.slots.length > 0 && total !== null && total !== undefined);
 
   if (state.status === "loading") {
@@ -136,7 +138,11 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
                   <h2>{availability.offerTitle}</h2>
                   <span className={styles.pill}>{t.basket}</span>
                 </div>
-                <div className={styles.productPrice}>{availability.unitPriceMinor !== null ? money(availability.unitPriceMinor, locale) : "—"}</div>
+                <div className={styles.productPrice}>
+                  {availability.unitPriceMinor !== null ? money(availability.unitPriceMinor, locale) : "—"}
+                  {availability.originalPriceMinor !== null && availability.unitPriceMinor !== null && availability.originalPriceMinor > availability.unitPriceMinor
+                    && <del className={styles.originalPrice}>{money(availability.originalPriceMinor, locale)}</del>}
+                </div>
               </section>
 
               <section className={styles.panel}>
@@ -160,7 +166,7 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
                 <div className={styles.pickupRows}>
                   <div className={styles.pickupRow}><span className={styles.detailIcon} aria-hidden="true">▦</span><div><strong>{t.pickupDate}</strong><span>{slot ? new Intl.DateTimeFormat(reservationLocaleTag(locale), { timeZone: "Africa/Casablanca", weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date(slot.start)) : "—"}</span></div></div>
                   <div className={styles.pickupRow}><span className={styles.detailIcon} aria-hidden="true">◷</span><div><strong>{t.pickupTime}</strong><span>{slot ? formatPickupWindow(slot.start, slot.end, locale) : "—"}</span><small>{t.heldUntil}</small></div></div>
-                  <div className={styles.pickupRow}><span className={styles.detailIcon} aria-hidden="true">⌖</span><div><strong>{availability.merchantName}</strong><span>{availability.offerTitle}</span></div></div>
+                  <div className={styles.pickupRow}><span className={styles.detailIcon} aria-hidden="true">⌖</span><div><strong>{availability.merchantName}</strong><span>{[availability.merchantAddress, availability.merchantCity].filter(Boolean).join(", ")}</span>{availability.merchantPickupInstructions && <small>{availability.merchantPickupInstructions}</small>}</div></div>
                 </div>
               </section>
             </div>
@@ -168,6 +174,10 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
             <aside className={styles.summaryCard} aria-label={t.orderSummary}>
               <h2>{t.orderSummary}</h2>
               <div className={styles.summaryLine}><span>{t.basketOne}{quantity}</span><strong>{total != null ? money(total, locale) : "—"}</strong></div>
+              {regularTotal != null && savings != null && savings > 0 && <>
+                <div className={styles.summaryLine}><span>{t.regularValue}</span><del>{money(regularTotal, locale)}</del></div>
+                <div className={styles.summaryLine}><span>{t.youSave}</span><strong>{money(savings, locale)}</strong></div>
+              </>}
               <div className={styles.summaryDivider} />
               <div className={styles.totalLine}><strong>{t.totalAtPickup}</strong><b>{total != null ? money(total, locale) : "—"}</b></div>
               <div className={styles.notice}><span aria-hidden="true">♢</span><p>{t.notCharged}</p></div>

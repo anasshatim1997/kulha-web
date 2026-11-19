@@ -1,13 +1,20 @@
 export type ReservationAvailability = {
   offerId: string;
   offerTitle: string | null;
+  offerCategory: string | null;
   merchantId: string | null;
   merchantName: string | null;
+  merchantAddress: string | null;
+  merchantCity: string | null;
+  merchantPickupInstructions: string | null;
   availableUnits: number;
   maxQuantity: number;
   selectedQuantity: number;
   unitPriceMinor: number | null;
+  originalPriceMinor: number | null;
   totalPriceMinor: number | null;
+  originalTotalPriceMinor: number | null;
+  savingsMinor: number | null;
   currency: "MAD";
   slots: Array<{ start: string; end: string; availableUnits: number }>;
 };
