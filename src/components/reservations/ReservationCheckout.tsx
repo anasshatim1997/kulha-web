@@ -122,7 +122,7 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
   const available = Boolean(availability && availability.slots.length > 0 && total !== null && total !== undefined);
 
   if (state.status === "loading") {
-    return <div className={styles.page + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><AvailabilityLoading label={t.loading} /></div>;
+    return <div className={styles.page + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><div className={styles.stateCard} aria-live="polite">{t.loadingReservation}</div></div>;
   }
   if (!accountReady) {
     return <div className={styles.page + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><ErrorState text={t.session} retry={t.retry} /><Link className={styles.primaryButton} href={localePath(locale, "/login")}>{locale === "ar" ? "تسجيل الدخول" : locale === "en" ? "Sign in" : "Se connecter"}</Link></div>;
@@ -140,7 +140,7 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
         <h1>{t.checkout}</h1>
       </div>
 
-      {loading && !availability ? <div className={styles.stateCard} aria-live="polite">{t.loading}</div> :
+      {loading && !availability ? <AvailabilityLoading label={t.loading} /> :
         error ? <ErrorState text={error} onRetry={loadAvailability} retry={t.retry} /> :
         !availability || !availability.slots.length ? <ErrorState text={t.unavailable} onRetry={loadAvailability} retry={t.retry} /> : (
           <div className={styles.checkoutGrid}>
