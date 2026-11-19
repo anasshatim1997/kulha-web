@@ -10,7 +10,7 @@ export function OfferMapLoadingState({ locale }: { locale: SiteLocale }) {
 
     return (
         <div className="kulha-map-page-shell" lang={locale} dir={isArabic ? "rtl" : "ltr"}>
-            <main className="km" aria-busy="true" aria-label={copy.loading}>
+            <div className="km" aria-busy="true" aria-label={copy.loading}>
                 <header className="km-topbar">
                     <span className="km-round km-loading-round" aria-hidden="true"><i className="km-skel" /></span>
                     <div className="km-search km-loading-search" aria-hidden="true">
@@ -58,7 +58,7 @@ export function OfferMapLoadingState({ locale }: { locale: SiteLocale }) {
                         </div>
                     </section>
                 </div>
-            </main>
+            </div>
         </div>
     );
 }
