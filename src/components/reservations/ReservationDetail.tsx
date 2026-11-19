@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { reservationCopy, reservationLocaleTag } from "@/lib/i18n/reservation-copy";
@@ -11,6 +12,7 @@ import { formatPickupWindow } from "@/lib/offers/format";
 import type { Reservation } from "@/lib/reservations/types";
 import { ReservationQrCode } from "@/components/reservations/ReservationQrCode";
 import styles from "./ReservationScreens.module.css";
+import { ReservationLoading } from "./ReservationLoading";
 
 function money(minor: number, locale: SiteLocale): string {
   return new Intl.NumberFormat(reservationLocaleTag(locale), {
@@ -87,7 +89,7 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
   }
 
   if (state.status === "loading" || loading) {
-    return <div className={styles.page + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><div className={styles.stateCard} aria-live="polite">{t.loadingReservation}</div></div>;
+    return <div className={styles.page + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><ReservationLoading label={t.loadingReservation} /></div>;
   }
   if (state.status !== "authenticated" || !state.user.roles.includes("CUSTOMER")) {
     return <div className={styles.page + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><div className={styles.stateCard} role="alert">{t.forbidden}</div></div>;
@@ -102,7 +104,7 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
   const directions = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(address);
 
   return (
-    <div className={styles.page + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} data-classification={reservation.classification.toLowerCase()}>
+    <div className={styles.page + " " + styles.detailPage + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} data-classification={reservation.classification.toLowerCase()}>
       <div className={styles.pageTop}>
         <Link className={styles.backLink} href={localePath(locale, "/reservations")}><span aria-hidden="true">‹</span>{t.backToReservations}</Link>
         <div className={styles.detailTopActions}>
@@ -126,7 +128,7 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
           </div>
           <dl className={styles.definitionList}>
             <div><dt>{t.pickupWindow}</dt><dd>{formatPickupWindow(reservation.pickupStart, reservation.pickupEnd, locale)}</dd></div>
-            <div><dt>{t.address}</dt><dd>{address}</dd></div>
+            <div><dt>{t.address}</dt><dd><span>{address}</span><a className={styles.mapLink} href={directions} target="_blank" rel="noreferrer"><MapPin size={15} strokeWidth={2.2} aria-hidden="true" />{t.directions}</a></dd></div>
             <div><dt>{t.quantityLabel}</dt><dd>× {reservation.quantity}</dd></div>
             <div><dt>{t.totalPrice}</dt><dd>{money(reservation.totalPriceMinor, locale)}</dd></div>
           </dl>
@@ -151,7 +153,7 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
         }}>
           <section className={styles.cancelDialog} role="dialog" aria-modal="true" aria-labelledby="cancel-reason-title">
             <div className={styles.cancelDialogHead}>
-              <div><strong id="cancel-reason-title">{t.cancelReasonTitle}</strong><p>{t.cancelReasonNote}</p></div>
+              <div><strong id="cancel-reason-title">{t.cancelReasonTitle}</strong><p>{t.cancelReasonNote}</p><p className={styles.cancelImpact}>{t.cancelImpact}</p><p className={styles.cancelReservationContext}>{reservation.offerTitle} · {formatPickupWindow(reservation.pickupStart, reservation.pickupEnd, locale)}</p></div>
               <button type="button" className={styles.cancelDialogClose} aria-label={t.keepReservation} onClick={() => setConfirmCancel(false)}>×</button>
             </div>
             <fieldset className={styles.cancelReasons}>
@@ -184,10 +186,6 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
           </section>
         </div>
       )}
-      <div className={styles.detailFooter}>
-        <a className={styles.secondaryButton} href={directions} target="_blank" rel="noreferrer">{t.directions}</a>
-        <Link className={styles.primaryButton} href={localePath(locale, "/reservations")}>{t.backToReservations}</Link>
-      </div>
     </div>
   );
 }

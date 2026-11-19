@@ -79,6 +79,7 @@ export function OfferDetail({ offer, locale, reserveHref }: { offer: PublicOffer
               {hasOriginalPrice && savingsMinor > 0 && <p className="kd-saving">{x.saveBefore} <strong>{formatMad(savingsMinor, locale)}</strong> {x.saveAfter}</p>}
               <div className="kd-buy__row">
                 {soldOut ? <span className="kd-reserve is-disabled" aria-disabled="true">{t.soldOut}</span> : <Link href={checkoutHref} className="kd-reserve">{x.reserve}</Link>}
+                <OfferMapButton locale={locale} mode="single" offer={offer} />
                 <a className="kd-share" href={whatsappUrl} target="_blank" rel="noopener noreferrer" aria-label={t.shareWhatsApp} title={t.shareWhatsApp}><Icon name="share" /></a>
               </div>
             </div>
@@ -86,7 +87,7 @@ export function OfferDetail({ offer, locale, reserveHref }: { offer: PublicOffer
           <section className="kd-know" aria-labelledby="kd-know-title"><h2 id="kd-know-title">{x.goodToKnow}</h2><dl>
             <div><dt>{t.foodNotes}</dt><dd>{offer.foodNotes ? <bdi dir="auto">{offer.foodNotes}</bdi> : t.notProvided}</dd></div>
             <div><dt>{t.allergens}</dt><dd>{allergensNotProvided ? <><span className="kd-allergen-unknown">{t.notProvided}</span><small className="kd-allergen-note">{t.allergenUnknownNote}</small></> : <ul className="kd-allergens">{offer.allergens.map((value) => <li key={value}><bdi dir="auto">{value}</bdi></li>)}</ul>}</dd></div>
-            <div><dt>{x.pickup}</dt><dd><bdi dir="auto">{pickupDetail}</bdi><OfferMapButton locale={locale} mode="single" offer={offer} /></dd></div>
+            <div><dt>{x.pickup}</dt><dd><bdi dir="auto">{pickupDetail}</bdi></dd></div>
           </dl></section>
         </div>
       </div>

@@ -11,6 +11,7 @@ import { formatPickupWindow } from "@/lib/offers/format";
 import type { Reservation } from "@/lib/reservations/types";
 import { ReservationQrCode } from "@/components/reservations/ReservationQrCode";
 import styles from "./ReservationScreens.module.css";
+import { ReservationLoading } from "./ReservationLoading";
 
 function money(minor: number, locale: SiteLocale): string {
   return new Intl.NumberFormat(reservationLocaleTag(locale), {
@@ -34,7 +35,7 @@ export function ReservationConfirmation({ reference, locale }: { reference: stri
   }, [reference]);
 
   if (state.status === "loading" || loading) {
-    return <div className={styles.page + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><div className={styles.stateCard} aria-live="polite">{t.loadingReservation}</div></div>;
+    return <div className={styles.page + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><ReservationLoading label={t.loadingReservation} /></div>;
   }
   if (state.status !== "authenticated" || !state.user.roles.includes("CUSTOMER")) {
     return <div className={styles.page + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><div className={styles.stateCard} role="alert">{t.forbidden}</div></div>;
@@ -50,7 +51,7 @@ export function ReservationConfirmation({ reference, locale }: { reference: stri
   return (
     <div className={styles.page + " " + styles.confirmationPage + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
       <header className={styles.successHeader}>
-        <span className={styles.successIcon} aria-hidden="true">✓</span>
+        <span className={styles.successIcon} aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><path d="m12 25 8 8 17-18" /></svg></span>
         <h1>{t.confirmed}</h1>
         <p>{t.saved}</p>
       </header>

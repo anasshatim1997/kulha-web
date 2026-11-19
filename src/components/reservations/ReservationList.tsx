@@ -10,6 +10,7 @@ import { useSession } from "@/components/session/SessionProvider";
 import { formatPickupWindow } from "@/lib/offers/format";
 import type { Reservation, ReservationPage } from "@/lib/reservations/types";
 import styles from "./ReservationScreens.module.css";
+import { ReservationLoading } from "./ReservationLoading";
 
 type Tab = "upcoming" | "past" | "cancelled";
 type Collections = Record<Tab, Reservation[]>;
@@ -69,7 +70,7 @@ export function ReservationList({ locale }: { locale: SiteLocale }) {
   const label = active === "upcoming" ? t.upcoming : active === "past" ? t.past : t.cancelled;
 
   if (state.status === "loading") {
-    return <div className={styles.page} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><div className={styles.stateCard} aria-live="polite">{t.loadingReservation}</div></div>;
+    return <div className={styles.page} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><ReservationLoading label={t.loadingReservation} /></div>;
   }
   if (state.status !== "authenticated" || !state.user.roles.includes("CUSTOMER")) {
     return <div className={styles.page} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><div className={styles.stateCard} role="alert">{t.forbidden}</div></div>;
@@ -89,7 +90,7 @@ export function ReservationList({ locale }: { locale: SiteLocale }) {
       </div>
 
       <section className={styles.listResults} role="tabpanel" aria-label={label} aria-live="polite">
-        {loading ? <div className={styles.stateCard}>{t.loadingReservation}</div> :
+        {loading ? <ReservationLoading label={t.loadingReservation} /> :
           error ? <div className={styles.stateCard} role="alert"><p>{t.unknownError}</p><button type="button" className={styles.secondaryButton} onClick={() => { setLoading(true); setError(false); void load(); }}>{t.retryList}</button></div> :
           current.length === 0 ? (
             <div className={styles.emptyCard}>

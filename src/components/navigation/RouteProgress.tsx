@@ -16,6 +16,10 @@ const LOADING_COPY: Record<"fr" | "en" | "ar", LoadingCopy> = {
 const MIN_VISIBLE_MS = 850;
 const SAFETY_TIMEOUT_MS = 12000;
 
+function usesLocalLoading(pathname: string): boolean {
+  return /^(?:\/(?:en|ar))?\/(?:offers|reservations)(?:\/|$)/.test(pathname);
+}
+
 export function RouteProgress() {
   const pathname = usePathname();
   const routePathRef = useRef(pathname);
@@ -86,15 +90,18 @@ export function RouteProgress() {
 
       const destination = new URL(anchor.href, window.location.href);
       if (destination.origin !== window.location.origin || destination.pathname === window.location.pathname) return;
+      if (usesLocalLoading(destination.pathname)) return;
 
       start();
     };
 
     const onPopState = () => {
-      if (window.location.pathname !== routePathRef.current) start();
+      if (window.location.pathname !== routePathRef.current && !usesLocalLoading(window.location.pathname)) start();
     };
 
-    const onProgrammaticNavigation = () => start();
+    const onProgrammaticNavigation = () => {
+      if (!usesLocalLoading(window.location.pathname)) start();
+    };
     const onPageShow = (event: PageTransitionEvent) => {
       if (!event.persisted) return;
       startedAtRef.current = 0;
