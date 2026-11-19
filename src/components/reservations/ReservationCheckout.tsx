@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { reservationCopy, reservationLocaleTag } from "@/lib/i18n/reservation-copy";
 import { localePath } from "@/lib/navigation";
@@ -44,6 +45,7 @@ function AvailabilityLoading({ label }: { label: string }) {
 
 export function ReservationCheckout({ offerId, locale }: { offerId: string; locale: SiteLocale }) {
   const t = reservationCopy(locale);
+  const router = useRouter();
   const { state } = useSession();
   const [quantity, setQuantity] = useState(1);
   const [availability, setAvailability] = useState<ReservationAvailability | null>(null);
@@ -91,7 +93,7 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
   }, [offerId, quantity, t.unavailable]);
 
   async function confirmReservation() {
-    if (!availability || availability.totalPriceMinor === null || !availability.slots[selectedSlot]) return;
+    if (submitting || !availability || availability.totalPriceMinor === null || !availability.slots[selectedSlot]) return;
     setSubmitting(true);
     setSubmitError(null);
     try {
@@ -102,9 +104,10 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
         pickupStart: slot.start,
         pickupEnd: slot.end,
       });
+      if (!created?.reference) throw new Error("Reservation response did not include a reference.");
       window.dispatchEvent(new Event("kulha:navigation-start"));
-      // Replace checkout in history so Back cannot accidentally resubmit a completed reservation.
-      window.location.replace(localePath(locale, "/reservations/confirmed/" + encodeURIComponent(created.reference)));
+      // Client-side replace avoids a full document reload and prevents accidental resubmission via Back.
+      router.replace(localePath(locale, "/reservations/confirmed/" + encodeURIComponent(created.reference)));
     } catch {
       setSubmitError(t.createError);
       await loadAvailability();
@@ -132,7 +135,7 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
   }
   const backHref = localePath(locale, "/offers/" + encodeURIComponent(offerId));
   return (
-    <div className={styles.page + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
+    <div className={styles.page + " " + styles.checkoutPage + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
       <div className={styles.pageTop}>
         <Link className={styles.backLink} href={backHref}><span aria-hidden="true">‹</span>{t.back}</Link>
       </div>
