@@ -34,13 +34,13 @@ export function ReservationConfirmation({ reference, locale }: { reference: stri
   }, [reference]);
 
   if (state.status === "loading" || loading) {
-    return <div className={styles.page} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><div className={styles.stateCard} aria-live="polite">{t.loadingReservation}</div></div>;
+    return <div className={styles.page + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><div className={styles.stateCard} aria-live="polite">{t.loadingReservation}</div></div>;
   }
   if (state.status !== "authenticated" || !state.user.roles.includes("CUSTOMER")) {
-    return <div className={styles.page} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><div className={styles.stateCard} role="alert">{t.forbidden}</div></div>;
+    return <div className={styles.page + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><div className={styles.stateCard} role="alert">{t.forbidden}</div></div>;
   }
   if (error || !reservation) {
-    return <div className={styles.page} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><div className={styles.stateCard} role="alert">{t.errorTitle}<p>{t.unavailable}</p><Link className={styles.secondaryButton} href={localePath(locale, "/reservations")}>{t.backToReservations}</Link></div></div>;
+    return <div className={styles.page + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><div className={styles.stateCard} role="alert">{t.errorTitle}<p>{t.unavailable}</p><Link className={styles.secondaryButton} href={localePath(locale, "/reservations")}>{t.backToReservations}</Link></div></div>;
   }
 
   const address = [reservation.merchantAddress, reservation.merchantCity].filter(Boolean).join(", ");
@@ -48,7 +48,7 @@ export function ReservationConfirmation({ reference, locale }: { reference: stri
   const reservationsHref = localePath(locale, "/reservations");
 
   return (
-    <div className={styles.page + " " + styles.confirmationPage} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
+    <div className={styles.page + " " + styles.confirmationPage + " kulha-reservation-viewport"} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
       <header className={styles.successHeader}>
         <span className={styles.successIcon} aria-hidden="true">✓</span>
         <h1>{t.confirmed}</h1>
