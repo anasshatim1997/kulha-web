@@ -28,6 +28,20 @@ export const MAP_STORE_AVATAR_MIN_ZOOM = MAP_STORE_CLUSTER_MAX_ZOOM + 1;
 export function shouldShowMapStoreAvatars(zoom: number): boolean {
   return Number.isFinite(zoom) && zoom >= MAP_STORE_AVATAR_MIN_ZOOM;
 }
+/** Prevent a late GPS response from undoing a deliberate shop focus. */
+export function shouldCenterMapOnUser({
+  recenter,
+  isFirstFix,
+  hasFocusedOffer,
+  hasManualMapSelection,
+}: {
+  recenter: boolean;
+  isFirstFix: boolean;
+  hasFocusedOffer: boolean;
+  hasManualMapSelection: boolean;
+}): boolean {
+  return !hasManualMapSelection && (recenter || (isFirstFix && !hasFocusedOffer));
+}
 
 type PriceRange = { minimum: number; maximum: number };
 
