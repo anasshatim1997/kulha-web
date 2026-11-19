@@ -43,8 +43,6 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
-    setError(false);
     api.get<Reservation>("/reservations/" + encodeURIComponent(reference))
       .then((value) => { if (active) setReservation(value); })
       .catch(() => { if (active) { setError(true); setReservation(null); } })

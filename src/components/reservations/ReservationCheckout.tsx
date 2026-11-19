@@ -52,8 +52,6 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
-    setError(null);
     api.get<ReservationAvailability>(
       "/reservations/availability?offerId=" + encodeURIComponent(offerId) + "&quantity=" + quantity,
     ).then((value) => {
@@ -145,9 +143,9 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
                 <div className={styles.sectionLabel}>{t.quantity}</div>
                 <div className={styles.quantityRow}>
                   <div className={styles.stepper} aria-label={t.quantity}>
-                    <button type="button" aria-label={locale === "ar" ? "تقليل الكمية" : locale === "en" ? "Decrease quantity" : "Diminuer la quantité"} disabled={quantity <= 1 || submitting} onClick={() => setQuantity((value) => Math.max(1, value - 1))}>−</button>
+                    <button type="button" aria-label={locale === "ar" ? "تقليل الكمية" : locale === "en" ? "Decrease quantity" : "Diminuer la quantité"} disabled={quantity <= 1 || submitting} onClick={() => { setLoading(true); setError(null); setQuantity((value) => Math.max(1, value - 1)); }}>−</button>
                     <output aria-live="polite">{quantity}</output>
-                    <button type="button" aria-label={locale === "ar" ? "زيادة الكمية" : locale === "en" ? "Increase quantity" : "Augmenter la quantité"} disabled={quantity >= availability.maxQuantity || submitting} onClick={() => setQuantity((value) => Math.min(availability.maxQuantity, value + 1))}>＋</button>
+                    <button type="button" aria-label={locale === "ar" ? "زيادة الكمية" : locale === "en" ? "Increase quantity" : "Augmenter la quantité"} disabled={quantity >= availability.maxQuantity || submitting} onClick={() => { setLoading(true); setError(null); setQuantity((value) => Math.min(availability.maxQuantity, value + 1)); }}>＋</button>
                   </div>
                   <div className={styles.quantityNote}>
                     <strong>{availability.availableUnits} {t.leftToday}</strong>

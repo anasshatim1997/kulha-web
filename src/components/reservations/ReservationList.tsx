@@ -31,8 +31,6 @@ export function ReservationList({ locale }: { locale: SiteLocale }) {
   const [visibleCodes, setVisibleCodes] = useState<string[]>([]);
 
   const load = useCallback(async () => {
-    setLoading(true);
-    setError(false);
     try {
       const [upcoming, past, cancelled] = await Promise.all([
         api.get<ReservationPage>("/reservations?status=upcoming&page=0&size=50"),
@@ -75,7 +73,7 @@ export function ReservationList({ locale }: { locale: SiteLocale }) {
 
       <section className={styles.listResults} role="tabpanel" aria-label={label} aria-live="polite">
         {loading ? <div className={styles.stateCard}>{t.loadingReservation}</div> :
-          error ? <div className={styles.stateCard} role="alert"><p>{t.unknownError}</p><button type="button" className={styles.secondaryButton} onClick={() => void load()}>{t.retryList}</button></div> :
+          error ? <div className={styles.stateCard} role="alert"><p>{t.unknownError}</p><button type="button" className={styles.secondaryButton} onClick={() => { setLoading(true); setError(false); void load(); }}>{t.retryList}</button></div> :
           current.length === 0 ? (
             <div className={styles.emptyCard}>
               <span className={styles.emptyIcon} aria-hidden="true">▱</span>
