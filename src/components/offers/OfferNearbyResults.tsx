@@ -11,8 +11,25 @@ export function OfferNearbyResults({ locale, children }: { locale: SiteLocale; c
   const t = publicOfferCopy(locale);
   if (!results) return <>{children}</>;
 
+  // A zero-result nearby search is an additional preference, not a replacement for discovery.
+  // Keep the regular marketplace results visible so customers can still browse every basket.
+  if (results.items.length === 0) {
+    return (
+      <>
+        <section className="kulha-nearby-empty-inline" role="status" aria-live="polite" lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
+          <span className="kulha-nearby-empty-icon" aria-hidden="true">⌖</span>
+          <div className="kulha-nearby-empty-copy">
+            <strong>{t.nearbyEmptyTitle}</strong>
+            <p>{t.nearbyEmptyBody}</p>
+          </div>
+          <button type="button" className="kulha-nearby-clear" onClick={clearResults}>{t.showAllBaskets}</button>
+        </section>
+        {children}
+      </>
+    );
+  }
+
   return (
-    <>
     <section className="kulha-offers-results kulha-nearby-results" id="kulha-offers-results" aria-labelledby="kulha-nearby-title">
       <div className="kulha-results-heading">
         <div>
@@ -25,22 +42,10 @@ export function OfferNearbyResults({ locale, children }: { locale: SiteLocale; c
           <button type="button" className="kulha-nearby-clear" onClick={clearResults}>{t.showAllBaskets}</button>
         </div>
       </div>
-      {results.items.length ? (
-        <>
-          <div className="kulha-offer-grid">
-            {results.items.map((offer, index) => <OfferCard key={offer.id} offer={offer} locale={locale} priority={index === 0} />)}
-          </div>
-          <p className="kulha-nearby-footnote">{t.nearbyPrivacyNote}</p>
-        </>
-      ) : (
-        <div className="kulha-nearby-empty">
-          <span aria-hidden="true">⌖</span>
-          <h3>{t.nearbyEmptyTitle}</h3>
-          <p>{t.nearbyEmptyBody}</p>
-          <button type="button" onClick={clearResults}>{t.showAllBaskets}</button>
-        </div>
-      )}
+      <div className="kulha-offer-grid">
+        {results.items.map((offer, index) => <OfferCard key={offer.id} offer={offer} locale={locale} priority={index === 0} />)}
+      </div>
+      <p className="kulha-nearby-footnote">{t.nearbyPrivacyNote}</p>
     </section>
-    </>
   );
 }
