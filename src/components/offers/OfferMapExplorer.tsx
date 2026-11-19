@@ -7,7 +7,7 @@ import { offerCategoryLabel, publicOfferCopy } from "@/lib/offers/public-copy";
 import { formatPickupWindow } from "@/lib/offers/format";
 import { localizedOfferPath } from "@/lib/offers/paths";
 import type { OfferSearch, PublicOffer, PublicOfferDetail } from "@/lib/offers/public-api";
-import { averageMapCoordinate, groupOffersIntoMapStores, groupOffersWithoutCoordinates, hasMapCoordinates, initialMapZoom, type MapCoordinate, type OfferMapStore, type OfferMapStoreCandidate } from "@/lib/offers/map-ranking";
+import { averageMapCoordinate, groupOffersIntoMapStores, groupOffersWithoutCoordinates, hasMapCoordinates, initialMapZoom, shouldCenterMapOnUser, type MapCoordinate, type OfferMapStore, type OfferMapStoreCandidate } from "@/lib/offers/map-ranking";
 import { geocodePublicShop } from "@/lib/offers/map-geocoding";
 import { getDrivingRoute, searchOffersForMap, type DrivingRoute, type RouteMode } from "@/lib/offers/nearby-client";
 import { OfferStoreMapCanvas } from "@/components/offers/OfferStoreMapCanvas";
@@ -244,6 +244,7 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
     offersRef.current = offers;
     const userLocationRef = useRef<Position | null>(null);
     const firstGpsFixApplied = useRef(false);
+    const mapTargetLockedRef = useRef(false);
     const catalogRequestId = useRef(0);
     const locationWatchId = useRef<number | null>(null);
     const locationRequestId = useRef(0);
@@ -432,7 +433,12 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
         setUserLocation(position);
 
         // Sit the camera on the person: first GPS fix (unless a specific offer is focused) and every "locate me" tap.
-        const centreOnMe = recenter || (isFirstFix && !focusOffer);
+        const centreOnMe = shouldCenterMapOnUser({
+            recenter,
+            isFirstFix,
+            hasFocusedOffer: Boolean(focusOffer),
+            hasManualMapSelection: mapTargetLockedRef.current,
+        });
         if (centreOnMe) {
             setCenter(position);
             setUserZoom(15);
@@ -676,6 +682,8 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
     }
 
     function locateMe(recenter = false): Promise<void> {
+        // An explicit "Locate me" action hands camera control back to GPS.
+        if (recenter) mapTargetLockedRef.current = false;
         const run = runLocate(recenter);
         locateInFlight.current = run;
         const clear = () => {
@@ -688,6 +696,10 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
     locateMeRef.current = locateMe;
 
     async function locateUnpinnedStore(candidate: OfferMapStoreCandidate): Promise<OfferMapStore | null> {
+        // A deliberate shop selection takes camera control away from GPS follow mode.
+        mapTargetLockedRef.current = true;
+        setFollowing(false);
+        setUserZoom(15);
         setMessage("");
         try {
             const location = await geocodePublicShop({
@@ -734,6 +746,9 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
         if (requestedMode) setRouteMode(requestedMode);
         const sameTrip = routeStoreKey === store.key && routeOrigin !== null && routeDestination !== null;
         const hasPreviousRoute = sameTrip && route !== null;
+        mapTargetLockedRef.current = true;
+        setFollowing(false);
+        setUserZoom(15);
         setSelectedKey(store.key);
         setCenter(destination);
         setMobileView("map");
@@ -804,6 +819,11 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
 
     async function showOfferOnMap(offer: PublicOffer) {
         clearRoute();
+        // Explicitly focus the selected merchant, even if "Locate me" was active.
+        // Otherwise GPS watch updates keep pulling the camera back to the customer.
+        mapTargetLockedRef.current = true;
+        setFollowing(false);
+        setUserZoom(15);
         setSelectedOfferId(offer.id);
         const store = stores.find((item) => item.offers.some((candidate) => candidate.id === offer.id));
         if (store) {
@@ -960,7 +980,7 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
                             selectedStoreKey={selectedEntry && "latitude" in selectedEntry ? selectedEntry.key : null}
                             route={route}
                             onPreviewStore={previewStore}
-                            onSelectStore={(store) => { clearRoute(); setSelectedOfferId(null); setSelectedKey(store.key); setMobileView("map"); }}
+                            onSelectStore={(store) => { mapTargetLockedRef.current = true; clearRoute(); setFollowing(false); setSelectedOfferId(null); setSelectedKey(store.key); setMobileView("map"); }}
                             zoomLabel={t.mapZoom}
                             mapLoadingLabel={t.mapLoading}
                             zoomInLabel={t.mapZoomIn}
@@ -968,7 +988,7 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
                             userLocationLabel={t.mapYourLocation}
                             initialZoom={userZoom ?? mapZoom}
                             followUser={following}
-                            onUserDrag={() => setFollowing(false)}
+                            onUserDrag={() => { mapTargetLockedRef.current = true; setFollowing(false); }}
                             locale={locale}
                         />
                         <button className={`km-locate${following ? " is-following" : ""}`} type="button" aria-pressed={following} onClick={() => { setFollowing(true); void locateMe(true); }} disabled={locationState === "locating"} aria-label={locationState === "locating" ? t.mapLoading : t.mapLocateMe} title={locationState === "locating" ? t.mapLoading : t.mapLocateMe}>
