@@ -14986,3 +14986,14 @@ html:has(.kulha-reservation-viewport),
 body:has(.kulha-reservation-viewport) { height:auto; min-height:100%; overflow-x:hidden; overflow-y:auto; }
 body:has(.kulha-reservation-viewport) > main { min-height:0; overflow:visible; }
 
+
+
+/* Logged-in workspace navigation: small, consistent visual anchors beside labels. */
+.workspace-nav a { display:inline-flex; align-items:center; gap:8px; }
+.workspace-nav-icon { display:inline-grid; width:25px; height:25px; flex:0 0 25px; place-items:center; border-radius:9px; background:#f5ead7; color:#d94831; font-size:17px; font-weight:1000; line-height:1; transition:background .15s,color .15s,transform .15s; }
+.workspace-nav a[aria-current="page"] .workspace-nav-icon { background:#fdbe2e; color:#073324; }
+.workspace-nav a:hover .workspace-nav-icon { transform:translateY(-1px); background:#fff0e9; }
+@media (max-width:640px) {
+  .workspace-nav a { justify-content:center; gap:6px; padding:8px 7px; font-size:13px; }
+  .workspace-nav-icon { width:23px; height:23px; flex-basis:23px; font-size:16px; }
+}
