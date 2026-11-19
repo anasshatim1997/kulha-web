@@ -151,7 +151,7 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
         }}>
           <section className={styles.cancelDialog} role="dialog" aria-modal="true" aria-labelledby="cancel-reason-title">
             <div className={styles.cancelDialogHead}>
-              <div><strong id="cancel-reason-title">{t.cancelReasonTitle}</strong><p>{t.cancelReasonNote}</p></div>
+              <div><strong id="cancel-reason-title">{t.cancelReasonTitle}</strong><p>{t.cancelReasonNote}</p><p className={styles.cancelImpact}>{t.cancelImpact}</p><p className={styles.cancelReservationContext}>{reservation.offerTitle} · {formatPickupWindow(reservation.pickupStart, reservation.pickupEnd, locale)}</p></div>
               <button type="button" className={styles.cancelDialogClose} aria-label={t.keepReservation} onClick={() => setConfirmCancel(false)}>×</button>
             </div>
             <fieldset className={styles.cancelReasons}>
