@@ -7,7 +7,7 @@ import { reservationCopy, reservationLocaleTag } from "@/lib/i18n/reservation-co
 import { localePath } from "@/lib/navigation";
 import { api } from "@/lib/api/client";
 import { useSession } from "@/components/session/SessionProvider";
-import { formatPickupWindow } from "@/lib/offers/format";
+import { formatPickupDate, formatPickupWindow } from "@/lib/offers/format";
 import type { Reservation, ReservationAvailability } from "@/lib/reservations/types";
 import styles from "./ReservationScreens.module.css";
 
@@ -31,7 +31,6 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [reference, setReference] = useState<string | null>(null);
 
   async function loadAvailability() {
     setLoading(true);
@@ -82,9 +81,9 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
         pickupStart: slot.start,
         pickupEnd: slot.end,
       });
-      setReference(created.reference);
       window.dispatchEvent(new Event("kulha:navigation-start"));
-      window.location.assign(localePath(locale, "/reservations/confirmed/" + encodeURIComponent(created.reference)));
+      // Replace checkout in history so Back cannot accidentally resubmit a completed reservation.
+      window.location.replace(localePath(locale, "/reservations/confirmed/" + encodeURIComponent(created.reference)));
     } catch {
       setSubmitError(t.createError);
       await loadAvailability();
@@ -110,20 +109,14 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
   if (!authenticated) {
     return <div className={styles.page} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><ErrorState text={t.forbidden} retry={t.retry} /></div>;
   }
-  if (reference) {
-    return <div className={styles.page} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><div className={styles.stateCard}>{t.confirmed}<p>{reference}</p></div></div>;
-  }
-
   const backHref = localePath(locale, "/offers/" + encodeURIComponent(offerId));
   return (
     <div className={styles.page} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
       <div className={styles.pageTop}>
         <Link className={styles.backLink} href={backHref}><span aria-hidden="true">‹</span>{t.back}</Link>
-        <div className={styles.breadcrumbs}><span>{t.basket}</span><span aria-hidden="true">›</span><strong>{t.reserve}</strong><span aria-hidden="true">›</span><span>{t.done}</span></div>
       </div>
       <div className={styles.headingRow}>
         <h1>{t.checkout}</h1>
-        <span className={styles.stepNumber}>02 / 03</span>
       </div>
 
       {loading && !availability ? <div className={styles.stateCard} aria-live="polite">{t.loading}</div> :
@@ -164,7 +157,7 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
               <section className={styles.panel}>
                 <div className={styles.sectionLabel}>{t.pickup}</div>
                 <div className={styles.pickupRows}>
-                  <div className={styles.pickupRow}><span className={styles.detailIcon} aria-hidden="true">▦</span><div><strong>{t.pickupDate}</strong><span>{slot ? new Intl.DateTimeFormat(reservationLocaleTag(locale), { timeZone: "Africa/Casablanca", weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date(slot.start)) : "—"}</span></div></div>
+                  <div className={styles.pickupRow}><span className={styles.detailIcon} aria-hidden="true">▦</span><div><strong>{t.pickupDate}</strong><span>{slot ? formatPickupDate(slot.start, locale) : "—"}</span></div></div>
                   <div className={styles.pickupRow}><span className={styles.detailIcon} aria-hidden="true">◷</span><div><strong>{t.pickupTime}</strong><span>{slot ? formatPickupWindow(slot.start, slot.end, locale) : "—"}</span><small>{t.heldUntil}</small></div></div>
                   <div className={styles.pickupRow}><span className={styles.detailIcon} aria-hidden="true">⌖</span><div><strong>{availability.merchantName}</strong><span>{[availability.merchantAddress, availability.merchantCity].filter(Boolean).join(", ")}</span>{availability.merchantPickupInstructions && <small>{availability.merchantPickupInstructions}</small>}</div></div>
                 </div>
