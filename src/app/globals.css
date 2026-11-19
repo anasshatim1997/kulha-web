@@ -15038,3 +15038,31 @@ body:has(.kulha-map-page-shell) #contenu { flex: 1 1 auto; min-height: 0; }
     font-size: 11px;
   }
 }
+
+
+@media (max-width: 700px) {
+  .kulha-offers-page.kulha-offers-redesign .kulha-pagination-controls {
+    gap: 3px;
+  }
+  .kulha-offers-page.kulha-offers-redesign .kulha-pagination-controls .kulha-pagination-prev,
+  .kulha-offers-page.kulha-offers-redesign .kulha-pagination-controls .kulha-pagination-next {
+    flex: 0 0 34px;
+    width: 34px;
+    min-width: 34px;
+    padding: 0;
+    overflow: hidden;
+    font-size: 0;
+  }
+  .kulha-offers-page.kulha-offers-redesign .kulha-pagination-controls .kulha-pagination-prev span,
+  .kulha-offers-page.kulha-offers-redesign .kulha-pagination-controls .kulha-pagination-next span {
+    font-size: 19px;
+  }
+  .kulha-offers-page.kulha-offers-redesign .kulha-pagination-pages {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+  }
+}

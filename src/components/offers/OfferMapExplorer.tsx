@@ -843,6 +843,7 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
                 </label>
                 <div className="kulha-offers-page kulha-offers-redesign km-filter-host">
                     <OfferFilterBar
+                        key={JSON.stringify(filterValues)}
                         locale={locale}
                         values={filterValues}
                         pickupRanges={pickupRanges}
