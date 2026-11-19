@@ -65,7 +65,7 @@ export function OfferProgressiveGrid({ locale, initialPage, search }: {
     if (!node || !hasMore || loading || error) return;
     const observer = new IntersectionObserver((entries) => {
       if (entries.some((entry) => entry.isIntersecting)) void loadNext();
-    }, { rootMargin: "900px 0px" });
+    }, { rootMargin: "500px 0px" });
     observer.observe(node);
     return () => observer.disconnect();
   }, [error, hasMore, loadNext, loading]);
@@ -75,7 +75,7 @@ export function OfferProgressiveGrid({ locale, initialPage, search }: {
       {initialPage.total > 0 && (
         <div className="kulha-progressive-toolbar">
           <p aria-live="polite">{label}</p>
-          {hasMore && <button type="button" onClick={() => void loadNext()} disabled={loading}>{loading ? t.loading : error ? t.retry : t.more}</button>}
+          {hasMore && <button type="button" onClick={() => void loadNext()} disabled={loading} aria-label={loading ? t.loading : error ? t.retry : t.more}>{error ? t.retry : t.more}</button>}
         </div>
       )}
       <div className="kulha-offer-grid">
@@ -88,7 +88,7 @@ export function OfferProgressiveGrid({ locale, initialPage, search }: {
         </div>
       )}
       <div ref={sentinelRef} className="kulha-progressive-sentinel" aria-hidden="true" />
-      {loading && <p className="kulha-progressive-loading" role="status">{t.loading}</p>}
+      {loading && <p className="kulha-progressive-loading" role="status" aria-live="polite">{t.loading}</p>}
     </div>
   );
 }
