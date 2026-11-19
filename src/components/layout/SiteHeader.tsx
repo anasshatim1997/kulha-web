@@ -122,6 +122,7 @@ export function SiteHeader() {
     const workspaceLinks = [
       [locale === "ar" ? "لوحة المتجر" : locale === "en" ? "Dashboard" : "Tableau de bord", localePath(locale, "/merchant/dashboard"), /\/merchant\/(dashboard|apply)\/?$/.test(pathname)],
       [locale === "ar" ? "عروضي" : locale === "en" ? "My offers" : "Mes offres", localePath(locale, "/merchant/offers"), /\/merchant\/offers/.test(pathname)],
+      [locale === "ar" ? "مسح الاستلام" : locale === "en" ? "Scan pickups" : "Scanner les retraits", localePath(locale, "/merchant/reservations/scan"), /\/merchant\/reservations\/scan/.test(pathname)],
     ] as const;
     return (
       <header className="site-header site-header-workspace" dir={copy.dir}>

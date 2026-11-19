@@ -50,3 +50,9 @@ export type ReservationPage = {
   size: number;
   total: number;
 };
+
+export type PickupCredential = {
+  qrPayload: string;
+  qrImageDataUrl: string;
+  expiresAt: string;
+};

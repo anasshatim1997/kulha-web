@@ -705,3 +705,9 @@
   .km-card__price .kulha-price-sticker,
   .km-card__price .kulha-price-sticker--sm { --ps-major: 28px; --ps-min: 86px; }
 }
+
+
+/* Shared marketplace filter drawer mounted in the map header. */
+.km-topbar .km-filter-host { display: contents; }
+.km-topbar .kulha-filter-shell { flex: 0 0 auto; margin-inline-start: auto; }
+.km-topbar .kulha-filter-toggle.km-filters { margin-inline-start: 0; }

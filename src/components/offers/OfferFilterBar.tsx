@@ -33,7 +33,7 @@ type FilterKey =
     | "sort"
     | "availableOnly";
 
-type QuickPickupRanges = Record<
+export type QuickPickupRanges = Record<
     "now" | "tonight" | "tomorrow",
     { from: string; to: string }
 >;
@@ -66,6 +66,7 @@ function filterHref(
     locale: SiteLocale,
     overrides: Partial<Record<FilterKey, string>> = {},
     omit?: FilterKey,
+    basePath?: string,
 ): string {
     const query = new URLSearchParams();
 
@@ -102,7 +103,8 @@ function filterHref(
     query.set("page", "0");
     query.set("size", values.size || "20");
 
-    return `${offersPath(locale)}?${query.toString()}#kulha-offers-results`;
+    if (basePath?.includes("/offers/map")) query.set("filters", "open");
+    return `${basePath ?? offersPath(locale)}?${query.toString()}#kulha-offers-results`;
 }
 
 function matchesQuickPickup(
@@ -137,6 +139,7 @@ function submitGetForm(
     event: FormEvent<HTMLFormElement>,
     locale: SiteLocale,
     navigate: (href: string) => void,
+    basePath = offersPath(locale),
 ) {
     event.preventDefault();
 
@@ -155,10 +158,11 @@ function submitGetForm(
         }
     }
 
+    if (basePath.includes("/offers/map")) query.set("filters", "open");
     const search = query.toString();
 
     navigate(
-        `${offersPath(locale)}${search ? `?${search}` : ""}#kulha-offers-results`,
+        `${basePath}${search ? `?${search}` : ""}#kulha-offers-results`,
     );
 }
 
@@ -374,6 +378,7 @@ export function OfferFilterBar({
     const router = useRouter();
 
     const [isPending, startTransition] = useTransition();
+    const targetPath = basePath ?? offersPath(locale);
 
     const [isOpen, setIsOpen] = useState(initialOpen);
 
@@ -540,10 +545,14 @@ export function OfferFilterBar({
     );
 
     const activeCount = [
+        values.q,
+        values.category,
         values.maxPriceMinor,
+        values.city,
         values.district,
         hasCustomPickup,
         values.availableOnly === "false",
+        values.sort && values.sort !== "pickup_end",
     ].filter(Boolean).length;
 
     const submitLabel = isPending
@@ -565,7 +574,7 @@ export function OfferFilterBar({
             href={filterHref(values, locale, {
                 pickupFrom: pickupRanges[key].from,
                 pickupTo: pickupRanges[key].to,
-            })}
+            }, undefined, targetPath)}
             scroll={false}
             suppressHydrationWarning
             className={`kulha-quick-chip${
@@ -588,7 +597,7 @@ export function OfferFilterBar({
             <button
                 ref={toggleRef}
                 type="button"
-                className={`kulha-filter-toggle${
+                className={`${triggerClassName ?? "kulha-filter-toggle"}${
                     isOpen ? " is-open" : ""
                 }`}
                 aria-expanded={isOpen}
@@ -651,7 +660,7 @@ export function OfferFilterBar({
                         <div className="kulha-filter-dialog-actions">
                             {hasFilters && (
                                 <Link
-                                    href={offersPath(locale)}
+                                    href={targetPath}
                                     scroll={false}
                                     className="kulha-filter-reset"
                                 >
@@ -709,7 +718,7 @@ export function OfferFilterBar({
                                     key={value || "any"}
                                     href={filterHref(values, locale, {
                                         maxPriceMinor: value,
-                                    })}
+                                    }, undefined, targetPath)}
                                     scroll={false}
                                     className={`kulha-quick-chip${
                                         (values.maxPriceMinor ?? "") === value
@@ -728,11 +737,11 @@ export function OfferFilterBar({
                     <form
                         id="kulha-filter-form"
                         className="kulha-area-form"
-                        action={offersPath(locale)}
+                        action={targetPath}
                         method="get"
                         aria-label={t.filterFormLabel}
                         onSubmit={(event) =>
-                            submitGetForm(event, locale, navigate)
+                            submitGetForm(event, locale, navigate, targetPath)
                         }
                     >
                         {values.q && (

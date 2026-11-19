@@ -1,14 +1,15 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { reservationCopy, reservationLocaleTag } from "@/lib/i18n/reservation-copy";
 import { localePath } from "@/lib/navigation";
 import { api } from "@/lib/api/client";
 import { useSession } from "@/components/session/SessionProvider";
 import { formatPickupWindow } from "@/lib/offers/format";
-import type { Reservation } from "@/lib/reservations/types";
+import type { PickupCredential, Reservation } from "@/lib/reservations/types";
 import styles from "./ReservationScreens.module.css";
 
 function money(minor: number, locale: SiteLocale): string {
@@ -16,24 +17,54 @@ function money(minor: number, locale: SiteLocale): string {
     style: "currency", currency: "MAD", minimumFractionDigits: 2, maximumFractionDigits: 2,
   }).format(minor / 100);
 }
-function icsDate(value: string): string {
-  return new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
-}
-function icsText(value: string): string {
-  return value.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
-}
 
 export function ReservationConfirmation({ reference, locale }: { reference: string; locale: SiteLocale }) {
   const t = reservationCopy(locale);
   const { state } = useSession();
   const [reservation, setReservation] = useState<Reservation | null>(null);
+  const [credential, setCredential] = useState<PickupCredential | null>(null);
   const [loading, setLoading] = useState(true);
+  const [qrLoading, setQrLoading] = useState(true);
+  const [qrError, setQrError] = useState(false);
   const [error, setError] = useState(false);
+
+  const issueCredential = useCallback(async () => {
+    setQrLoading(true);
+    setQrError(false);
+    try {
+      const value = await api.post<PickupCredential>(
+        "/reservations/" + encodeURIComponent(reference) + "/pickup-credential",
+      );
+      setCredential(value);
+    } catch {
+      setCredential(null);
+      setQrError(true);
+    } finally {
+      setQrLoading(false);
+    }
+  }, [reference]);
 
   useEffect(() => {
     let active = true;
     api.get<Reservation>("/reservations/" + encodeURIComponent(reference))
-      .then((value) => { if (active) setReservation(value); })
+      .then(async (value) => {
+        if (!active) return;
+        setReservation(value);
+        if (value.status === "CONFIRMED") {
+          try {
+            const qr = await api.post<PickupCredential>(
+              "/reservations/" + encodeURIComponent(reference) + "/pickup-credential",
+            );
+            if (active) setCredential(qr);
+          } catch {
+            if (active) setQrError(true);
+          } finally {
+            if (active) setQrLoading(false);
+          }
+        } else {
+          setQrLoading(false);
+        }
+      })
       .catch(() => { if (active) setError(true); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
@@ -51,19 +82,10 @@ export function ReservationConfirmation({ reference, locale }: { reference: stri
 
   const address = [reservation.merchantAddress, reservation.merchantCity].filter(Boolean).join(", ");
   const directions = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(address);
-  const calendarContent = [
-    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//KULHA//Reservation//EN", "BEGIN:VEVENT",
-    "UID:" + encodeURIComponent(reservation.reference) + "@kulha",
-    "DTSTAMP:" + icsDate(reservation.createdAt),
-    "DTSTART:" + icsDate(reservation.pickupStart),
-    "DTEND:" + icsDate(reservation.pickupEnd),
-    "SUMMARY:" + icsText("KULHA! · " + reservation.offerTitle),
-    "LOCATION:" + icsText(address),
-    "DESCRIPTION:" + icsText(t.pickupCode + ": " + reservation.pickupCode),
-    "END:VEVENT", "END:VCALENDAR",
-  ].join("\r\n");
-  const calendarHref = "data:text/calendar;charset=utf-8," + encodeURIComponent(calendarContent);
   const detailHref = localePath(locale, "/reservations/" + encodeURIComponent(reservation.reference));
+  const expiresLabel = credential ? new Intl.DateTimeFormat(reservationLocaleTag(locale), {
+    timeZone: "Africa/Casablanca", dateStyle: "short", timeStyle: "short",
+  }).format(new Date(credential.expiresAt)) : "";
 
   return (
     <div className={styles.page + " " + styles.confirmationPage} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
@@ -91,23 +113,17 @@ export function ReservationConfirmation({ reference, locale }: { reference: stri
 
         <section className={styles.codeCard} aria-label={t.pickupCode}>
           <span className={styles.codeCaption}>{t.pickupCode}</span>
+          {credential && <Image src={credential.qrImageDataUrl} alt={t.qrAlt} width={220} height={220} unoptimized className={styles.qrImage} />}
+          {qrLoading && <span className={styles.qrLoading} role="status">{t.loadingReservation}</span>}
+          {qrError && !qrLoading && <div className={styles.qrError} role="status"><span>{t.qrUnavailable}</span><button type="button" className={styles.secondaryButton} onClick={() => void issueCredential()}>{t.refreshQr}</button></div>}
           <strong className={styles.pickupCode}>{reservation.pickupCode}</strong>
+          {credential && <small className={styles.qrExpiry}>{t.qrExpires} {expiresLabel}</small>}
           <p>{reservation.pickupInstructions}</p>
         </section>
       </div>
 
-      <section className={styles.nextCard}>
-        <h2>{t.next}</h2>
-        <div className={styles.nextSteps}>
-          <div><b>1</b><div><strong>{t.goShop}</strong><span>{t.goShopBody}</span></div></div>
-          <div><b>2</b><div><strong>{t.showCode}</strong><span>{t.showCodeBody}</span></div></div>
-          <div><b>3</b><div><strong>{t.payCollect}</strong><span>{t.payCollectBody}</span></div></div>
-        </div>
-      </section>
-
       <div className={styles.actionRow}>
         <Link className={styles.primaryButton} href={detailHref}>{t.viewReservation}</Link>
-        <a className={styles.secondaryButton} href={calendarHref} download={"kulha-" + reservation.reference + ".ics"}>{t.addCalendar}</a>
         <a className={styles.secondaryButton} href={directions} target="_blank" rel="noreferrer">{t.directions}</a>
       </div>
     </div>

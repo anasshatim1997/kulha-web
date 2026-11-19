@@ -50,6 +50,8 @@ describe("locale navigation", () => {
     expect(switchLocalePath("/offers", "ar")).toBe("/ar/offers");
     expect(switchLocalePath("/en/offers/123", "fr")).toBe("/offers/123");
     expect(switchLocalePath("/merchant/offers", "en")).toBe("/en/merchant/offers");
+    expect(switchLocalePath("/merchant/reservations/scan", "ar")).toBe("/ar/merchant/reservations/scan");
+    expect(switchLocalePath("/en/merchant/reservations/scan", "fr")).toBe("/merchant/reservations/scan");
   });
   it("recognizes only unprefixed French and EN/AR merchant workspaces", () => {
     expect(isMerchantWorkspacePath("/merchant/offers")).toBe(true);

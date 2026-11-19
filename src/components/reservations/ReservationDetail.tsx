@@ -1,14 +1,15 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { reservationCopy, reservationLocaleTag } from "@/lib/i18n/reservation-copy";
 import { localePath } from "@/lib/navigation";
 import { api } from "@/lib/api/client";
 import { useSession } from "@/components/session/SessionProvider";
 import { formatPickupWindow } from "@/lib/offers/format";
-import type { Reservation } from "@/lib/reservations/types";
+import type { PickupCredential, Reservation } from "@/lib/reservations/types";
 import styles from "./ReservationScreens.module.css";
 
 function money(minor: number, locale: SiteLocale): string {
@@ -17,34 +18,84 @@ function money(minor: number, locale: SiteLocale): string {
   }).format(minor / 100);
 }
 
+const CANCELLATION_REASONS = [
+  ["PICKUP_TIME", "cancelReasonPickupTime"],
+  ["TOO_FAR", "cancelReasonTooFar"],
+  ["CHANGED_MIND", "cancelReasonChangedMind"],
+  ["FOUND_ALTERNATIVE", "cancelReasonFoundAlternative"],
+  ["OFFER_NOT_AS_EXPECTED", "cancelReasonOfferNotExpected"],
+  ["RESERVED_BY_MISTAKE", "cancelReasonMistake"],
+  ["OTHER", "cancelReasonOther"],
+] as const;
+
 export function ReservationDetail({ reference, locale }: { reference: string; locale: SiteLocale }) {
   const t = reservationCopy(locale);
   const { state } = useSession();
   const [reservation, setReservation] = useState<Reservation | null>(null);
+  const [credential, setCredential] = useState<PickupCredential | null>(null);
   const [loading, setLoading] = useState(true);
+  const [qrLoading, setQrLoading] = useState(false);
+  const [qrError, setQrError] = useState(false);
   const [error, setError] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [cancelError, setCancelError] = useState<string | null>(null);
+  const [reasonCode, setReasonCode] = useState("NOT_PROVIDED");
+  const [comment, setComment] = useState("");
 
-  async function load() {
+  const issueCredential = useCallback(async () => {
+    setQrLoading(true);
+    setQrError(false);
+    try {
+      const value = await api.post<PickupCredential>(
+        "/reservations/" + encodeURIComponent(reference) + "/pickup-credential",
+      );
+      setCredential(value);
+    } catch {
+      setCredential(null);
+      setQrError(true);
+    } finally {
+      setQrLoading(false);
+    }
+  }, [reference]);
+
+  const load = useCallback(async () => {
     setLoading(true);
     setError(false);
     try {
       const value = await api.get<Reservation>("/reservations/" + encodeURIComponent(reference));
       setReservation(value);
+      if (value.status === "CONFIRMED" && value.classification === "UPCOMING") await issueCredential();
+      else setCredential(null);
     } catch {
       setError(true);
       setReservation(null);
     } finally {
       setLoading(false);
     }
-  }
+  }, [issueCredential, reference]);
 
   useEffect(() => {
     let active = true;
     api.get<Reservation>("/reservations/" + encodeURIComponent(reference))
-      .then((value) => { if (active) setReservation(value); })
+      .then(async (value) => {
+        if (!active) return;
+        setReservation(value);
+        if (value.status === "CONFIRMED" && value.classification === "UPCOMING") {
+          setQrLoading(true);
+          setQrError(false);
+          try {
+            const qr = await api.post<PickupCredential>(
+              "/reservations/" + encodeURIComponent(reference) + "/pickup-credential",
+            );
+            if (active) setCredential(qr);
+          } catch {
+            if (active) setQrError(true);
+          } finally {
+            if (active) setQrLoading(false);
+          }
+        }
+      })
       .catch(() => { if (active) { setError(true); setReservation(null); } })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
@@ -56,9 +107,12 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
     try {
       const updated = await api.patch<Reservation>(
         "/reservations/" + encodeURIComponent(reference) + "/cancel",
+        { reasonCode: reasonCode || "NOT_PROVIDED", comment: comment.trim() || undefined },
       );
       setReservation(updated);
+      setCredential(null);
       setConfirmCancel(false);
+      setComment("");
     } catch {
       setCancelError(t.cancelUnavailable);
     } finally {
@@ -76,14 +130,21 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
     return <div className={styles.page} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}><div className={styles.stateCard} role="alert"><p>{t.errorTitle}</p><button className={styles.secondaryButton} type="button" onClick={() => void load()}>{t.retry}</button><Link href={localePath(locale, "/reservations")}>{t.backToReservations}</Link></div></div>;
   }
 
-  // The API owns this classification. Do not derive upcoming/past from the browser clock.
+  // Upcoming/past comes from the API. The browser does not calculate reservation status.
   const isUpcoming = reservation.classification === "UPCOMING";
+  const canShowQr = isUpcoming && reservation.status === "CONFIRMED";
   const address = [reservation.merchantAddress, reservation.merchantCity].filter(Boolean).join(", ");
   const directions = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(address);
+  const expiresLabel = credential ? new Intl.DateTimeFormat(reservationLocaleTag(locale), {
+    timeZone: "Africa/Casablanca", dateStyle: "short", timeStyle: "short",
+  }).format(new Date(credential.expiresAt)) : "";
 
   return (
     <div className={styles.page} lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} data-classification={reservation.classification.toLowerCase()}>
-      <div className={styles.pageTop}><Link className={styles.backLink} href={localePath(locale, "/reservations")}><span aria-hidden="true">‹</span>{t.backToReservations}</Link><span className={styles.statusPill}>{reservation.statusLabel}</span></div>
+      <div className={styles.pageTop}>
+        <Link className={styles.backLink} href={localePath(locale, "/reservations")}><span aria-hidden="true">‹</span>{t.backToReservations}</Link>
+        <span className={styles.statusPill}>{reservation.statusLabel}</span>
+      </div>
       <header className={styles.listHeader}>
         <h1>{isUpcoming ? t.upcomingTitle : t.pastTitle}</h1>
         <p>{reservation.reference}</p>
@@ -108,13 +169,13 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
         </section>
 
         <aside className={styles.detailCodeColumn}>
-          <section className={styles.codeCard}>
+          <section className={styles.codeCard} aria-label={t.pickupCode}>
             <span className={styles.codeCaption}>{t.pickupCode}</span>
+            {credential && <Image src={credential.qrImageDataUrl} alt={t.qrAlt} width={200} height={200} unoptimized className={styles.qrImage} />}
+            {canShowQr && qrLoading && <span className={styles.qrLoading} role="status">{t.loadingReservation}</span>}
+            {canShowQr && qrError && !qrLoading && <div className={styles.qrError} role="status"><span>{t.qrUnavailable}</span><button type="button" className={styles.secondaryButton} onClick={() => void issueCredential()}>{t.refreshQr}</button></div>}
             <strong className={styles.pickupCode}>{reservation.pickupCode}</strong>
-            <p>{reservation.pickupInstructions}</p>
-          </section>
-          <section className={styles.instructionCard}>
-            <h2>{t.pickupInstructions}</h2>
+            {credential && <small className={styles.qrExpiry}>{t.qrExpires} {expiresLabel}</small>}
             <p>{reservation.merchantPickupInstructions || reservation.pickupInstructions}</p>
           </section>
         </aside>
@@ -127,11 +188,29 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
             {!confirmCancel ? (
               <button className={styles.dangerButton} type="button" onClick={() => setConfirmCancel(true)}>{t.cancelReservation}</button>
             ) : (
-              <div className={styles.cancelConfirm} role="group" aria-label={t.cancelConfirm}>
-                <span>{t.cancelConfirm}</span>
-                <button className={styles.dangerButton} type="button" disabled={cancelling} onClick={() => void cancelReservation()}>{cancelling ? t.cancelling : t.cancelReservation}</button>
-                <button className={styles.secondaryButton} type="button" disabled={cancelling} onClick={() => setConfirmCancel(false)}>{t.retry}</button>
-              </div>
+              <section className={styles.cancelPanel} aria-labelledby="cancel-reason-title">
+                <div className={styles.cancelPanelHeading}>
+                  <h2 id="cancel-reason-title">{t.cancelReasonTitle}</h2>
+                  <p>{t.cancelReasonOptional}</p>
+                </div>
+                <label className={styles.cancelField}>
+                  <span>{t.cancelReasonTitle}</span>
+                  <select value={reasonCode} onChange={(event) => setReasonCode(event.target.value)}>
+                    <option value="NOT_PROVIDED">{t.cancelReasonSkip}</option>
+                    {CANCELLATION_REASONS.map(([code, key]) => (
+                      <option key={code} value={code}>{t[key]}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className={styles.cancelField}>
+                  <span>{t.cancelComment}</span>
+                  <textarea value={comment} maxLength={500} rows={2} placeholder={t.cancelCommentPlaceholder} onChange={(event) => setComment(event.target.value)} />
+                </label>
+                <div className={styles.cancelPanelActions}>
+                  <button className={styles.dangerButton} type="button" disabled={cancelling} onClick={() => void cancelReservation()}>{cancelling ? t.cancelSubmitting : t.cancelConfirmAction}</button>
+                  <button className={styles.secondaryButton} type="button" disabled={cancelling} onClick={() => setConfirmCancel(false)}>{t.keepReservation}</button>
+                </div>
+              </section>
             )}
           </div>
         )}

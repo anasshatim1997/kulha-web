@@ -13,7 +13,7 @@ import { OfferSortSelect } from "@/components/offers/OfferSortSelect";
 import { OfferNearbyProvider } from "@/components/offers/OfferNearbyContext";
 import { OfferNearbyResults } from "@/components/offers/OfferNearbyResults";
 import { searchFromParams } from "@/lib/offers/search-params";
-import { offerPageHref } from "@/lib/offers/pagination";
+import { offerPageHref, offerPageNumbers } from "@/lib/offers/pagination";
 import { getCasablancaQuickPickupRanges } from "@/lib/time/casablanca";
 import { OfferResultsProgress } from "@/components/offers/OfferResultsProgress";
 import { OfferMapButton } from "@/components/offers/OfferMapButton";
@@ -78,6 +78,7 @@ export async function OfferListPage({ locale, params }: { locale: SiteLocale; pa
   const result: PublicOfferPage | undefined = loaded.page;
   const error = loaded.error;
   const total = result?.total ?? 0;
+  const totalPages = result && result.size > 0 ? Math.ceil(result.total / result.size) : 0;
   const explicitCity = Array.isArray(params.city) ? params.city[0] : params.city;
   const isFiltered = Boolean(
     search.q || search.category || search.maxPriceMinor || explicitCity || search.district ||
@@ -158,18 +159,42 @@ export async function OfferListPage({ locale, params }: { locale: SiteLocale; pa
                     <OfferErrorState locale={locale} href={retryHref} />
                   ) : result?.items.length ? (
                     <>
-                      <div className="kulha-offer-grid">
-                        {result.items.map((offer, index) => <OfferCard key={offer.id} offer={offer} locale={locale} priority={index === 0} />)}
-                      </div>
                       {result.total > result.size && (
-                        <nav aria-label={t.availableTitle} className="kulha-pagination">
-                          <span>{t.pageLabel} {result.page + 1} / {Math.ceil(result.total / result.size)}</span>
-                          <div>
-                            {result.page > 0 && <Link rel="prev" href={`${offerPageHref(locale, search, result.page - 1)}#kulha-offers-results`}>{t.previous}</Link>}
-                            {(result.page + 1) * result.size < result.total && <Link rel="next" href={`${offerPageHref(locale, search, result.page + 1)}#kulha-offers-results`}>{t.next}</Link>}
+                        <nav aria-label={t.availableTitle} className="kulha-pagination kulha-pagination--top">
+                          <div className="kulha-pagination-summary">
+                            <strong>{t.pageLabel} {result.page + 1} / {totalPages}</strong>
+                            <span>{result.total} {t.resultCount}</span>
+                          </div>
+                          <div className="kulha-pagination-controls">
+                            {result.page > 0 && (
+                              <Link rel="prev" className="kulha-pagination-prev" href={offerPageHref(locale, search, result.page - 1)}>
+                                <span aria-hidden="true">‹</span>{t.previous}
+                              </Link>
+                            )}
+                            <div className="kulha-pagination-pages" aria-label={t.pageLabel}>
+                              {offerPageNumbers(result.page, totalPages).map((page, index) => page === "ellipsis" ? (
+                                <span key={`ellipsis-${index}`} className="kulha-pagination-ellipsis" aria-hidden="true">…</span>
+                              ) : (
+                                <Link
+                                  key={page}
+                                  href={offerPageHref(locale, search, page)}
+                                  className={page === result.page ? "is-current" : ""}
+                                  aria-current={page === result.page ? "page" : undefined}
+                                  aria-label={`${t.pageLabel} ${page + 1}`}
+                                >{page + 1}</Link>
+                              ))}
+                            </div>
+                            {result.page + 1 < totalPages && (
+                              <Link rel="next" className="kulha-pagination-next" href={offerPageHref(locale, search, result.page + 1)}>
+                                {t.next}<span aria-hidden="true">›</span>
+                              </Link>
+                            )}
                           </div>
                         </nav>
                       )}
+                      <div className="kulha-offer-grid">
+                        {result.items.map((offer, index) => <OfferCard key={offer.id} offer={offer} locale={locale} priority={index === 0} />)}
+                      </div>
                     </>
                   ) : (
                     <OfferEmptyState
