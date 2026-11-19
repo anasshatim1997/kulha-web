@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { groupOffersIntoMapStores, groupOffersWithoutCoordinates, initialMapZoom, MAP_STORE_AVATAR_MIN_ZOOM, MAP_STORE_CLUSTER_MAX_ZOOM, scoreMapOffer, shouldShowMapStoreAvatars } from "./map-ranking";
+import {
+  groupOffersIntoMapStores,
+  groupOffersWithoutCoordinates,
+  initialMapZoom,
+  MAP_STORE_AVATAR_MIN_ZOOM,
+  MAP_STORE_CLUSTER_MAX_ZOOM,
+  scoreMapOffer,
+  shouldShowMapStoreAvatars,
+} from "./map-ranking";
 import type { PublicOffer } from "./public-api";
 
 const now = Date.parse("2026-11-08T12:00:00Z");
