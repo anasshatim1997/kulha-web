@@ -423,7 +423,6 @@ export function OfferStoreMapCanvas({
 
     const markersRef = useRef<Map<string, MarkerRecord>>(new Map());
     const storesRef = useRef(stores);
-    storesRef.current = stores;
     const popupRef = useRef<MapLibrePopup | null>(null);
     const userMarkerRef = useRef<MapLibreMarker | null>(null);
 
@@ -455,17 +454,19 @@ export function OfferStoreMapCanvas({
         userLocationRef.current = userLocation;
         onUserDragRef.current = onUserDrag;
         selectedStoreKeyRef.current = selectedStoreKey;
+        storesRef.current = stores;
     }, [
         onSelectStore,
         onPreviewStore,
         userLocation,
         onUserDrag,
         selectedStoreKey,
+        stores,
     ]);
 
     useEffect(() => {
         mapConfigRef.current = {
-            center,
+            center: { latitude: center.latitude, longitude: center.longitude },
             initialZoom,
             locale,
         };
