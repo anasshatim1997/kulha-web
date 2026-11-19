@@ -126,7 +126,7 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
           </div>
           <dl className={styles.definitionList}>
             <div><dt>{t.pickupWindow}</dt><dd>{formatPickupWindow(reservation.pickupStart, reservation.pickupEnd, locale)}</dd></div>
-            <div><dt>{t.address}</dt><dd>{address}</dd></div>
+            <div><dt>{t.address}</dt><dd><span>{address}</span><a className={styles.mapLink} href={directions} target="_blank" rel="noreferrer"><span aria-hidden="true">⌖</span>{t.directions}</a></dd></div>
             <div><dt>{t.quantityLabel}</dt><dd>× {reservation.quantity}</dd></div>
             <div><dt>{t.totalPrice}</dt><dd>{money(reservation.totalPriceMinor, locale)}</dd></div>
           </dl>
@@ -185,7 +185,6 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
         </div>
       )}
       <div className={styles.detailFooter}>
-        <a className={styles.secondaryButton} href={directions} target="_blank" rel="noreferrer">{t.directions}</a>
         <Link className={styles.primaryButton} href={localePath(locale, "/reservations")}>{t.backToReservations}</Link>
       </div>
     </div>
