@@ -186,9 +186,6 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
           </section>
         </div>
       )}
-      <div className={styles.detailFooter}>
-        <Link className={styles.primaryButton} href={localePath(locale, "/reservations")}>{t.backToReservations}</Link>
-      </div>
     </div>
   );
 }
