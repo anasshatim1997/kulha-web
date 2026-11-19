@@ -705,3 +705,64 @@
   .km-card__price .kulha-price-sticker,
   .km-card__price .kulha-price-sticker--sm { --ps-major: 28px; --ps-min: 86px; }
 }
+
+
+/* Final page sizing: the map shell owns the viewport below the site header.
+   On phones the toolbar, view switch and map/list area are three explicit grid rows. */
+.kulha-map-page-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: calc(100dvh - var(--kulha-header-h, 82px));
+  min-height: 0;
+  overflow: hidden;
+}
+.kulha-map-page-shell > .km {
+  flex: 1 1 auto;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+@media (max-width: 1100px) and (min-width: 761px) {
+  .kulha-map-page-shell > .km {
+    min-height: 0;
+    height: 100%;
+  }
+  .kulha-map-page-shell .km-body {
+    height: auto;
+    min-height: 0;
+  }
+}
+@media (max-width: 760px) {
+  .kulha-map-page-shell {
+    height: calc(100dvh - var(--kulha-header-h, 68px));
+    min-height: 0;
+  }
+  .kulha-map-page-shell > .km {
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    min-height: 0;
+    height: 100%;
+  }
+  .kulha-map-page-shell .km-topbar,
+  .kulha-map-page-shell .km-switch {
+    min-height: 0;
+  }
+  .kulha-map-page-shell .km-body {
+    display: block;
+    height: 100%;
+    min-height: 0;
+    padding-top: 0;
+    overflow: hidden;
+  }
+  .kulha-map-page-shell .km-map {
+    height: 100%;
+    min-height: 0;
+  }
+  .kulha-map-page-shell .km-sidebar {
+    height: 100%;
+    min-height: 0;
+    overflow: auto;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}
