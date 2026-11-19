@@ -1,6 +1,6 @@
 /* KULHA reservation experience — generous, legible and pickup-first. */
 .page {
-  width: min(calc(100% - 48px), 1180px);
+  width: min(calc(100% - 64px), 1180px);
   margin: 0 auto;
   padding: 28px 0 52px;
   color: var(--green, #073324);
@@ -122,7 +122,7 @@
 .definitionList dd .mapLink span { font-size:15px; line-height:1; }
 .codeCard { min-height:330px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:24px; text-align:center; border-top:4px solid var(--yellow,#fdbe2e); background:linear-gradient(145deg,#fffdf9 0%,#fff7eb 100%); }
 .codeCaption { margin-bottom:5px; color:#506b59; font-size:13px; font-weight:1000; letter-spacing:.1em; text-transform:uppercase; }
-.kulha-pickup-qr { display:block; width:min(100%,220px); height:auto; aspect-ratio:1; image-rendering:pixelated; }
+:global(.kulha-pickup-qr) { display:block; width:min(100%,220px); height:auto; aspect-ratio:1; image-rendering:pixelated; }
 .pickupCode { color:var(--green,#073324); font-size:clamp(32px,4vw,48px); font-weight:1000; letter-spacing:.16em; line-height:1.1; overflow-wrap:anywhere; }
 .pickupCodeFallback { color:var(--green,#073324); font-size:25px; font-weight:1000; letter-spacing:.14em; line-height:1.15; }
 .codeCard p { max-width:320px; margin:8px 0 0; color:#64786a; font-size:14px; font-weight:750; line-height:1.5; }
@@ -180,7 +180,7 @@
 
 .cancelOverlay { position:fixed; inset:0; z-index:1000; display:grid; place-items:center; padding:20px; background:rgb(7 27 19 / 64%); backdrop-filter:blur(8px); animation:kulha-cancel-backdrop .18s ease-out both; }
 @keyframes kulha-cancel-backdrop { from { opacity:0; } to { opacity:1; } }
-.cancelDialog { position:relative; width:min(100%,580px); max-height:min(88dvh,720px); overflow-y:auto; overscroll-behavior:contain; display:grid; gap:16px; padding:28px; border:1px solid #f0dfc9; border-radius:26px; background:radial-gradient(circle at 100% 0%,rgb(253 190 46 / 13%),transparent 34%),#fffdf9; box-shadow:0 28px 90px rgb(0 0 0 / 28%); animation:kulha-cancel-enter .24s cubic-bezier(.2,1.25,.45,1) both; }
+.cancelDialog { position:relative; width:min(100%,760px); max-height:min(90dvh,820px); overflow-y:auto; overscroll-behavior:contain; display:grid; gap:16px; padding:28px; border:1px solid #f0dfc9; border-radius:26px; background:radial-gradient(circle at 100% 0%,rgb(253 190 46 / 13%),transparent 34%),#fffdf9; box-shadow:0 28px 90px rgb(0 0 0 / 28%); animation:kulha-cancel-enter .24s cubic-bezier(.2,1.25,.45,1) both; }
 .cancelDialog::before { content:""; position:absolute; inset:0 0 auto; height:5px; border-radius:26px 26px 0 0; background:linear-gradient(90deg,var(--red,#ee3f29),var(--yellow,#fdbe2e)); }
 @keyframes kulha-cancel-enter { from { opacity:0; transform:translateY(12px) scale(.98); } to { opacity:1; transform:translateY(0) scale(1); } }
 .cancelDialogHead { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; }
@@ -280,11 +280,28 @@
 .availabilityRefreshing { display:inline-flex; align-items:center; margin-inline-start:10px; padding:4px 9px; border-radius:99px; background:#fff2d9; color:#8a5b12; font-size:12px; font-weight:900; letter-spacing:0; text-transform:none; }
 
 .confirmationPage { max-width:1180px; }
+.detailPage { padding-block:24px max(42px, env(safe-area-inset-bottom)); }
+.detailPage .pageTop { margin-bottom:12px; }
+.detailPage .listHeader { margin-bottom:18px; }
+.detailPage .detailGrid { gap:18px; }
+.detailPage .confirmationSummary { padding:20px; }
+.detailPage .codeCard { min-height:0; padding:18px; }
+.detailPage .codeCard :global(.kulha-pickup-qr) { width:min(100%,200px); }
+.detailPage .detailFooter { margin-top:16px; }
 .detailTopActions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 
 
-/* Transaction screens: a complete viewport composition, without page scrolling. */
-.checkoutPage,.confirmationPage { display:flex; flex-direction:column; justify-content:center; min-height:calc(100svh - 82px); padding-block:clamp(10px,2vh,24px); }
+/* Viewport-fitted reservation screens grow naturally when content needs more room.
+   The QR is explicitly global because ReservationQrCode renders a global SVG class. */
+.checkoutPage,.confirmationPage {
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  min-height:calc(100svh - 76px);
+  height:auto;
+  padding-block:clamp(16px,2.5vh,26px) max(36px,env(safe-area-inset-bottom));
+  overflow:visible;
+}
 .checkoutPage .pageTop { margin-bottom:10px; }
 .checkoutPage .headingRow { margin-bottom:14px; }
 .checkoutPage .checkoutGrid { gap:20px; }
@@ -298,91 +315,110 @@
 .checkoutPage .totalLine { margin-bottom:13px; }
 .checkoutPage .notice { margin-bottom:12px; padding:11px 13px; }
 .checkoutPage .terms { margin-top:8px; }
+
 .confirmationPage { gap:0; }
 .confirmationPage .successHeader { margin-bottom:16px; }
-.confirmationPage .successIcon { width:58px; height:58px; margin-bottom:8px; }
 .confirmationPage .confirmationGrid { gap:16px; }
 .confirmationPage .confirmationSummary { padding:18px 21px; }
 .confirmationPage .definitionList > div { padding:8px 0; }
-.confirmationPage .codeCard { min-height:0; padding:16px; gap:6px; }
-.confirmationPage .kulha-pickup-qr { width:min(100%,174px); }
+.confirmationPage .codeCard { min-height:0; padding:16px; }
+.confirmationPage :global(.kulha-pickup-qr) { width:min(100%,220px); }
 .confirmationPage .codeCard p { margin-top:4px; }
 .confirmationPage .actionRow { margin-top:14px; }
-@media (min-width:741px) and (min-height:700px) {
-  html:has(.checkoutPage),body:has(.checkoutPage),html:has(.confirmationPage),body:has(.confirmationPage) { height:100%; overflow:hidden; }
-  body:has(.checkoutPage) > main,body:has(.confirmationPage) > main { min-height:0; overflow:hidden; }
-  body:has(.checkoutPage) .site-footer,body:has(.confirmationPage) .site-footer { display:none; }
+
+@media (min-width:741px) {
+  body:has(.checkoutPage) .site-footer,
+  body:has(.confirmationPage) .site-footer { display:none; }
 }
 @media (max-width:740px) {
-  html:has(.checkoutPage),body:has(.checkoutPage),html:has(.confirmationPage),body:has(.confirmationPage) { height:100%; overflow:hidden; }
-  body:has(.checkoutPage) > main,body:has(.confirmationPage) > main { min-height:0; overflow:hidden; }
-  body:has(.checkoutPage) .site-footer,body:has(.confirmationPage) .site-footer { display:none; }
-  .checkoutPage,.confirmationPage { min-height:calc(100svh - 68px); height:calc(100svh - 68px); padding-block:8px; overflow:hidden; }
-  .checkoutPage .pageTop { margin-bottom:5px; }
-  .checkoutPage .headingRow { margin-bottom:8px; }
-  .checkoutPage .headingRow h1 { font-size:clamp(25px,6vw,31px); }
-  .checkoutPage .checkoutGrid { grid-template-columns:minmax(0,1fr); gap:8px; }
-  .checkoutPage .checkoutMain { gap:7px; }
-  .checkoutPage .productCard { min-height:76px; padding:9px 12px; gap:10px; border-radius:16px; }
-  .checkoutPage .bagIllustration { width:54px; height:54px; border-radius:12px; font-size:29px; }
-  .checkoutPage .productInfo h2 { margin:3px 0 5px; font-size:17px; }
-  .checkoutPage .merchantName { font-size:12px; }
-  .checkoutPage .pill { padding:4px 9px; font-size:11px; }
-  .checkoutPage .productPrice { font-size:15px; }
-  .checkoutPage .panel { padding:9px 12px; border-radius:15px; }
-  .checkoutPage .sectionLabel { margin-bottom:6px; font-size:12px; }
-  .checkoutPage .stepper { gap:10px; }
-  .checkoutPage .stepper button { width:36px; height:36px; border-radius:10px; font-size:19px; }
-  .checkoutPage .stepper output { font-size:22px; }
-  .checkoutPage .quantityRow { gap:12px; }
-  .checkoutPage .quantityNote,.checkoutPage .quantityNote strong { font-size:12px; }
-  .checkoutPage .pickupRows { grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
-  .checkoutPage .pickupRow { display:grid; grid-template-columns:22px minmax(0,1fr); gap:5px; }
-  .checkoutPage .detailIcon { width:22px; height:22px; flex-basis:22px; font-size:18px; }
-  .checkoutPage .pickupRow strong { font-size:12px; }
-  .checkoutPage .pickupRow span:not(.detailIcon) { font-size:11.5px; line-height:1.25; }
-  .checkoutPage .pickupRow small { display:none; }
-  .checkoutPage .summaryCard { padding:10px 13px; border-radius:16px; }
-  .checkoutPage .summaryCard h2 { margin-bottom:5px; padding-bottom:5px; font-size:17px; }
-  .checkoutPage .summaryLine { padding:2px 0; font-size:12px; }
-  .checkoutPage .summaryDivider { margin:5px 0 7px; }
-  .checkoutPage .totalLine { margin-bottom:6px; }
-  .checkoutPage .totalLine strong { font-size:13px; }
-  .checkoutPage .totalLine b { font-size:20px; }
-  .checkoutPage .notice { margin-bottom:6px; padding:6px 9px; gap:7px; }
-  .checkoutPage .notice span { font-size:16px; }
-  .checkoutPage .notice p { font-size:11.5px; line-height:1.3; }
-  .checkoutPage .confirmButton { min-height:42px; font-size:14px; }
-  .checkoutPage .terms { margin-top:4px; font-size:10.5px; line-height:1.3; }
-  .confirmationPage { gap:0; }
-  .confirmationPage .successHeader { margin-bottom:9px; }
-  .confirmationPage .successIcon { width:46px; height:46px; margin-bottom:4px; }
-  .confirmationPage .successIcon svg { width:31px; height:31px; }
-  .confirmationPage .successHeader h1 { font-size:25px; }
-  .confirmationPage .successHeader p { font-size:12.5px; line-height:1.35; }
-  .confirmationPage .confirmationGrid { grid-template-columns:minmax(0,1fr); gap:8px; }
-  .confirmationPage .confirmationSummary { padding:10px 13px; border-radius:16px; }
-  .confirmationPage .confirmationProduct { gap:8px; padding-bottom:7px; }
-  .confirmationPage .smallBag { width:42px; height:42px; font-size:22px; }
-  .confirmationPage .confirmationProduct h2 { font-size:16px; }
-  .confirmationPage .confirmationProduct > div:nth-child(2) > span { font-size:11px; }
-  .confirmationPage .statusPill { padding:4px 8px; font-size:10px; }
-  .confirmationPage .definitionList > div { gap:10px; padding:4px 0; }
-  .confirmationPage .definitionList dt,.confirmationPage .definitionList dd { font-size:11.5px; line-height:1.3; }
-  .confirmationPage .codeCard { display:grid; grid-template-columns:minmax(0,1fr) auto; justify-items:center; align-items:center; padding:8px 12px; gap:3px 10px; }
-  .confirmationPage .codeCaption { grid-column:1/-1; margin:0; font-size:11px; }
-  .confirmationPage .kulha-pickup-qr { width:90px; max-height:90px; grid-row:2/4; grid-column:2; }
-  .confirmationPage .pickupCodeFallback { font-size:18px; }
-  .confirmationPage .codeCard p { grid-column:1/-1; max-width:none; margin:0; font-size:11px; line-height:1.25; }
-  .confirmationPage .actionRow { display:flex; gap:7px; margin-top:8px; }
-  .confirmationPage .actionRow a { width:auto; min-height:39px; padding-inline:12px; font-size:12px; }
-  .cancelDialog { padding:21px 17px; gap:12px; }
-  .cancelDialogHead strong { font-size:20px; }
+  .page { width:min(calc(100% - 36px),600px); padding:20px 0 40px; }
+  .checkoutPage,.confirmationPage {
+    min-height:calc(100svh - 68px);
+    height:auto;
+    justify-content:flex-start;
+    padding-block:16px max(100px,calc(env(safe-area-inset-bottom) + 82px));
+  }
+  .checkoutPage .pageTop { margin-bottom:8px; }
+  .checkoutPage .headingRow { margin-bottom:12px; }
+  .checkoutPage .headingRow h1 { font-size:clamp(29px,6vw,36px); }
+  .checkoutPage .checkoutGrid { grid-template-columns:minmax(0,1fr); gap:14px; }
+  .checkoutPage .checkoutMain { gap:12px; }
+  .checkoutPage .productCard { min-height:100px; padding:14px; gap:12px; }
+  .checkoutPage .bagIllustration { width:64px; height:64px; font-size:34px; }
+  .checkoutPage .productInfo h2 { margin:3px 0 5px; font-size:19px; }
+  .checkoutPage .merchantName { font-size:14px; }
+  .checkoutPage .pill { padding:5px 10px; font-size:12px; }
+  .checkoutPage .productPrice { font-size:17px; }
+  .checkoutPage .panel { padding:16px; }
+  .checkoutPage .sectionLabel { margin-bottom:9px; font-size:14px; }
+  .checkoutPage .stepper { gap:12px; }
+  .checkoutPage .stepper button { width:42px; height:42px; font-size:21px; }
+  .checkoutPage .stepper output { font-size:24px; }
+  .checkoutPage .quantityNote,.checkoutPage .quantityNote strong { font-size:14px; }
+  .checkoutPage .pickupRows { grid-template-columns:minmax(0,1fr); gap:12px; }
+  .checkoutPage .pickupRow { display:flex; gap:10px; }
+  .checkoutPage .detailIcon { width:26px; height:26px; flex-basis:26px; font-size:19px; }
+  .checkoutPage .pickupRow strong { font-size:14px; }
+  .checkoutPage .pickupRow span:not(.detailIcon) { font-size:14px; line-height:1.4; }
+  .checkoutPage .pickupRow small { display:block; }
+  .checkoutPage .summaryCard { padding:18px; }
+  .checkoutPage .summaryCard h2 { margin-bottom:9px; padding-bottom:8px; font-size:20px; }
+  .checkoutPage .summaryLine { padding:5px 0; font-size:14px; }
+  .checkoutPage .summaryDivider { margin:9px 0 12px; }
+  .checkoutPage .totalLine { margin-bottom:10px; }
+  .checkoutPage .totalLine strong { font-size:15px; }
+  .checkoutPage .totalLine b { font-size:22px; }
+  .checkoutPage .notice { margin-bottom:10px; padding:10px 12px; gap:8px; }
+  .checkoutPage .notice span { font-size:18px; }
+  .checkoutPage .notice p { font-size:13px; line-height:1.4; }
+  .checkoutPage .confirmButton { min-height:52px; font-size:16px; }
+  .checkoutPage .terms { margin-top:8px; font-size:12px; line-height:1.45; }
+
+  .confirmationPage .successHeader { margin-bottom:12px; }
+  .confirmationPage .successIcon { width:54px; height:54px; margin-bottom:7px; }
+  .confirmationPage .successIcon svg { width:36px; height:36px; }
+  .confirmationPage .successHeader h1 { font-size:clamp(30px,6vw,38px); }
+  .confirmationPage .successHeader p { font-size:14px; line-height:1.45; }
+  .confirmationPage .confirmationGrid { grid-template-columns:minmax(0,1fr); gap:12px; }
+  .confirmationPage .confirmationSummary { padding:16px; border-radius:19px; }
+  .confirmationPage .confirmationProduct { gap:10px; padding-bottom:12px; }
+  .confirmationPage .smallBag { width:54px; height:54px; font-size:28px; }
+  .confirmationPage .confirmationProduct h2 { font-size:19px; }
+  .confirmationPage .confirmationProduct > div:nth-child(2) > span { font-size:13px; }
+  .confirmationPage .statusPill { padding:5px 10px; font-size:12px; }
+  .confirmationPage .definitionList > div { gap:12px; padding:8px 0; }
+  .confirmationPage .definitionList dt,.confirmationPage .definitionList dd { font-size:14px; line-height:1.4; }
+  .confirmationPage .codeCard { display:flex; padding:16px; gap:8px; }
+  .confirmationPage .codeCaption { margin:0; font-size:13px; }
+  .confirmationPage :global(.kulha-pickup-qr) { width:min(100%,190px); }
+  .confirmationPage .pickupCodeFallback { font-size:22px; }
+  .confirmationPage .codeCard p { max-width:100%; margin:0; font-size:13px; line-height:1.4; }
+  .confirmationPage .actionRow { display:grid; grid-template-columns:1fr; gap:9px; margin-top:12px; }
+  .confirmationPage .actionRow a { width:100%; min-height:48px; padding-inline:16px; font-size:14px; }
+
+  .detailPage { padding-block:20px max(100px,calc(env(safe-area-inset-bottom) + 82px)); }
+  .detailPage .detailGrid { grid-template-columns:minmax(0,1fr); gap:14px; }
+  .detailPage .confirmationSummary { padding:17px; }
+  .detailPage .codeCard { padding:17px; }
+  .detailPage .codeCard :global(.kulha-pickup-qr) { width:min(100%,190px); }
+  .detailPage .detailFooter { margin-top:14px; }
+
+  .cancelDialog {
+    width:min(100%,760px);
+    max-height:calc(100dvh - 24px);
+    padding:22px 20px;
+    gap:14px;
+  }
+  .cancelDialogHead strong { font-size:22px; }
+  .cancelReasons { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+  .cancelReasons label { min-height:46px; }
 }
 @media (max-width:390px) {
-  .checkoutPage .pickupRows { grid-template-columns:repeat(3,minmax(0,1fr)); }
-  .checkoutPage .pickupRow { grid-template-columns:1fr; }
+  .checkoutPage .pickupRows { grid-template-columns:minmax(0,1fr); }
+  .checkoutPage .pickupRow { display:flex; }
   .checkoutPage .pickupRow span:not(.detailIcon) { overflow-wrap:anywhere; }
+  .cancelDialog { padding:19px 16px; }
+  .cancelReasons { grid-template-columns:minmax(0,1fr); }
 }
 @media (prefers-reduced-motion:reduce) {
   .successIcon,.successIcon path,.cancelOverlay,.cancelDialog { animation:none !important; }
