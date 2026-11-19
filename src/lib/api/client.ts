@@ -17,6 +17,29 @@ export class ApiError extends Error {
   }
 }
 
+type RequestOptions = {
+  method?: string;
+  body?: unknown;
+  timeoutMs?: number;
+  headers?: Record<string, string>;
+};
+
+function activeLocale(): "fr" | "en" | "ar" {
+  if (typeof window === "undefined") return "fr";
+  const match = window.location.pathname.match(/^\/(en|ar)(?:\/|$)/);
+  return match?.[1] === "ar" ? "ar" : match?.[1] === "en" ? "en" : "fr";
+}
+
+function localizedOptions(options: RequestOptions = {}): RequestOptions {
+  return {
+    ...options,
+    headers: {
+      "x-kulha-locale": activeLocale(),
+      ...options.headers,
+    },
+  };
+}
+
 async function toApiError(response: Response): Promise<ApiError> {
   let title = response.statusText || "Error";
   let detail: string | undefined;
@@ -34,14 +57,17 @@ async function toApiError(response: Response): Promise<ApiError> {
   return new ApiError(response.status, title, detail, Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : undefined);
 }
 
-export async function requestJson<T = void>(url: string, options: { method?: string; body?: unknown; timeoutMs?: number } = {}): Promise<T> {
+export async function requestJson<T = void>(url: string, options: RequestOptions = {}): Promise<T> {
   const controller = new AbortController();
   const timeoutMs = options.timeoutMs ?? 30000;
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetch(url, {
       method: options.method ?? "GET",
-      headers: options.body !== undefined ? { "Content-Type": "application/json" } : undefined,
+      headers: {
+        ...(options.body !== undefined ? { "Content-Type": "application/json" } : {}),
+        ...options.headers,
+      },
       body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
       credentials: "same-origin",
       cache: "no-store",
@@ -63,11 +89,15 @@ export async function requestJson<T = void>(url: string, options: { method?: str
   }
 }
 
-/** Calls to the Spring Boot API, through the web app's backend-for-frontend. */
+/** Calls to the Spring Boot API through the same-origin BFF and HttpOnly session cookies. */
 export const api = {
-  get: <T>(path: string) => requestJson<T>(`/api/bff${path}`),
-  post: <T = void>(path: string, body?: unknown, requestOptions: { timeoutMs?: number } = {}) => requestJson<T>(`/api/bff${path}`, { method: "POST", body: body ?? {}, ...requestOptions }),
-  put: <T>(path: string, body: unknown) => requestJson<T>(`/api/bff${path}`, { method: "PUT", body }),
+  get: <T>(path: string) => requestJson<T>(`/api/bff${path}`, localizedOptions()),
+  post: <T = void>(path: string, body?: unknown, requestOptions: Omit<RequestOptions, "method" | "body"> = {}) =>
+    requestJson<T>(`/api/bff${path}`, localizedOptions({ method: "POST", body: body ?? {}, ...requestOptions })),
+  put: <T>(path: string, body: unknown) =>
+    requestJson<T>(`/api/bff${path}`, localizedOptions({ method: "PUT", body })),
+  patch: <T>(path: string, body: unknown = {}) =>
+    requestJson<T>(`/api/bff${path}`, localizedOptions({ method: "PATCH", body })),
 };
 
 /** Login and logout set or clear the HttpOnly cookies, so they have their own routes. */

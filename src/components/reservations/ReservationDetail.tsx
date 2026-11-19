@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { reservationCopy, reservationLocaleTag } from "@/lib/i18n/reservation-copy";
 import { localePath } from "@/lib/navigation";
-import { api, requestJson } from "@/lib/api/client";
+import { api } from "@/lib/api/client";
 import { useSession } from "@/components/session/SessionProvider";
 import { formatPickupWindow } from "@/lib/offers/format";
 import type { Reservation } from "@/lib/reservations/types";
@@ -54,9 +54,8 @@ export function ReservationDetail({ reference, locale }: { reference: string; lo
     setCancelling(true);
     setCancelError(null);
     try {
-      const updated = await requestJson<Reservation>(
-        "/api/bff/reservations/" + encodeURIComponent(reference) + "/cancel",
-        { method: "PATCH", body: {} },
+      const updated = await api.patch<Reservation>(
+        "/reservations/" + encodeURIComponent(reference) + "/cancel",
       );
       setReservation(updated);
       setConfirmCancel(false);

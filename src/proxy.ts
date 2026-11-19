@@ -30,11 +30,16 @@ export function proxy(request: NextRequest) {
     return secure(NextResponse.redirect(login), request);
   }
   const forwardedHeaders = new Headers(request.headers);
-  const pageLocale = pathname === "/ar" || pathname.startsWith("/ar/")
+  const requestedBffLocale = forwardedHeaders.get("x-kulha-locale");
+  const bffLocale = pathname.startsWith("/api/bff/")
+    && (requestedBffLocale === "fr" || requestedBffLocale === "en" || requestedBffLocale === "ar")
+      ? requestedBffLocale
+      : null;
+  const pageLocale = bffLocale ?? (pathname === "/ar" || pathname.startsWith("/ar/")
     ? "ar"
     : pathname === "/en" || pathname.startsWith("/en/")
       ? "en"
-      : "fr";
+      : "fr");
   forwardedHeaders.set("x-kulha-locale", pageLocale);
   return secure(NextResponse.next({ request: { headers: forwardedHeaders } }), request);
 }
