@@ -191,7 +191,6 @@ function storeFeatureCollection(stores: OfferMapStore[]) {
             },
             properties: {
                 storeKey: store.key,
-                initials: merchantInitials(store.merchant.name),
             },
         })),
     };
