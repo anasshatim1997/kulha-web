@@ -14978,3 +14978,19 @@ body:has(.kulha-map-page-shell) #contenu { flex: 1 1 auto; min-height: 0; }
   .kulha-progressive-toolbar { align-items: flex-start; flex-direction: column; }
   .kulha-progressive-toolbar button { width: 100%; }
 }
+
+
+
+/* Reservation and checkout screens: keep the transaction view inside the viewport. */
+@media (min-width:900px) and (min-height:680px) {
+  html:has(.kulha-reservation-viewport),
+  body:has(.kulha-reservation-viewport) { height:100dvh; overflow:hidden; }
+  body:has(.kulha-reservation-viewport) > main { display:flex; flex:1 1 auto; min-height:0; overflow:hidden; }
+  body:has(.kulha-reservation-viewport) .site-footer { display:none; }
+}
+@media (max-width:740px) and (min-height:760px) {
+  html:has(.kulha-reservation-viewport),
+  body:has(.kulha-reservation-viewport) { height:100dvh; overflow:hidden; }
+  body:has(.kulha-reservation-viewport) > main { display:flex; flex:1 1 auto; min-height:0; overflow:hidden; }
+  body:has(.kulha-reservation-viewport) .site-footer { display:none; }
+}

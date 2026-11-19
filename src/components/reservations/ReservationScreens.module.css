@@ -605,16 +605,13 @@
 :dir(rtl) .availabilityLoaderTrack span { animation-name:kulha-availability-progress-rtl; }
 @keyframes kulha-availability-progress-rtl { from { transform:translateX(310%); } to { transform:translateX(-115%); } }
 
-/* Keep the three transactional screens inside the viewport on normal desktop displays. */
-:global(.kulha-reservation-viewport) { min-width:0; }
+/* CSS-module sizing for the transaction viewport; document-level overflow lives in globals.css. */
+.page:global(.kulha-reservation-viewport) { min-width:0; }
 @media (min-width:900px) and (min-height:680px) {
-  :global(html:has(.kulha-reservation-viewport)), :global(body:has(.kulha-reservation-viewport)) { height:100dvh; overflow:hidden; }
-  :global(body:has(.kulha-reservation-viewport) > main) { display:flex; flex:1 1 auto; min-height:0; overflow:hidden; }
-  :global(body:has(.kulha-reservation-viewport) .site-footer) { display:none; }
-  :global(.kulha-reservation-viewport) { flex:1 1 auto; height:100%; min-height:0; overflow:hidden; }
-  :global(.kulha-reservation-viewport) > .checkoutGrid,
-  :global(.kulha-reservation-viewport) > .confirmationGrid,
-  :global(.kulha-reservation-viewport) > .detailGrid { min-height:0; }
+  .page:global(.kulha-reservation-viewport) { flex:1 1 auto; height:100%; min-height:0; overflow:hidden; }
+  .page:global(.kulha-reservation-viewport) > .checkoutGrid,
+  .page:global(.kulha-reservation-viewport) > .confirmationGrid,
+  .page:global(.kulha-reservation-viewport) > .detailGrid { min-height:0; }
 }
 @media (max-width:740px) {
   .page { width:min(100% - 22px,560px); padding:9px 0 12px; }
@@ -688,12 +685,6 @@
   .availabilityLoaderMark { width:54px; height:54px; border-radius:17px; }
   .availabilityLoaderMark svg { width:33px; height:33px; }
   .availabilityLoaderCopy p { font-size:15px; }
-}
-@media (max-width:740px) and (min-height:760px) {
-  :global(html:has(.kulha-reservation-viewport)), :global(body:has(.kulha-reservation-viewport)) { height:100dvh; overflow:hidden; }
-  :global(body:has(.kulha-reservation-viewport) > main) { display:flex; flex:1 1 auto; min-height:0; overflow:hidden; }
-  :global(body:has(.kulha-reservation-viewport) .site-footer) { display:none; }
-  :global(.kulha-reservation-viewport) { flex:1 1 auto; height:100%; min-height:0; overflow:hidden; }
 }
 @media (max-height:760px) and (max-width:740px) {
   .page { padding-block:6px 8px; }
