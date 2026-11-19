@@ -138,6 +138,7 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
       </div>
       <div className={styles.headingRow}>
         <h1>{t.checkout}</h1>
+        {loading && availability && <span className={styles.availabilityRefreshing} role="status">{t.loading}</span>}
       </div>
 
       {loading && !availability ? <AvailabilityLoading label={t.loading} /> :
@@ -160,7 +161,7 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
               </section>
 
               <section className={styles.panel}>
-                <div className={styles.sectionLabel}>{t.quantity}{loading && <span className={styles.availabilityRefreshing} role="status">{t.loading}</span>}</div>
+                <div className={styles.sectionLabel}>{t.quantity}</div>
                 <div className={styles.quantityRow}>
                   <div className={styles.stepper} aria-label={t.quantity}>
                     <button type="button" aria-label={locale === "ar" ? "تقليل الكمية" : locale === "en" ? "Decrease quantity" : "Diminuer la quantité"} disabled={quantity <= 1 || submitting} onClick={() => { setLoading(true); setError(null); setQuantity((value) => Math.max(1, value - 1)); }}>−</button>
@@ -176,7 +177,7 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
               </section>
 
               <section className={styles.panel}>
-                <div className={styles.sectionLabel}>{t.pickup}{loading && <span className={styles.availabilityRefreshing} role="status">{t.loading}</span>}</div>
+                <div className={styles.sectionLabel}>{t.pickup}</div>
                 <div className={styles.pickupRows}>
                   <div className={styles.pickupRow}><span className={styles.detailIcon} aria-hidden="true">▦</span><div><strong>{t.pickupDate}</strong><span>{slot ? formatPickupDate(slot.start, locale) : "—"}</span></div></div>
                   <div className={styles.pickupRow}><span className={styles.detailIcon} aria-hidden="true">◷</span><div><strong>{t.pickupTime}</strong><span>{slot ? formatPickupWindow(slot.start, slot.end, locale) : "—"}</span><small>{t.heldUntil}</small></div></div>
