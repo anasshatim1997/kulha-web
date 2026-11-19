@@ -1264,7 +1264,7 @@ export function OfferStoreMapCanvas({
         );
 
         const updateMarkerVisibility = () => {
-            const showIndividualPins = map.getZoom() > 12;
+            const showIndividualPins = map.getZoom() >= 12;
             for (const record of markers.values()) {
                 record.element.style.visibility = showIndividualPins ? "visible" : "hidden";
                 record.element.style.pointerEvents = showIndividualPins ? "auto" : "none";
