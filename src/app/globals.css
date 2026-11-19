@@ -14981,16 +14981,8 @@ body:has(.kulha-map-page-shell) #contenu { flex: 1 1 auto; min-height: 0; }
 
 
 
-/* Reservation and checkout screens: keep the transaction view inside the viewport. */
-@media (min-width:900px) and (min-height:680px) {
-  html:has(.kulha-reservation-viewport),
-  body:has(.kulha-reservation-viewport) { height:100dvh; overflow:hidden; }
-  body:has(.kulha-reservation-viewport) > main { display:flex; flex:1 1 auto; min-height:0; overflow:hidden; }
-  body:has(.kulha-reservation-viewport) .site-footer { display:none; }
-}
-@media (max-width:740px) and (min-height:760px) {
-  html:has(.kulha-reservation-viewport),
-  body:has(.kulha-reservation-viewport) { height:100dvh; overflow:hidden; }
-  body:has(.kulha-reservation-viewport) > main { display:flex; flex:1 1 auto; min-height:0; overflow:hidden; }
-  body:has(.kulha-reservation-viewport) .site-footer { display:none; }
-}
+/* Reservation pages keep a comfortable reading flow; never clip the pickup details or actions. */
+html:has(.kulha-reservation-viewport),
+body:has(.kulha-reservation-viewport) { height:auto; min-height:100%; overflow-x:hidden; overflow-y:auto; }
+body:has(.kulha-reservation-viewport) > main { min-height:0; overflow:visible; }
+
