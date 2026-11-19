@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ClipboardList, LayoutDashboard, MapPin, Package, ScanLine, Search } from "lucide-react";
 import { useSession } from "@/components/session/SessionProvider";
 import { Button, LinkButton } from "@/components/ui/Button";
 import { isCustomerAccountPath, isMerchantWorkspacePath, localeFromPath, localePath, shouldUseCustomerWorkspace, switchLocalePath } from "@/lib/navigation";
@@ -90,9 +91,9 @@ export function SiteHeader() {
           <div className="nav-shell">
             <Link href={discoverHref} aria-label="Kulha! — discover baskets" className="brand-link"><Logo /></Link>
             <nav className="workspace-nav" aria-label={locale === "ar" ? "مساحة الزبون" : locale === "en" ? "Customer navigation" : "Navigation client"}>
-              <Link href={discoverHref} aria-current={onOffers ? "page" : undefined}><span className="workspace-nav-icon" aria-hidden="true">⌕</span>{copy.nav.discover}</Link>
-              <Link href={mapHref} aria-current={onMap ? "page" : undefined}><span className="workspace-nav-icon" aria-hidden="true">⌖</span>{labels.map}</Link>
-              <Link href={reservationsHref} aria-current={onReservations ? "page" : undefined}><span className="workspace-nav-icon" aria-hidden="true">▤</span>{labels.reservations}</Link>
+              <Link href={discoverHref} aria-current={onOffers ? "page" : undefined}><span className={`inline-flex h-6 w-6 shrink-0 items-center justify-center ${onOffers ? "text-[#fdbe2e]" : "text-[#d94831]"}`} aria-hidden="true"><Search size={19} strokeWidth={2.15} /></span>{copy.nav.discover}</Link>
+              <Link href={mapHref} aria-current={onMap ? "page" : undefined}><span className={`inline-flex h-6 w-6 shrink-0 items-center justify-center ${onMap ? "text-[#fdbe2e]" : "text-[#d94831]"}`} aria-hidden="true"><MapPin size={19} strokeWidth={2.15} /></span>{labels.map}</Link>
+              <Link href={reservationsHref} aria-current={onReservations ? "page" : undefined}><span className={`inline-flex h-6 w-6 shrink-0 items-center justify-center ${onReservations ? "text-[#fdbe2e]" : "text-[#d94831]"}`} aria-hidden="true"><ClipboardList size={19} strokeWidth={2.15} /></span>{labels.reservations}</Link>
             </nav>
             <div className="workspace-actions">
               <label className="language-select-label">
@@ -110,9 +111,9 @@ export function SiteHeader() {
           </div>
         </header>
         <nav className="customer-mobile-tabs" aria-label={locale === "ar" ? "التنقل" : locale === "en" ? "App navigation" : "Navigation de l’application"} dir={copy.dir}>
-          <Link href={discoverHref} aria-current={onOffers ? "page" : undefined}><span aria-hidden="true">⌕</span><small>{copy.nav.discover}</small></Link>
-          <Link href={mapHref} aria-current={onMap ? "page" : undefined}><span aria-hidden="true">⌖</span><small>{labels.map}</small></Link>
-          <Link href={reservationsHref} aria-current={onReservations ? "page" : undefined}><span aria-hidden="true">▤</span><small>{labels.reservations}</small></Link>
+          <Link href={discoverHref} aria-current={onOffers ? "page" : undefined}><span className="inline-flex h-6 w-6 items-center justify-center" aria-hidden="true"><Search size={21} strokeWidth={2.1} /></span><small>{copy.nav.discover}</small></Link>
+          <Link href={mapHref} aria-current={onMap ? "page" : undefined}><span className="inline-flex h-6 w-6 items-center justify-center" aria-hidden="true"><MapPin size={21} strokeWidth={2.1} /></span><small>{labels.map}</small></Link>
+          <Link href={reservationsHref} aria-current={onReservations ? "page" : undefined}><span className="inline-flex h-6 w-6 items-center justify-center" aria-hidden="true"><ClipboardList size={21} strokeWidth={2.1} /></span><small>{labels.reservations}</small></Link>
         </nav>
       </>
     );
@@ -120,9 +121,9 @@ export function SiteHeader() {
 
   if (isWorkspace) {
     const workspaceLinks = [
-      [locale === "ar" ? "لوحة المتجر" : locale === "en" ? "Dashboard" : "Tableau de bord", localePath(locale, "/merchant/dashboard"), /\/merchant\/(dashboard|apply)\/?$/.test(pathname)],
-      [locale === "ar" ? "عروضي" : locale === "en" ? "My offers" : "Mes offres", localePath(locale, "/merchant/offers"), /\/merchant\/offers/.test(pathname)],
-      [locale === "ar" ? "مسح الاستلام" : locale === "en" ? "Pickup scanner" : "Scanner de retrait", localePath(locale, "/merchant/reservations/scan"), /\/merchant\/reservations\/scan/.test(pathname)],
+      [locale === "ar" ? "لوحة المتجر" : locale === "en" ? "Dashboard" : "Tableau de bord", localePath(locale, "/merchant/dashboard"), /\/merchant\/(dashboard|apply)\/?$/.test(pathname), LayoutDashboard],
+      [locale === "ar" ? "عروضي" : locale === "en" ? "My offers" : "Mes offres", localePath(locale, "/merchant/offers"), /\/merchant\/offers/.test(pathname), Package],
+      [locale === "ar" ? "مسح الاستلام" : locale === "en" ? "Pickup scanner" : "Scanner de retrait", localePath(locale, "/merchant/reservations/scan"), /\/merchant\/reservations\/scan/.test(pathname), ScanLine],
     ] as const;
     return (
       <header className="site-header site-header-workspace" dir={copy.dir}>
@@ -130,7 +131,7 @@ export function SiteHeader() {
           <Link href={home} aria-label="Kulha!" className="brand-link"><Logo /></Link>
           {isMerchant && (
             <nav className="workspace-nav" aria-label={locale === "ar" ? "مساحة المتجر" : locale === "en" ? "Shop workspace" : "Espace commerçant"}>
-              {workspaceLinks.map(([label, href, active], index) => <Link key={href} href={href} aria-current={active ? "page" : undefined}><span className="workspace-nav-icon" aria-hidden="true">{["▦","＋","▣"][index]}</span>{label}</Link>)}
+              {workspaceLinks.map(([label, href, active, Icon]) => <Link key={href} href={href} aria-current={active ? "page" : undefined}><span className={`inline-flex h-6 w-6 shrink-0 items-center justify-center ${active ? "text-[#fdbe2e]" : "text-[#d94831]"}`} aria-hidden="true"><Icon size={19} strokeWidth={2.15} /></span>{label}</Link>)}
             </nav>
           )}
           <div className="workspace-actions">
