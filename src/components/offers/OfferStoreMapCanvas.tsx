@@ -179,6 +179,24 @@ function popupContent(
     return root;
 }
 
+function storeFeatureCollection(stores: OfferMapStore[]) {
+    return {
+        type: "FeatureCollection" as const,
+        features: stores.map((store) => ({
+            type: "Feature" as const,
+            id: store.key,
+            geometry: {
+                type: "Point" as const,
+                coordinates: [store.longitude, store.latitude] as [number, number],
+            },
+            properties: {
+                storeKey: store.key,
+                initials: merchantInitials(store.merchant.name),
+            },
+        })),
+    };
+}
+
 function markerElement(
     store: OfferMapStore,
     selected: boolean,
@@ -404,6 +422,8 @@ export function OfferStoreMapCanvas({
     const mapModuleRef = useRef<MapLibreModule | null>(null);
 
     const markersRef = useRef<Map<string, MarkerRecord>>(new Map());
+    const storesRef = useRef(stores);
+    storesRef.current = stores;
     const popupRef = useRef<MapLibrePopup | null>(null);
     const userMarkerRef = useRef<MapLibreMarker | null>(null);
 
@@ -526,6 +546,7 @@ export function OfferStoreMapCanvas({
 
                 const rasterFallbackStyle: import("maplibre-gl").StyleSpecification = {
                     version: 8,
+                    glyphs: `${window.location.origin}/maps/assets/fonts/{fontstack}/{range}.pbf`,
                     sources: {
                         "kulha-streets": {
                             type: "raster",
@@ -710,8 +731,133 @@ export function OfferStoreMapCanvas({
                     initialLoadEventReceived = true;
                 });
 
+                const installStoreLayers = () => {
+                    if (!map || disposed || !map.isStyleLoaded()) return;
+
+                    if (!map.getSource("kulha-store-clusters")) {
+                        map.addSource("kulha-store-clusters", {
+                            type: "geojson",
+                            data: storeFeatureCollection(storesRef.current),
+                            cluster: true,
+                            clusterRadius: 48,
+                            clusterMaxZoom: 11,
+                        });
+
+                        map.addLayer({
+                            id: "kulha-store-cluster-circles",
+                            type: "circle",
+                            source: "kulha-store-clusters",
+                            filter: ["has", "point_count"],
+                            maxzoom: 12,
+                            paint: {
+                                "circle-color": [
+                                    "step", ["get", "point_count"],
+                                    "#f2bd42", 10, "#ed9440", 40, "#d94a39",
+                                ],
+                                "circle-radius": [
+                                    "step", ["get", "point_count"],
+                                    19, 10, 23, 40, 27,
+                                ],
+                                "circle-stroke-color": "#fffaf1",
+                                "circle-stroke-width": 3,
+                            },
+                        });
+
+                        map.addLayer({
+                            id: "kulha-store-cluster-count",
+                            type: "symbol",
+                            source: "kulha-store-clusters",
+                            filter: ["has", "point_count"],
+                            maxzoom: 12,
+                            layout: {
+                                "text-field": ["get", "point_count_abbreviated"],
+                                "text-font": ["Open Sans Bold"],
+                                "text-size": 13,
+                                "text-allow-overlap": true,
+                            },
+                            paint: { "text-color": "#173d2a" },
+                        });
+
+                        map.addLayer({
+                            id: "kulha-store-single-points",
+                            type: "circle",
+                            source: "kulha-store-clusters",
+                            filter: ["!", ["has", "point_count"]],
+                            maxzoom: 12,
+                            paint: {
+                                "circle-color": "#0c5738",
+                                "circle-radius": 15,
+                                "circle-stroke-color": "#fffaf1",
+                                "circle-stroke-width": 3,
+                            },
+                        });
+
+                        map.addLayer({
+                            id: "kulha-store-single-labels",
+                            type: "symbol",
+                            source: "kulha-store-clusters",
+                            filter: ["!", ["has", "point_count"]],
+                            maxzoom: 12,
+                            layout: {
+                                "text-field": ["get", "initials"],
+                                "text-font": ["Open Sans Bold"],
+                                "text-size": 10,
+                                "text-allow-overlap": true,
+                            },
+                            paint: { "text-color": "#fffaf1" },
+                        });
+                    }
+
+                    const source = map.getSource("kulha-store-clusters") as GeoJSONSource | undefined;
+                    source?.setData(storeFeatureCollection(storesRef.current));
+
+                    const handleClusterClick = (event: import("maplibre-gl").MapLayerMouseEvent) => {
+                        const feature = event.features?.[0];
+                        const clusterId = Number(feature?.properties?.cluster_id);
+                        if (!feature || !Number.isFinite(clusterId) || feature.geometry.type !== "Point") return;
+
+                        const point = feature.geometry.coordinates as [number, number];
+                        const clusterSource = map!.getSource("kulha-store-clusters") as GeoJSONSource | undefined;
+                        if (!clusterSource) return;
+                        void clusterSource.getClusterExpansionZoom(clusterId).then((zoom) => {
+                            if (!disposed) map!.easeTo({ center: point, zoom, duration: 450 });
+                        }).catch(() => {});
+                    };
+
+                    const handleSingleStoreClick = (event: import("maplibre-gl").MapLayerMouseEvent) => {
+                        const key = String(event.features?.[0]?.properties?.storeKey ?? "");
+                        const store = storesRef.current.find((candidate) => candidate.key === key);
+                        if (store) onSelectStoreRef.current(store);
+                    };
+
+                    map.off("click", "kulha-store-cluster-circles", handleClusterClick);
+                    map.on("click", "kulha-store-cluster-circles", handleClusterClick);
+                    map.off("click", "kulha-store-single-points", handleSingleStoreClick);
+                    map.on("click", "kulha-store-single-points", handleSingleStoreClick);
+
+                    map.off("mouseenter", "kulha-store-cluster-circles", setPointerCursor);
+                    map.on("mouseenter", "kulha-store-cluster-circles", setPointerCursor);
+                    map.off("mouseleave", "kulha-store-cluster-circles", resetPointerCursor);
+                    map.on("mouseleave", "kulha-store-cluster-circles", resetPointerCursor);
+                    map.off("mouseenter", "kulha-store-single-points", setPointerCursor);
+                    map.on("mouseenter", "kulha-store-single-points", setPointerCursor);
+                    map.off("mouseleave", "kulha-store-single-points", resetPointerCursor);
+                    map.on("mouseleave", "kulha-store-single-points", resetPointerCursor);
+                };
+
+                const setPointerCursor = () => {
+                    if (map) map.getCanvas().style.cursor = "pointer";
+                };
+                const resetPointerCursor = () => {
+                    if (map) map.getCanvas().style.cursor = "";
+                };
+
                 map.on("style.load", () => {
                     if (disposed) return;
+                    installStoreLayers();
+                    // Store clusters are local GeoJSON; don't make their visibility
+                    // wait for every basemap tile or for the map's idle event.
+                    setStatus("ready");
 
                     if (hasArchive && !fallbackApplied) {
                         if (tileHealthTimer !== null) {
@@ -1060,6 +1206,8 @@ export function OfferStoreMapCanvas({
         }
 
         const handleContainerPointerMove = (event: PointerEvent) => {
+            // Hover popups are disabled; avoid a DOM geometry scan on every pointer move.
+            if (!HOVER_POPUP_ENABLED) return;
             lastPointer = {
                 x: event.clientX,
                 y: event.clientY,
@@ -1115,6 +1263,15 @@ export function OfferStoreMapCanvas({
             handleContainerPointerLeave,
         );
 
+        const updateMarkerVisibility = () => {
+            const showIndividualPins = map.getZoom() > 12;
+            for (const record of markers.values()) {
+                record.element.style.visibility = showIndividualPins ? "visible" : "hidden";
+                record.element.style.pointerEvents = showIndividualPins ? "auto" : "none";
+            }
+        };
+        map.on("zoom", updateMarkerVisibility);
+
         for (const store of stores) {
             const element = markerElement(
                 store,
@@ -1149,8 +1306,10 @@ export function OfferStoreMapCanvas({
                 store,
             });
         }
+        updateMarkerVisibility();
 
         return () => {
+            map.off("zoom", updateMarkerVisibility);
             if (popupCloseTimer !== null) {
                 window.clearTimeout(popupCloseTimer);
             }
@@ -1201,6 +1360,11 @@ export function OfferStoreMapCanvas({
             popup.remove();
         };
     }, [stores, locale, status]);
+
+    useEffect(() => {
+        const source = mapRef.current?.getSource("kulha-store-clusters") as GeoJSONSource | undefined;
+        source?.setData(storeFeatureCollection(stores));
+    }, [stores, status]);
 
     useEffect(() => {
         for (const [key, record] of markersRef.current) {
