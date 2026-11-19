@@ -18,6 +18,17 @@ export type OfferMapStore = OfferMapStoreCandidate & {
   positionAccuracy?: "verified" | "approximate";
 };
 
+/**
+ * At country scale, aggregate nearby shops into count clusters. Once the map
+ * reaches city scale, switch to one readable avatar/initial pin per shop.
+ */
+export const MAP_STORE_CLUSTER_MAX_ZOOM = 11;
+export const MAP_STORE_AVATAR_MIN_ZOOM = MAP_STORE_CLUSTER_MAX_ZOOM + 1;
+
+export function shouldShowMapStoreAvatars(zoom: number): boolean {
+  return Number.isFinite(zoom) && zoom >= MAP_STORE_AVATAR_MIN_ZOOM;
+}
+
 type PriceRange = { minimum: number; maximum: number };
 
 function clamp(value: number, minimum = 0, maximum = 1): number {
