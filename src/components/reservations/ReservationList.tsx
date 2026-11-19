@@ -46,7 +46,24 @@ export function ReservationList({ locale }: { locale: SiteLocale }) {
     }
   }, []);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    let active = true;
+    Promise.all([
+      api.get<ReservationPage>("/reservations?status=upcoming&page=0&size=50"),
+      api.get<ReservationPage>("/reservations?status=past&page=0&size=50"),
+      api.get<ReservationPage>("/reservations?status=cancelled&page=0&size=50"),
+    ]).then(([upcoming, past, cancelled]) => {
+      if (active) {
+        setItems({ upcoming: upcoming.items, past: past.items, cancelled: cancelled.items });
+        setCounts({ upcoming: upcoming.total, past: past.total, cancelled: cancelled.total });
+      }
+    }).catch(() => {
+      if (active) setError(true);
+    }).finally(() => {
+      if (active) setLoading(false);
+    });
+    return () => { active = false; };
+  }, []);
 
   const current = items[active];
   const label = active === "upcoming" ? t.upcoming : active === "past" ? t.past : t.cancelled;
