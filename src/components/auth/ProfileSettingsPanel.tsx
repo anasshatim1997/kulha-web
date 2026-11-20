@@ -55,6 +55,10 @@ export function ProfileSettingsPanel() {
   const [error, setError] = useState<string|null>(null);
 
   useEffect(() => {
+    if (typeof window !== "undefined" && window.location.hash === "#notifications") setActive("notifications");
+  }, []);
+
+  useEffect(() => {
     if (state.status !== "authenticated") return;
     setFullName(state.user.fullName);
     setPhone(state.user.phone ?? "");
@@ -150,7 +154,7 @@ export function ProfileSettingsPanel() {
             )}
           </div>
         </section>}
-        {active === "notifications" && <section className="ps-card">
+        {active === "notifications" && <section className="ps-card" id="notifications">
           <h2>{t.notifications}</h2><p className="ps-hint">{t.notificationHint}</p>
           <div className="ps-switch-list">
             {([
