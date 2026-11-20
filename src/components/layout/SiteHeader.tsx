@@ -32,7 +32,7 @@ export function SiteHeader() {
   const home = localePath(locale, "/");
 
   useEffect(() => {
-    if (state.status !== "authenticated") { setUnreadNotifications(0); return; }
+    if (state.status !== "authenticated") return;
     let current = true;
     const refreshUnread = () => {
       api.get<{ count: number }>("/notifications/unread-count")
@@ -125,7 +125,7 @@ export function SiteHeader() {
               </label>
               <Link href={notificationsHref} aria-label={labels.notifications} title={labels.notifications} aria-current={onNotifications ? "page" : undefined} className="customer-notification-link">
                 <Bell size={20} strokeWidth={2.1} />
-                {unreadNotifications > 0 && <span className="customer-notification-count">{unreadNotifications > 9 ? "9+" : unreadNotifications}</span>}
+                {state.status === "authenticated" && unreadNotifications > 0 && <span className="customer-notification-count">{unreadNotifications > 9 ? "9+" : unreadNotifications}</span>}
               </Link>
               <Link href={customerAccountHref} aria-label={labels.profile} title={labels.profile}
                 aria-current={onAccount ? "page" : undefined}
