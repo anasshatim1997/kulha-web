@@ -15023,3 +15023,433 @@ body:has(.kulha-reservation-viewport) > main { min-height:0; overflow:visible; }
   object-position: center;
 }
 .kd-stage:has(.kd-offer-photo) .kd-chip { z-index: 2; }
+
+/* KULHA reservation experience — generous, legible and pickup-first. */
+.page {
+    width: min(calc(100% - 64px), 1180px);
+    margin: 0 auto;
+    padding: 28px 0 52px;
+    color: var(--green, #073324);
+    font-family: var(--font-nunito, Nunito), var(--font-noto-arabic, "Noto Sans Arabic"), ui-rounded, system-ui, sans-serif;
+}
+.page h1, .page h2, .page p { margin-top: 0; }
+.page a, .page button { -webkit-tap-highlight-color: transparent; }
+.page button { cursor: pointer; }
+.pageTop { display:flex; align-items:center; justify-content:space-between; gap:18px; margin-bottom:20px; }
+.backLink { display:inline-flex; align-items:center; gap:10px; color:#456653; font-size:15px; font-weight:900; }
+.backLink span { color:var(--red,#ee3f29); font-size:28px; line-height:.8; }
+.breadcrumbs { display:flex; align-items:center; gap:14px; color:#718074; font-size:14px; font-weight:850; }
+.breadcrumbs strong { color:var(--green,#073324); }
+.headingRow { display:flex; align-items:center; justify-content:space-between; gap:20px; margin:0 0 24px; }
+.headingRow h1, .listHeader h1 { margin:0; color:var(--green,#073324); font-size:clamp(30px,3vw,42px); font-weight:1000; letter-spacing:-.045em; line-height:1.1; }
+.stepNumber { color:#6b7d70; font-size:13px; font-weight:1000; letter-spacing:.13em; }
+.checkoutGrid { display:grid; grid-template-columns:minmax(0,1.55fr) minmax(310px,.85fr); align-items:start; gap:26px; }
+.checkoutMain { display:grid; gap:16px; min-width:0; }
+.productCard, .panel, .summaryCard, .confirmationSummary, .codeCard, .nextCard, .instructionCard, .reservationCard, .emptyCard, .stateCard {
+    background:#fffdf9; border:1px solid #eadfc9; border-radius:24px;
+    box-shadow:0 10px 28px rgb(7 51 36 / 5%);
+}
+.productCard { min-height:136px; display:flex; align-items:center; gap:20px; padding:22px 24px; }
+.bagIllustration, .smallBag, .reservationMark {
+    flex:0 0 auto; display:grid; place-items:center; border-radius:18px;
+    width:96px; height:96px; background:#f8e7dc; color:var(--red,#ee3f29);
+    font-size:48px; font-weight:900;
+}
+.productInfo { min-width:0; flex:1; }
+.merchantName { display:block; color:#55705f; font-size:15px; font-weight:900; }
+.productInfo h2 { margin:5px 0 10px; font-size:clamp(21px,2vw,27px); font-weight:1000; line-height:1.15; letter-spacing:-.03em; }
+.pill, .statusPill { display:inline-flex; align-items:center; width:fit-content; padding:7px 12px; border-radius:99px; background:#eaf2e6; color:#28553b; font-size:13px; font-weight:950; }
+.productPrice { flex:0 0 auto; display:grid; justify-items:end; gap:3px; font-size:21px; font-weight:1000; white-space:nowrap; }
+.originalPrice { color:#718174; font-size:14px; font-weight:800; }
+.panel { padding:22px 24px; }
+.sectionLabel { margin-bottom:13px; color:#526e5b; font-size:14px; font-weight:1000; letter-spacing:.07em; text-transform:uppercase; }
+.quantityRow { display:flex; align-items:center; gap:26px; flex-wrap:wrap; }
+.stepper { display:inline-flex; align-items:center; gap:18px; }
+.stepper button { display:grid; place-items:center; width:52px; height:52px; border:1px solid #e6d9c2; border-radius:15px; background:#fff; color:var(--green,#073324); font-size:26px; transition:background .15s,border-color .15s; }
+.stepper button:hover:not(:disabled) { border-color:var(--red,#ee3f29); background:#fff2ed; }
+.stepper button:disabled { cursor:not-allowed; color:#b9b5a9; background:#fff; }
+.stepper output { min-width:28px; text-align:center; font-size:30px; font-weight:1000; }
+.quantityNote { display:grid; gap:4px; color:#607769; font-size:14px; }
+.quantityNote strong { color:#41654d; font-size:15px; font-weight:950; }
+.inlineError { color:#b74739; font-weight:850; }
+.pickupRows { display:grid; gap:15px; }
+.pickupRow { display:flex; align-items:flex-start; gap:14px; color:var(--green,#073324); }
+.detailIcon { display:grid; place-items:center; flex:0 0 30px; width:30px; font-size:24px; line-height:1.1; color:var(--red,#ee3f29); }
+.pickupRow div { display:grid; gap:3px; min-width:0; }
+.pickupRow strong { font-size:15px; font-weight:950; }
+.pickupRow span:not(.detailIcon) { color:#627568; font-size:14px; font-weight:750; overflow-wrap:anywhere; }
+.pickupRow small { color:#718174; font-size:13px; line-height:1.45; }
+.summaryCard { position:sticky; top:22px; padding:25px; border-top:4px solid var(--yellow,#fdbe2e); }
+.summaryCard h2 { margin:0 0 16px; padding-bottom:14px; border-bottom:1px solid #eee4d4; font-size:23px; font-weight:1000; letter-spacing:-.035em; }
+.summaryLine { display:flex; justify-content:space-between; gap:14px; padding:5px 0; color:#63786a; font-size:15px; font-weight:800; }
+.summaryLine strong { color:var(--green,#073324); white-space:nowrap; font-weight:1000; }
+.summaryLine del { color:#748176; font-size:14px; font-weight:850; }
+.summaryDivider { height:1px; margin:16px 0 19px; background:#eee4d4; }
+.totalLine { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:20px; }
+.totalLine strong { font-size:16px; font-weight:1000; }
+.totalLine b { font-size:clamp(23px,2.5vw,31px); font-weight:1000; white-space:nowrap; }
+.notice { display:flex; align-items:flex-start; gap:11px; margin:0 0 18px; padding:14px 15px; border-radius:15px; background:#fff2d9; color:#77551a; }
+.notice span { color:#b57a16; font-size:22px; line-height:1.1; }
+.notice p { margin:0; font-size:14px; font-weight:800; line-height:1.5; }
+.confirmButton, .primaryButton, .primarySmallButton, .dangerButton, .secondaryButton, .secondarySmallButton {
+    display:inline-flex; align-items:center; justify-content:center; min-height:48px;
+    border:1px solid transparent; border-radius:14px; padding:0 19px;
+    font-size:15px; font-weight:1000; text-align:center;
+    transition:transform .15s,background .15s,border-color .15s;
+}
+.confirmButton, .primaryButton, .primarySmallButton { background:var(--green,#073324); color:#fffdf6; }
+.confirmButton { width:100%; min-height:56px; border-radius:15px; font-size:16px; }
+.confirmButton:hover:not(:disabled), .primaryButton:hover, .primarySmallButton:hover { background:#0b4933; transform:translateY(-1px); }
+.confirmButton:disabled { opacity:.48; cursor:not-allowed; }
+.secondaryButton, .secondarySmallButton { border-color:#e8dcc8; background:#fffefa; color:var(--green,#073324); }
+.secondaryButton:hover, .secondarySmallButton:hover { border-color:#d5a18e; background:#fff4ef; }
+.terms { margin:12px 0 0; color:#6f8073; text-align:center; font-size:13px; font-weight:750; line-height:1.55; }
+.formError { margin:0 0 12px; color:#b23b30; font-size:14px; font-weight:850; }
+.stateCard { padding:24px; color:#536d5e; font-size:16px; font-weight:850; }
+.stateCard p { margin:0 0 13px; }
+.stateCard a { display:inline-flex; margin-top:12px; color:var(--green,#073324); font-weight:950; }
+.stateCard button { margin-top:10px; }
+
+.availabilityLoading { display:flex; align-items:center; gap:20px; padding:24px; border:1px solid #eadfc9; border-radius:22px; background:#fffdf9; box-shadow:0 10px 28px rgb(7 51 36 / 5%); }
+.availabilityLoaderMark { position:relative; display:grid; place-items:center; flex:0 0 64px; width:64px; height:64px; border-radius:19px; background:#fff0e9; color:var(--green,#073324); }
+.availabilityLoaderMark svg { width:43px; height:43px; }
+.availabilityLoaderMark > span { position:absolute; right:7px; bottom:7px; width:10px; height:10px; border-radius:50%; background:var(--red,#ee3f29); box-shadow:0 0 0 4px #fff; }
+.availabilityLoaderCopy { min-width:0; flex:1; }
+.availabilityBrandWord { color:var(--green,#073324); font-size:17px; font-weight:1000; letter-spacing:-.04em; }
+.availabilityBrandWord span { color:var(--red,#ee3f29); }
+.availabilityLoaderCopy p { margin:4px 0 10px; color:#607568; font-size:15px; font-weight:800; }
+.availabilityLoaderTrack { height:5px; overflow:hidden; border-radius:99px; background:#eee5d8; }
+.availabilityLoaderTrack span { display:block; width:40%; height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--yellow,#fdbe2e),var(--red,#ee3f29)); animation:kulha-loading-sweep 1.2s ease-in-out infinite alternate; }
+@keyframes kulha-loading-sweep { from { transform:translateX(-12%); } to { transform:translateX(150%); } }
+
+.successHeader { display:grid; justify-items:center; text-align:center; margin:0 0 25px; }
+.successIcon { width:68px; height:68px; margin-bottom:14px; display:grid; place-items:center; border:1px solid #b8dfc1; border-radius:50%; background:#e7f5e9; color:#218447; box-shadow:0 7px 0 rgb(33 132 71 / 10%),0 12px 28px rgb(33 132 71 / 10%); animation:kulha-success-pop .48s cubic-bezier(.2,1.5,.45,1) both; }
+.successIcon svg { width:42px; height:42px; overflow:visible; }
+.successIcon path { stroke:currentColor; stroke-width:4.5; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:42; stroke-dashoffset:42; animation:kulha-success-draw .55s .18s ease-out forwards; }
+@keyframes kulha-success-pop { from { opacity:0; transform:scale(.72); } to { opacity:1; transform:scale(1); } }
+@keyframes kulha-success-draw { to { stroke-dashoffset:0; } }
+.successHeader h1 { margin:0 0 7px; font-size:clamp(30px,3vw,42px); font-weight:1000; letter-spacing:-.045em; }
+.successHeader p { margin:0; color:#607568; font-size:16px; font-weight:800; }
+.confirmationGrid { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(270px,.75fr); gap:20px; align-items:start; }
+.confirmationSummary { padding:24px; border-top:4px solid var(--red,#ee3f29); }
+.confirmationProduct { display:flex; align-items:center; gap:14px; padding-bottom:16px; border-bottom:1px solid #eee4d5; }
+.smallBag { width:66px; height:66px; border-radius:16px; font-size:33px; }
+.confirmationProduct > div:nth-child(2) { min-width:0; flex:1; }
+.confirmationProduct > div:nth-child(2) > span { color:#607568; font-size:14px; font-weight:900; }
+.confirmationProduct h2 { margin:3px 0 0; font-size:21px; font-weight:1000; line-height:1.18; }
+.statusPill { flex-shrink:0; background:#e9f2e6; color:#28553b; }
+.definitionList { display:grid; margin:0; }
+.definitionList > div { display:flex; justify-content:space-between; gap:20px; padding:12px 0; border-bottom:1px solid #f0e7da; }
+.definitionList > div:last-child { border-bottom:0; }
+.definitionList dt { color:#65796b; font-size:14px; font-weight:800; }
+.definitionList dd { margin:0; color:var(--green,#073324); text-align:end; font-size:15px; font-weight:950; overflow-wrap:anywhere; }
+.definitionList dd .mapLink { display:inline-flex; align-items:center; gap:6px; margin-inline-start:10px; padding:5px 10px; border:1px solid #f0d5c9; border-radius:99px; background:#fff2ed; color:#b83e2c; font-size:12px; font-weight:950; white-space:nowrap; vertical-align:middle; transition:background .15s,border-color .15s,transform .15s; }
+.definitionList dd .mapLink:hover { border-color:#e8b4a5; background:#ffe7df; transform:translateY(-1px); }
+.definitionList dd .mapLink span { font-size:15px; line-height:1; }
+.codeCard { min-height:330px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:24px; text-align:center; border-top:4px solid var(--yellow,#fdbe2e); background:linear-gradient(145deg,#fffdf9 0%,#fff7eb 100%); }
+.codeCaption { margin-bottom:5px; color:#506b59; font-size:13px; font-weight:1000; letter-spacing:.1em; text-transform:uppercase; }
+.codeCard :global(.kulha-pickup-qr) { display:block; width:min(100%,220px); height:auto; aspect-ratio:1; image-rendering:pixelated; }
+.pickupCode { color:var(--green,#073324); font-size:clamp(32px,4vw,48px); font-weight:1000; letter-spacing:.16em; line-height:1.1; overflow-wrap:anywhere; }
+.pickupCodeFallback { color:var(--green,#073324); font-size:25px; font-weight:1000; letter-spacing:.14em; line-height:1.15; }
+.codeCard p { max-width:320px; margin:8px 0 0; color:#64786a; font-size:14px; font-weight:750; line-height:1.5; }
+.nextCard { margin-top:20px; padding:24px; }
+.nextCard h2 { margin:0 0 16px; color:#607568; font-size:14px; font-weight:1000; letter-spacing:.1em; text-transform:uppercase; }
+.nextSteps { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+.nextSteps > div { display:flex; align-items:flex-start; gap:12px; }
+.nextSteps > div > b { display:grid; place-items:center; flex:0 0 38px; width:38px; height:38px; border-radius:50%; background:var(--yellow,#fdbe2e); color:var(--green,#073324); font-size:17px; font-weight:1000; }
+.nextSteps > div > div { display:grid; gap:3px; }
+.nextSteps strong { font-size:15px; font-weight:1000; }
+.nextSteps span { color:#66796c; font-size:14px; font-weight:750; line-height:1.5; }
+.actionRow { display:flex; justify-content:center; flex-wrap:wrap; gap:12px; margin-top:22px; }
+.actionRow .primaryButton, .actionRow .secondaryButton { min-height:52px; padding-inline:24px; }
+.listHeader { margin:0 0 23px; }
+.listHeader p { margin:9px 0 0; color:#63796a; font-size:16px; font-weight:800; }
+.tabs { display:flex; align-items:stretch; gap:24px; border-bottom:1px solid #e5dac7; margin-bottom:22px; }
+.tabs button { display:inline-flex; align-items:center; gap:9px; border:0; border-bottom:3px solid transparent; padding:0 4px 13px; background:transparent; color:#687b6e; font-size:15px; font-weight:950; white-space:nowrap; }
+.tabs button > span { display:grid; place-items:center; min-width:25px; height:25px; padding:0 6px; border-radius:99px; background:#eee6d3; color:#687b6e; font-size:12px; }
+.tabs button.activeTab { color:var(--green,#073324); border-bottom-color:var(--red,#ee3f29); }
+.tabs button.activeTab > span { background:var(--red,#ee3f29); color:#fff; }
+.listResults { min-height:220px; }
+.emptyCard { min-height:270px; display:grid; align-content:center; justify-items:center; padding:30px; text-align:center; }
+.emptyIcon { display:grid; place-items:center; width:72px; height:72px; margin-bottom:14px; border-radius:20px; background:#fff0e9; color:var(--red,#ee3f29); font-size:37px; }
+.emptyCard h2 { margin:0 0 8px; font-size:23px; font-weight:1000; }
+.emptyCard p { max-width:440px; margin:0 0 18px; color:#657a6c; font-size:15px; font-weight:750; line-height:1.55; }
+.earlierLabel { margin:24px 0 13px; color:#63786a; font-size:13px; font-weight:1000; letter-spacing:.1em; text-transform:uppercase; }
+.reservationCards { display:grid; gap:13px; }
+.reservationCard { display:grid; grid-template-columns:82px minmax(0,1fr) minmax(120px,auto) auto; align-items:center; gap:17px; min-height:130px; padding:18px; }
+.reservationMark { width:82px; height:82px; border-radius:17px; font-size:40px; }
+.reservationDescription { min-width:0; }
+.referenceLine { display:flex; flex-wrap:wrap; align-items:center; gap:9px; margin-bottom:7px; }
+.referenceLine .statusPill { padding:5px 10px; font-size:12px; }
+.referenceText { color:#728175; font-size:13px; font-weight:850; }
+.reservationDescription .merchantName { font-size:14px; }
+.reservationDescription h2 { margin:3px 0 6px; font-size:20px; font-weight:1000; line-height:1.18; }
+.pickupText { display:flex; align-items:center; gap:7px; margin:0; color:#5c7464; font-size:14px; font-weight:850; }
+.pickupText span { color:var(--red,#ee3f29); font-size:17px; }
+.cardPrice { white-space:nowrap; font-size:20px; font-weight:1000; }
+.cardActions { display:flex; align-items:center; justify-content:flex-end; gap:9px; }
+.primarySmallButton, .secondarySmallButton { min-height:43px; padding-inline:15px; border-radius:13px; white-space:nowrap; font-size:14px; }
+.inlinePickupCode { display:inline-flex; align-items:center; gap:9px; margin-top:10px; padding:8px 11px; border-radius:10px; background:#fff2d9; color:#77551a; font-size:13px; }
+.inlinePickupCode strong { color:var(--green,#073324); letter-spacing:.13em; }
+.detailGrid { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(270px,.8fr); gap:20px; align-items:start; }
+.detailCodeColumn { display:grid; gap:14px; }
+.detailCodeColumn .codeCard { min-height:300px; }
+.instructionCard { padding:20px 22px; border-inline-start:4px solid var(--yellow,#fdbe2e); }
+.instructionCard h2 { margin:0 0 8px; font-size:17px; font-weight:1000; }
+.instructionCard p { margin:0; color:#64796a; font-size:15px; line-height:1.6; font-weight:750; }
+.detailFooter { display:flex; align-items:center; justify-content:flex-end; gap:12px; flex-wrap:wrap; margin-top:22px; }
+.cancelArea { margin-inline-end:auto; }
+.dangerButton { background:#fff0ec; border-color:#f2d1ca; color:#ad3d30; }
+.dangerButton:hover:not(:disabled) { background:#ffe5df; }
+.cancelConfirm { display:flex; align-items:center; flex-wrap:wrap; gap:10px; color:#a93b2e; font-size:14px; font-weight:850; }
+.cancelConfirm .secondaryButton, .cancelConfirm .dangerButton { min-height:42px; }
+
+.cancelOverlay { position:fixed; inset:0; z-index:1000; display:grid; place-items:center; padding:20px; background:rgb(7 27 19 / 64%); backdrop-filter:blur(8px); animation:kulha-cancel-backdrop .18s ease-out both; }
+@keyframes kulha-cancel-backdrop { from { opacity:0; } to { opacity:1; } }
+.cancelDialog { position:relative; width:min(100%,760px); max-height:min(90dvh,820px); overflow-y:auto; overscroll-behavior:contain; display:grid; gap:16px; padding:28px; border:1px solid #f0dfc9; border-radius:26px; background:radial-gradient(circle at 100% 0%,rgb(253 190 46 / 13%),transparent 34%),#fffdf9; box-shadow:0 28px 90px rgb(0 0 0 / 28%); animation:kulha-cancel-enter .24s cubic-bezier(.2,1.25,.45,1) both; }
+.cancelDialog::before { content:""; position:absolute; inset:0 0 auto; height:5px; border-radius:26px 26px 0 0; background:linear-gradient(90deg,var(--red,#ee3f29),var(--yellow,#fdbe2e)); }
+@keyframes kulha-cancel-enter { from { opacity:0; transform:translateY(12px) scale(.98); } to { opacity:1; transform:translateY(0) scale(1); } }
+.cancelDialogHead { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; }
+.cancelDialogHead strong { display:block; color:var(--green,#073324); font-size:23px; font-weight:1000; letter-spacing:-.025em; }
+.cancelDialogHead p { margin:6px 0 0; color:#687a6d; font-size:14px; font-weight:750; line-height:1.5; }
+.cancelDialogClose { display:grid; flex:0 0 40px; width:40px; height:40px; place-items:center; border:1px solid #eadfce; border-radius:13px; background:#fff; color:#536b5d; font-size:24px; transition:background .15s,color .15s,transform .15s; }
+.cancelDialogClose:hover { background:#fff0ec; color:var(--red,#ee3f29); transform:rotate(90deg); }
+.cancelReasons { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; padding:0; margin:0; border:0; }
+.cancelReasons legend { margin-bottom:9px; color:#536b5d; font-size:14px; font-weight:950; }
+.cancelReasons label { display:flex; align-items:center; gap:10px; min-height:48px; padding:11px 13px; border:1px solid #eee5d9; border-radius:14px; background:#fff; color:#415c4c; font-size:14px; font-weight:800; line-height:1.35; cursor:pointer; transition:border-color .15s,background .15s,transform .15s; }
+.cancelReasons label:hover { border-color:#d9c7ae; transform:translateY(-1px); }
+.cancelReasons label:has(input:checked) { border-color:var(--red,#ee3f29); background:#fff1ec; box-shadow:inset 0 0 0 1px rgb(238 63 41 / 12%); }
+.cancelReasons input { width:17px; height:17px; flex:0 0 17px; accent-color:var(--red,#ee3f29); }
+.cancelComment { display:grid; gap:7px; color:#536b5d; font-size:14px; font-weight:900; }
+.cancelComment textarea { width:100%; min-height:76px; padding:12px 14px; border:1px solid #e6dccd; border-radius:13px; background:#fff; color:#173c2d; resize:none; font-size:14px; line-height:1.5; transition:border-color .18s,box-shadow .18s; }
+.cancelComment textarea:focus { border-color:var(--green,#073324); box-shadow:0 0 0 3px rgb(7 51 36 / 9%); outline:0; }
+.cancelDialogActions { display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
+.cancelDialogActions button { min-height:46px; border-radius:13px; font-size:14px; }
+.cancelSuccess { margin:14px 0 0; padding:13px 16px; border-radius:13px; background:#eaf3e7; color:#28553b; font-size:15px; font-weight:900; }
+
+@media (max-width: 980px) {
+    .checkoutGrid { grid-template-columns:minmax(0,1.25fr) minmax(285px,.85fr); gap:18px; }
+    .productCard { padding:19px; }
+    .bagIllustration { width:82px; height:82px; }
+    .reservationCard { grid-template-columns:72px minmax(0,1fr) minmax(105px,auto); }
+    .reservationMark { width:72px; height:72px; }
+    .cardActions { grid-column:2 / -1; justify-content:flex-start; }
+}
+@media (max-width: 740px) {
+    .page { width:min(calc(100% - 28px),600px); padding:20px 0 36px; }
+    .pageTop { align-items:flex-start; gap:10px; margin-bottom:14px; }
+    .headingRow { margin-bottom:17px; }
+    .headingRow h1,.listHeader h1 { font-size:clamp(27px,6vw,34px); }
+    .checkoutGrid,.confirmationGrid,.detailGrid { grid-template-columns:minmax(0,1fr); gap:13px; }
+    .checkoutMain { gap:12px; }
+    .productCard { min-height:112px; gap:12px; padding:14px; border-radius:19px; }
+    .bagIllustration { width:66px; height:66px; border-radius:14px; font-size:34px; }
+    .productInfo h2 { font-size:19px; }
+    .productPrice { font-size:16px; }
+    .panel { padding:17px 16px; border-radius:19px; }
+    .quantityRow { gap:16px; }
+    .stepper { gap:14px; }
+    .stepper button { width:47px; height:47px; }
+    .stepper output { font-size:27px; }
+    .summaryCard { position:static; padding:20px 18px; border-radius:19px; }
+    .summaryCard h2 { font-size:21px; }
+    .confirmButton { min-height:54px; }
+    .successHeader { display:grid; justify-items:center; text-align:center; margin-bottom:18px; }
+    .successIcon { width:58px; height:58px; font-size:31px; margin-bottom:9px; }
+    .successHeader h1 { font-size:30px; }
+    .successHeader p { font-size:15px; }
+    .confirmationSummary { padding:19px 17px; border-radius:19px; }
+    .confirmationProduct { gap:10px; flex-wrap:wrap; }
+    .smallBag { width:56px; height:56px; font-size:28px; }
+    .confirmationProduct h2 { font-size:19px; }
+    .definitionList > div { gap:12px; padding:10px 0; }
+    .definitionList dt,.definitionList dd { font-size:13px; }
+    .codeCard { min-height:0; padding:20px 16px; border-radius:19px; }
+    .kulha-pickup-qr { width:min(100%,190px); }
+    .pickupCodeFallback { font-size:22px; }
+    .codeCard p { max-width:100%; font-size:14px; }
+    .actionRow { display:grid; grid-template-columns:1fr; margin-top:16px; }
+    .actionRow a { width:100%; min-height:50px; }
+    .tabs { gap:18px; overflow-x:auto; margin-inline:-2px; padding-bottom:1px; }
+    .tabs button { gap:7px; padding-inline:2px; font-size:14px; }
+    .reservationCard { grid-template-columns:62px minmax(0,1fr); gap:11px; padding:14px; border-radius:19px; }
+    .reservationMark { width:62px; height:62px; font-size:31px; }
+    .reservationDescription h2 { font-size:18px; }
+    .cardPrice { grid-column:2; font-size:19px; }
+    .cardActions { grid-column:2; flex-wrap:wrap; }
+    .detailFooter { display:grid; grid-template-columns:1fr; }
+    .detailFooter > a,.cancelArea,.cancelArea button { width:100%; }
+    .cancelDialog { width:min(100%,560px); padding:19px; gap:13px; }
+    .cancelReasons { grid-template-columns:1fr; gap:7px; }
+    .cancelReasons label { min-height:43px; }
+    .cancelDialogActions { display:grid; grid-template-columns:1fr 1fr; }
+    .availabilityLoading { padding:18px; gap:14px; }
+}
+@media (max-width: 390px) {
+    .page { width:min(calc(100% - 22px),390px); }
+    .productCard { gap:9px; }
+    .productPrice { max-width:100px; white-space:normal; text-align:end; }
+    .referenceLine { gap:6px; }
+    .referenceText { font-size:11px; }
+    .tabs { gap:12px; }
+    .cancelDialogActions { grid-template-columns:1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .availabilityLoaderTrack span,.successIcon,.successIcon path,.cancelOverlay,.cancelDialog { animation:none !important; }
+    .successIcon path { stroke-dashoffset:0; }
+    .confirmButton,.primaryButton,.primarySmallButton,.secondaryButton,.secondarySmallButton { transition:none; }
+}
+
+.cancelDialogHead .cancelImpact { margin-top:8px; padding:10px 12px; border-radius:11px; background:#fff2d9; color:#77551a; font-size:13px; font-weight:850; }
+.cancelDialogHead .cancelReservationContext { margin-top:8px; color:#315b40; font-size:14px; font-weight:950; }
+
+.availabilityRefreshing { display:inline-flex; align-items:center; margin-inline-start:10px; padding:4px 9px; border-radius:99px; background:#fff2d9; color:#8a5b12; font-size:12px; font-weight:900; letter-spacing:0; text-transform:none; }
+
+.confirmationPage { max-width:1180px; }
+.detailPage { padding-block:24px max(42px, env(safe-area-inset-bottom)); }
+.detailPage .pageTop { margin-bottom:12px; }
+.detailPage .listHeader { margin-bottom:18px; }
+.detailPage .detailGrid { gap:18px; }
+.detailPage .confirmationSummary { padding:20px; }
+.detailPage .codeCard { min-height:0; padding:18px; }
+.detailPage .codeCard :global(.kulha-pickup-qr) { width:min(100%,200px); }
+.detailPage .detailFooter { margin-top:16px; }
+.detailTopActions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+
+
+/* Viewport-fitted reservation screens grow naturally when content needs more room.
+   The QR is explicitly global because ReservationQrCode renders a global SVG class. */
+.checkoutPage,.confirmationPage {
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    min-height:calc(100svh - 76px);
+    height:auto;
+    padding-block:clamp(16px,2.5vh,26px) max(36px,env(safe-area-inset-bottom));
+    overflow:visible;
+}
+.checkoutPage .pageTop { margin-bottom:10px; }
+.checkoutPage .headingRow { margin-bottom:14px; }
+.checkoutPage .checkoutGrid { gap:20px; }
+.checkoutPage .checkoutMain { gap:12px; }
+.checkoutPage .productCard { min-height:112px; padding:17px 20px; }
+.checkoutPage .bagIllustration { width:78px; height:78px; font-size:40px; }
+.checkoutPage .panel { padding:16px 20px; }
+.checkoutPage .pickupRows { gap:10px; }
+.checkoutPage .summaryCard { padding:20px 22px; }
+.checkoutPage .summaryDivider { margin-block:11px 14px; }
+.checkoutPage .totalLine { margin-bottom:13px; }
+.checkoutPage .notice { margin-bottom:12px; padding:11px 13px; }
+.checkoutPage .terms { margin-top:8px; }
+
+.confirmationPage { gap:0; padding-block:12px 18px; justify-content:flex-start; }
+.confirmationPage .successHeader { margin-bottom:12px; }
+.confirmationPage .confirmationGrid { gap:16px; align-items:start; }
+.confirmationPage .confirmationSummary { align-self:start; padding:18px 21px; }
+.confirmationPage .definitionList > div { padding:8px 0; }
+.confirmationPage .codeCard { min-height:0; padding:14px; }
+.confirmationPage :global(.kulha-pickup-qr) { width:min(100%,200px); }
+.confirmationPage .codeCard p { margin-top:4px; }
+.confirmationPage .actionRow { margin-top:12px; }
+
+@media (min-width:741px) {
+    body:has(.checkoutPage) .site-footer,
+    body:has(.confirmationPage) .site-footer { display:none; }
+}
+@media (max-width:740px) {
+    .page { width:min(calc(100% - 36px),600px); padding:20px 0 40px; }
+    .checkoutPage,.confirmationPage {
+        min-height:calc(100svh - 68px);
+        height:auto;
+        justify-content:flex-start;
+        padding-block:16px max(100px,calc(env(safe-area-inset-bottom) + 82px));
+    }
+    .checkoutPage .pageTop { margin-bottom:8px; }
+    .checkoutPage .headingRow { margin-bottom:12px; }
+    .checkoutPage .headingRow h1 { font-size:clamp(29px,6vw,36px); }
+    .checkoutPage .checkoutGrid { grid-template-columns:minmax(0,1fr); gap:14px; }
+    .checkoutPage .checkoutMain { gap:12px; }
+    .checkoutPage .productCard { min-height:100px; padding:14px; gap:12px; }
+    .checkoutPage .bagIllustration { width:64px; height:64px; font-size:34px; }
+    .checkoutPage .productInfo h2 { margin:3px 0 5px; font-size:19px; }
+    .checkoutPage .merchantName { font-size:14px; }
+    .checkoutPage .pill { padding:5px 10px; font-size:12px; }
+    .checkoutPage .productPrice { font-size:17px; }
+    .checkoutPage .panel { padding:16px; }
+    .checkoutPage .sectionLabel { margin-bottom:9px; font-size:14px; }
+    .checkoutPage .stepper { gap:12px; }
+    .checkoutPage .stepper button { width:42px; height:42px; font-size:21px; }
+    .checkoutPage .stepper output { font-size:24px; }
+    .checkoutPage .quantityNote,.checkoutPage .quantityNote strong { font-size:14px; }
+    .checkoutPage .pickupRows { grid-template-columns:minmax(0,1fr); gap:12px; }
+    .checkoutPage .pickupRow { display:flex; gap:10px; }
+    .checkoutPage .detailIcon { width:26px; height:26px; flex-basis:26px; font-size:19px; }
+    .checkoutPage .pickupRow strong { font-size:14px; }
+    .checkoutPage .pickupRow span:not(.detailIcon) { font-size:14px; line-height:1.4; }
+    .checkoutPage .pickupRow small { display:block; }
+    .checkoutPage .summaryCard { padding:18px; }
+    .checkoutPage .summaryCard h2 { margin-bottom:9px; padding-bottom:8px; font-size:20px; }
+    .checkoutPage .summaryLine { padding:5px 0; font-size:14px; }
+    .checkoutPage .summaryDivider { margin:9px 0 12px; }
+    .checkoutPage .totalLine { margin-bottom:10px; }
+    .checkoutPage .totalLine strong { font-size:15px; }
+    .checkoutPage .totalLine b { font-size:22px; }
+    .checkoutPage .notice { margin-bottom:10px; padding:10px 12px; gap:8px; }
+    .checkoutPage .notice span { font-size:18px; }
+    .checkoutPage .notice p { font-size:13px; line-height:1.4; }
+    .checkoutPage .confirmButton { min-height:52px; font-size:16px; }
+    .checkoutPage .terms { margin-top:8px; font-size:12px; line-height:1.45; }
+
+    .confirmationPage .successHeader { margin-bottom:12px; }
+    .confirmationPage .successIcon { width:54px; height:54px; margin-bottom:7px; }
+    .confirmationPage .successIcon svg { width:36px; height:36px; }
+    .confirmationPage .successHeader h1 { font-size:clamp(30px,6vw,38px); }
+    .confirmationPage .successHeader p { font-size:14px; line-height:1.45; }
+    .confirmationPage .confirmationGrid { grid-template-columns:minmax(0,1fr); gap:12px; }
+    .confirmationPage .confirmationSummary { padding:16px; border-radius:19px; }
+    .confirmationPage .confirmationProduct { gap:10px; padding-bottom:12px; }
+    .confirmationPage .smallBag { width:54px; height:54px; font-size:28px; }
+    .confirmationPage .confirmationProduct h2 { font-size:19px; }
+    .confirmationPage .confirmationProduct > div:nth-child(2) > span { font-size:13px; }
+    .confirmationPage .statusPill { padding:5px 10px; font-size:12px; }
+    .confirmationPage .definitionList > div { gap:12px; padding:8px 0; }
+    .confirmationPage .definitionList dt,.confirmationPage .definitionList dd { font-size:14px; line-height:1.4; }
+    .confirmationPage .codeCard { display:flex; padding:16px; gap:8px; }
+    .confirmationPage .codeCaption { margin:0; font-size:13px; }
+    .confirmationPage :global(.kulha-pickup-qr) { width:min(100%,190px); }
+    .confirmationPage .pickupCodeFallback { font-size:22px; }
+    .confirmationPage .codeCard p { max-width:100%; margin:0; font-size:13px; line-height:1.4; }
+    .confirmationPage .actionRow { display:grid; grid-template-columns:1fr; gap:9px; margin-top:12px; }
+    .confirmationPage .actionRow a { width:100%; min-height:48px; padding-inline:16px; font-size:14px; }
+
+    .detailPage { padding-block:20px max(100px,calc(env(safe-area-inset-bottom) + 82px)); }
+    .detailPage .detailGrid { grid-template-columns:minmax(0,1fr); gap:14px; }
+    .detailPage .confirmationSummary { padding:17px; }
+    .detailPage .codeCard { padding:17px; }
+    .detailPage .codeCard :global(.kulha-pickup-qr) { width:min(100%,190px); }
+    .detailPage .detailFooter { margin-top:14px; }
+
+    .cancelDialog {
+        width:min(100%,760px);
+        max-height:calc(100dvh - 24px);
+        padding:22px 20px;
+        gap:14px;
+    }
+    .cancelDialogHead strong { font-size:22px; }
+    .cancelReasons { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .cancelReasons label { min-height:46px; }
+}
+@media (max-width:390px) {
+    .checkoutPage .pickupRows { grid-template-columns:minmax(0,1fr); }
+    .checkoutPage .pickupRow { display:flex; }
+    .checkoutPage .pickupRow span:not(.detailIcon) { overflow-wrap:anywhere; }
+    .cancelDialog { padding:19px 16px; }
+    .cancelReasons { grid-template-columns:minmax(0,1fr); }
+}
+@media (prefers-reduced-motion:reduce) {
+    .successIcon,.successIcon path,.cancelOverlay,.cancelDialog { animation:none !important; }
+    .successIcon path { stroke-dashoffset:0; }
+}
+
+.codeCard .cancelNotice { display:flex; align-items:center; justify-content:center; gap:8px; max-width:100%; margin:12px 0 0; padding:11px 16px; border-radius:14px; background:#fdecea; color:#a3372a; font-size:14px; font-weight:900; line-height:1.35; text-align:start; }
+.codeCard .cancelNotice svg { flex:none; }

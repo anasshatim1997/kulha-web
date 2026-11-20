@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -764,7 +763,7 @@ export function OfferStoreMapCanvas({
                 };
 
                 const installStoreLayers = () => {
-                    if (!map || disposed || !map.isStyleLoaded()) return;
+                    if (!map || disposed || !map.getStyle()) return;
 
                     if (!map.getSource("kulha-store-clusters")) {
                         map.addSource("kulha-store-clusters", {
@@ -824,9 +823,6 @@ export function OfferStoreMapCanvas({
                             },
                         });
 
-                        // At neighbourhood zoom, keep the map useful even before
-                        // HTML pins take over: show each unclustered shop's initials
-                        // inside its branded point instead of an anonymous green dot.
                         map.addLayer({
                             id: "kulha-store-single-initials",
                             type: "symbol",
@@ -870,8 +866,6 @@ export function OfferStoreMapCanvas({
                 map.on("style.load", () => {
                     if (disposed) return;
                     installStoreLayers();
-                    // Store clusters are local GeoJSON; don't make their visibility
-                    // wait for every basemap tile or for the map's idle event.
                     setStatus("ready");
 
                     if (hasArchive && !fallbackApplied) {
@@ -1009,8 +1003,7 @@ export function OfferStoreMapCanvas({
             !map ||
             !maplibre ||
             !container ||
-            status === "loading" ||
-            !map.isStyleLoaded()
+            status === "loading"
         ) {
             return;
         }
@@ -1221,7 +1214,6 @@ export function OfferStoreMapCanvas({
         }
 
         const handleContainerPointerMove = (event: PointerEvent) => {
-            // Hover popups are disabled; avoid a DOM geometry scan on every pointer move.
             if (!HOVER_POPUP_ENABLED) return;
             lastPointer = {
                 x: event.clientX,

@@ -313,9 +313,6 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
         [stores, focusOffer, values.city],
     );
 
-    // Re-seed the map whenever the server-provided offers, the focused offer or the city change.
-    // This is derived-state syncing, so it runs during render (React re-renders straight away) instead of
-    // in an effect that would paint the stale map first and then cascade another render.
     const [syncedInputs, setSyncedInputs] = useState<{ initialOffers: PublicOffer[]; focusOffer: PublicOfferDetail | null; city: string | undefined } | null>(null);
     const inputFocus = focusOffer ?? null;
     if (!syncedInputs || syncedInputs.initialOffers !== initialOffers || syncedInputs.focusOffer !== inputFocus || syncedInputs.city !== values.city) {
@@ -432,7 +429,6 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
         userLocationRef.current = position;
         setUserLocation(position);
 
-        // Sit the camera on the person: first GPS fix (unless a specific offer is focused) and every "locate me" tap.
         const centreOnMe = shouldCenterMapOnUser({
             recenter,
             isFirstFix,
@@ -462,9 +458,6 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
         const pageCount = Math.max(1, Math.ceil(total / pageSize));
         if (pageCount <= 1) return;
 
-        // The public API caps pages at 50. Fetch remaining pages with a small
-        // concurrency limit, then group/render once instead of rebuilding every
-        // store marker after each of the 19 follow-up requests.
         const pages: PublicOffer[][] = [];
         let nextPageIndex = 1;
         let hadPageFailure = false;
@@ -510,8 +503,6 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
                 : nextStores[0]?.key ?? nextUnlocated[0]?.key ?? null,
         );
 
-        // Keep the user's initial city or national camera stable while later
-        // catalogue pages arrive; only the store data changes in the background.
         if (hadPageFailure) setMessage(t.mapServiceError);
     }
 
@@ -682,7 +673,6 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
     }
 
     function locateMe(recenter = false): Promise<void> {
-        // An explicit "Locate me" action hands camera control back to GPS.
         if (recenter) mapTargetLockedRef.current = false;
         const run = runLocate(recenter);
         locateInFlight.current = run;
@@ -696,7 +686,6 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
     locateMeRef.current = locateMe;
 
     async function locateUnpinnedStore(candidate: OfferMapStoreCandidate): Promise<OfferMapStore | null> {
-        // A deliberate shop selection takes camera control away from GPS follow mode.
         mapTargetLockedRef.current = true;
         setFollowing(false);
         setUserZoom(15);
@@ -819,8 +808,6 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
 
     async function showOfferOnMap(offer: PublicOffer) {
         clearRoute();
-        // Explicitly focus the selected merchant, even if "Locate me" was active.
-        // Otherwise GPS watch updates keep pulling the camera back to the customer.
         mapTargetLockedRef.current = true;
         setFollowing(false);
         setUserZoom(15);
@@ -879,14 +866,16 @@ export function OfferMapExplorer({ locale, values, initialOffers, focusOffer = n
                     <MapIcon name="search" />
                     <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={mc.search} aria-label={mc.search} />
                 </label>
-                <OfferFilterBar
-                    locale={locale}
-                    values={{ ...values, q: query.trim() || undefined }}
-                    pickupRanges={getCasablancaQuickPickupRanges()}
-                    total={initialTotal}
-                    initialOpen={initialFiltersOpen}
-                    basePath={localizedOfferPath(locale, "/offers/map")}
-                />
+                <div className="kulha-offers-page kulha-offers-redesign" style={{ display: "contents" }}>
+                    <OfferFilterBar
+                        locale={locale}
+                        values={{ ...values, q: query.trim() || undefined }}
+                        pickupRanges={getCasablancaQuickPickupRanges()}
+                        total={initialTotal}
+                        initialOpen={initialFiltersOpen}
+                        basePath={localizedOfferPath(locale, "/offers/map")}
+                    />
+                </div>
             </header>
 
             <div className="km-switch" role="group" aria-label={locale === "ar" ? "عرض الخريطة والعروض" : locale === "fr" ? "Affichage de la carte et des offres" : "Map and offers view"}>
