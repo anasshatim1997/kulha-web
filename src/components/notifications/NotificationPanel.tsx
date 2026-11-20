@@ -211,8 +211,8 @@ export function NotificationPanel() {
       <div className="nt-layout">
         <div className="nt-main">
           <div className="nt-filters" role="group" aria-label={t.title}>
-            <button type="button" className={filter === "all" ? "is-active" : ""} onClick={() => { setLoading(true); setError(null); setFilter("all"); }}>{t.all}</button>
-            <button type="button" className={filter === "unread" ? "is-active" : ""} onClick={() => { setLoading(true); setError(null); setFilter("unread"); }}>{t.unread} · {unreadCount}</button>
+            <button type="button" className={filter === "all" ? "is-active" : ""} onClick={() => { if (filter !== "all") { setLoading(true); setError(null); setFilter("all"); } }}>{t.all}</button>
+            <button type="button" className={filter === "unread" ? "is-active" : ""} onClick={() => { if (filter !== "unread") { setLoading(true); setError(null); setFilter("unread"); } }}>{t.unread} · {unreadCount}</button>
           </div>
           {error && <div className="nt-error" role="alert"><span>{error}</span><button type="button" onClick={() => { setLoading(true); setError(null); void load(); }}>{t.retry}</button></div>}
           {loading ? <div className="nt-state" role="status">{t.loading}</div> :
