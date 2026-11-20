@@ -3111,6 +3111,10 @@ html:has(body .auth-layout) { height: 100svh !important; overflow: hidden !impor
 .workspace-nav a[aria-current="page"] { background: #073324; color: #fcf4e7; }
 .workspace-actions { display: flex; align-items: center; gap: 10px; margin-inline-start: auto; }
 .workspace-signout { min-height: 40px; padding: 0 16px; border: 2px solid rgb(7 51 36 / .28); border-radius: 99px; background: transparent; color: #073324; font: inherit; font-size: 14px; font-weight: 900; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+.customer-notification-link { position: relative; display: inline-flex; width: 42px; height: 42px; flex: 0 0 auto; align-items: center; justify-content: center; border: 1px solid #e7dac4; border-radius: 50%; background: #fffdf8; color: #073324; text-decoration: none; }
+.customer-notification-link:hover, .customer-notification-link[aria-current="page"] { border-color: #073324; background: #f3f1e8; }
+.customer-notification-link:focus-visible { outline: 3px solid #fdbe2e; outline-offset: 2px; }
+.customer-notification-count { position: absolute; top: -3px; inset-inline-end: -3px; display: grid; min-width: 19px; height: 19px; padding: 0 4px; place-items: center; border-radius: 99px; background: #fdbe2e; color: #073324; font-size: 10px; font-weight: 950; }
 .workspace-signout { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
 .workspace-signout:hover { border-color: #073324; background: #073324; color: #fcf4e7; }
 .workspace-signout:focus-visible, .workspace-nav a:focus-visible { outline: 3px solid #fdbe2e; outline-offset: 2px; }
