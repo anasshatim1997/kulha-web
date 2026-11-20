@@ -19,6 +19,7 @@ type NotificationItem = {
   actionUrl: string | null;
   createdAt: string;
   readAt: string | null;
+  isToday: boolean;
 };
 
 type Copy = {
@@ -100,8 +101,6 @@ export function NotificationPanel() {
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
     try {
       const [list, count] = await Promise.all([
         api.get<NotificationItem[]>(`/notifications?unreadOnly=${filter === "unread"}&page=0&size=50`),
@@ -147,24 +146,16 @@ export function NotificationPanel() {
   }
 
   const { today, earlier } = useMemo(() => {
-    const start = new Date(); start.setHours(0, 0, 0, 0);
     return {
-      today: items.filter(item => new Date(item.createdAt) >= start),
-      earlier: items.filter(item => new Date(item.createdAt) < start),
+      today: items.filter(item => item.isToday),
+      earlier: items.filter(item => !item.isToday),
     };
   }, [items]);
 
   function timeLabel(value: string) {
-    const date = new Date(value);
-    const diff = Date.now() - date.getTime();
-    if (diff < 60_000) return locale === "ar" ? "الآن" : locale === "en" ? "Just now" : "À l’instant";
-    if (diff < 3_600_000) {
-      const minutes = Math.floor(diff / 60_000);
-      return locale === "ar" ? `قبل ${minutes} د` : locale === "en" ? `${minutes} min ago` : `Il y a ${minutes} min`;
-    }
     return new Intl.DateTimeFormat(locale === "ar" ? "ar-MA" : locale === "en" ? "en" : "fr-MA", {
       day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
-    }).format(date);
+    }).format(new Date(value));
   }
 
   function renderGroup(label: string, rows: NotificationItem[]) {
@@ -204,8 +195,8 @@ export function NotificationPanel() {
       <div className="nt-layout">
         <div className="nt-main">
           <div className="nt-filters" role="group" aria-label={t.title}>
-            <button type="button" className={filter === "all" ? "is-active" : ""} onClick={() => setFilter("all")}>{t.all}</button>
-            <button type="button" className={filter === "unread" ? "is-active" : ""} onClick={() => setFilter("unread")}>{t.unread} · {unreadCount}</button>
+            <button type="button" className={filter === "all" ? "is-active" : ""} onClick={() => { setLoading(true); setError(null); setFilter("all"); }}>{t.all}</button>
+            <button type="button" className={filter === "unread" ? "is-active" : ""} onClick={() => { setLoading(true); setError(null); setFilter("unread"); }}>{t.unread} · {unreadCount}</button>
           </div>
           {error && <div className="nt-error" role="alert"><span>{error}</span><button type="button" onClick={() => void load()}>{t.retry}</button></div>}
           {loading ? <div className="nt-state" role="status">{t.loading}</div> :
