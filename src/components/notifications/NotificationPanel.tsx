@@ -115,7 +115,23 @@ export function NotificationPanel() {
     }
   }, [filter, t.loadError]);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    let current = true;
+    Promise.all([
+      api.get<NotificationItem[]>(`/notifications?unreadOnly=${filter === "unread"}&page=0&size=50`),
+      api.get<{ count: number }>("/notifications/unread-count"),
+    ]).then(([list, count]) => {
+      if (!current) return;
+      setItems(list);
+      setUnreadCount(count.count);
+      setError(null);
+    }).catch(cause => {
+      if (current) setError(describeError(cause) || t.loadError);
+    }).finally(() => {
+      if (current) setLoading(false);
+    });
+    return () => { current = false; };
+  }, [filter, t.loadError]);
 
   async function markRead(id: string) {
     setBusyId(id);
@@ -198,7 +214,7 @@ export function NotificationPanel() {
             <button type="button" className={filter === "all" ? "is-active" : ""} onClick={() => { setLoading(true); setError(null); setFilter("all"); }}>{t.all}</button>
             <button type="button" className={filter === "unread" ? "is-active" : ""} onClick={() => { setLoading(true); setError(null); setFilter("unread"); }}>{t.unread} · {unreadCount}</button>
           </div>
-          {error && <div className="nt-error" role="alert"><span>{error}</span><button type="button" onClick={() => void load()}>{t.retry}</button></div>}
+          {error && <div className="nt-error" role="alert"><span>{error}</span><button type="button" onClick={() => { setLoading(true); setError(null); void load(); }}>{t.retry}</button></div>}
           {loading ? <div className="nt-state" role="status">{t.loading}</div> :
             items.length === 0 ? <div className="nt-empty"><span><Bell /></span><h2>{t.emptyTitle}</h2><p>{t.emptyBody}</p></div> :
               <>{renderGroup(t.today, today)}{renderGroup(t.earlier, earlier)}</>}
