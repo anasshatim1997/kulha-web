@@ -34,10 +34,17 @@ export function SiteHeader() {
   useEffect(() => {
     if (state.status !== "authenticated") { setUnreadNotifications(0); return; }
     let current = true;
-    api.get<{ count: number }>("/notifications/unread-count")
-      .then(result => { if (current) setUnreadNotifications(result.count); })
-      .catch(() => { if (current) setUnreadNotifications(0); });
-    return () => { current = false; };
+    const refreshUnread = () => {
+      api.get<{ count: number }>("/notifications/unread-count")
+        .then(result => { if (current) setUnreadNotifications(result.count); })
+        .catch(() => { if (current) setUnreadNotifications(0); });
+    };
+    refreshUnread();
+    window.addEventListener("kulha:notifications-updated", refreshUnread);
+    return () => {
+      current = false;
+      window.removeEventListener("kulha:notifications-updated", refreshUnread);
+    };
   }, [state.status, pathname]);
 
   useEffect(() => {
