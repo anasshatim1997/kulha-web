@@ -59,7 +59,7 @@ export function ProfileSettingsPanel({ initialSection = "profile" }: { initialSe
     if (state.status !== "authenticated") return;
     let cancelled = false;
     Promise.all([
-      api.get<UserPreferences>("/me/preferences"),
+      api.get<UserPreferences>(`/me/preferences?locale=${locale}`),
       api.get<NotificationPreferences>("/me/notification-preferences"),
     ]).then(([preferences, notificationPreferences]) => {
       if (cancelled) return;
