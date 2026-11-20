@@ -38,14 +38,14 @@ const copy = {
   },
 } as const;
 
-export function ProfileSettingsPanel() {
+export function ProfileSettingsPanel({ initialSection = "profile" }: { initialSection?: "profile"|"location"|"language"|"notifications"|"account" }) {
   const pathname = usePathname();
   const router = useRouter();
   const locale = localeFromPath(pathname) as SiteLocale;
   const t = copy[locale] ?? copy.fr;
   const { state, reload, signOut } = useSession();
   const toast = useToast();
-  const [active, setActive] = useState<"profile"|"location"|"language"|"notifications"|"account">("profile");
+  const [active, setActive] = useState<"profile"|"location"|"language"|"notifications"|"account">(initialSection);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [userPrefs, setUserPrefs] = useState<UserPreferences>({ preferredCity:"", preferredDistrict:"", locale });
@@ -55,19 +55,15 @@ export function ProfileSettingsPanel() {
   const [error, setError] = useState<string|null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.location.hash === "#notifications") setActive("notifications");
-  }, []);
-
-  useEffect(() => {
     if (state.status !== "authenticated") return;
-    setFullName(state.user.fullName);
-    setPhone(state.user.phone ?? "");
     let cancelled = false;
     Promise.all([
       api.get<UserPreferences>("/me/preferences"),
       api.get<NotificationPreferences>("/me/notification-preferences"),
     ]).then(([preferences, notificationPreferences]) => {
       if (cancelled) return;
+      setFullName(state.user.fullName);
+      setPhone(state.user.phone ?? "");
       setUserPrefs(preferences);
       setNotifications(notificationPreferences);
     }).catch(cause => { if (!cancelled) setError(describeError(cause) || t.loadError); })
