@@ -124,6 +124,7 @@ export function NotificationPanel() {
       await api.patch(`/notifications/${id}/read`);
       setItems(current => current.map(item => item.id === id ? { ...item, readAt: new Date().toISOString() } : item));
       setUnreadCount(count => Math.max(0, count - 1));
+      window.dispatchEvent(new Event("kulha:notifications-updated"));
     } catch (cause) {
       setError(describeError(cause) || t.loadError);
     } finally {
@@ -137,6 +138,7 @@ export function NotificationPanel() {
       await api.post("/notifications/read-all");
       setItems(current => current.map(item => ({ ...item, readAt: item.readAt ?? new Date().toISOString() })));
       setUnreadCount(0);
+      window.dispatchEvent(new Event("kulha:notifications-updated"));
     } catch (cause) {
       setError(describeError(cause) || t.loadError);
     } finally {
