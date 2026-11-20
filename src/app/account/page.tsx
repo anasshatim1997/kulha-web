@@ -1,10 +1,5 @@
 import type { Metadata } from "next";
-import { AccountPanel } from "@/components/auth/AccountPanel";
+import { ProfileSettingsPanel } from "@/components/auth/ProfileSettingsPanel";
 
-export const metadata: Metadata = { title: "Mon profil | KULHA!" };
-
-export default function AccountPage() {
-  return (
-    <AccountPanel />
-  );
-}
+export const metadata: Metadata = { title: "Profil et paramètres | KULHA!" };
+export default function AccountPage() { return <ProfileSettingsPanel />; }
