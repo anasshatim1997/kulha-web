@@ -216,7 +216,7 @@ export function NotificationPanel() {
           <section className="nt-settings">
             <div className="nt-settings__title"><Bell /><h2>{t.settingsTitle}</h2></div>
             <p>{t.settingsBody}</p>
-            <Link href={localePath(locale, "/account#notifications")}>{t.manage}</Link>
+            <Link href={localePath(locale, "/account/notifications")}>{t.manage}</Link>
           </section>
           <section className="nt-legend">
             <h2>{t.types}</h2>
