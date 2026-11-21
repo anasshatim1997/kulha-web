@@ -12,7 +12,7 @@ const PUBLIC_AUTH_ACTIONS = new Set([
   "reset-password",
 ]);
 
-const ALLOWED_ROOTS = new Set(["me", "merchants", "merchant", "admin", "offers", "reservations"]);
+const ALLOWED_ROOTS = new Set(["me", "merchants", "merchant", "admin", "offers", "reservations", "notifications"]);
 
 const SEGMENT = /^[A-Za-z0-9_-]+$/;
 
