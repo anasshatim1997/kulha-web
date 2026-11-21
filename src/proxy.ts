@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { securityHeaders } from "@/lib/security/headers";
+import { isCanonicalFrenchAuthPath } from "@/lib/navigation";
 
 function secure(response: NextResponse, request: NextRequest): NextResponse {
   for (const [name, value] of Object.entries(securityHeaders(process.env.NODE_ENV ?? "development", request.nextUrl.protocol, request.nextUrl.pathname))) {
@@ -53,7 +54,7 @@ export function proxy(request: NextRequest) {
   // The root URL has its own French landing page at src/app/page.tsx.
   // Do not rewrite `/` to `/fr`: the [locale] landing route is reserved for
   // the explicitly prefixed English and Arabic pages.
-  if (pathname !== "/" && !isLocalizedPath && !isInternalPath && !isFilePath && !isRootAuthRoute) {
+  if (pathname !== "/" && !isLocalizedPath && !isInternalPath && !isFilePath && !isCanonicalFrenchAuthPath(pathname)) {
     const target = request.nextUrl.clone();
     target.pathname = `/fr${pathname}`;
     return secure(NextResponse.rewrite(target, { request: { headers: forwardedHeaders } }), request);
