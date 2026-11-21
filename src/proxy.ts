@@ -22,8 +22,9 @@ export function proxy(request: NextRequest) {
     return secure(NextResponse.redirect(target, 308), request);
   }
 
-  const protectedPath = /^\/(?:account|merchant|admin|reservations)(?:\/|$)/.test(pathname)
-    || /^\/(?:en|ar)\/(?:account|merchant|reservations)(?:\/|$)/.test(pathname);
+  const isAdminLoginPath = /^\/(?:(?:en|ar)\/)?admin\/login\/?$/.test(pathname);
+  const protectedPath = !isAdminLoginPath && (/^\/(?:account|merchant|admin|reservations)(?:\/|$)/.test(pathname)
+    || /^\/(?:en|ar)\/(?:account|merchant|reservations)(?:\/|$)/.test(pathname));
   if (protectedPath && !request.cookies.has("kulha_rt")) {
     const prefix = pathname.startsWith("/en/") ? "/en" : pathname.startsWith("/ar/") ? "/ar" : "";
     const login = new URL(`${prefix}/login`, request.url);
