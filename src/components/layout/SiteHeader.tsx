@@ -73,7 +73,8 @@ export function SiteHeader() {
   const isAdminWorkspace = isAdminWorkspacePath(pathname);
   const isMerchant = state.status === "authenticated" && state.user.roles.some(role => ["MERCHANT", "MERCHANT_OWNER", "MERCHANT_STAFF"].includes(role));
   const isMerchantOwner = state.status === "authenticated" && state.user.roles.some(role => ["MERCHANT", "MERCHANT_OWNER"].includes(role));
-  const isCustomerWorkspace = state.status === "authenticated" ? shouldUseCustomerWorkspace(pathname, state.user.roles) : isCustomerAccountPath(pathname);
+  const isCustomerMarketplacePath = /^\/(?:(?:en|ar)\/)?(?:offers(?:\/map)?|reservations|notifications|account)(?:\/|$)/.test(pathname);
+  const isCustomerWorkspace = !isAuthPage && !isWorkspace && !isAdminWorkspace && (isCustomerMarketplacePath || (state.status === "authenticated" && shouldUseCustomerWorkspace(pathname, state.user.roles)));
   const isHomePath = /^\/(?:en|ar)?\/?$/.test(pathname);
 
   useEffect(() => {
@@ -135,11 +136,7 @@ export function SiteHeader() {
             </div>
           </div>
         </header>
-        <nav className="customer-mobile-tabs" aria-label={locale === "ar" ? "التنقل" : locale === "en" ? "App navigation" : "Navigation de l’application"} dir={copy.dir}>
-          <Link href={discoverHref} aria-current={onOffers ? "page" : undefined}><span className="inline-flex h-6 w-6 items-center justify-center" aria-hidden="true"><Search size={21} strokeWidth={2.1} /></span><small>{copy.nav.discover}</small></Link>
-          <Link href={mapHref} aria-current={onMap ? "page" : undefined}><span className="inline-flex h-6 w-6 items-center justify-center" aria-hidden="true"><MapPin size={21} strokeWidth={2.1} /></span><small>{labels.map}</small></Link>
-          <Link href={reservationsHref} aria-current={onReservations ? "page" : undefined}><span className="inline-flex h-6 w-6 items-center justify-center" aria-hidden="true"><ClipboardList size={21} strokeWidth={2.1} /></span><small>{labels.reservations}</small></Link>
-        </nav>
+
       </>
     );
   }
