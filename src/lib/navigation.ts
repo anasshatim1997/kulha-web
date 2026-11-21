@@ -56,7 +56,7 @@ export function isCustomerAccountPath(pathname: string): boolean {
 export function shouldUseCustomerWorkspace(pathname: string, roles: readonly string[]): boolean {
   if (!roles.includes("CUSTOMER") || roles.some(role => ["MERCHANT", "MERCHANT_OWNER", "MERCHANT_STAFF", "ADMIN", "SUPER_ADMIN", "MODERATOR", "SUPPORT"].includes(role))) return false;
   if (isMerchantWorkspacePath(pathname)) return false;
-  if (/^\/(?:(?:en|ar)\/)?(?:login|register(?:\/merchant)?|forgot-password|reset-password|verify-email)\/?$/.test(pathname)) return false;
+  if (/^\/(?:(?:en|ar)\/)?(?:login|admin\/login|register(?:\/merchant)?|forgot-password|reset-password|verify-email)\/?$/.test(pathname)) return false;
   return true;
 }
 export function defaultSignedInPath(locale: SiteLocale, roles: readonly string[]): string {
