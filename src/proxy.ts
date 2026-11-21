@@ -47,9 +47,12 @@ export function proxy(request: NextRequest) {
   const isLocalizedPath = /^\/(?:en|ar)(?:\/|$)/.test(pathname);
   const isInternalPath = /^\/(?:api|_next|_vercel)(?:\/|$)/.test(pathname);
   const isFilePath = /\.[^/]+$/.test(pathname);
-  if (!isLocalizedPath && !isInternalPath && !isFilePath) {
+  // The root URL has its own French landing page at src/app/page.tsx.
+  // Do not rewrite `/` to `/fr`: the [locale] landing route is reserved for
+  // the explicitly prefixed English and Arabic pages.
+  if (pathname !== "/" && !isLocalizedPath && !isInternalPath && !isFilePath) {
     const target = request.nextUrl.clone();
-    target.pathname = pathname === "/" ? "/fr" : `/fr${pathname}`;
+    target.pathname = `/fr${pathname}`;
     return secure(NextResponse.rewrite(target, { request: { headers: forwardedHeaders } }), request);
   }
 
