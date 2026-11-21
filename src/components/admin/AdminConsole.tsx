@@ -2,7 +2,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { api } from "@/lib/api/client";
 import { useSession } from "@/components/session/SessionProvider";
-import { Eye, FileText, Flag, Lock, Search, ShieldCheck, Tag, User } from "lucide-react";
+import { AlertTriangle, Eye, FileText, Flag, Image as ImageIcon, Lock, Search, ShieldCheck, Tag, User } from "lucide-react";
 import styles from "./AdminConsole.module.css";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 
@@ -23,9 +23,9 @@ const words={
 
 
 const more={
- fr:{search:"Rechercher commerces, commandes, dossiers…",application:"Dossier",escalated:"Escaladés",live:"En ligne",hiddenS:"Masquée",draftS:"Brouillon",expiredS:"Expirée",cancelledS:"Annulée",unpublishedS:"Dépubliée",complete:"Complet",report:"signalement",reportsN:"signalements",decisionNote:"Votre décision, le motif et votre nom sont enregistrés dans le journal d’audit.",actionNote:"Chaque action, motif et nom est enregistré dans le journal d’audit.",selectedOffer:"Offre sélectionnée",originalValue:"Valeur d’origine",notVerified:"non vérifiée",assignedTo:"Assigné à",replyNote:"Réponse ou note interne",writeMessage:"Écrire un message…",visibleCustomer:"Visible par le client",sendCustomer:"Envoyer au client",saveNote:"Enregistrer la note interne",actionReason:"Motif de l’action (obligatoire pour contacter, escalader ou résoudre)",optional:"Facultatif",allResults:"Tous les résultats",docsTitle:"Documents",needsReason:"Choisissez une décision et indiquez un motif.",system:"Système",customerRole:"Client"},
- en:{search:"Search merchants, orders, cases…",application:"Application",escalated:"Escalated",live:"Live",hiddenS:"Hidden",draftS:"Draft",expiredS:"Expired",cancelledS:"Cancelled",unpublishedS:"Unpublished",complete:"Complete",report:"report",reportsN:"reports",decisionNote:"Your decision, reason and name are saved in the audit log.",actionNote:"Every action, reason and name is saved in the audit log.",selectedOffer:"Selected offer",originalValue:"Original value",notVerified:"not verified",assignedTo:"Assigned to",replyNote:"Reply or internal note",writeMessage:"Write a message…",visibleCustomer:"Visible to the customer",sendCustomer:"Send to customer",saveNote:"Save internal note",actionReason:"Reason for the action (required to contact, escalate or resolve)",optional:"Optional",allResults:"All results",docsTitle:"Documents",needsReason:"Pick a decision and give a reason.",system:"System",customerRole:"Customer"},
- ar:{search:"ابحث عن متاجر وطلبات وحالات…",application:"طلب",escalated:"مصعّدة",live:"منشور",hiddenS:"مخفي",draftS:"مسودة",expiredS:"منتهي",cancelledS:"ملغى",unpublishedS:"غير منشور",complete:"مكتمل",report:"بلاغ",reportsN:"بلاغات",decisionNote:"يتم حفظ قرارك والسبب واسمك في سجل التدقيق.",actionNote:"يتم حفظ كل إجراء وسببه واسمك في سجل التدقيق.",selectedOffer:"العرض المحدد",originalValue:"القيمة الأصلية",notVerified:"غير موثقة",assignedTo:"مُسند إلى",replyNote:"رد أو ملاحظة داخلية",writeMessage:"اكتب رسالة…",visibleCustomer:"ظاهر للعميل",sendCustomer:"إرسال للعميل",saveNote:"حفظ الملاحظة الداخلية",actionReason:"سبب الإجراء (مطلوب للتواصل أو التصعيد أو الحل)",optional:"اختياري",allResults:"كل النتائج",docsTitle:"الوثائق",needsReason:"اختر قراراً واذكر السبب.",system:"النظام",customerRole:"العميل"}
+ fr:{search:"Rechercher commerces, commandes, dossiers…",application:"Dossier",escalated:"Escaladés",live:"En ligne",hiddenS:"Masquée",draftS:"Brouillon",expiredS:"Expirée",cancelledS:"Annulée",unpublishedS:"Dépubliée",complete:"Complet",report:"signalement",reportsN:"signalements",decisionNote:"Votre décision, le motif et votre nom sont enregistrés dans le journal d’audit.",actionNote:"Chaque action, motif et nom est enregistré dans le journal d’audit.",selectedOffer:"Offre sélectionnée",needsReview:"À vérifier",reportedMetric:"Signalées",hiddenMetric:"Masquées",liveNow:"En ligne",reportedFilter:"Signalées",allergensUnknown:"Allergènes inconnus",hiddenFilter:"Masquées",foodSafetyTitle:"Sécurité alimentaire : allergènes inconnus",foodSafetyBody:"Les informations sur les allergènes doivent être vérifiées avant la remise en ligne.",stock:"Stock",reserved:"réservés",pickup:"Retrait",pickupUnavailable:"Créneau non renseigné",originalPrice:"Prix initial",reportsTitle:"Signalements",reportReceived:"signalements reçus pour cette offre.",noReports:"Aucun signalement n’a été reçu.",reasonMisleading:"Prix trompeur",reasonAllergens:"Allergènes manquants",reasonPhoto:"Photo incorrecte",reasonOther:"Autre",reinstateOnlyHidden:"La remise en ligne est réservée aux offres masquées.",keepHidden:"Garder masquée",auditRecorded:"Votre décision est enregistrée dans le journal d’audit.",originalValue:"Valeur d’origine",notVerified:"non vérifiée",assignedTo:"Assigné à",replyNote:"Réponse ou note interne",writeMessage:"Écrire un message…",visibleCustomer:"Visible par le client",sendCustomer:"Envoyer au client",saveNote:"Enregistrer la note interne",actionReason:"Motif de l’action (obligatoire pour contacter, escalader ou résoudre)",optional:"Facultatif",allResults:"Tous les résultats",docsTitle:"Documents",needsReason:"Choisissez une décision et indiquez un motif.",system:"Système",customerRole:"Client"},
+ en:{search:"Search merchants, orders, cases…",application:"Application",escalated:"Escalated",live:"Live",hiddenS:"Hidden",draftS:"Draft",expiredS:"Expired",cancelledS:"Cancelled",unpublishedS:"Unpublished",complete:"Complete",report:"report",reportsN:"reports",decisionNote:"Your decision, reason and name are saved in the audit log.",actionNote:"Every action, reason and name is saved in the audit log.",selectedOffer:"Selected offer",needsReview:"Needs review",reportedMetric:"Reported",hiddenMetric:"Hidden",liveNow:"Live now",reportedFilter:"Reported",allergensUnknown:"Allergens unknown",hiddenFilter:"Hidden",foodSafetyTitle:"Food safety: allergens unknown",foodSafetyBody:"Allergen information must be checked before this offer is restored.",stock:"Stock",reserved:"reserved",pickup:"Pickup",pickupUnavailable:"Pickup window not provided",originalPrice:"Original price",reportsTitle:"Reports",reportReceived:"reports received for this offer.",noReports:"No customer reports have been received.",reasonMisleading:"Misleading price",reasonAllergens:"Missing allergens",reasonPhoto:"Wrong photo",reasonOther:"Other",reinstateOnlyHidden:"Put live is only available for hidden offers.",keepHidden:"Keep hidden",auditRecorded:"Your decision is recorded in the audit log.",originalValue:"Original value",notVerified:"not verified",assignedTo:"Assigned to",replyNote:"Reply or internal note",writeMessage:"Write a message…",visibleCustomer:"Visible to the customer",sendCustomer:"Send to customer",saveNote:"Save internal note",actionReason:"Reason for the action (required to contact, escalate or resolve)",optional:"Optional",allResults:"All results",docsTitle:"Documents",needsReason:"Pick a decision and give a reason.",system:"System",customerRole:"Customer"},
+ ar:{search:"ابحث عن متاجر وطلبات وحالات…",application:"طلب",escalated:"مصعّدة",live:"منشور",hiddenS:"مخفي",draftS:"مسودة",expiredS:"منتهي",cancelledS:"ملغى",unpublishedS:"غير منشور",complete:"مكتمل",report:"بلاغ",reportsN:"بلاغات",decisionNote:"يتم حفظ قرارك والسبب واسمك في سجل التدقيق.",actionNote:"يتم حفظ كل إجراء وسببه واسمك في سجل التدقيق.",selectedOffer:"العرض المحدد",needsReview:"بحاجة إلى مراجعة",reportedMetric:"مُبلّغ عنها",hiddenMetric:"مخفية",liveNow:"منشورة الآن",reportedFilter:"المُبلّغ عنها",allergensUnknown:"مسببات الحساسية غير معروفة",hiddenFilter:"مخفية",foodSafetyTitle:"سلامة الغذاء: مسببات الحساسية غير معروفة",foodSafetyBody:"يجب التحقق من معلومات مسببات الحساسية قبل إعادة نشر العرض.",stock:"المخزون",reserved:"محجوز",pickup:"الاستلام",pickupUnavailable:"موعد الاستلام غير محدد",originalPrice:"السعر الأصلي",reportsTitle:"البلاغات",reportReceived:"بلاغات واردة عن هذا العرض.",noReports:"لا توجد بلاغات من العملاء.",reasonMisleading:"سعر مضلل",reasonAllergens:"مسببات الحساسية ناقصة",reasonPhoto:"صورة غير صحيحة",reasonOther:"أخرى",reinstateOnlyHidden:"إعادة النشر متاحة للعروض المخفية فقط.",keepHidden:"إبقاء مخفي",auditRecorded:"تم تسجيل قرارك في سجل التدقيق.",originalValue:"القيمة الأصلية",notVerified:"غير موثقة",assignedTo:"مُسند إلى",replyNote:"رد أو ملاحظة داخلية",writeMessage:"اكتب رسالة…",visibleCustomer:"ظاهر للعميل",sendCustomer:"إرسال للعميل",saveNote:"حفظ الملاحظة الداخلية",actionReason:"سبب الإجراء (مطلوب للتواصل أو التصعيد أو الحل)",optional:"اختياري",allResults:"كل النتائج",docsTitle:"الوثائق",needsReason:"اختر قراراً واذكر السبب.",system:"النظام",customerRole:"العميل"}
 } as const;
 
 const loc=(l:SiteLocale)=>l==="ar"?"ar-MA":l==="en"?"en-MA":"fr-MA";
@@ -33,7 +33,6 @@ function amount(minor:number,l:SiteLocale){return new Intl.NumberFormat(loc(l),{
 function dateTime(value:string,l:SiteLocale){return new Intl.DateTimeFormat(loc(l),{timeZone:"Africa/Casablanca",weekday:"short",day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}).format(new Date(value));}
 function shortDateTime(value:string,l:SiteLocale){return new Intl.DateTimeFormat(loc(l),{timeZone:"Africa/Casablanca",day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}).format(new Date(value));}
 const merchantStatuses=["PENDING","INFO_REQUIRED","APPROVED","REJECTED"] as const;
-const offerStatuses=["PUBLISHED","SUSPENDED","UNPUBLISHED","DRAFT","EXPIRED","CANCELLED"] as const;
 type MerchantAction="approve"|"request-information"|"reject";
 type OfferAction="suspend"|"request-edit"|"reinstate";
 
@@ -51,12 +50,12 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
    if(page==="merchant-review"){const data=await api.get<Page<Merchant>>("/admin/merchants?status="+merchantStatus+"&page=0&size=50");if(active){setMerchants(data);setFailed(false);setSelectedMerchant(data.items[0]??null);setMerchantAction(null);setChecks([false,false,false]);}
     const [p,i]=await Promise.allSettled([api.get<Page<Merchant>>("/admin/merchants?status=PENDING&page=0&size=1"),api.get<Page<Merchant>>("/admin/merchants?status=INFO_REQUIRED&page=0&size=1")]);
     if(active)setTabCounts({pending:p.status==="fulfilled"?p.value.total:null,info:i.status==="fulfilled"?i.value.total:null});}
-   if(page==="offer-moderation"){const data=await api.get<Page<Offer>>("/admin/offers?page=0&size=100"+(offerStatus?"&status="+offerStatus:""));if(active){setOffers(data);setFailed(false);setSelectedOffer(data.items[0]??null);setOfferAction("suspend");}}
+   if(page==="offer-moderation"){const data=await api.get<Page<Offer>>("/admin/offers?page=0&size=100");if(active){setOffers(data);setFailed(false);setSelectedOffer(data.items[0]??null);setOfferAction(data.items[0]?.status==="SUSPENDED"?"reinstate":"suspend");}}
    if(page==="support-cases"){const data=await api.get<Page<CaseItem>>("/admin/support-cases?status="+caseStatus+"&page=0&size=100");if(active){setCases(data);setFailed(false);if(data.items[0]){const d=await api.get<{summary:CaseItem;timeline:Timeline[]}>("/admin/support-cases/"+data.items[0].reference);if(active)setSelectedCase(d);}else setSelectedCase(null);}}
    if(page==="audit-log"){const q=new URLSearchParams();if(auditFrom)q.set("from",auditFrom);if(auditTo)q.set("to",auditTo);if(auditAction)q.set("action",auditAction);if(auditResult)q.set("result",auditResult);q.set("page","0");q.set("size","100");const data=await api.get<AuditPage>("/admin/audit-log?"+q.toString());if(active){setAudit(data);setFailed(false);}}
   }catch{if(active)setFailed(true);}finally{if(active)setLoading(false);}};
   void load();return()=>{active=false;};
- },[page,reload,merchantStatus,offerStatus,caseStatus,auditFrom,auditTo,auditAction,auditResult]);
+ },[page,reload,merchantStatus,caseStatus,auditFrom,auditTo,auditAction,auditResult]);
 
  const title=page==="merchant-review"?t.merchantTitle:page==="offer-moderation"?t.offersTitle:page==="support-cases"?t.casesTitle:t.auditTitle;
  const lead=page==="merchant-review"?t.merchantLead:page==="offer-moderation"?t.offersLead:page==="support-cases"?t.casesLead:t.auditLead;
@@ -96,13 +95,30 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
  if(failed)return frame(<div className={styles.alert} role="alert">{t.error}<button onClick={()=>{setLoading(true);setFailed(false);setReload(v=>v+1);}}>{t.retry}</button></div>);
 
  const merchantItems=merchants?.items.filter(m=>match(m.name,m.businessType,m.city,m.ownerEmail))??[];
- const offerItems=offers?.items.filter(o=>match(o.title,o.shopName,o.city))??[];
+ const allOfferItems=offers?.items??[];
+ const offerItems=allOfferItems.filter(o=>{
+  const matchesQuery=match(o.title,o.shopName,o.city);
+  const matchesFilter=!offerStatus||(offerStatus==="REPORTED"&&o.reportedCount>0)||(offerStatus==="ALLERGENS_UNKNOWN"&&o.allergensStatus==="UNKNOWN")||(offerStatus==="SUSPENDED"&&o.status==="SUSPENDED");
+  return matchesQuery&&matchesFilter;
+ });
+ const needsReviewCount=allOfferItems.filter(o=>o.reportedCount>0||o.allergensStatus==="UNKNOWN").length;
+ const reportedOfferCount=allOfferItems.filter(o=>o.reportedCount>0).length;
+ const unknownAllergenCount=allOfferItems.filter(o=>o.allergensStatus==="UNKNOWN").length;
+ const hiddenOfferCount=allOfferItems.filter(o=>o.status==="SUSPENDED").length;
+ const liveOfferCount=allOfferItems.filter(o=>o.status==="PUBLISHED").length;
  const caseItems=cases?.items.filter(c=>match(c.subject,c.reference,c.merchantName,c.reservationReference,c.offerTitle))??[];
  const auditItems=audit?.items.filter(a=>match(a.actorName,a.action,a.targetType,a.targetId,a.reason))??[];
  const tabCount=(value:string)=>value==="PENDING"?(merchantStatus==="PENDING"?merchants?.total:tabCounts.pending):value==="INFO_REQUIRED"?(merchantStatus==="INFO_REQUIRED"?merchants?.total:tabCounts.info):merchantStatus===value?merchants?.total:null;
 
  return frame(<>
-  <header className={styles.header}><div><h1>{title}</h1><p>{lead}</p></div>
+  <header className={`${styles.header} ${page==="offer-moderation"?styles.offerHeader:""}`}>
+   <div className={styles.headerCopy}><h1>{title}</h1><p>{lead}</p></div>
+   {page==="offer-moderation"&&offers&&<div className={styles.offerMetrics}>
+    <article><strong>{needsReviewCount}</strong><span>{t.needsReview}</span></article>
+    <article><strong>{reportedOfferCount}</strong><span>{t.reportedMetric}</span></article>
+    <article><strong>{hiddenOfferCount}</strong><span>{t.hiddenMetric}</span></article>
+    <article><strong>{liveOfferCount}</strong><span>{t.liveNow}</span></article>
+   </div>}
    {page==="audit-log"&&<button className={styles.ghostBtn} disabled={working} onClick={()=>void exportAudit()}><FileText size={16} aria-hidden="true"/>{t.export}</button>}
   </header>
   {message&&<div className={styles.notice} role="status">{message}</div>}
@@ -142,29 +158,60 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
 
   {page==="offer-moderation"&&offers&&<>
    <div className={styles.offerWorkspace}>
-    <section className={styles.offerPicker}>
-     <div className={styles.tabs} role="tablist"><button role="tab" aria-selected={!offerStatus} className={!offerStatus?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setOfferStatus("");setSelectedOffer(null);})}>{t.all}{!offerStatus?" · "+offers.total:""}</button>{offerStatuses.map(value=><button key={value} role="tab" aria-selected={offerStatus===value} className={offerStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setOfferStatus(value);setSelectedOffer(null);})}>{offerLabel(value)}{offerStatus===value?" · "+offers.total:""}</button>)}</div>
-     <div className={styles.offerTable}><table><thead><tr><th>{t.offer}</th><th>{t.shop}</th><th>{t.price}</th><th>{t.reports}</th><th>{t.status}</th></tr></thead><tbody>
-      {offerItems.map(item=>{const d=discount(item);return <tr key={item.id} tabIndex={0} aria-selected={selectedOffer?.id===item.id} className={selectedOffer?.id===item.id?styles.activeRow:""} onClick={()=>{setSelectedOffer(item);setReason("");}} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setSelectedOffer(item);setReason("");}}}>
-       <td><strong>{item.title}</strong><small>{item.city}</small></td><td>{item.shopName}</td><td>{amount(item.priceMinor,locale)} MAD{d?" · −"+d+"%":""}</td>
-       <td>{item.reportedCount>0?<span className={styles.pill+" "+styles.toneBad}>{item.reportedCount} {item.reportedCount===1?t.report:t.reportsN}</span>:"0"}</td><td><span className={styles.pill+" "+offerTone(item.status)}>{offerLabel(item.status)}</span></td>
-      </tr>;})}
-     </tbody></table></div>
+    <section className={styles.offerPicker} aria-label={t.offersTitle}>
+     <div className={styles.tabs} role="tablist" aria-label={t.filter}>
+      {[
+       {value:"",label:t.all,count:offers.total},
+       {value:"REPORTED",label:t.reportedFilter,count:reportedOfferCount},
+       {value:"ALLERGENS_UNKNOWN",label:t.allergensUnknown,count:unknownAllergenCount},
+       {value:"SUSPENDED",label:t.hiddenFilter,count:hiddenOfferCount}
+      ].map(tab=><button key={tab.value||"all"} type="button" role="tab" aria-selected={offerStatus===tab.value} className={offerStatus===tab.value?styles.activeTab:styles.tab} onClick={()=>{setOfferStatus(tab.value);setSelectedOffer(null);setReason("");}}>{tab.label} · {tab.count}</button>)}
+     </div>
+     <div className={styles.offerQueue}>
+      {offerItems.map(item=>{const d=discount(item);return <button type="button" key={item.id} aria-pressed={selectedOffer?.id===item.id} className={selectedOffer?.id===item.id?styles.offerItemSelected:styles.offerItem} onClick={()=>{setSelectedOffer(item);setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");}}>
+       <span className={styles.offerThumb}>{item.imageUrl?<img src={item.imageUrl} alt="" loading="lazy"/>:<ImageIcon size={20} aria-hidden="true"/>}</span>
+       <span className={styles.offerCopy}><strong>{item.title}</strong><small>{item.shopName} · {item.city}</small><span className={styles.offerTags}>
+        {item.reportedCount>0&&<em className={styles.reportTag}>{item.reportedCount} {item.reportedCount===1?t.report:t.reportsN}</em>}
+        {item.allergensStatus==="UNKNOWN"&&<em className={styles.allergenTag}>{t.allergensUnknown}</em>}
+        {item.status==="SUSPENDED"&&<em className={styles.hiddenTag}>{t.hiddenS}</em>}
+       </span></span>
+       <span className={styles.offerPrice}><strong>{amount(item.priceMinor,locale)} MAD</strong><small>{d?"−"+d+"%":""}</small></span>
+      </button>;})}
+     </div>
      {!offerItems.length&&<p className={styles.empty}>{t.empty}</p>}
     </section>
     <section className={styles.offerDecision}>
      {!selectedOffer?<div className={styles.offerEmpty}><Tag size={28} aria-hidden="true"/><strong>{t.selectedOffer}</strong><span>{t.empty}</span></div>:<>
-      <div className={styles.detailHead}><div><small>{t.selectedOffer}</small><h2>{selectedOffer.title}</h2><span className={styles.pill+" "+offerTone(selectedOffer.status)}>{offerLabel(selectedOffer.status)}</span></div></div>
-      <dl className={styles.rows}><div><dt>{t.shop}</dt><dd>{selectedOffer.shopName}</dd></div><div><dt>{t.price}</dt><dd>{amount(selectedOffer.priceMinor,locale)} MAD</dd></div><div><dt>{t.foodInfo}</dt><dd>{selectedOffer.allergensStatus==="UNKNOWN"?t.hiddenAllergens:(selectedOffer.allergens||t.complete)}</dd></div><div><dt>{t.reports}</dt><dd>{selectedOffer.reportedCount}</dd></div><div><dt>{t.originalValue}</dt><dd>{selectedOffer.originalPriceMinor?amount(selectedOffer.originalPriceMinor,locale)+" MAD":"—"} · {t.notVerified}</dd></div></dl>
-      <p className={styles.hint}>{t.note}</p>
-      <div className={styles.decisionCol}><small className={styles.eyebrow}>{t.decision}</small>
-       <button type="button" aria-pressed={offerAction==="suspend"} className={offerAction==="suspend"?styles.stackOn:styles.stack} onClick={()=>setOfferAction("suspend")}>{selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
-       <button type="button" aria-pressed={offerAction==="request-edit"} className={offerAction==="request-edit"?styles.stackOn:styles.stack} onClick={()=>setOfferAction("request-edit")}>{t.askEdit}</button>
-       <button type="button" aria-pressed={offerAction==="reinstate"} disabled={selectedOffer.status!=="SUSPENDED"} className={offerAction==="reinstate"?styles.stackOn:styles.stack} onClick={()=>setOfferAction("reinstate")}>{t.putLive}</button>
-       <label className={styles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={e=>setReason(e.target.value)}/></label>
-       <button className={styles.primaryWide} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{t.save}</button>
+      <div className={styles.offerVisual}>
+       {selectedOffer.imageUrl?<img src={selectedOffer.imageUrl} alt={selectedOffer.title}/>:<div className={styles.offerVisualFallback}><ImageIcon size={22} aria-hidden="true"/><span>{t.offer} photo</span></div>}
+       <span className={styles.offerVisualStatus+" "+offerTone(selectedOffer.status)}>{offerLabel(selectedOffer.status)}</span>
       </div>
-      <p className={styles.hint}>{t.actionNote}</p>
+      <div className={styles.offerSelectedHeading}><small>{t.selectedOffer}</small><h2>{selectedOffer.title}</h2><p>{selectedOffer.shopName} · {selectedOffer.city}</p></div>
+      {selectedOffer.allergensStatus==="UNKNOWN"&&<div className={styles.foodSafetyAlert}><AlertTriangle size={18} aria-hidden="true"/><span><strong>{t.foodSafetyTitle}</strong><small>{t.foodSafetyBody}</small></span></div>}
+      <dl className={styles.offerFacts}>
+       <div><dt>{t.price}</dt><dd>{amount(selectedOffer.priceMinor,locale)} MAD</dd></div>
+       <div><dt>{t.originalPrice}</dt><dd>{selectedOffer.originalPriceMinor?amount(selectedOffer.originalPriceMinor,locale)+" MAD · "+t.notVerified:"—"}</dd></div>
+       <div><dt>{t.stock}</dt><dd>{selectedOffer.quantityReserved} / {selectedOffer.quantityTotal} {t.reserved}</dd></div>
+       <div><dt>{t.pickup}</dt><dd>{selectedOffer.pickupStart&&selectedOffer.pickupEnd?shortDateTime(selectedOffer.pickupStart,locale)+" – "+shortDateTime(selectedOffer.pickupEnd,locale):t.pickupUnavailable}</dd></div>
+      </dl>
+      <section className={styles.offerReports}>
+       <h3>{t.reportsTitle} · {selectedOffer.reportedCount}</h3>
+       {selectedOffer.reportedCount>0?<div><strong>{selectedOffer.reportedCount} {t.reportReceived}</strong><span>{t.status}: {offerLabel(selectedOffer.status)}</span></div>:<p>{t.noReports}</p>}
+      </section>
+      {selectedOffer.foodNotes&&<p className={styles.offerFoodNotes}>{selectedOffer.foodNotes}</p>}
+      <section className={styles.offerDecisionForm}>
+       <div className={styles.offerDecisionTitle}><small>{t.decision}</small><span>{t.reinstateOnlyHidden}</span></div>
+       <div className={styles.offerActionRow}>
+        <button type="button" data-action="reinstate" aria-pressed={offerAction==="reinstate"} className={offerAction==="reinstate"?styles.offerActionActive:styles.offerAction} disabled={selectedOffer.status!=="SUSPENDED"} onClick={()=>setOfferAction("reinstate")}>{t.putLive}</button>
+        <button type="button" data-action="request-edit" aria-pressed={offerAction==="request-edit"} className={offerAction==="request-edit"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("request-edit")}>{t.askEdit}</button>
+        <button type="button" data-action="suspend" aria-pressed={offerAction==="suspend"} className={offerAction==="suspend"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("suspend")}>{selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
+       </div>
+       <div className={styles.reasonChips}>
+        {[t.reasonMisleading,t.reasonAllergens,t.reasonPhoto,t.reasonOther].map(label=><button key={label} type="button" className={reason.startsWith(label)?styles.reasonChipActive:styles.reasonChip} onClick={()=>setReason(label+": ")}>{label}</button>)}
+       </div>
+       <label className={styles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
+       <div className={styles.offerDecisionFoot}><p><ShieldCheck size={14} aria-hidden="true"/>{t.auditRecorded}</p><button className={styles.primary} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button></div>
+      </section>
      </>}
     </section>
    </div>
