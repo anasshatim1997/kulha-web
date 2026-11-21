@@ -23,9 +23,9 @@ const words={
 
 
 const more={
- fr:{search:"Rechercher commerces, commandes, dossiers…",application:"Dossier",escalated:"Escaladés",live:"En ligne",hiddenS:"Masquée",draftS:"Brouillon",expiredS:"Expirée",cancelledS:"Annulée",unpublishedS:"Dépubliée",complete:"Complet",report:"signalement",reportsN:"signalements",decisionNote:"Votre décision, le motif et votre nom sont enregistrés dans le journal d’audit.",actionNote:"Chaque action, motif et nom est enregistré dans le journal d’audit.",selectedOffer:"Offre sélectionnée",needsReview:"À vérifier",reportedMetric:"Signalées",hiddenMetric:"Masquées",liveNow:"En ligne",reportedFilter:"Signalées",allergensUnknown:"Allergènes inconnus",hiddenFilter:"Masquées",foodSafetyTitle:"Sécurité alimentaire : allergènes inconnus",foodSafetyBody:"Les informations sur les allergènes doivent être vérifiées avant la remise en ligne.",stock:"Stock",reserved:"réservés",pickup:"Retrait",pickupUnavailable:"Créneau non renseigné",originalPrice:"Prix initial",reportsTitle:"Signalements",reportReceived:"signalements reçus pour cette offre.",noReports:"Aucun signalement n’a été reçu.",reasonMisleading:"Prix trompeur",reasonAllergens:"Allergènes manquants",reasonPhoto:"Photo incorrecte",reasonOther:"Autre",reinstateOnlyHidden:"La remise en ligne est réservée aux offres masquées.",keepHidden:"Garder masquée",auditRecorded:"Votre décision est enregistrée dans le journal d’audit.",originalValue:"Valeur d’origine",notVerified:"non vérifiée",assignedTo:"Assigné à",replyNote:"Réponse ou note interne",writeMessage:"Écrire un message…",visibleCustomer:"Visible par le client",sendCustomer:"Envoyer au client",saveNote:"Enregistrer la note interne",actionReason:"Motif de l’action (obligatoire pour contacter, escalader ou résoudre)",optional:"Facultatif",allResults:"Tous les résultats",docsTitle:"Documents",needsReason:"Choisissez une décision et indiquez un motif.",system:"Système",customerRole:"Client"},
- en:{search:"Search merchants, orders, cases…",application:"Application",escalated:"Escalated",live:"Live",hiddenS:"Hidden",draftS:"Draft",expiredS:"Expired",cancelledS:"Cancelled",unpublishedS:"Unpublished",complete:"Complete",report:"report",reportsN:"reports",decisionNote:"Your decision, reason and name are saved in the audit log.",actionNote:"Every action, reason and name is saved in the audit log.",selectedOffer:"Selected offer",needsReview:"Needs review",reportedMetric:"Reported",hiddenMetric:"Hidden",liveNow:"Live now",reportedFilter:"Reported",allergensUnknown:"Allergens unknown",hiddenFilter:"Hidden",foodSafetyTitle:"Food safety: allergens unknown",foodSafetyBody:"Allergen information must be checked before this offer is restored.",stock:"Stock",reserved:"reserved",pickup:"Pickup",pickupUnavailable:"Pickup window not provided",originalPrice:"Original price",reportsTitle:"Reports",reportReceived:"reports received for this offer.",noReports:"No customer reports have been received.",reasonMisleading:"Misleading price",reasonAllergens:"Missing allergens",reasonPhoto:"Wrong photo",reasonOther:"Other",reinstateOnlyHidden:"Put live is only available for hidden offers.",keepHidden:"Keep hidden",auditRecorded:"Your decision is recorded in the audit log.",originalValue:"Original value",notVerified:"not verified",assignedTo:"Assigned to",replyNote:"Reply or internal note",writeMessage:"Write a message…",visibleCustomer:"Visible to the customer",sendCustomer:"Send to customer",saveNote:"Save internal note",actionReason:"Reason for the action (required to contact, escalate or resolve)",optional:"Optional",allResults:"All results",docsTitle:"Documents",needsReason:"Pick a decision and give a reason.",system:"System",customerRole:"Customer"},
- ar:{search:"ابحث عن متاجر وطلبات وحالات…",application:"طلب",escalated:"مصعّدة",live:"منشور",hiddenS:"مخفي",draftS:"مسودة",expiredS:"منتهي",cancelledS:"ملغى",unpublishedS:"غير منشور",complete:"مكتمل",report:"بلاغ",reportsN:"بلاغات",decisionNote:"يتم حفظ قرارك والسبب واسمك في سجل التدقيق.",actionNote:"يتم حفظ كل إجراء وسببه واسمك في سجل التدقيق.",selectedOffer:"العرض المحدد",needsReview:"بحاجة إلى مراجعة",reportedMetric:"مُبلّغ عنها",hiddenMetric:"مخفية",liveNow:"منشورة الآن",reportedFilter:"المُبلّغ عنها",allergensUnknown:"مسببات الحساسية غير معروفة",hiddenFilter:"مخفية",foodSafetyTitle:"سلامة الغذاء: مسببات الحساسية غير معروفة",foodSafetyBody:"يجب التحقق من معلومات مسببات الحساسية قبل إعادة نشر العرض.",stock:"المخزون",reserved:"محجوز",pickup:"الاستلام",pickupUnavailable:"موعد الاستلام غير محدد",originalPrice:"السعر الأصلي",reportsTitle:"البلاغات",reportReceived:"بلاغات واردة عن هذا العرض.",noReports:"لا توجد بلاغات من العملاء.",reasonMisleading:"سعر مضلل",reasonAllergens:"مسببات الحساسية ناقصة",reasonPhoto:"صورة غير صحيحة",reasonOther:"أخرى",reinstateOnlyHidden:"إعادة النشر متاحة للعروض المخفية فقط.",keepHidden:"إبقاء مخفي",auditRecorded:"تم تسجيل قرارك في سجل التدقيق.",originalValue:"القيمة الأصلية",notVerified:"غير موثقة",assignedTo:"مُسند إلى",replyNote:"رد أو ملاحظة داخلية",writeMessage:"اكتب رسالة…",visibleCustomer:"ظاهر للعميل",sendCustomer:"إرسال للعميل",saveNote:"حفظ الملاحظة الداخلية",actionReason:"سبب الإجراء (مطلوب للتواصل أو التصعيد أو الحل)",optional:"اختياري",allResults:"كل النتائج",docsTitle:"الوثائق",needsReason:"اختر قراراً واذكر السبب.",system:"النظام",customerRole:"العميل"}
+ fr:{search:"Rechercher…",searchMerchant:"Rechercher commerces, propriétaires, villes",searchOffers:"Rechercher offres, commerces, villes",searchCases:"Rechercher dossiers, références, commerces",searchAudit:"Rechercher personnes, actions, dossiers",submitted:"Envoyée",stageApplication:"Demande",stageChecks:"Vérifications",stageDecision:"Décision",noDocumentsTitle:"Aucun document transmis",noDocumentsBody:"Le dépôt et le stockage des justificatifs ne sont pas encore disponibles dans KULHA.",approveUnlocks:"L’approbation est disponible après les trois vérifications.",caseReservation:"Réservation",caseOffer:"Offre",caseShop:"Commerce",replyToCustomer:"Répondre au client",internalNoteTab:"Note interne",replyVisibleHint:"Le client verra cette réponse.",internalVisibleHint:"Cette note reste visible uniquement par l’équipe KULHA.",selectedRecord:"Dossier sélectionné",when:"Quand",recordValue:"Enregistrement",application:"Dossier",escalated:"Escaladés",live:"En ligne",hiddenS:"Masquée",draftS:"Brouillon",expiredS:"Expirée",cancelledS:"Annulée",unpublishedS:"Dépubliée",complete:"Complet",report:"signalement",reportsN:"signalements",decisionNote:"Votre décision, le motif et votre nom sont enregistrés dans le journal d’audit.",actionNote:"Chaque action, motif et nom est enregistré dans le journal d’audit.",selectedOffer:"Offre sélectionnée",needsReview:"À vérifier",reportedMetric:"Signalées",hiddenMetric:"Masquées",liveNow:"En ligne",reportedFilter:"Signalées",allergensUnknown:"Allergènes inconnus",hiddenFilter:"Masquées",foodSafetyTitle:"Sécurité alimentaire : allergènes inconnus",foodSafetyBody:"Les informations sur les allergènes doivent être vérifiées avant la remise en ligne.",stock:"Stock",reserved:"réservés",pickup:"Retrait",pickupUnavailable:"Créneau non renseigné",originalPrice:"Prix initial",reportsTitle:"Signalements",reportReceived:"signalements reçus pour cette offre.",noReports:"Aucun signalement n’a été reçu.",reasonMisleading:"Prix trompeur",reasonAllergens:"Allergènes manquants",reasonPhoto:"Photo incorrecte",reasonOther:"Autre",reinstateOnlyHidden:"La remise en ligne est réservée aux offres masquées.",keepHidden:"Garder masquée",auditRecorded:"Votre décision est enregistrée dans le journal d’audit.",originalValue:"Valeur d’origine",notVerified:"non vérifiée",assignedTo:"Assigné à",replyNote:"Réponse ou note interne",writeMessage:"Écrire un message…",visibleCustomer:"Visible par le client",sendCustomer:"Envoyer au client",saveNote:"Enregistrer la note interne",actionReason:"Motif de l’action (obligatoire pour contacter, escalader ou résoudre)",optional:"Facultatif",allResults:"Tous les résultats",docsTitle:"Documents",needsReason:"Choisissez une décision et indiquez un motif.",system:"Système",customerRole:"Client"},
+ en:{search:"Search…",searchMerchant:"Search shops, owners, cities",searchOffers:"Search offers, shops, cities",searchCases:"Search cases, references, shops",searchAudit:"Search people, actions, records",submitted:"Submitted",stageApplication:"Application",stageChecks:"Checks",stageDecision:"Decision",noDocumentsTitle:"No documents uploaded",noDocumentsBody:"Document upload and storage are not available in KULHA yet.",approveUnlocks:"Approval unlocks once all three checks are ticked.",caseReservation:"Reservation",caseOffer:"Offer",caseShop:"Shop",replyToCustomer:"Reply to customer",internalNoteTab:"Internal note",replyVisibleHint:"The customer will see this reply.",internalVisibleHint:"This note is visible only to the KULHA team.",selectedRecord:"Selected record",when:"When",recordValue:"Record",application:"Application",escalated:"Escalated",live:"Live",hiddenS:"Hidden",draftS:"Draft",expiredS:"Expired",cancelledS:"Cancelled",unpublishedS:"Unpublished",complete:"Complete",report:"report",reportsN:"reports",decisionNote:"Your decision, reason and name are saved in the audit log.",actionNote:"Every action, reason and name is saved in the audit log.",selectedOffer:"Selected offer",needsReview:"Needs review",reportedMetric:"Reported",hiddenMetric:"Hidden",liveNow:"Live now",reportedFilter:"Reported",allergensUnknown:"Allergens unknown",hiddenFilter:"Hidden",foodSafetyTitle:"Food safety: allergens unknown",foodSafetyBody:"Allergen information must be checked before this offer is restored.",stock:"Stock",reserved:"reserved",pickup:"Pickup",pickupUnavailable:"Pickup window not provided",originalPrice:"Original price",reportsTitle:"Reports",reportReceived:"reports received for this offer.",noReports:"No customer reports have been received.",reasonMisleading:"Misleading price",reasonAllergens:"Missing allergens",reasonPhoto:"Wrong photo",reasonOther:"Other",reinstateOnlyHidden:"Put live is only available for hidden offers.",keepHidden:"Keep hidden",auditRecorded:"Your decision is recorded in the audit log.",originalValue:"Original value",notVerified:"not verified",assignedTo:"Assigned to",replyNote:"Reply or internal note",writeMessage:"Write a message…",visibleCustomer:"Visible to the customer",sendCustomer:"Send to customer",saveNote:"Save internal note",actionReason:"Reason for the action (required to contact, escalate or resolve)",optional:"Optional",allResults:"All results",docsTitle:"Documents",needsReason:"Pick a decision and give a reason.",system:"System",customerRole:"Customer"},
+ ar:{search:"بحث…",searchMerchant:"ابحث عن المتاجر والمالكين والمدن",searchOffers:"ابحث عن العروض والمتاجر والمدن",searchCases:"ابحث عن الحالات والمراجع والمتاجر",searchAudit:"ابحث عن الأشخاص والإجراءات والسجلات",submitted:"تاريخ الإرسال",stageApplication:"الطلب",stageChecks:"التحقق",stageDecision:"القرار",noDocumentsTitle:"لم يتم رفع أي وثائق",noDocumentsBody:"رفع الوثائق وتخزينها غير متاح حالياً في KULHA.",approveUnlocks:"تُتاح الموافقة بعد إكمال عمليات التحقق الثلاث.",caseReservation:"الحجز",caseOffer:"العرض",caseShop:"المتجر",replyToCustomer:"الرد على العميل",internalNoteTab:"ملاحظة داخلية",replyVisibleHint:"سيتمكن العميل من رؤية هذا الرد.",internalVisibleHint:"هذه الملاحظة مرئية لفريق KULHA فقط.",selectedRecord:"السجل المحدد",when:"التوقيت",recordValue:"السجل",application:"طلب",escalated:"مصعّدة",live:"منشور",hiddenS:"مخفي",draftS:"مسودة",expiredS:"منتهي",cancelledS:"ملغى",unpublishedS:"غير منشور",complete:"مكتمل",report:"بلاغ",reportsN:"بلاغات",decisionNote:"يتم حفظ قرارك والسبب واسمك في سجل التدقيق.",actionNote:"يتم حفظ كل إجراء وسببه واسمك في سجل التدقيق.",selectedOffer:"العرض المحدد",needsReview:"بحاجة إلى مراجعة",reportedMetric:"مُبلّغ عنها",hiddenMetric:"مخفية",liveNow:"منشورة الآن",reportedFilter:"المُبلّغ عنها",allergensUnknown:"مسببات الحساسية غير معروفة",hiddenFilter:"مخفية",foodSafetyTitle:"سلامة الغذاء: مسببات الحساسية غير معروفة",foodSafetyBody:"يجب التحقق من معلومات مسببات الحساسية قبل إعادة نشر العرض.",stock:"المخزون",reserved:"محجوز",pickup:"الاستلام",pickupUnavailable:"موعد الاستلام غير محدد",originalPrice:"السعر الأصلي",reportsTitle:"البلاغات",reportReceived:"بلاغات واردة عن هذا العرض.",noReports:"لا توجد بلاغات من العملاء.",reasonMisleading:"سعر مضلل",reasonAllergens:"مسببات الحساسية ناقصة",reasonPhoto:"صورة غير صحيحة",reasonOther:"أخرى",reinstateOnlyHidden:"إعادة النشر متاحة للعروض المخفية فقط.",keepHidden:"إبقاء مخفي",auditRecorded:"تم تسجيل قرارك في سجل التدقيق.",originalValue:"القيمة الأصلية",notVerified:"غير موثقة",assignedTo:"مُسند إلى",replyNote:"رد أو ملاحظة داخلية",writeMessage:"اكتب رسالة…",visibleCustomer:"ظاهر للعميل",sendCustomer:"إرسال للعميل",saveNote:"حفظ الملاحظة الداخلية",actionReason:"سبب الإجراء (مطلوب للتواصل أو التصعيد أو الحل)",optional:"اختياري",allResults:"كل النتائج",docsTitle:"الوثائق",needsReason:"اختر قراراً واذكر السبب.",system:"النظام",customerRole:"العميل"}
 } as const;
 
 const loc=(l:SiteLocale)=>l==="ar"?"ar-MA":l==="en"?"en-MA":"fr-MA";
@@ -41,8 +41,8 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
  const [loading,setLoading]=useState(true);const [failed,setFailed]=useState(false);const [reload,setReload]=useState(0);const [message,setMessage]=useState("");const [query,setQuery]=useState("");
  const [merchants,setMerchants]=useState<Page<Merchant>|null>(null);const [merchantStatus,setMerchantStatus]=useState("PENDING");const [selectedMerchant,setSelectedMerchant]=useState<Merchant|null>(null);const [merchantAction,setMerchantAction]=useState<MerchantAction|null>(null);const [checks,setChecks]=useState([false,false,false]);const [tabCounts,setTabCounts]=useState<{pending:number|null;info:number|null}>({pending:null,info:null});
  const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useState("");const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");
- const [cases,setCases]=useState<Page<CaseItem>|null>(null);const [caseStatus,setCaseStatus]=useState("OPEN");const [selectedCase,setSelectedCase]=useState<{summary:CaseItem;timeline:Timeline[]}|null>(null);
- const [audit,setAudit]=useState<AuditPage|null>(null);const [auditFrom,setAuditFrom]=useState("");const [auditTo,setAuditTo]=useState("");const [auditAction,setAuditAction]=useState("");const [auditResult,setAuditResult]=useState("");
+ const [cases,setCases]=useState<Page<CaseItem>|null>(null);const [caseStatus,setCaseStatus]=useState("OPEN");const [selectedCase,setSelectedCase]=useState<{summary:CaseItem;timeline:Timeline[]}|null>(null);const [caseCounts,setCaseCounts]=useState<{open:number|null;escalated:number|null;waiting:number|null;resolved:number|null}>({open:null,escalated:null,waiting:null,resolved:null});
+ const [audit,setAudit]=useState<AuditPage|null>(null);const [selectedAuditId,setSelectedAuditId]=useState<string|null>(null);const [auditFrom,setAuditFrom]=useState("");const [auditTo,setAuditTo]=useState("");const [auditAction,setAuditAction]=useState("");const [auditResult,setAuditResult]=useState("");
  const [reason,setReason]=useState("");const [internalNote,setInternalNote]=useState("");const [draftMessage,setDraftMessage]=useState("");const [sendToCustomer,setSendToCustomer]=useState(true);const [revealed,setRevealed]=useState<{fullName:string;email:string;phone:string|null}|null>(null);const [working,setWorking]=useState(false);
 
  useEffect(()=>{let active=true;
@@ -51,8 +51,15 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const [p,i]=await Promise.allSettled([api.get<Page<Merchant>>("/admin/merchants?status=PENDING&page=0&size=1"),api.get<Page<Merchant>>("/admin/merchants?status=INFO_REQUIRED&page=0&size=1")]);
     if(active)setTabCounts({pending:p.status==="fulfilled"?p.value.total:null,info:i.status==="fulfilled"?i.value.total:null});}
    if(page==="offer-moderation"){const data=await api.get<Page<Offer>>("/admin/offers?page=0&size=100");if(active){setOffers(data);setFailed(false);setSelectedOffer(data.items[0]??null);setOfferAction(data.items[0]?.status==="SUSPENDED"?"reinstate":"suspend");}}
-   if(page==="support-cases"){const data=await api.get<Page<CaseItem>>("/admin/support-cases?status="+caseStatus+"&page=0&size=100");if(active){setCases(data);setFailed(false);if(data.items[0]){const d=await api.get<{summary:CaseItem;timeline:Timeline[]}>("/admin/support-cases/"+data.items[0].reference);if(active)setSelectedCase(d);}else setSelectedCase(null);}}
-   if(page==="audit-log"){const q=new URLSearchParams();if(auditFrom)q.set("from",auditFrom);if(auditTo)q.set("to",auditTo);if(auditAction)q.set("action",auditAction);if(auditResult)q.set("result",auditResult);q.set("page","0");q.set("size","100");const data=await api.get<AuditPage>("/admin/audit-log?"+q.toString());if(active){setAudit(data);setFailed(false);}}
+   if(page==="support-cases"){
+    const data=await api.get<Page<CaseItem>>("/admin/support-cases?status="+caseStatus+"&page=0&size=100");
+    if(active){setCases(data);setFailed(false);}
+    const statuses=["OPEN","ESCALATED","WAITING_REPLY","RESOLVED"] as const;
+    const stats=await Promise.allSettled(statuses.map(status=>api.get<Page<CaseItem>>("/admin/support-cases?status="+status+"&page=0&size=1")));
+    if(active)setCaseCounts({open:stats[0].status==="fulfilled"?stats[0].value.total:null,escalated:stats[1].status==="fulfilled"?stats[1].value.total:null,waiting:stats[2].status==="fulfilled"?stats[2].value.total:null,resolved:stats[3].status==="fulfilled"?stats[3].value.total:null});
+    if(data.items[0]){const d=await api.get<{summary:CaseItem;timeline:Timeline[]}>("/admin/support-cases/"+data.items[0].reference);if(active)setSelectedCase(d);}else if(active)setSelectedCase(null);
+   }
+   if(page==="audit-log"){const q=new URLSearchParams();if(auditFrom)q.set("from",auditFrom);if(auditTo)q.set("to",auditTo);if(auditAction)q.set("action",auditAction);if(auditResult)q.set("result",auditResult);q.set("page","0");q.set("size","100");const data=await api.get<AuditPage>("/admin/audit-log?"+q.toString());if(active){setAudit(data);setSelectedAuditId(data.items[0]?.id??null);setFailed(false);}}
   }catch{if(active)setFailed(true);}finally{if(active)setLoading(false);}};
   void load();return()=>{active=false;};
  },[page,reload,merchantStatus,caseStatus,auditFrom,auditTo,auditAction,auditResult]);
@@ -71,7 +78,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
 
  async function loadMerchant(id:string){setWorking(true);try{const data=await api.get<Merchant>("/admin/merchants/"+id);setSelectedMerchant(data);setReason("");setMerchantAction(null);setChecks([false,false,false]);}catch{setMessage(t.error);}finally{setWorking(false);}}
  async function submitMerchant(){
-  if(!selectedMerchant)return;if(!merchantAction||!reason.trim()){setMessage(t.needsReason);return;}setWorking(true);setMessage("");
+  if(!selectedMerchant)return;if(!merchantAction||!reason.trim()){setMessage(t.needsReason);return;}if(merchantAction==="approve"&&checks.some(value=>!value)){setMessage(t.approveUnlocks);return;}setWorking(true);setMessage("");
   try{await api.post("/admin/merchants/"+selectedMerchant.id+"/"+merchantAction,{reason:reason.trim(),internalNote:internalNote.trim()});setMessage(t.save);setReload(v=>v+1);setSelectedMerchant(null);setReason("");setInternalNote("");setMerchantAction(null);}
   catch{setMessage(t.error);}finally{setWorking(false);}
  }
@@ -88,7 +95,8 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
  async function exportAudit(){setWorking(true);try{const p=new URLSearchParams();if(auditFrom)p.set("from",auditFrom);if(auditTo)p.set("to",auditTo);if(auditAction)p.set("action",auditAction);if(auditResult)p.set("result",auditResult);const res=await fetch("/api/bff/admin/audit-log/export?"+p.toString(),{credentials:"same-origin",cache:"no-store"});if(!res.ok)throw new Error();const url=URL.createObjectURL(await res.blob());const a=document.createElement("a");a.href=url;a.download="kulha-audit-log.csv";a.click();URL.revokeObjectURL(url);}catch{setMessage(t.error);}finally{setWorking(false);}}
  const switchTab=(apply:()=>void)=>{setLoading(true);setFailed(false);apply();};
 
- const topbar=<div className={styles.topbar}><label className={styles.search}><Search size={17} aria-hidden="true"/><span className="sr-only">{t.search}</span><input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder={t.search}/></label></div>;
+ const searchPlaceholder=page==="merchant-review"?t.searchMerchant:page==="offer-moderation"?t.searchOffers:page==="support-cases"?t.searchCases:t.searchAudit;
+ const topbar=<div className={styles.topbar}><label className={styles.search}><Search size={17} aria-hidden="true"/><span className="sr-only">{searchPlaceholder}</span><input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder={searchPlaceholder}/></label></div>;
  const frame=(content:React.ReactNode)=><div className={styles.shell} dir={locale==="ar"?"rtl":"ltr"}>{topbar}<main className={styles.page}>{content}</main></div>;
 
  if(loading)return frame(<><div className={styles.header}><div><div className={styles.skeleton}/><div className={styles.skeletonWide}/></div></div><div className={styles.skeletonPanel}/></>);
@@ -124,38 +132,58 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
   {message&&<div className={styles.notice} role="status">{message}</div>}
 
   {page==="merchant-review"&&merchants&&<>
-   <div className={styles.tabs} role="tablist">{merchantStatuses.map(value=>{const n=tabCount(value);return <button key={value} role="tab" aria-selected={merchantStatus===value} className={merchantStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setMerchantStatus(value);setSelectedMerchant(null);})}>{merchantLabel(value)}{typeof n==="number"?" · "+n:""}</button>;})}</div>
-   <div className={`${styles.split} ${styles.reviewWorkspace}`}>
+   <div className={styles.tabs} role="tablist" aria-label={t.merchantTitle}>{merchantStatuses.map(value=>{const n=tabCount(value);return <button key={value} role="tab" aria-selected={merchantStatus===value} className={merchantStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setMerchantStatus(value);setSelectedMerchant(null);setReason("");setInternalNote("");})}>{merchantLabel(value)}{typeof n==="number"?" · "+n:""}</button>;})}</div>
+   <div className={styles.merchantReviewWorkspace}>
     <section className={styles.merchantPicker} aria-label={t.merchantTitle}>
-     <div className={styles.list}>{merchantItems.map(item=><button key={item.id} className={selectedMerchant?.id===item.id?styles.selectedRow:styles.listRow} onClick={()=>void loadMerchant(item.id)}>
-       <span className={styles.rowTop}><strong>{item.name}</strong><em className={`${styles.pill} ${merchantTone(item.status)}`}>{merchantLabel(item.status)}</em></span>
-       <small>{item.businessType} · {item.city} · {shortDateTime(item.createdAt,locale)}</small>
+     <div className={styles.list}>{merchantItems.map(item=><button key={item.id} className={selectedMerchant?.id===item.id?styles.merchantSelected:styles.merchantListItem} onClick={()=>void loadMerchant(item.id)}>
+       <span className={styles.merchantListTop}><strong>{item.name}</strong><em className={styles.pill+" "+merchantTone(item.status)}>{merchantLabel(item.status)}</em></span>
+       <small>{item.businessType} · {item.city}</small><small>{item.ownerEmail}</small>
      </button>)}</div>{!merchantItems.length&&<p className={styles.empty}>{t.empty}</p>}
     </section>
-    <section className={`${styles.card} ${styles.merchantDetails}`}>
+    <section className={styles.card+" "+styles.merchantDetails}>
      {!selectedMerchant?<p className={styles.empty}>{t.empty}</p>:<>
-      <div className={styles.detailHead}><div><small>{t.application} KLH-M-{selectedMerchant.id.slice(0,4).toUpperCase()}</small><h2>{selectedMerchant.name}</h2></div><span className={`${styles.pill} ${merchantTone(selectedMerchant.status)}`}>{merchantLabel(selectedMerchant.status)}</span></div>
-      <dl className={styles.facts}>
-       <div><dt>{t.business}</dt><dd>{selectedMerchant.businessType}</dd></div><div><dt>{t.owner}</dt><dd>{selectedMerchant.ownerEmail}</dd></div>
-       <div><dt>{t.address}</dt><dd>{selectedMerchant.address}, {selectedMerchant.city}</dd></div><div><dt>{t.phone}</dt><dd>{selectedMerchant.phone}</dd></div>
-       <div><dt>{t.hours}</dt><dd>{selectedMerchant.openingHours}</dd></div><div><dt>{t.email}</dt><dd>{selectedMerchant.ownerEmail}</dd></div>
-      </dl>
-      <h3>{t.documents}</h3><div className={styles.missingDocs}><FileText size={18} aria-hidden="true"/><span>{t.documentsMissing}</span></div>
-      <h3>{t.checklist}</h3><div className={styles.checkList}>{[t.locationChecked,t.phoneChecked,t.docsChecked].map((label,i)=><label key={label}><input type="checkbox" checked={checks[i]} onChange={e=>setChecks(c=>c.map((v,j)=>j===i?e.target.checked:v))}/>{label}</label>)}</div>
-      <h3>{t.decision}</h3>
-      <div className={styles.segment} role="group" aria-label={t.decision}>
-       <button type="button" aria-pressed={merchantAction==="approve"} className={`${styles.segApprove} ${merchantAction==="approve"?styles.segOn:""}`} onClick={()=>setMerchantAction("approve")}>{t.approve}</button>
-       <button type="button" aria-pressed={merchantAction==="request-information"} className={`${styles.segInfo} ${merchantAction==="request-information"?styles.segOn:""}`} onClick={()=>setMerchantAction("request-information")}>{t.requestInfo}</button>
-       <button type="button" aria-pressed={merchantAction==="reject"} className={`${styles.segReject} ${merchantAction==="reject"?styles.segOn:""}`} onClick={()=>setMerchantAction("reject")}>{t.reject}</button>
+      <div className={styles.detailHead}><div><small>{t.application} KLH-M-{selectedMerchant.id.slice(0,4).toUpperCase()}</small><h2>{selectedMerchant.name}</h2></div><span className={styles.pill+" "+merchantTone(selectedMerchant.status)}>{merchantLabel(selectedMerchant.status)}</span></div>
+      <div className={styles.merchantStepper} aria-label={t.application}>
+       <div className={styles.stepDone}><span>✓</span><strong>{t.stageApplication}</strong></div><i aria-hidden="true"/>
+       <div className={styles.stepCurrent}><span>2</span><strong>{t.stageChecks}</strong></div><i aria-hidden="true"/>
+       <div className={styles.stepPending}><span>3</span><strong>{t.stageDecision}</strong></div>
       </div>
-      <label className={styles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
-      <label className={styles.field}><span>{t.internalNote}</span><textarea rows={2} value={internalNote} onChange={e=>setInternalNote(e.target.value)} placeholder={t.optional}/></label>
-      <div className={styles.cardFoot}><p><ShieldCheck size={14} aria-hidden="true"/>{t.decisionNote}</p><button className={styles.primary} disabled={working||!merchantAction||!reason.trim()} onClick={()=>void submitMerchant()}>{t.save}</button></div>
+      <div className={styles.merchantOverview}>
+       <section className={styles.merchantBusiness}>
+        <h3>{t.business}</h3>
+        <dl className={styles.merchantFacts}>
+         <div><dt>{t.business}</dt><dd>{selectedMerchant.businessType}</dd></div>
+         <div><dt>{t.address}</dt><dd>{selectedMerchant.city} · {selectedMerchant.address}</dd></div>
+         <div><dt>{t.phone}</dt><dd>{selectedMerchant.phone}</dd></div>
+         <div><dt>{t.email}</dt><dd>{selectedMerchant.ownerEmail}</dd></div>
+         <div><dt>{t.submitted}</dt><dd>{dateTime(selectedMerchant.createdAt,locale)}</dd></div>
+        </dl>
+       </section>
+       <section className={styles.merchantDocuments}>
+        <h3>{t.documents}</h3>
+        <div className={styles.missingDocs}><FileText size={18} aria-hidden="true"/><span><strong>{t.noDocumentsTitle}</strong><small>{t.noDocumentsBody}</small></span></div>
+        <h3>{t.checklist}</h3>
+        <div className={styles.checkList}>{[t.locationChecked,t.phoneChecked,t.docsChecked].map((label,i)=><label key={label}><input type="checkbox" checked={checks[i]} onChange={e=>setChecks(current=>current.map((value,index)=>index===i?e.target.checked:value))}/>{label}</label>)}</div>
+       </section>
+      </div>
+      <section className={styles.merchantDecision}>
+       <h3>{t.decision}</h3>
+       <div className={styles.segment} role="group" aria-label={t.decision}>
+        <button type="button" aria-pressed={merchantAction==="approve"} className={styles.segApprove+" "+(merchantAction==="approve"?styles.segOn:"")} onClick={()=>setMerchantAction("approve")}>{t.approve}</button>
+        <button type="button" aria-pressed={merchantAction==="request-information"} className={styles.segInfo+" "+(merchantAction==="request-information"?styles.segOn:"")} onClick={()=>setMerchantAction("request-information")}>{t.requestInfo}</button>
+        <button type="button" aria-pressed={merchantAction==="reject"} className={styles.segReject+" "+(merchantAction==="reject"?styles.segOn:"")} onClick={()=>setMerchantAction("reject")}>{t.reject}</button>
+       </div>
+       <p className={styles.approveNote}>{t.approveUnlocks}</p>
+       <div className={styles.merchantDecisionFields}>
+        <label className={styles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
+        <label className={styles.field}><span>{t.internalNote} · {t.optional}</span><textarea rows={3} value={internalNote} onChange={e=>setInternalNote(e.target.value)} placeholder={t.optional}/></label>
+       </div>
+       <div className={styles.cardFoot}><p><ShieldCheck size={14} aria-hidden="true"/>{t.decisionNote}</p><button className={styles.primary} disabled={working||!merchantAction||!reason.trim()||(merchantAction==="approve"&&checks.some(value=>!value))} onClick={()=>void submitMerchant()}>{t.save}</button></div>
+      </section>
      </>}
     </section>
    </div>
   </>}
-
   {page==="offer-moderation"&&offers&&<>
    <div className={styles.offerWorkspace}>
     <section className={styles.offerPicker} aria-label={t.offersTitle}>
@@ -218,60 +246,90 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
   </>}
 
   {page==="support-cases"&&cases&&<>
-   <div className={styles.tabs} role="tablist">{([["OPEN",t.open],["ESCALATED",t.escalated],["WAITING_REPLY",t.waiting],["RESOLVED",t.resolved]] as const).map(([value,label])=><button key={value} role="tab" aria-selected={caseStatus===value} className={caseStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setCaseStatus(value);setSelectedCase(null);})}>{label}{caseStatus===value?" · "+cases.total:""}</button>)}</div>
-   <div className={styles.split}>
-    <section aria-label={t.casesTitle}>
-     <div className={styles.list}>{caseItems.map(item=><button key={item.reference} className={selectedCase?.summary.reference===item.reference?styles.selectedRow:styles.listRow} onClick={()=>void loadCase(item.reference)}>
-       <span className={styles.rowTop}><strong>{item.subject}</strong><em className={`${styles.pill} ${priorityTone(item.priority)}`}>{priorityLabel(item.priority)}</em></span>
-       <small>{item.category} · {shortDateTime(item.createdAt,locale)}</small>
+   <div className={styles.tabs} role="tablist" aria-label={t.casesTitle}>
+    {([["OPEN",t.open,caseCounts.open],["ESCALATED",t.escalated,caseCounts.escalated],["WAITING_REPLY",t.waiting,caseCounts.waiting],["RESOLVED",t.resolved,caseCounts.resolved]] as const).map(([value,label,count])=><button key={value} role="tab" aria-selected={caseStatus===value} className={caseStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setCaseStatus(value);setSelectedCase(null);setReason("");})}>{label}{typeof count==="number"?" · "+count:""}</button>)}
+   </div>
+   <div className={styles.supportWorkspace}>
+    <section className={styles.casePicker} aria-label={t.casesTitle}>
+     <div className={styles.caseList}>{caseItems.map(item=><button key={item.reference} className={selectedCase?.summary.reference===item.reference?styles.caseSelected:styles.caseItem} onClick={()=>void loadCase(item.reference)}>
+       <span className={styles.caseListTop}><small>{item.reference} · {item.category}</small><em className={styles.pill+" "+priorityTone(item.priority)}>{priorityLabel(item.priority)}</em></span>
+       <strong>{item.subject}</strong><small>{item.reservationReference?item.reservationReference+" · ":""}{item.merchantName||t.shop}</small>
      </button>)}</div>{!caseItems.length&&<p className={styles.empty}>{t.empty}</p>}
     </section>
-    <section className={styles.card}>
+    <section className={styles.caseDetail}>
      {!selectedCase?<p className={styles.empty}>{t.empty}</p>:<>
-      <div className={styles.detailHead}><div><small>{t.record} {selectedCase.summary.reference} · {selectedCase.summary.category}</small><h2>{selectedCase.summary.subject}</h2></div><span className={`${styles.pill} ${priorityTone(selectedCase.summary.priority)}`}>{priorityLabel(selectedCase.summary.priority)}</span></div>
-      <dl className={styles.facts}>
-       <div><dt>{t.record}</dt><dd>{selectedCase.summary.reservationReference||"—"}</dd></div><div><dt>{t.offer}</dt><dd>{selectedCase.summary.offerTitle||"—"}</dd></div>
-       <div><dt>{t.shop}</dt><dd>{selectedCase.summary.merchantName||"—"}</dd></div><div><dt>{t.assignedTo}</dt><dd>{selectedCase.summary.assigneeName||"—"} <button className={styles.linkBtn} disabled={working} onClick={()=>void assignToMe()}>{t.assign}</button></dd></div>
-       <div><dt>{t.customer}</dt><dd>{revealed?revealed.fullName:selectedCase.summary.customerLabel} {!revealed&&<button className={styles.reveal} disabled={working} onClick={()=>void revealCustomer()}><Eye size={14} aria-hidden="true"/>{t.reveal}</button>}</dd></div>
-       <div><dt>{t.status}</dt><dd><span className={`${styles.pill} ${styles.toneWarn}`}>{selectedCase.summary.status}</span></dd></div>
-      </dl>
-      {revealed&&<div className={styles.revealed}>{revealed.fullName} · {revealed.email} · {revealed.phone||"—"}</div>}
+      <div className={styles.detailHead}><div><small>{t.record} {selectedCase.summary.reference} · {selectedCase.summary.category}</small><h2>{selectedCase.summary.subject}</h2></div><span className={styles.pill+" "+priorityTone(selectedCase.summary.priority)}>{priorityLabel(selectedCase.summary.priority)}</span></div>
+      <div className={styles.caseReferenceCards}>
+       <article><small>{t.caseReservation}</small><strong>{selectedCase.summary.reservationReference||"—"}</strong></article>
+       <article><small>{t.caseOffer}</small><strong>{selectedCase.summary.offerTitle||"—"}</strong></article>
+       <article><small>{t.caseShop}</small><strong>{selectedCase.summary.merchantName||"—"}</strong></article>
+      </div>
+      <div className={styles.caseAssignment}>
+       <p>{t.assignedTo}: <strong>{selectedCase.summary.assigneeName||"Unassigned"}</strong></p>
+       <div><button className={styles.ghostBtn} type="button" disabled={working} onClick={()=>void caseAction("CONTACT_SHOP")}>{t.contactShop}</button><button className={styles.ghostBtn} type="button" disabled={working} onClick={()=>void assignToMe()}>{t.assign}</button></div>
+      </div>
+      <div className={styles.caseCustomer}>
+       <span>{t.customer}: <strong>{revealed?revealed.fullName:selectedCase.summary.customerLabel}</strong></span>
+       {!revealed&&<button className={styles.linkBtn} type="button" disabled={working} onClick={()=>void revealCustomer()}><Eye size={13} aria-hidden="true"/>{t.reveal}</button>}
+       {revealed&&<small>{revealed.email} · {revealed.phone||"—"}</small>}
+      </div>
       <p className={styles.hint}><Lock size={13} aria-hidden="true"/>{t.masked}</p>
-      <h3>{t.timeline}</h3>
-      <div className={styles.timeline}>{selectedCase.timeline.map(item=><article key={item.id}>
-       <span className={`${styles.avatar} ${item.authorType==="SYSTEM"?styles.avatarSystem:""}`} aria-hidden="true">{item.authorType==="SYSTEM"?<Flag size={15}/>:item.authorType==="CUSTOMER"?<User size={15}/>:(item.authorLabel||"?").slice(0,1)}</span>
-       <div><strong>{item.authorLabel} · {new Intl.DateTimeFormat(loc(locale),{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(new Date(item.createdAt))}</strong><p>{item.message}</p></div>
+      <h3 className={styles.sectionLabel}>{t.timeline}</h3>
+      <div className={styles.caseTimeline}>{selectedCase.timeline.map(item=><article key={item.id} className={item.visibility==="INTERNAL"?styles.timelineInternal:item.authorType==="CUSTOMER"?styles.timelineCustomer:styles.timelineAgent}>
+       <strong>{item.visibility==="INTERNAL"?t.internal:item.authorType==="CUSTOMER"?t.customer:t.reply} · {new Intl.DateTimeFormat(loc(locale),{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(new Date(item.createdAt))}</strong>
+       <p>{item.message}</p>
       </article>)}</div>
-      <form onSubmit={sendMessage}>
-       <label className={styles.field}><span>{t.replyNote}</span><textarea rows={3} value={draftMessage} onChange={e=>setDraftMessage(e.target.value)} placeholder={t.writeMessage} required/></label>
-       <label className={styles.inlineCheck}><input type="checkbox" checked={sendToCustomer} onChange={e=>setSendToCustomer(e.target.checked)}/>{t.visibleCustomer}</label>
-       <label className={styles.field}><span>{t.actionReason}</span><textarea rows={2} value={reason} onChange={e=>setReason(e.target.value)}/></label>
-       <div className={styles.actionRow}>
-        <button className={styles.primary} disabled={working||!draftMessage.trim()}>{sendToCustomer?t.sendCustomer:t.saveNote}</button>
-        <button type="button" className={styles.ghostBtn} disabled={working} onClick={()=>void caseAction("CONTACT_SHOP")}>{t.contactShop}</button>
-        <button type="button" className={styles.ghostBtn} disabled={working} onClick={()=>void caseAction("ESCALATE")}>{t.escalate}</button>
-        <button type="button" className={styles.ghostBtn} disabled={working} onClick={()=>void caseAction("RESOLVE")}>{t.resolve}</button>
+      <section className={styles.messageComposer}>
+       <div className={styles.messageModes} role="group" aria-label={t.replyNote}>
+        <button type="button" aria-pressed={sendToCustomer} className={sendToCustomer?styles.modeActive:styles.modeButton} onClick={()=>setSendToCustomer(true)}>{t.replyToCustomer}</button>
+        <button type="button" aria-pressed={!sendToCustomer} className={!sendToCustomer?styles.modeActive:styles.modeButton} onClick={()=>setSendToCustomer(false)}>{t.internalNoteTab}</button>
        </div>
-      </form>
-      {selectedCase.summary.offerId&&<div className={styles.actionRowEnd}><button type="button" className={styles.dangerOutline} disabled={working} onClick={()=>void caseAction("KEEP_OFFER_HIDDEN")}>{t.keepOffer}</button></div>}
+       <form onSubmit={sendMessage}>
+        <label className={styles.field}><span className="sr-only">{t.replyNote}</span><textarea rows={3} value={draftMessage} onChange={e=>setDraftMessage(e.target.value)} placeholder={t.writeMessage} required/></label>
+        <div className={styles.composerFoot}><p>{sendToCustomer?t.replyVisibleHint:t.internalVisibleHint}</p><button className={styles.primary} disabled={working||!draftMessage.trim()}>{sendToCustomer?t.sendCustomer:t.saveNote}</button></div>
+       </form>
+      </section>
+      <section className={styles.caseActions}>
+       <label className={styles.caseActionReason}><span>{t.actionReason}</span><input value={reason} onChange={e=>setReason(e.target.value)} placeholder={t.needsReason}/></label>
+       <button type="button" className={styles.ghostBtn} disabled={working||!reason.trim()} onClick={()=>void caseAction("ESCALATE")}>{t.escalate}</button>
+       <button type="button" className={styles.primary} disabled={working||!reason.trim()} onClick={()=>void caseAction("RESOLVE")}>{t.resolve}</button>
+      </section>
+      {selectedCase.summary.offerId&&<div className={styles.actionRowEnd}><button type="button" className={styles.dangerOutline} disabled={working||!reason.trim()} onClick={()=>void caseAction("KEEP_OFFER_HIDDEN")}>{t.keepOffer}</button></div>}
       <p className={styles.hint}><ShieldCheck size={13} aria-hidden="true"/>{t.actionNote}</p>
      </>}
     </section>
    </div>
   </>}
-
   {page==="audit-log"&&audit&&<>
-   <div className={styles.filters}>
-    <label><span className="sr-only">{t.from}</span><input type="date" aria-label={t.from} value={auditFrom} onChange={e=>setAuditFrom(e.target.value)}/></label>
-    <label><span className="sr-only">{t.to}</span><input type="date" aria-label={t.to} value={auditTo} onChange={e=>setAuditTo(e.target.value)}/></label>
-    <label><span className="sr-only">{t.action}</span><input aria-label={t.action} value={auditAction} onChange={e=>setAuditAction(e.target.value)} placeholder={t.action}/></label>
-    <label><span className="sr-only">{t.result}</span><select aria-label={t.result} value={auditResult} onChange={e=>setAuditResult(e.target.value)}><option value="">{t.allResults}</option><option value="SUCCESS">{t.success}</option><option value="DENIED">{t.denied}</option></select></label>
-    <p className={styles.immutable}><Lock size={14} aria-hidden="true"/>{t.immutable}</p>
+   <section className={styles.auditFilters}>
+    <label><span>{t.from}</span><input type="date" aria-label={t.from} value={auditFrom} onChange={e=>setAuditFrom(e.target.value)}/></label>
+    <label><span>{t.to}</span><input type="date" aria-label={t.to} value={auditTo} onChange={e=>setAuditTo(e.target.value)}/></label>
+    <label className={styles.auditActionFilter}><span>{t.action}</span><input aria-label={t.action} value={auditAction} onChange={e=>setAuditAction(e.target.value)} placeholder="e.g. offer.suspend"/></label>
+    <label><span>{t.result}</span><select aria-label={t.result} value={auditResult} onChange={e=>setAuditResult(e.target.value)}><option value="">{t.allResults}</option><option value="SUCCESS">{t.success}</option><option value="DENIED">{t.denied}</option></select></label>
+   </section>
+   <div className={styles.auditWorkspace}>
+    <section className={styles.auditTableCard}>
+     <div className={styles.table}><table><thead><tr><th>{t.today.toUpperCase()}</th><th>{t.person.toUpperCase()}</th><th>{t.action.toUpperCase()}</th><th>{t.record.toUpperCase()}</th><th>{t.reason.toUpperCase()}</th><th>{t.result.toUpperCase()}</th></tr></thead><tbody>
+      {auditItems.map(item=><tr key={item.id} tabIndex={0} aria-selected={selectedAuditId===item.id} className={selectedAuditId===item.id?styles.auditSelectedRow:""} onClick={()=>setSelectedAuditId(item.id)} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();setSelectedAuditId(item.id);}}}>
+       <td>{shortDateTime(item.createdAt,locale)}</td><td>{item.actorName}</td><td><strong>{item.action}</strong></td><td>{item.targetType} · {item.targetId}</td><td>{item.reason||"—"}</td><td><span className={styles.pill+" "+(item.result==="SUCCESS"?styles.toneOk:styles.toneBad)}>{item.result==="SUCCESS"?t.success:item.result==="DENIED"?t.denied:item.result}</span></td>
+      </tr>)}
+     </tbody></table></div>{!auditItems.length&&<p className={styles.empty}>{t.empty}</p>}
+    </section>
+    <aside className={styles.auditRecordCard}>
+     {!auditItems.length?<p className={styles.empty}>{t.empty}</p>:(()=>{const selected=auditItems.find(item=>item.id===selectedAuditId)??auditItems[0];return <>
+      <small className={styles.auditOverline}>{t.selectedRecord}</small>
+      <div className={styles.auditRecordTitle}><h2>{selected.action}</h2><span className={styles.pill+" "+(selected.result==="SUCCESS"?styles.toneOk:styles.toneBad)}>{selected.result==="SUCCESS"?t.success:selected.result==="DENIED"?t.denied:selected.result}</span></div>
+      <dl className={styles.auditRecordFacts}>
+       <div><dt>{t.person}</dt><dd>{selected.actorName}</dd></div>
+       <div><dt>{t.when}</dt><dd>{dateTime(selected.createdAt,locale)}</dd></div>
+       <div><dt>{t.recordValue}</dt><dd>{selected.targetType} · {selected.targetId}</dd></div>
+       <div><dt>{t.reason}</dt><dd>{selected.reason||"—"}</dd></div>
+      </dl>
+      <p className={styles.auditImmutable}><Lock size={13} aria-hidden="true"/>{t.immutable}</p>
+     </>;})()}
+    </aside>
    </div>
-   <section className={styles.card}>
-    <div className={styles.table}><table><thead><tr><th>{t.today} / REF</th><th>{t.person}</th><th>{t.action}</th><th>{t.record}</th><th>{t.reason}</th><th>{t.result}</th></tr></thead><tbody>
-     {auditItems.map(item=><tr key={item.id}><td>{shortDateTime(item.createdAt,locale)}<small>{item.id.slice(0,8)}</small></td><td><strong>{item.actorName}</strong></td><td><strong>{item.action}</strong></td><td>{item.targetType} · {item.targetId}</td><td>{item.reason||"—"}</td><td><span className={`${styles.pill} ${item.result==="SUCCESS"?styles.toneOk:styles.toneBad}`}>{item.result==="SUCCESS"?t.success:item.result==="DENIED"?t.denied:item.result}</span></td></tr>)}
-    </tbody></table></div>{!auditItems.length&&<p className={styles.empty}>{t.empty}</p>}
-   </section></>}
+  </>}
+
  </>);
 }

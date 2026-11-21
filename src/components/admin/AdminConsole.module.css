@@ -294,3 +294,143 @@
  .offerMetrics { grid-template-columns:repeat(2,minmax(0,1fr)); }
  .offerDecisionTitle { align-items:flex-start; flex-direction:column; }
 }
+
+
+/* Merchant review — Canva page 2. */
+.merchantReviewWorkspace{display:grid;grid-template-columns:minmax(260px,.66fr) minmax(0,1.34fr);align-items:start;gap:18px;min-width:0}
+.merchantPicker{min-width:0;max-height:min(760px,calc(100dvh - 260px));overflow:auto}
+.merchantPicker .list{display:grid;gap:9px}
+.merchantListItem,.merchantSelected{display:grid;gap:6px;width:100%;padding:15px 16px;border:1px solid #eee4d1;border-radius:16px;background:#fffdf8;color:#073324;text-align:start;font:inherit;cursor:pointer;box-shadow:0 4px 14px #60491e08}
+.merchantListItem:hover,.merchantSelected{border-color:#073324}.merchantSelected{border-width:1.5px}
+.merchantListItem:focus-visible,.merchantSelected:focus-visible{outline:3px solid #fdbe2e;outline-offset:2px}
+.merchantListTop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.merchantListTop strong{font-size:14px;font-weight:950}.merchantListTop em{font-style:normal}
+.merchantListItem>small,.merchantSelected>small{color:#617266;font-size:11px;line-height:1.4;overflow-wrap:anywhere}
+.merchantDetails{min-width:0;max-height:min(780px,calc(100dvh - 260px));overflow-y:auto}
+.merchantDetails .detailHead h2{font-size:clamp(23px,2vw,30px)}
+.merchantStepper{display:flex;align-items:center;gap:11px;margin:18px 0 22px}
+.merchantStepper>div{display:flex;align-items:center;gap:9px;min-width:0;color:#29483b}
+.merchantStepper>div>span{display:grid;flex:0 0 25px;width:25px;height:25px;place-items:center;border-radius:50%;font-size:12px;font-weight:950}
+.merchantStepper strong{font-size:12px;font-weight:900;white-space:nowrap}
+.merchantStepper>i{flex:1 1 auto;height:1px;min-width:14px;background:#ded5c4}
+.stepDone>span{background:#e5efe3;color:#2b6a3b}.stepCurrent>span{background:#073324;color:#fffdf8}
+.stepPending>span{background:#eee8d8;color:#8b806a}.stepPending{color:#8b806a!important}
+.merchantOverview{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.94fr);gap:25px}
+.merchantOverview h3{margin:0 0 10px}
+.merchantFacts{margin:0}
+.merchantFacts>div{display:flex;justify-content:space-between;align-items:flex-start;gap:13px;padding:10px 0;border-top:1px solid #eee8dd}
+.merchantFacts dt{flex:0 0 auto;color:#637267;font-size:12px}
+.merchantFacts dd{margin:0;color:#173c2c;font-size:12px;font-weight:900;text-align:end;overflow-wrap:anywhere}
+.merchantDocuments .missingDocs{border:0;background:#fbe3df;color:#a3281c;min-height:76px}
+.merchantDocuments .missingDocs strong,.merchantDocuments .missingDocs small{display:block}
+.merchantDocuments .missingDocs strong{font-size:12px;font-weight:950}
+.merchantDocuments .missingDocs small{margin-top:4px;color:#9b463c;font-size:11px;line-height:1.45}
+.merchantDocuments .checkList{gap:11px}.merchantDocuments .checkList label{font-size:12px}
+.merchantDecision{margin-top:22px;padding:18px;border-radius:17px;background:#f3efe2}
+.merchantDecision>h3{margin:0 0 12px}.merchantDecision .segment{max-width:440px}
+.merchantDecision .segment button{min-height:42px;border-radius:11px;font-size:12px}
+.approveNote{margin:9px 0 0;color:#738074;font-size:11px}
+.merchantDecisionFields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.merchantDecisionFields .field{min-width:0;margin-top:10px;color:#173c2c;font-size:11px}
+.merchantDecisionFields .field textarea{min-height:76px;border-radius:13px;font-size:12px}
+.merchantDecision .cardFoot{margin-top:12px;padding-top:12px;align-items:center}
+.merchantDecision .cardFoot p{font-size:11px}.merchantDecision .primary{min-height:42px;border-radius:11px;white-space:nowrap}
+
+/* Support cases — Canva page 3. */
+.supportWorkspace{display:grid;grid-template-columns:minmax(280px,.78fr) minmax(0,1.22fr);gap:20px;align-items:start;min-width:0}
+.casePicker{min-width:0;max-height:min(760px,calc(100dvh - 260px));overflow-y:auto}
+.caseList{display:grid;gap:9px}
+.caseItem,.caseSelected{display:grid;gap:5px;width:100%;padding:14px 15px;border:1px solid #eee4d1;border-radius:15px;background:#fffdf8;color:#073324;text-align:start;font:inherit;cursor:pointer;box-shadow:0 4px 14px #60491e08}
+.caseItem:hover,.caseSelected{border-color:#073324}.caseSelected{border-width:1.5px}
+.caseItem:focus-visible,.caseSelected:focus-visible{outline:3px solid #fdbe2e;outline-offset:2px}
+.caseListTop{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.caseListTop>small{color:#68786d;font-size:10px}
+.caseItem>strong,.caseSelected>strong{color:#173c2c;font-size:13px;font-weight:950}
+.caseItem>small:last-child,.caseSelected>small:last-child{color:#68786d;font-size:10px}
+.caseDetail{min-width:0;padding:20px;border:1px solid #eee4d1;border-radius:21px;background:#fffdf8;box-shadow:0 8px 28px #60491e0b}
+.caseDetail .detailHead h2{font-size:clamp(22px,2vw,28px)}
+.caseReferenceCards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:14px 0}
+.caseReferenceCards article{display:grid;gap:4px;min-width:0;padding:12px;border-radius:12px;background:#f8f4e9}
+.caseReferenceCards small{color:#6a796d;font-size:10px}
+.caseReferenceCards strong{color:#173c2c;font-size:11px;font-weight:950;overflow-wrap:anywhere}
+.caseAssignment{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:3px 0 12px}
+.caseAssignment p{margin:0;color:#4f6355;font-size:12px}.caseAssignment strong{color:#173c2c;font-weight:950}
+.caseAssignment>div{display:flex;flex-wrap:wrap;gap:7px}.caseAssignment .ghostBtn{min-height:36px;padding:0 12px;font-size:11px}
+.caseCustomer{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:8px 0 0;border-top:1px solid #eee8dd;color:#657568;font-size:11px}
+.caseCustomer strong{color:#173c2c}.caseCustomer small{color:#68786d}
+.caseCustomer .linkBtn{display:inline-flex;align-items:center;gap:5px}.caseDetail>.hint{margin-top:7px}
+.sectionLabel{margin:18px 0 10px!important}
+.caseTimeline{display:grid;gap:9px;margin-bottom:15px}
+.caseTimeline article{max-width:88%;padding:11px 13px;border:1px solid #e8e1d3;border-radius:13px;background:#fff}
+.caseTimeline article strong{display:block;margin-bottom:4px;color:#52675a;font-size:10px;font-weight:950}
+.caseTimeline article p{margin:0;color:#29483b;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+.timelineInternal{background:#fff0c8!important;border-color:#f4df9f!important}
+.timelineAgent{justify-self:end;background:#e7f0e6!important;border-color:#dbe8da!important}
+.timelineCustomer{justify-self:start}
+.messageComposer{margin-top:12px;padding:14px;border-radius:15px;background:#f3efe2}
+.messageModes{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:9px}
+.modeButton,.modeActive{min-height:36px;padding:0 13px;border:1px solid #e3dac8;border-radius:99px;background:#fffdf8;color:#29483b;font:inherit;font-size:11px;font-weight:900;cursor:pointer}
+.modeActive{border-color:#073324;background:#073324;color:#fffdf8}
+.messageComposer form{display:grid;gap:8px}.messageComposer .field{margin:0}
+.messageComposer .field textarea{min-height:62px;border-radius:12px;font-size:12px}
+.composerFoot{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.composerFoot p{margin:0;color:#68786d;font-size:10px}
+.composerFoot .primary{min-height:38px;padding:0 16px;border-radius:10px;font-size:11px}
+.caseActions{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:end;gap:8px;margin-top:14px}
+.caseActionReason{display:grid;gap:5px;min-width:0;color:#29483b;font-size:10px;font-weight:900}
+.caseActionReason input{width:100%;min-width:0;box-sizing:border-box;height:40px;padding:0 12px;border:1px solid #e3dac8;border-radius:11px;background:#fffdf8;color:#073324;font:inherit;font-size:11px}
+.caseActionReason input:focus{outline:0;border-color:#073324;box-shadow:0 0 0 3px #fdbe2e55}
+.caseActions .primary,.caseActions .ghostBtn{min-height:40px;padding:0 13px;border-radius:11px;font-size:11px;white-space:nowrap}
+.caseDetail>.actionRowEnd{margin-top:8px}.caseDetail>.hint:last-child{margin-top:10px}
+
+/* Audit log — Canva page 4. */
+.auditFilters{display:grid;grid-template-columns:140px 140px minmax(220px,1fr) 130px;gap:10px;align-items:end;padding:14px;border:1px solid #eee4d1;border-radius:17px;background:#fffdf8}
+.auditFilters label{display:grid;gap:5px;min-width:0;color:#66776a;font-size:10px;font-weight:900}
+.auditFilters input,.auditFilters select{width:100%;min-width:0;height:42px;box-sizing:border-box;padding:0 12px;border:1px solid #e3dac8;border-radius:11px;background:#fff;color:#073324;font:inherit;font-size:12px;font-weight:800}
+.auditFilters input:focus,.auditFilters select:focus{outline:0;border-color:#073324;box-shadow:0 0 0 3px #fdbe2e55}
+.auditWorkspace{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(240px,.75fr);gap:18px;align-items:start;min-width:0}
+.auditTableCard{min-width:0;padding:14px 0 0;border:1px solid #eee4d1;border-radius:18px;background:#fffdf8;overflow:hidden}
+.auditTableCard .table{overflow-x:auto}
+.auditTableCard .table table{min-width:760px;border-collapse:collapse;font-size:11px}
+.auditTableCard .table th{padding:0 10px 12px;font-size:9px;white-space:nowrap}
+.auditTableCard .table td{padding:12px 10px;border-top:1px solid #eee8dd;font-size:10px;line-height:1.35;overflow-wrap:anywhere}
+.auditTableCard .table tbody tr{cursor:pointer}.auditTableCard .table tbody tr:hover{background:#f8f4e9}
+.auditTableCard .table tbody tr:focus-visible{outline:3px solid #fdbe2e;outline-offset:-3px}
+.auditSelectedRow,.auditSelectedRow:hover{background:#f3efe2!important;outline:2px solid #073324;outline-offset:-2px}
+.auditRecordCard{min-width:0;padding:18px;border:1px solid #eee4d1;border-radius:18px;background:#fffdf8;box-shadow:0 6px 22px #60491e08}
+.auditOverline{color:#657568;font-size:9px;font-weight:1000;letter-spacing:.13em;text-transform:uppercase}
+.auditRecordTitle{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0 12px}
+.auditRecordTitle h2{margin:0;color:#173c2c;font-size:16px;font-weight:1000;overflow-wrap:anywhere}
+.auditRecordTitle .pill{font-size:10px}
+.auditRecordFacts{margin:0}
+.auditRecordFacts>div{display:grid;gap:4px;padding:11px 0;border-top:1px solid #eee8dd}
+.auditRecordFacts dt{color:#6a796d;font-size:10px}
+.auditRecordFacts dd{margin:0;color:#173c2c;font-size:12px;font-weight:900;line-height:1.45;overflow-wrap:anywhere}
+.auditImmutable{display:flex;align-items:flex-start;gap:7px;margin:12px 0 0;color:#728075;font-size:10px;line-height:1.45}
+.auditImmutable svg{flex:0 0 auto}
+@media(max-width:1100px){
+ .merchantReviewWorkspace,.supportWorkspace{grid-template-columns:minmax(245px,.72fr) minmax(0,1.28fr)}
+ .auditWorkspace{grid-template-columns:minmax(0,1fr)}
+ .auditRecordCard{display:grid;grid-template-columns:1fr 1.8fr;gap:0 18px}
+ .auditRecordTitle,.auditRecordFacts,.auditImmutable{grid-column:1/-1}
+}
+@media(max-width:900px){
+ .merchantReviewWorkspace,.supportWorkspace{grid-template-columns:1fr}
+ .merchantPicker,.casePicker{max-height:340px}
+ .merchantDetails{max-height:none}
+ .merchantOverview{grid-template-columns:1fr 1fr}
+ .auditFilters{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:680px){
+ .merchantOverview,.merchantDecisionFields{grid-template-columns:1fr}
+ .merchantStepper{gap:6px}.merchantStepper>div{gap:6px}
+ .merchantStepper strong{font-size:10px;white-space:normal}.merchantStepper>i{min-width:7px}
+ .merchantDecision{padding:13px}.merchantDecision .segment{grid-template-columns:1fr}
+ .merchantDecision .cardFoot{align-items:stretch;flex-direction:column}
+ .merchantDecision .primary{width:100%}
+ .caseDetail{padding:14px}.caseReferenceCards{grid-template-columns:1fr}
+ .caseAssignment{align-items:flex-start;flex-direction:column}
+ .caseActions{grid-template-columns:1fr 1fr}.caseActionReason{grid-column:1/-1}
+ .composerFoot{align-items:stretch;flex-direction:column}.composerFoot .primary{width:100%}
+ .auditFilters{grid-template-columns:1fr}.auditRecordCard{display:block}
+}
