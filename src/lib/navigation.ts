@@ -20,6 +20,11 @@ export function localePath(locale: SiteLocale, path: string): string {
   if (locale === "fr") return withoutPrefix;
   return `/${locale}${withoutPrefix === "/" ? "" : withoutPrefix}`;
 }
+/** Root-level French auth pages are defined in src/app/(auth), not under [locale]. */
+export function isCanonicalFrenchAuthPath(pathname: string): boolean {
+  return /^\\/(?:login|register|forgot-password|reset-password|verify-email)(?:\\/|$)/.test(pathname);
+}
+
 export function switchLocalePath(pathname: string, locale: SiteLocale): string {
   const withoutPrefix = pathname.replace(localePrefix, "") || "/";
   const parts = withoutPrefix.split("?")[0].split("#")[0].split("/").filter(Boolean);
