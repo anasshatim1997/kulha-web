@@ -2,7 +2,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { api } from "@/lib/api/client";
 import { useSession } from "@/components/session/SessionProvider";
-import { Eye, FileText, Flag, Lock, Search, ShieldCheck, User } from "lucide-react";
+import { Eye, FileText, Flag, Lock, Search, ShieldCheck, Tag, User } from "lucide-react";
 import styles from "./AdminConsole.module.css";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 
