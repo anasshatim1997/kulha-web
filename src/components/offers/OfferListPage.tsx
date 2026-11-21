@@ -16,6 +16,7 @@ import { searchFromParams } from "@/lib/offers/search-params";
 import { getCasablancaQuickPickupRanges } from "@/lib/time/casablanca";
 import { OfferResultsProgress } from "@/components/offers/OfferResultsProgress";
 import { OfferMapButton } from "@/components/offers/OfferMapButton";
+import { OfferNotifyPrompt } from "@/components/offers/OfferNotifyPrompt";
 import { offerDesignCopy, offerAreaLabel } from "@/lib/offers/design-copy";
 import { offerDistricts } from "@/lib/offers/location-options";
 import { formatPickupWindow } from "@/lib/offers/format";
@@ -181,19 +182,11 @@ export async function OfferListPage({ locale, params }: { locale: SiteLocale; pa
                 </section>
               </OfferNearbyResults>
 
-              <section className="kulha-offers-notify-banner">
-                <div className="kulha-offers-notify-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-2.5 7-2.5 9h17C20.5 16 18 16 18 9ZM10 21h4" /></svg>
-                </div>
-                <div>
-                  <h2>{d.missTitle}</h2>
-                  <p>{d.missBody.replace("{area}", bannerArea)}</p>
-                </div>
-                <Link href="/register">{d.missCta}</Link>
-              </section>
+
             </div>
           </div>
       </main>
+      <OfferNotifyPrompt locale={locale} title={d.missTitle} body={d.missBody.replace("{area}", bannerArea)} cta={d.missCta} />
       </OfferNearbyProvider>
     </div>
   );
