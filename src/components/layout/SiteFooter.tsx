@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "@/components/session/SessionProvider";
-import { isCustomerAccountPath, isMerchantWorkspacePath, localeFromPath, localePath, shouldUseCustomerWorkspace } from "@/lib/navigation";
+import { isAdminWorkspacePath, isCustomerAccountPath, isMerchantWorkspacePath, localeFromPath, localePath, shouldUseCustomerWorkspace } from "@/lib/navigation";
 import { siteCopy, type SiteLocale } from "@/lib/i18n/site-copy";
 import { Logo } from "./Logo";
 
@@ -14,7 +14,7 @@ export function SiteFooter() {
   const t = siteCopy[locale].footer;
   const isAuthPage = /\/(login|register|forgot-password|reset-password|verify-email)(\/|$)/.test(pathname);
   const isCustomerWorkspace = state.status === "authenticated" && shouldUseCustomerWorkspace(pathname, state.user.roles);
-  if (isAuthPage || isMerchantWorkspacePath(pathname) || isCustomerAccountPath(pathname) || isCustomerWorkspace) return null;
+  if (isAuthPage || isMerchantWorkspacePath(pathname) || isAdminWorkspacePath(pathname) || isCustomerAccountPath(pathname) || isCustomerWorkspace) return null;
 
   const columns = [
     { title: t.explore, links: [[t.how, "/how-it-works"], [t.categories, "/offers"], [t.shops, "/for-shops"]] },

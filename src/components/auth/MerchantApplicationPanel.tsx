@@ -468,61 +468,7 @@ export function MerchantApplicationPanel() {
     }
 
     if (merchant && merchant.status === "APPROVED") {
-        return (
-            <Shell key="approved" locale={locale}>
-                <section className={`mw-hero mw-rise`}>
-                    <div className="mw-hero-text">
-                        <span className="mw-pill">{t.statuses.APPROVED}</span>
-                        <h1 className="mw-hero-title">{t.welcomeShop.replace("{name}", merchant.name)}</h1>
-                        <p className="mw-hero-lead">{t.workspaceLead}</p>
-                    </div>
-                    <Image src="/brand/kulha-bag.png" alt="" width={300} height={275} priority className="mw-hero-bag" />
-                </section>
-
-                <Link href={localePath(locale, "/merchant/offers/new")} className={`mw-primary-action mw-rise`} style={{ animationDelay: "90ms" }}>
-          <span className="mw-primary-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
-          </span>
-                    <span className="mw-primary-text">
-            <h2 className="mw-primary-title">{t.newOfferTitle}</h2>
-            <p className="mw-primary-body">{t.newOfferBody}</p>
-          </span>
-                    <span className="mw-primary-cta">{t.newOfferCta}</span>
-                </Link>
-
-                <div className={`mw-secondary mw-rise`} style={{ animationDelay: "180ms" }}>
-                    <Link href={localePath(locale, "/merchant/offers")} className="mw-action">
-            <span className="mw-action-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 8.5h16l-1.4 11H5.4L4 8.5Z" /><path d="M8 9V6.8a4 4 0 0 1 8 0V9" /></svg>
-            </span>
-                        <div>
-                            <h2 className="mw-action-title">{t.offersTitle}</h2>
-                            <p className="mw-action-body">{t.offersBody}</p>
-                            <span className="mw-action-cta">{t.offersCta}</span>
-                        </div>
-                    </Link>
-                    <div className={`mw-action mw-action-soon`}>
-            <span className="mw-action-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg>
-            </span>
-                        <div>
-                            <h2 className="mw-action-title">{t.workspaceReservations}</h2>
-                            <p className="mw-action-body">{t.workspaceReservationsBody}</p>
-                            <span className="mw-soon-badge">{t.workspaceComingSoon}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <section className={`mw-card mw-profile mw-rise`} style={{ animationDelay: "270ms" }} aria-labelledby="merchant-profile-title">
-                    <div className="mw-card-head-row">
-                        <h2 id="merchant-profile-title" className="mw-card-title">{t.workspaceProfile}</h2>
-                        <Link href={localePath(locale, "/account")} className="mw-back-link">{t.workspaceBack}</Link>
-                    </div>
-                    <Details merchant={merchant} t={t} wide />
-                    <ShopMapLocation merchant={merchant} locale={locale} onUpdated={setMerchant} />
-                </section>
-            </Shell>
-        );
+        return <MerchantConsole locale={locale} page="dashboard" shop={{ name: merchant.name, city: merchant.city }} />;
     }
 
     if (merchant && merchant.status !== "REJECTED") {
