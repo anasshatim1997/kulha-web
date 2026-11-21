@@ -18,6 +18,7 @@ import { OfferResultsProgress } from "@/components/offers/OfferResultsProgress";
 import { OfferMapButton } from "@/components/offers/OfferMapButton";
 import { offerDesignCopy, offerAreaLabel } from "@/lib/offers/design-copy";
 import { offerDistricts } from "@/lib/offers/location-options";
+import { formatPickupWindow } from "@/lib/offers/format";
 
 function offersPath(locale: SiteLocale): string {
   return locale === "fr" ? "/offers" : `/${locale}/offers`;
@@ -79,6 +80,13 @@ export async function OfferListPage({ locale, params }: { locale: SiteLocale; pa
   const result: PublicOfferPage | undefined = loaded.page;
   const error = loaded.error;
   const total = result?.total ?? 0;
+  // Serialize pickup labels from the server so SSR and browser hydration use identical text.
+  const initialPickupWindows = Object.fromEntries((result?.items ?? []).map((offer) => [
+    offer.id,
+    offer.pickupStart && offer.pickupEnd
+      ? formatPickupWindow(offer.pickupStart, offer.pickupEnd, locale).replace(" · ", " ")
+      : t.notProvided,
+  ]));
   const explicitCity = Array.isArray(params.city) ? params.city[0] : params.city;
   const isFiltered = Boolean(
     search.q || search.category || search.maxPriceMinor || explicitCity || search.district ||
@@ -159,7 +167,7 @@ export async function OfferListPage({ locale, params }: { locale: SiteLocale; pa
                     <OfferErrorState locale={locale} href={retryHref} />
                   ) : result?.items.length ? (
                     <>
-                      <OfferProgressiveGrid key={JSON.stringify(search)} locale={locale} initialPage={result} search={search} />
+                      <OfferProgressiveGrid key={JSON.stringify(search)} locale={locale} initialPage={result} search={search} initialPickupWindows={initialPickupWindows} />
                     </>
                   ) : (
                     <OfferEmptyState
