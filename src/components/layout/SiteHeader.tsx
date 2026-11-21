@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { ClipboardList, LayoutDashboard, Package, ScanLine } from "lucide-react";
 import { useSession } from "@/components/session/SessionProvider";
 import { Button, LinkButton } from "@/components/ui/Button";
-import { isAdminWorkspacePath, isMerchantWorkspacePath, localeFromPath, localePath, switchLocalePath } from "@/lib/navigation";
+import { isAdminWorkspacePath, isMerchantWorkspacePath, localeFromPath, localePath, shouldUseCustomerWorkspace, switchLocalePath } from "@/lib/navigation";
 import { siteCopy, type SiteLocale } from "@/lib/i18n/site-copy";
 import { Logo } from "./Logo";
 import { api } from "@/lib/api/client";
@@ -73,6 +73,7 @@ export function SiteHeader() {
   const isAdminWorkspace = isAdminWorkspacePath(pathname);
   const isMerchant = state.status === "authenticated" && state.user.roles.some(role => ["MERCHANT", "MERCHANT_OWNER", "MERCHANT_STAFF"].includes(role));
   const isMerchantOwner = state.status === "authenticated" && state.user.roles.some(role => ["MERCHANT", "MERCHANT_OWNER"].includes(role));
+  const isCustomerWorkspace = authenticated && shouldUseCustomerWorkspace(pathname, state.user.roles);
   const isHomePath = /^\/(?:en|ar)?\/?$/.test(pathname);
 
   useEffect(() => {
@@ -136,6 +137,30 @@ export function SiteHeader() {
               </select>
             </label>
             {authenticated && <button type="button" className="workspace-signout" onClick={() => void signOut()}>{copy.nav.signOut}</button>}
+          </div>
+        </div>
+      </header>
+    );
+  }
+
+  if (isCustomerWorkspace) {
+    const discoverLabel = locale === "ar" ? "اكتشف" : locale === "en" ? "Discover" : "Découvrir";
+    const profileLabel = locale === "ar" ? "ملفي الشخصي" : locale === "en" ? "My profile" : "Mon profil";
+    return (
+      <header className="site-header site-header-customer" dir={copy.dir}>
+        <div className="nav-shell">
+          <Link href={home} aria-label="Kulha!" className="brand-link"><Logo /></Link>
+          <nav className="desktop-nav" aria-label={locale === "ar" ? "تنقل العملاء" : locale === "en" ? "Customer navigation" : "Navigation client"}>
+            <Link href={localePath(locale, "/offers")}>{discoverLabel}</Link>
+          </nav>
+          <div className="nav-actions">
+            <label className="language-select-label">
+              <span className="sr-only">{copy.nav.language}</span>
+              <select aria-label={copy.nav.language} value={locale} onChange={(event) => { window.dispatchEvent(new Event("kulha:navigation-start")); router.push(switchLocalePath(pathname, event.target.value as SiteLocale)); }}>
+                {localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+              </select>
+            </label>
+            <LinkButton href={localePath(locale, "/account")} variant="ghost" className="nav-login">{profileLabel}</LinkButton>
           </div>
         </div>
       </header>
