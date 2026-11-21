@@ -40,7 +40,7 @@ export function switchLocalePath(pathname: string, locale: SiteLocale): string {
   return localePath(locale, withoutPrefix);
 }
 export function isAdminWorkspacePath(pathname: string): boolean {
-  return /^\\/(?:(?:en|ar)\\/)?admin(?:\\/|$)/.test(pathname);
+  return /^\/(?:(?:en|ar)\/)?admin(?:\/|$)/.test(pathname);
 }
 export function isMerchantWorkspacePath(pathname: string): boolean {
   return /^\/(?:(?:en|ar)\/)?merchant(?:\/|$)/.test(pathname);
