@@ -68,7 +68,7 @@ export function SiteHeader() {
   const accountHref = state.status === "authenticated" && state.user.roles.some(role => ["MERCHANT", "MERCHANT_OWNER", "MERCHANT_STAFF"].includes(role))
     ? localePath(locale, "/merchant/dashboard")
     : localePath(locale, "/account");
-  const isAuthPage = /\/(login|register(?:\/merchant)?|forgot-password|reset-password|verify-email)\/?$/.test(pathname);
+  const isAuthPage = /\/(?:login|admin\/login|register(?:\/merchant)?|forgot-password|reset-password|verify-email)\/?$/.test(pathname);
   const isWorkspace = isMerchantWorkspacePath(pathname);
   const isAdminWorkspace = isAdminWorkspacePath(pathname);
   const isMerchant = state.status === "authenticated" && state.user.roles.some(role => ["MERCHANT", "MERCHANT_OWNER", "MERCHANT_STAFF"].includes(role));
