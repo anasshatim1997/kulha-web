@@ -18,14 +18,14 @@ import { defaultSignedInPath, localePath, safeNext } from "@/lib/navigation";
 import { fieldErrors, loginSchema } from "@/lib/validation/schemas";
 import { useToast } from "@/components/feedback/ToastProvider";
 
-export function LoginForm({ locale = "fr" }: { locale?: SiteLocale }) {
+export function LoginForm({ locale = "fr", adminOnly = false }: { locale?: SiteLocale; adminOnly?: boolean }) {
   const t = authCopy[locale];
   const toast = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
   const explicitNext = searchParams.get("next");
-  const next = safeNext(explicitNext, localePath(locale, "/offers"));
-  const { reload } = useSession();
+  const next = safeNext(explicitNext, localePath(locale, adminOnly ? "/admin/merchant-review" : "/offers"));
+  const { reload, signOut } = useSession();
   const [values, setValues] = useState(() => ({ email: searchParams.get("email")?.trim() ?? "", password: "" }));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const oauthReason = searchParams.get("oauth");
@@ -55,10 +55,19 @@ export function LoginForm({ locale = "fr" }: { locale?: SiteLocale }) {
     try {
       await authApi.login(parsed.data.email, parsed.data.password);
       const user = await reload();
+      if (adminOnly && !user?.roles.some(role => ["ADMIN", "SUPER_ADMIN"].includes(role))) {
+        await signOut();
+        setFormError(locale === "ar"
+          ? "هذا الحساب لا يملك صلاحيات الإدارة."
+          : locale === "en"
+            ? "This account does not have administrator access."
+            : "Ce compte ne dispose pas des droits d’administration.");
+        return;
+      }
       toast.success({ title: t.loginSubmit, description: t.loginLead });
       navigationStarted = true;
       window.dispatchEvent(new Event("kulha:navigation-start"));
-      const destination = explicitNext ? next : defaultSignedInPath(locale, user?.roles ?? []);
+      const destination = explicitNext ? next : adminOnly ? localePath(locale, "/admin/merchant-review") : defaultSignedInPath(locale, user?.roles ?? []);
       router.replace(destination);
     } catch (error) {
       const message = describeError(error, { 401: t.invalidLogin });
@@ -82,9 +91,9 @@ export function LoginForm({ locale = "fr" }: { locale?: SiteLocale }) {
         <SubmitProgress title={t.loginPending} detail={t.submitProgressDetail} active={pending} />
         <Button type="submit" loading={pending} className="w-full">{pending ? t.loginPending : t.loginSubmit}</Button>
       </form>
-      <div className="mt-5">
+      {!adminOnly && <div className="mt-5">
         <GoogleOAuthButton label={t.googleContinue} next={next} />
-      </div>
+      </div>}
     </>
   );
 }
