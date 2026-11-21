@@ -109,14 +109,14 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
 
   {page==="merchant-review"&&merchants&&<>
    <div className={styles.tabs} role="tablist">{merchantStatuses.map(value=>{const n=tabCount(value);return <button key={value} role="tab" aria-selected={merchantStatus===value} className={merchantStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setMerchantStatus(value);setSelectedMerchant(null);})}>{merchantLabel(value)}{typeof n==="number"?" · "+n:""}</button>;})}</div>
-   <div className={styles.split}>
-    <section aria-label={t.merchantTitle}>
+   <div className={`${styles.split} ${styles.reviewWorkspace}`}>
+    <section className={styles.merchantPicker} aria-label={t.merchantTitle}>
      <div className={styles.list}>{merchantItems.map(item=><button key={item.id} className={selectedMerchant?.id===item.id?styles.selectedRow:styles.listRow} onClick={()=>void loadMerchant(item.id)}>
        <span className={styles.rowTop}><strong>{item.name}</strong><em className={`${styles.pill} ${merchantTone(item.status)}`}>{merchantLabel(item.status)}</em></span>
        <small>{item.businessType} · {item.city} · {shortDateTime(item.createdAt,locale)}</small>
      </button>)}</div>{!merchantItems.length&&<p className={styles.empty}>{t.empty}</p>}
     </section>
-    <section className={styles.card}>
+    <section className={`${styles.card} ${styles.merchantDetails}`}>
      {!selectedMerchant?<p className={styles.empty}>{t.empty}</p>:<>
       <div className={styles.detailHead}><div><small>{t.application} KLH-M-{selectedMerchant.id.slice(0,4).toUpperCase()}</small><h2>{selectedMerchant.name}</h2></div><span className={`${styles.pill} ${merchantTone(selectedMerchant.status)}`}>{merchantLabel(selectedMerchant.status)}</span></div>
       <dl className={styles.facts}>
@@ -141,30 +141,33 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
   </>}
 
   {page==="offer-moderation"&&offers&&<>
-   <section className={styles.card}>
-    <div className={styles.tabs} role="tablist"><button role="tab" aria-selected={!offerStatus} className={!offerStatus?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setOfferStatus("");setSelectedOffer(null);})}>{t.all}{!offerStatus?" · "+offers.total:""}</button>{offerStatuses.map(value=><button key={value} role="tab" aria-selected={offerStatus===value} className={offerStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setOfferStatus(value);setSelectedOffer(null);})}>{offerLabel(value)}{offerStatus===value?" · "+offers.total:""}</button>)}</div>
-    <div className={styles.table}><table><thead><tr><th>{t.offer}</th><th>{t.shop}</th><th>{t.price}</th><th>{t.foodInfo}</th><th>{t.reports}</th><th>{t.status}</th></tr></thead><tbody>
-     {offerItems.map(item=>{const d=discount(item);return <tr key={item.id} tabIndex={0} aria-selected={selectedOffer?.id===item.id} className={selectedOffer?.id===item.id?styles.activeRow:""} onClick={()=>{setSelectedOffer(item);setReason("");}} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setSelectedOffer(item);setReason("");}}}>
-      <td><strong>{item.title}</strong></td><td>{item.shopName}</td><td>{amount(item.priceMinor,locale)}{item.originalPriceMinor?" / "+amount(item.originalPriceMinor,locale):""} MAD{d?" · −"+d+"%":""}</td>
-      <td><span className={`${styles.pill} ${item.allergensStatus==="UNKNOWN"?styles.toneMuted:styles.toneOk}`}>{item.allergensStatus==="UNKNOWN"?t.hiddenAllergens:(item.allergens||t.complete)}</span></td>
-      <td>{item.reportedCount>0?<span className={`${styles.pill} ${styles.toneBad}`}>{item.reportedCount} {item.reportedCount===1?t.report:t.reportsN}</span>:"0"}</td><td><span className={`${styles.pill} ${offerTone(item.status)}`}>{offerLabel(item.status)}</span></td>
-     </tr>;})}
-    </tbody></table></div>
-    {!offerItems.length&&<p className={styles.empty}>{t.empty}</p>}
-   </section>
-   {selectedOffer&&<section className={`${styles.card} ${styles.selectedOffer}`}>
-    <div><small className={styles.eyebrow}>{t.selectedOffer}</small><h2>{selectedOffer.title}</h2><span className={`${styles.pill} ${offerTone(selectedOffer.status)}`}>{offerLabel(selectedOffer.status)}</span>
-     <dl className={styles.rows}><div><dt>{t.shop}</dt><dd>{selectedOffer.shopName}</dd></div><div><dt>{t.foodInfo}</dt><dd>{selectedOffer.allergensStatus==="UNKNOWN"?t.hiddenAllergens:(selectedOffer.allergens||t.complete)}</dd></div><div><dt>{t.originalValue}</dt><dd>{selectedOffer.originalPriceMinor?amount(selectedOffer.originalPriceMinor,locale)+" MAD":"—"} · {t.notVerified}</dd></div></dl>
-     <p className={styles.hint}>{t.note}</p></div>
-    <div className={styles.decisionCol}><small className={styles.eyebrow}>{t.decision}</small>
-     <button type="button" aria-pressed={offerAction==="suspend"} className={offerAction==="suspend"?styles.stackOn:styles.stack} onClick={()=>setOfferAction("suspend")}>{selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
-     <button type="button" aria-pressed={offerAction==="request-edit"} className={offerAction==="request-edit"?styles.stackOn:styles.stack} onClick={()=>setOfferAction("request-edit")}>{t.askEdit}</button>
-     <button type="button" aria-pressed={offerAction==="reinstate"} disabled={selectedOffer.status!=="SUSPENDED"} className={offerAction==="reinstate"?styles.stackOn:styles.stack} onClick={()=>setOfferAction("reinstate")}>{t.putLive}</button>
-     <label className={styles.field}><span>{t.reason}</span><textarea rows={2} value={reason} onChange={e=>setReason(e.target.value)}/></label>
-     <button className={styles.primaryWide} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{t.save}</button>
-     <p className={styles.hint}>{t.decisionNote}</p>
-    </div>
-   </section>}
+   <div className={styles.offerWorkspace}>
+    <section className={styles.offerPicker}>
+     <div className={styles.tabs} role="tablist"><button role="tab" aria-selected={!offerStatus} className={!offerStatus?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setOfferStatus("");setSelectedOffer(null);})}>{t.all}{!offerStatus?" · "+offers.total:""}</button>{offerStatuses.map(value=><button key={value} role="tab" aria-selected={offerStatus===value} className={offerStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setOfferStatus(value);setSelectedOffer(null);})}>{offerLabel(value)}{offerStatus===value?" · "+offers.total:""}</button>)}</div>
+     <div className={styles.offerTable}><table><thead><tr><th>{t.offer}</th><th>{t.shop}</th><th>{t.price}</th><th>{t.reports}</th><th>{t.status}</th></tr></thead><tbody>
+      {offerItems.map(item=>{const d=discount(item);return <tr key={item.id} tabIndex={0} aria-selected={selectedOffer?.id===item.id} className={selectedOffer?.id===item.id?styles.activeRow:""} onClick={()=>{setSelectedOffer(item);setReason("");}} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setSelectedOffer(item);setReason("");}}}>
+       <td><strong>{item.title}</strong><small>{item.city}</small></td><td>{item.shopName}</td><td>{amount(item.priceMinor,locale)} MAD{d?" · −"+d+"%":""}</td>
+       <td>{item.reportedCount>0?<span className={styles.pill+" "+styles.toneBad}>{item.reportedCount} {item.reportedCount===1?t.report:t.reportsN}</span>:"0"}</td><td><span className={styles.pill+" "+offerTone(item.status)}>{offerLabel(item.status)}</span></td>
+      </tr>;})}
+     </tbody></table></div>
+     {!offerItems.length&&<p className={styles.empty}>{t.empty}</p>}
+    </section>
+    <section className={styles.offerDecision}>
+     {!selectedOffer?<div className={styles.offerEmpty}><Tag size={28} aria-hidden="true"/><strong>{t.selectedOffer}</strong><span>{t.empty}</span></div>:<>
+      <div className={styles.detailHead}><div><small>{t.selectedOffer}</small><h2>{selectedOffer.title}</h2><span className={styles.pill+" "+offerTone(selectedOffer.status)}>{offerLabel(selectedOffer.status)}</span></div></div>
+      <dl className={styles.rows}><div><dt>{t.shop}</dt><dd>{selectedOffer.shopName}</dd></div><div><dt>{t.price}</dt><dd>{amount(selectedOffer.priceMinor,locale)} MAD</dd></div><div><dt>{t.foodInfo}</dt><dd>{selectedOffer.allergensStatus==="UNKNOWN"?t.hiddenAllergens:(selectedOffer.allergens||t.complete)}</dd></div><div><dt>{t.reports}</dt><dd>{selectedOffer.reportedCount}</dd></div><div><dt>{t.originalValue}</dt><dd>{selectedOffer.originalPriceMinor?amount(selectedOffer.originalPriceMinor,locale)+" MAD":"—"} · {t.notVerified}</dd></div></dl>
+      <p className={styles.hint}>{t.note}</p>
+      <div className={styles.decisionCol}><small className={styles.eyebrow}>{t.decision}</small>
+       <button type="button" aria-pressed={offerAction==="suspend"} className={offerAction==="suspend"?styles.stackOn:styles.stack} onClick={()=>setOfferAction("suspend")}>{selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
+       <button type="button" aria-pressed={offerAction==="request-edit"} className={offerAction==="request-edit"?styles.stackOn:styles.stack} onClick={()=>setOfferAction("request-edit")}>{t.askEdit}</button>
+       <button type="button" aria-pressed={offerAction==="reinstate"} disabled={selectedOffer.status!=="SUSPENDED"} className={offerAction==="reinstate"?styles.stackOn:styles.stack} onClick={()=>setOfferAction("reinstate")}>{t.putLive}</button>
+       <label className={styles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={e=>setReason(e.target.value)}/></label>
+       <button className={styles.primaryWide} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{t.save}</button>
+      </div>
+      <p className={styles.hint}>{t.actionNote}</p>
+     </>}
+    </section>
+   </div>
   </>}
 
   {page==="support-cases"&&cases&&<>
