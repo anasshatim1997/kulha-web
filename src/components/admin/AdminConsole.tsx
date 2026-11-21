@@ -49,8 +49,8 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
  const lead=page==="merchant-review"?t.merchantLead:page==="offer-moderation"?t.offersLead:page==="support-cases"?t.casesLead:t.auditLead;
  async function loadMerchant(id:string){setWorking(true);try{const data=await api.get<Merchant>("/admin/merchants/"+id);setSelectedMerchant(data);setReason("");}catch{setMessage(t.error);}finally{setWorking(false);}}
  async function merchantDecision(action:"approve"|"request-information"|"reject"){
-  if(action!=="approve"&&!maskReason(reason)){setMessage(t.saveReason);return;}if(!selectedMerchant)return;setWorking(true);setMessage("");
-  try{await api.post("/admin/merchants/"+selectedMerchant.id+"/"+action,action==="approve"?{internalNote:internalNote.trim()}:{reason:reason.trim(),internalNote:internalNote.trim()});setMessage(t.save);setReload(v=>v+1);setSelectedMerchant(null);setReason("");setInternalNote("");}
+  if(!maskReason(reason)){setMessage(t.saveReason);return;}if(!selectedMerchant)return;setWorking(true);setMessage("");
+  try{await api.post("/admin/merchants/"+selectedMerchant.id+"/"+action,{reason:reason.trim(),internalNote:internalNote.trim()});setMessage(t.save);setReload(v=>v+1);setSelectedMerchant(null);setReason("");setInternalNote("");}
   catch{setMessage(t.error);}finally{setWorking(false);}
  }
  async function offerDecision(action:"suspend"|"request-edit"|"reinstate"){
