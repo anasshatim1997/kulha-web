@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Bell, ClipboardList, LayoutDashboard, MapPin, Package, ScanLine, Search } from "lucide-react";
+import { Bell, ClipboardList, LayoutDashboard, MapPin, Package, ScanLine, Search, Store, PackageSearch, Headset, ClipboardCheck } from "lucide-react";
 import { useSession } from "@/components/session/SessionProvider";
 import { Button, LinkButton } from "@/components/ui/Button";
 import { isAdminWorkspacePath, isCustomerAccountPath, isMerchantWorkspacePath, localeFromPath, localePath, shouldUseCustomerWorkspace, switchLocalePath } from "@/lib/navigation";
@@ -143,17 +143,17 @@ export function SiteHeader() {
 
   if (isAdminWorkspace) {
     const adminLinks = [
-      [locale === "ar" ? "مراجعة المتاجر" : locale === "en" ? "Merchant review" : "Revue des commerces", localePath(locale, "/admin/merchant-review"), /\/admin\/merchant-review(?:\/|$)/.test(pathname), LayoutDashboard],
-      [locale === "ar" ? "مراقبة العروض" : locale === "en" ? "Offer moderation" : "Modération des offres", localePath(locale, "/admin/offer-moderation"), /\/admin\/offer-moderation(?:\/|$)/.test(pathname), Package],
-      [locale === "ar" ? "حالات الدعم" : locale === "en" ? "Support cases" : "Dossiers support", localePath(locale, "/admin/support-cases"), /\/admin\/support-cases(?:\/|$)/.test(pathname), ClipboardList],
-      [locale === "ar" ? "سجل التدقيق" : locale === "en" ? "Audit log" : "Journal d’audit", localePath(locale, "/admin/audit-log"), /\/admin\/audit-log(?:\/|$)/.test(pathname), ScanLine],
+      [locale === "ar" ? "مراجعة المتاجر" : locale === "en" ? "Merchant review" : "Revue des commerces", localePath(locale, "/admin/merchant-review"), /\/admin\/merchant-review(?:\/|$)/.test(pathname), Store],
+      [locale === "ar" ? "مراقبة العروض" : locale === "en" ? "Offer moderation" : "Modération des offres", localePath(locale, "/admin/offer-moderation"), /\/admin\/offer-moderation(?:\/|$)/.test(pathname), PackageSearch],
+      [locale === "ar" ? "حالات الدعم" : locale === "en" ? "Support cases" : "Dossiers support", localePath(locale, "/admin/support-cases"), /\/admin\/support-cases(?:\/|$)/.test(pathname), Headset],
+      [locale === "ar" ? "سجل التدقيق" : locale === "en" ? "Audit log" : "Journal d’audit", localePath(locale, "/admin/audit-log"), /\/admin\/audit-log(?:\/|$)/.test(pathname), ClipboardCheck],
     ] as const;
     return (
       <header className="site-header site-header-workspace site-header-admin" dir={copy.dir}>
         <div className="nav-shell">
           <Link href={home} aria-label="Kulha!" className="brand-link"><Logo /></Link>
-          <nav className="workspace-nav" aria-label={locale === "ar" ? "مساحة الإدارة" : locale === "en" ? "Admin navigation" : "Navigation administration"}>
-            {adminLinks.map(([label, href, active, Icon]) => <Link key={href} href={href} aria-current={active ? "page" : undefined}><span className={active ? "workspace-nav-icon is-active" : "workspace-nav-icon"} aria-hidden="true"><Icon size={19} strokeWidth={2.15}/></span>{label}</Link>)}
+          <nav className="workspace-nav admin-workspace-nav" aria-label={locale === "ar" ? "مساحة الإدارة" : locale === "en" ? "Admin navigation" : "Navigation administration"}>
+            {adminLinks.map(([label, href, active, Icon]) => <Link key={href} href={href} aria-current={active ? "page" : undefined}><span className={active ? "workspace-nav-icon admin-nav-icon is-active" : "workspace-nav-icon admin-nav-icon"} aria-hidden="true"><Icon size={18} strokeWidth={1.8}/></span>{label}</Link>)}
           </nav>
           <div className="workspace-actions">
             <label className="language-select-label"><span className="sr-only">{copy.nav.language}</span>
