@@ -73,7 +73,7 @@ export function SiteHeader() {
   const isAdminWorkspace = isAdminWorkspacePath(pathname);
   const isMerchant = state.status === "authenticated" && state.user.roles.some(role => ["MERCHANT", "MERCHANT_OWNER", "MERCHANT_STAFF"].includes(role));
   const isMerchantOwner = state.status === "authenticated" && state.user.roles.some(role => ["MERCHANT", "MERCHANT_OWNER"].includes(role));
-  const isCustomerWorkspace = authenticated && shouldUseCustomerWorkspace(pathname, state.user.roles);
+  const isCustomerWorkspace = state.status === "authenticated" ? shouldUseCustomerWorkspace(pathname, state.user.roles) : isCustomerAccountPath(pathname);
   const isHomePath = /^\/(?:en|ar)?\/?$/.test(pathname);
 
   useEffect(() => {
