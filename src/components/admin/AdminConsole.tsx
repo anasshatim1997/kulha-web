@@ -169,7 +169,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
       <section className={styles.merchantDecision}>
        <h3>{t.decision}</h3>
        <div className={styles.segment} role="group" aria-label={t.decision}>
-        <button type="button" aria-pressed={merchantAction==="approve"} className={styles.segApprove+" "+(merchantAction==="approve"?styles.segOn:"")} onClick={()=>setMerchantAction("approve")}>{t.approve}</button>
+        <button type="button" aria-pressed={merchantAction==="approve"} className={styles.segApprove+" "+(merchantAction==="approve"?styles.segOn:"")} disabled={working||checks.some(value=>!value)} onClick={()=>setMerchantAction("approve")}>{t.approve}</button>
         <button type="button" aria-pressed={merchantAction==="request-information"} className={styles.segInfo+" "+(merchantAction==="request-information"?styles.segOn:"")} onClick={()=>setMerchantAction("request-information")}>{t.requestInfo}</button>
         <button type="button" aria-pressed={merchantAction==="reject"} className={styles.segReject+" "+(merchantAction==="reject"?styles.segOn:"")} onClick={()=>setMerchantAction("reject")}>{t.reject}</button>
        </div>
