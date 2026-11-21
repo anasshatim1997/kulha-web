@@ -89,7 +89,7 @@ export function KulhaCurtain({ active, message, label, progress }: Props) {
   }
 
   if (phase === "hidden") return null;
-  return <div className={`${styles.curtain} ${styles[phase]}`} onTransitionEnd={onTransitionEnd} aria-hidden="false">
+  return <div data-scroll-lock="" className={`${styles.curtain} ${styles[phase]}`} onTransitionEnd={onTransitionEnd} aria-hidden="false">
     <KulhaLoader fullscreen theme="dark" size={236} message={message} label={label} progress={progress} panelClassName={styles.panel}/>
   </div>;
 }

@@ -1,11 +1,12 @@
 .page{max-width:1500px;margin:0 auto;padding:34px clamp(18px,3vw,48px) 64px;color:#073324;display:grid;gap:22px;min-width:0}
-.heading{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}
 .heading h1{font-size:clamp(30px,3vw,42px);line-height:1.06;font-weight:950;letter-spacing:-.04em;margin:5px 0 8px}
 .heading p{color:#66736b;font-size:14px;margin:0}
 .kicker{font-size:11px!important;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#7b806f!important}
 .headingActions{display:flex;gap:10px;flex-wrap:wrap}
 .primaryAction,.darkAction,.smallAction{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:13px;padding:12px 17px;font-weight:900;font-size:13px;text-decoration:none;cursor:pointer;transition:transform .18s,background .18s}
-.primaryAction{background:#fdbe2e;color:#073324}
+.primaryAction{background:#fffdf8;color:#073324;border:1px solid #e3dac8}
+.primaryAction:hover{background:#f3efe3}
 .darkAction{background:#073324;color:#fff}
 .primaryAction:hover,.darkAction:hover,.smallAction:hover{transform:translateY(-1px)}
 .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}

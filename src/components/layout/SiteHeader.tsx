@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Bell, ClipboardList, LayoutDashboard, MapPin, Package, ScanLine, Search, Store, PackageSearch, Headset, ClipboardCheck } from "lucide-react";
+import { BarChart3, Bell, ClipboardList, FileText, Flag, LayoutDashboard, LogOut, MapPin, QrCode, Search, Store, Tag, Users } from "lucide-react";
 import { useSession } from "@/components/session/SessionProvider";
 import { Button, LinkButton } from "@/components/ui/Button";
 import { isAdminWorkspacePath, isCustomerAccountPath, isMerchantWorkspacePath, localeFromPath, localePath, shouldUseCustomerWorkspace, switchLocalePath } from "@/lib/navigation";
@@ -83,6 +83,39 @@ export function SiteHeader() {
     }
   }, [isHomePath, locale, router, state]);
 
+  // Safety net: if a route change leaves a stale scroll lock on <body> (loader or modal that never
+  // released it), clear it once nothing that legitimately needs the lock is on screen.
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      if (open) return;
+      if (document.body.style.overflow === "hidden" && !document.querySelector('[role="dialog"], [aria-modal="true"], [data-scroll-lock]')) {
+        document.body.style.overflow = "";
+      }
+    }, 1200);
+    return () => window.clearTimeout(timer);
+  }, [pathname, open]);
+
+  // Sidebar badges and shop identity for the admin / merchant workspaces.
+  const [shellInfo, setShellInfo] = useState<{ shopName: string; city: string; toCollect: number; pendingMerchants: number; openCases: number }>({ shopName: "", city: "", toCollect: 0, pendingMerchants: 0, openCases: 0 });
+  useEffect(() => {
+    if (state.status !== "authenticated") return;
+    let current = true;
+    if (isAdminWorkspace) {
+      Promise.allSettled([
+        api.get<{ total: number }>("/admin/merchants?status=PENDING&page=0&size=1"),
+        api.get<{ total: number }>("/admin/support-cases?status=OPEN&page=0&size=1"),
+      ]).then(([merchants, cases]) => {
+        if (!current) return;
+        setShellInfo(prev => ({ ...prev, pendingMerchants: merchants.status === "fulfilled" ? merchants.value.total : 0, openCases: cases.status === "fulfilled" ? cases.value.total : 0 }));
+      });
+    } else if (isWorkspace && isMerchant) {
+      api.get<{ shopName?: string; city?: string; toCollectNow?: number }>("/merchants/me/workspace")
+        .then(data => { if (current) setShellInfo(prev => ({ ...prev, shopName: data.shopName ?? "", city: data.city ?? "", toCollect: data.toCollectNow ?? 0 })); })
+        .catch(() => undefined);
+    }
+    return () => { current = false; };
+  }, [state.status, isAdminWorkspace, isWorkspace, isMerchant, pathname]);
+
   if (isCustomerWorkspace && !isAuthPage && !isWorkspace) {
     const discoverHref = localePath(locale, "/offers");
     const mapHref = localePath(locale, "/offers/map");
@@ -141,64 +174,91 @@ export function SiteHeader() {
     );
   }
 
-  if (isAdminWorkspace) {
-    const adminLinks = [
-      [locale === "ar" ? "مراجعة المتاجر" : locale === "en" ? "Merchant review" : "Revue des commerces", localePath(locale, "/admin/merchant-review"), /\/admin\/merchant-review(?:\/|$)/.test(pathname), Store],
-      [locale === "ar" ? "مراقبة العروض" : locale === "en" ? "Offer moderation" : "Modération des offres", localePath(locale, "/admin/offer-moderation"), /\/admin\/offer-moderation(?:\/|$)/.test(pathname), PackageSearch],
-      [locale === "ar" ? "حالات الدعم" : locale === "en" ? "Support cases" : "Dossiers support", localePath(locale, "/admin/support-cases"), /\/admin\/support-cases(?:\/|$)/.test(pathname), Headset],
-      [locale === "ar" ? "سجل التدقيق" : locale === "en" ? "Audit log" : "Journal d’audit", localePath(locale, "/admin/audit-log"), /\/admin\/audit-log(?:\/|$)/.test(pathname), ClipboardCheck],
-    ] as const;
-    return (
-      <header className="site-header site-header-workspace site-header-admin" dir={copy.dir}>
-        <div className="nav-shell">
-          <Link href={home} aria-label="Kulha!" className="brand-link"><Logo /></Link>
-          <nav className="workspace-nav admin-workspace-nav" aria-label={locale === "ar" ? "مساحة الإدارة" : locale === "en" ? "Admin navigation" : "Navigation administration"}>
-            {adminLinks.map(([label, href, active, Icon]) => <Link key={href} href={href} aria-current={active ? "page" : undefined}><span className={active ? "workspace-nav-icon admin-nav-icon is-active" : "workspace-nav-icon admin-nav-icon"} aria-hidden="true"><Icon size={18} strokeWidth={1.8}/></span>{label}</Link>)}
-          </nav>
-          <div className="workspace-actions">
-            <label className="language-select-label"><span className="sr-only">{copy.nav.language}</span>
-              <select aria-label={copy.nav.language} value={locale} onChange={(event) => { window.dispatchEvent(new Event("kulha:navigation-start")); router.push(switchLocalePath(pathname, event.target.value as SiteLocale)); }}>
-                {localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-              </select>
-            </label>
-            {authenticated && <button type="button" className="workspace-signout" onClick={() => void signOut()}>{copy.nav.signOut}</button>}
-          </div>
-        </div>
-      </header>
-    );
-  }
-
-  if (isWorkspace) {
-    const workspaceLinks = [
-      [locale === "ar" ? "لوحة المتجر" : locale === "en" ? "Dashboard" : "Tableau de bord", localePath(locale, "/merchant/dashboard"), /\/merchant\/(dashboard|apply)\/?$/.test(pathname), LayoutDashboard],
-      [locale === "ar" ? "عروضي" : locale === "en" ? "My offers" : "Mes offres", localePath(locale, "/merchant/offers"), /\/merchant\/offers/.test(pathname), Package],
-      [locale === "ar" ? "الطلبات" : locale === "en" ? "Orders" : "Commandes", localePath(locale, "/merchant/orders"), /\/merchant\/orders(?:\/|$)/.test(pathname), ClipboardList],
-      [locale === "ar" ? "مسح الاستلام" : locale === "en" ? "Pickup" : "Retrait", localePath(locale, "/merchant/reservations/scan"), /\/merchant\/reservations\/scan/.test(pathname), ScanLine],
+  if (isAdminWorkspace || isWorkspace) {
+    const l = (ar: string, en: string, fr: string) => (locale === "ar" ? ar : locale === "en" ? en : fr);
+    const user = state.status === "authenticated" ? state.user : null;
+    const displayName = user ? (user.fullName?.trim() || user.email) : "";
+    const initial = displayName ? displayName.slice(0, 1).toLocaleUpperCase(locale) : "?";
+    const roles = user?.roles ?? [];
+    const roleLabel = roles.includes("SUPER_ADMIN") ? l("مشرف عام", "Super admin", "Super admin")
+      : roles.includes("MODERATOR") ? l("مشرف", "Moderator", "Modérateur")
+      : roles.includes("SUPPORT") ? l("الدعم", "Support", "Support")
+      : l("مدير", "Admin", "Administrateur");
+    type WsLink = readonly [string, string, boolean, typeof Store, number];
+    const adminLinks: WsLink[] = [
+      [l("مراجعة المتاجر", "Merchant review", "Revue des commerces"), localePath(locale, "/admin/merchant-review"), /\/admin\/merchant-review(?:\/|$)/.test(pathname), Store, shellInfo.pendingMerchants],
+      [l("مراقبة العروض", "Offer moderation", "Modération des offres"), localePath(locale, "/admin/offer-moderation"), /\/admin\/offer-moderation(?:\/|$)/.test(pathname), Tag, 0],
+      [l("حالات الدعم", "Support cases", "Dossiers support"), localePath(locale, "/admin/support-cases"), /\/admin\/support-cases(?:\/|$)/.test(pathname), Flag, shellInfo.openCases],
+      [l("سجل التدقيق", "Audit log", "Journal d’audit"), localePath(locale, "/admin/audit-log"), /\/admin\/audit-log(?:\/|$)/.test(pathname), FileText, 0],
+    ];
+    const merchantLinks: WsLink[] = [
+      [l("لوحة المتجر", "Dashboard", "Tableau de bord"), localePath(locale, "/merchant/dashboard"), /\/merchant\/(dashboard|apply)\/?$/.test(pathname), LayoutDashboard, 0],
+      [l("الطلبات", "Orders", "Commandes"), localePath(locale, "/merchant/orders"), /\/merchant\/orders(?:\/|$)/.test(pathname), ClipboardList, shellInfo.toCollect],
+      [l("عروضي", "Offers", "Offres"), localePath(locale, "/merchant/offers"), /\/merchant\/offers/.test(pathname), Tag, 0],
+      [l("مسح الاستلام", "Pickup", "Retrait"), localePath(locale, "/merchant/reservations/scan"), /\/merchant\/reservations\/scan/.test(pathname), QrCode, 0],
       ...(isMerchantOwner ? [
-        [locale === "ar" ? "الفريق" : locale === "en" ? "Staff" : "Équipe", localePath(locale, "/merchant/staff"), /\/merchant\/staff(?:\/|$)/.test(pathname), ClipboardList],
-        [locale === "ar" ? "المبيعات" : locale === "en" ? "Sales" : "Ventes", localePath(locale, "/merchant/sales"), /\/merchant\/sales(?:\/|$)/.test(pathname), LayoutDashboard],
-      ] as const : []),
-    ] as const;
+        [l("الفريق", "Staff", "Équipe"), localePath(locale, "/merchant/staff"), /\/merchant\/staff(?:\/|$)/.test(pathname), Users, 0] as WsLink,
+        [l("المبيعات", "Sales", "Ventes"), localePath(locale, "/merchant/sales"), /\/merchant\/sales(?:\/|$)/.test(pathname), BarChart3, 0] as WsLink,
+      ] : []),
+    ];
+    const links: WsLink[] = isAdminWorkspace ? adminLinks : merchantLinks;
+    const switchLanguage = (value: SiteLocale) => {
+      window.dispatchEvent(new Event("kulha:navigation-start"));
+      router.push(switchLocalePath(pathname, value));
+    };
+    const notificationsHref = localePath(locale, "/notifications");
     return (
-      <header className="site-header site-header-workspace" dir={copy.dir}>
-        <div className="nav-shell">
-          <Link href={home} aria-label="Kulha!" className="brand-link"><Logo /></Link>
-          {isMerchant && (
-            <nav className="workspace-nav" aria-label={locale === "ar" ? "مساحة المتجر" : locale === "en" ? "Shop workspace" : "Espace commerçant"}>
-              {workspaceLinks.map(([label, href, active, Icon]) => <Link key={href} href={href} aria-current={active ? "page" : undefined}><span className={`inline-flex h-6 w-6 shrink-0 items-center justify-center ${active ? "text-[#fdbe2e]" : "text-[#d94831]"}`} aria-hidden="true"><Icon size={19} strokeWidth={2.15} /></span>{label}</Link>)}
+      <>
+        <aside className={`ws-sidebar ${isAdminWorkspace ? "ws-sidebar-admin" : "ws-sidebar-merchant"}`} dir={copy.dir}>
+          <Link href={isAdminWorkspace ? localePath(locale, "/admin/merchant-review") : localePath(locale, "/merchant/dashboard")} aria-label="Kulha!" className="ws-brand">
+            <span className="ws-brand-word">KULHA<span>!</span></span>
+            <small>{isAdminWorkspace ? "ADMIN" : "SHOP SPACE"}</small>
+          </Link>
+          {isWorkspace && isMerchant && shellInfo.shopName && (
+            <div className="ws-shop-card">
+              <span className="ws-shop-avatar" aria-hidden="true">{shellInfo.shopName.slice(0, 1).toLocaleUpperCase(locale)}</span>
+              <span className="ws-shop-text"><strong>{shellInfo.shopName}</strong>{shellInfo.city && <small>{shellInfo.city}</small>}</span>
+            </div>
+          )}
+          {(isAdminWorkspace || isMerchant) && (
+            <nav className="ws-nav" aria-label={isAdminWorkspace ? l("مساحة الإدارة", "Admin navigation", "Navigation administration") : l("مساحة المتجر", "Shop workspace", "Espace commerçant")}>
+              {links.map(([label, href, active, Icon, count]) => (
+                <Link key={href} href={href} aria-current={active ? "page" : undefined} className="ws-nav-link">
+                  <Icon size={18} strokeWidth={1.9} aria-hidden="true" />
+                  <span className="ws-nav-label">{label}</span>
+                  {count > 0 && <span className="ws-badge" aria-label={String(count)}>{count > 99 ? "99+" : count}</span>}
+                </Link>
+              ))}
             </nav>
           )}
-          <div className="workspace-actions">
-            <label className="language-select-label">
-              <span className="sr-only">{copy.nav.language}</span>
-              <select aria-label={copy.nav.language} value={locale} onChange={(event) => { window.dispatchEvent(new Event("kulha:navigation-start")); router.push(switchLocalePath(pathname, event.target.value as SiteLocale)); }}>
-                {localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-              </select>
-            </label>
-            {authenticated && <button type="button" className="workspace-signout" onClick={() => void signOut()}>{copy.nav.signOut}</button>}
+          <div className="ws-sidebar-foot">
+            {isWorkspace && isMerchant && (
+              <p className="ws-note"><strong>{l("متجر معتمد", "Approved shop", "Commerce approuvé")}</strong>{l("يمكنك نشر العروض واستقبال الحجوزات.", "You can publish offers and receive reservations.", "Vous pouvez publier des offres et recevoir des réservations.")}</p>
+            )}
+            {isAdminWorkspace && user && (
+              <div className="ws-user"><strong>{displayName}</strong><span>{roleLabel}</span></div>
+            )}
+            <div className="ws-foot-actions">
+              <label className="ws-lang">
+                <span className="sr-only">{copy.nav.language}</span>
+                <select aria-label={copy.nav.language} value={locale} onChange={(event) => switchLanguage(event.target.value as SiteLocale)}>
+                  {localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                </select>
+              </label>
+              {authenticated && <button type="button" className="ws-signout" onClick={() => void signOut()}><LogOut size={15} strokeWidth={2} aria-hidden="true" />{copy.nav.signOut}</button>}
+            </div>
           </div>
-        </div>
-      </header>
+        </aside>
+        {isWorkspace && (
+          <div className="ws-topbar" dir={copy.dir}>
+            <Link href={notificationsHref} className="ws-bell" aria-label={l("الإشعارات", "Notifications", "Notifications")} title={l("الإشعارات", "Notifications", "Notifications")}>
+              <Bell size={18} strokeWidth={2} />
+              {unreadNotifications > 0 && <span className="ws-bell-count">{unreadNotifications > 9 ? "9+" : unreadNotifications}</span>}
+            </Link>
+            <span className="ws-avatar" aria-hidden="true">{initial}</span>
+          </div>
+        )}
+      </>
     );
   }
 

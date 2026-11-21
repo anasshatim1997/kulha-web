@@ -71,12 +71,14 @@ export function MerchantConsole({locale,page,shop}:{locale:SiteLocale;page:PageK
 
  const isOwner=state.status==="authenticated"&&(state.user.roles.includes("MERCHANT")||state.user.roles.includes("MERCHANT_OWNER"));
  const title=page==="dashboard"?t.dashboard:page==="orders"?t.orders:page==="staff"?t.staff:t.salesTitle;
+ const todayLabel=new Intl.DateTimeFormat(locale==="ar"?"ar-MA":locale==="en"?"en-MA":"fr-MA",{timeZone:"Africa/Casablanca",weekday:"long",day:"numeric",month:"long"}).format(new Date());
+ const todayTitle=(locale==="ar"?"اليوم، ":locale==="en"?"Today, ":"Aujourd’hui, ")+todayLabel;
  if(loading)return <main className={styles.page} dir={locale==="ar"?"rtl":"ltr"}><div className={styles.skeleton}/><div className={styles.skeletonGrid}><i/><i/><i/><i/></div><div className={styles.skeletonPanel}/></main>;
  if(failed)return <main className={styles.page} dir={locale==="ar"?"rtl":"ltr"}><div className={styles.alert}>{message}<button onClick={()=>{setLoading(true);setFailed(false);setReload(v=>v+1);}}>{t.retry}</button></div></main>;
 
  return <main className={styles.page} dir={locale==="ar"?"rtl":"ltr"}>
-  <header className={styles.heading}><div><p className={styles.kicker}>{shop?.name||dashboard?.shopName||"KULHA! · SHOP SPACE"}{(shop?.city||dashboard?.city)?" · "+(shop?.city||dashboard?.city):""}</p>
-   <h1>{page==="dashboard"?t.welcome+(shop?.name||dashboard?.shopName?", "+(shop?.name||dashboard?.shopName):""):title}</h1><p>{page==="dashboard"?t.subtitle:page==="sales"?t.salesLead:page==="staff"?t.accessNote:""}</p></div>
+  <header className={styles.heading}><div>
+   <h1>{page==="dashboard"?todayTitle:title}</h1><p>{page==="dashboard"?t.subtitle:page==="sales"?t.salesLead:page==="staff"?t.accessNote:""}</p></div>
    <div className={styles.headingActions}>{(page==="dashboard"||page==="orders")&&<Link href={localePath(locale,"/merchant/offers/new")} className={styles.primaryAction}>＋ {t.newOffer}</Link>}
    {(page==="dashboard"||page==="orders")&&<Link href={localePath(locale,"/merchant/reservations/scan")} className={styles.darkAction}>▦ {t.pickup}</Link>}</div>
   </header>

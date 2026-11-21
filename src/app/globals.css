@@ -15546,7 +15546,7 @@ body:has(.kulha-reservation-viewport) > main { min-height:0; overflow:visible; }
   .site-header-workspace.site-header-customer .brand-link { align-self: center; margin: 0; }
   .site-header-workspace.site-header-customer .workspace-nav {
     width: auto;
-    margin-inline-start: clamp(8px, 2vw, 28px);
+    margin-inline-start: auto; /* nav sits on the right, next to the language picker */
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -15563,7 +15563,7 @@ body:has(.kulha-reservation-viewport) > main { min-height:0; overflow:visible; }
   }
   .site-header-workspace.site-header-customer .workspace-actions {
     width: auto;
-    margin-inline-start: auto;
+    margin-inline-start: 0;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -15740,3 +15740,111 @@ body:has(.kulha-reservation-viewport) > main { min-height:0; overflow:visible; }
     overflow-y: hidden;
   }
 }
+
+
+/* ==========================================================================
+   KULHA workspace shell (admin + merchant)
+   Dedicated .ws-* classes. They deliberately do NOT reuse .site-header, because
+   the global `.site-header { position: relative !important }` rule used to
+   override the fixed sidebar and pushed the page content below a full-height
+   sidebar row. Nothing here should need !important.
+   ========================================================================== */
+:root { --ws-w: 248px; --ws-top: 64px; }
+.ws-sidebar, .ws-sidebar *, .ws-topbar, .ws-topbar * { box-sizing: border-box; }
+
+.ws-sidebar {
+  position: fixed; inset-block: 0; inset-inline-start: 0; z-index: 100;
+  width: var(--ws-w); height: 100dvh; box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 18px;
+  padding: 22px 14px 16px; overflow: hidden;
+  font-family: inherit;
+}
+.ws-brand { display: grid; gap: 2px; padding-inline: 8px; text-decoration: none; line-height: 1; }
+.ws-brand-word { font-size: 24px; font-weight: 1000; letter-spacing: -.03em; }
+.ws-brand-word span { color: #fdbe2e; }
+.ws-brand small { font-size: 10px; font-weight: 900; letter-spacing: .14em; opacity: .7; }
+
+.ws-nav { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.ws-nav-link { display: flex; align-items: center; gap: 11px; min-height: 42px; padding: 9px 12px; border-radius: 11px; font-size: 13.5px; font-weight: 850; line-height: 1.25; text-decoration: none; transition: background .15s, color .15s; }
+.ws-nav-link svg { flex: 0 0 auto; }
+.ws-nav-label { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.ws-badge { flex: 0 0 auto; min-width: 22px; height: 22px; padding: 0 6px; display: inline-grid; place-items: center; border-radius: 99px; background: #fdbe2e; color: #073324; font-size: 11px; font-weight: 1000; }
+.ws-nav-link:focus-visible, .ws-signout:focus-visible, .ws-lang select:focus-visible { outline: 3px solid #fdbe2e; outline-offset: 2px; }
+
+.ws-sidebar-foot { margin-top: auto; display: grid; gap: 10px; }
+.ws-foot-actions { display: grid; gap: 8px; }
+.ws-lang select { width: 100%; height: 40px; padding: 0 12px; border-radius: 99px; font: inherit; font-size: 13px; font-weight: 900; cursor: pointer; }
+.ws-signout { width: 100%; height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border-radius: 99px; background: transparent; font: inherit; font-size: 13px; font-weight: 900; cursor: pointer; }
+.ws-user { display: grid; gap: 2px; padding: 12px 14px; border-radius: 14px; font-size: 12px; }
+.ws-user strong { font-weight: 950; font-size: 13px; overflow-wrap: anywhere; }
+.ws-user span { opacity: .75; font-weight: 700; }
+.ws-note { margin: 0; display: grid; gap: 3px; padding: 12px 13px; border-radius: 14px; background: #fdf0cc; color: #6b4a00; font-size: 11.5px; line-height: 1.45; font-weight: 700; }
+.ws-note strong { font-weight: 950; color: #4a3200; }
+.ws-shop-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; background: #e9f0e3; color: #073324; }
+.ws-shop-avatar { flex: 0 0 auto; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: #073324; color: #fcf4e7; font-weight: 1000; font-size: 14px; }
+.ws-shop-text { display: grid; min-width: 0; line-height: 1.25; }
+.ws-shop-text strong { font-size: 13px; font-weight: 950; overflow-wrap: anywhere; }
+.ws-shop-text small { font-size: 11px; font-weight: 700; color: #4c6a58; }
+
+/* Admin: dark forest rail */
+.ws-sidebar-admin { background: #073324; color: #fcf4e7; }
+.ws-sidebar-admin .ws-brand { color: #fff; }
+.ws-sidebar-admin .ws-nav-link { color: #d9e6dd; }
+.ws-sidebar-admin .ws-nav-link:hover { background: rgb(255 255 255 / .07); color: #fff; }
+.ws-sidebar-admin .ws-nav-link[aria-current="page"] { background: rgb(255 255 255 / .13); color: #fff; }
+.ws-sidebar-admin .ws-user { background: rgb(255 255 255 / .07); color: #fff; }
+.ws-sidebar-admin .ws-lang select { background: rgb(255 255 255 / .08); border: 1px solid rgb(255 255 255 / .18); color: #fff; }
+.ws-sidebar-admin .ws-lang select option { color: #073324; }
+.ws-sidebar-admin .ws-signout { border: 1px solid rgb(255 255 255 / .22); color: #fcf4e7; }
+.ws-sidebar-admin .ws-signout:hover { background: rgb(255 255 255 / .1); }
+
+/* Merchant: light rail */
+.ws-sidebar-merchant { background: #fffdf8; color: #073324; border-inline-end: 1px solid #ebe3d3; }
+.ws-sidebar-merchant .ws-brand { color: #073324; }
+.ws-sidebar-merchant .ws-nav-link { color: #29483b; }
+.ws-sidebar-merchant .ws-nav-link:hover { background: #f3efe3; }
+.ws-sidebar-merchant .ws-nav-link[aria-current="page"] { background: #073324; color: #fff; }
+.ws-sidebar-merchant .ws-lang select { background: #fff; border: 1px solid #e3dac8; color: #073324; }
+.ws-sidebar-merchant .ws-signout { border: 1px solid #e3dac8; color: #073324; }
+.ws-sidebar-merchant .ws-signout:hover { background: #073324; color: #fcf4e7; }
+
+/* Merchant top bar (shell-level, so it appears on every merchant page) */
+.ws-topbar { position: fixed; z-index: 90; inset-block-start: 0; inset-inline: var(--ws-w) 0; height: var(--ws-top); box-sizing: border-box; display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding-inline: clamp(16px, 3vw, 40px); background: #fffdf8; border-bottom: 1px solid #ebe3d3; }
+.ws-bell { position: relative; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; border: 1px solid #e3dac8; background: #fff; color: #073324; }
+.ws-bell:hover { background: #f3efe3; }
+.ws-bell:focus-visible { outline: 3px solid #fdbe2e; outline-offset: 2px; }
+.ws-bell-count { position: absolute; top: -4px; inset-inline-end: -4px; min-width: 18px; height: 18px; padding: 0 4px; display: grid; place-items: center; border-radius: 99px; background: #fdbe2e; color: #073324; font-size: 10px; font-weight: 1000; }
+.ws-avatar { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; background: #fdbe2e; color: #073324; font-weight: 1000; font-size: 14px; }
+
+/* Page area: always sits beside the rail, never below it */
+@media (min-width: 900px) {
+  body:has(> .ws-sidebar) > #contenu { box-sizing: border-box; flex: 1 0 auto; width: calc(100% - var(--ws-w)); min-width: 0; margin-inline-start: var(--ws-w); }
+  body:has(> .ws-sidebar-merchant) > #contenu { padding-top: var(--ws-top); }
+  body:has(> .ws-sidebar-merchant) .mw-shell { --mw-header: var(--ws-top); }
+  body:has(> .ws-sidebar) > #contenu > * { max-width: none; }
+}
+
+/* Small screens: the rail becomes a compact top bar with a scrolling nav row */
+@media (max-width: 899px) {
+  .ws-sidebar { position: sticky; inset-block-start: 0; inset-inline-start: auto; width: 100%; height: auto; max-height: none; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 14px; overflow: visible; }
+  .ws-sidebar-merchant { border-inline-end: 0; border-bottom: 1px solid #ebe3d3; }
+  .ws-brand { padding-inline: 0; }
+  .ws-shop-card, .ws-note, .ws-user { display: none; }
+  .ws-nav { order: 3; flex: 1 1 100%; flex-direction: row; overflow-x: auto; overflow-y: hidden; padding-bottom: 2px; }
+  .ws-nav-link { flex: 0 0 auto; min-height: 38px; padding: 7px 11px; font-size: 12.5px; white-space: nowrap; }
+  .ws-sidebar-foot { margin: 0 0 0 auto; display: flex; align-items: center; }
+  [dir="rtl"] .ws-sidebar-foot { margin: 0 auto 0 0; }
+  .ws-foot-actions { display: flex; align-items: center; }
+  .ws-lang select, .ws-signout { width: auto; height: 36px; padding-inline: 12px; }
+  .ws-topbar { position: absolute; inset-block-start: 10px; inset-inline: auto 14px; height: auto; padding: 0; background: transparent; border: 0; display: none; }
+  body:has(> .ws-sidebar) > #contenu { width: 100%; margin-inline-start: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .ws-nav-link { transition: none; } }
+
+
+/* Workspace pages scroll with the document: no fixed-height shell that traps content. */
+@media (min-width: 900px) {
+  body:has(> .ws-sidebar-merchant) .mw-shell { height: auto; min-height: calc(100dvh - var(--ws-top)); }
+  body:has(> .ws-sidebar-merchant) .mw-shell > .mw-offer-editor-layout > .mw-form { max-height: none; overflow: visible; }
+}
+html, body { overflow-y: auto; }

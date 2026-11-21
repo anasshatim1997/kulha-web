@@ -10,7 +10,7 @@ export default async function MerchantOffersPage({ params }: { params: Promise<{
   await requireMerchantPage(locale);
   const t = offerCopy(locale);
   return <div className="mw-shell" dir={locale === "ar" ? "rtl" : "ltr"}>
-    <header className="mw-head"><p className="section-kicker">KULHA! · PARTNERS</p><h1 className="mw-title">{t.title}</h1></header>
+    <header className="mw-head"><h1 className="mw-title">{t.title}</h1></header>
     <OfferList locale={locale}/>
   </div>;
 }
