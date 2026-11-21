@@ -231,7 +231,24 @@ export function OfferForm({ locale, offerId }: { locale: string; offerId?: strin
     ? Math.round(Number(originalPrice) * 100)
     : null;
   const pricePreviewLabel = locale === "ar" ? "معاينة السعر" : locale === "en" ? "Price preview" : "Aperçu du prix";
-  return <><SubmitProgress title={t.saving} detail={t.pleaseWait} active={saving}/><form onSubmit={submit} className="mw-form mw-form-card mw-card" aria-busy={saving}>
+  const previewLabels = {
+    eyebrow: locale === "ar" ? "ما سيراه العملاء" : locale === "en" ? "WHAT CUSTOMERS WILL SEE" : "APERÇU CÔTÉ CLIENT",
+    shop: locale === "ar" ? "متجرك" : locale === "en" ? "Your shop" : "Votre commerce",
+    placeholder: locale === "ar" ? "سلة مفاجآت" : locale === "en" ? "Surprise basket" : "Panier surprise",
+    pickup: locale === "ar" ? "موعد الاستلام" : locale === "en" ? "Pickup" : "Retrait",
+    left: locale === "ar" ? "متبقية" : locale === "en" ? "left" : "restants",
+    food: locale === "ar" ? "معلومات الطعام" : locale === "en" ? "Food information" : "Informations alimentaires",
+    discount: locale === "ar" ? "تخفيض" : locale === "en" ? "off" : "de remise",
+    pickupMissing: locale === "ar" ? "حدد موعد الاستلام" : locale === "en" ? "Choose a pickup window" : "Choisissez un créneau de retrait",
+  };
+  const previewQuantity = Math.max(0, (Number(quantity) || 0) - (offer?.quantityReserved ?? 0));
+  const previewDiscount = previewPriceMinor !== null && previewOriginalPriceMinor !== null && previewOriginalPriceMinor > previewPriceMinor
+    ? Math.round((1 - previewPriceMinor / previewOriginalPriceMinor) * 100)
+    : null;
+  const previewPickup = pickupStart && pickupEnd
+    ? pickupStart.slice(0, 10) + " · " + pickupStart.slice(11, 16) + "–" + pickupEnd.slice(11, 16)
+    : previewLabels.pickupMissing;
+  return <><SubmitProgress title={t.saving} detail={t.pleaseWait} active={saving}/><div className="mw-offer-editor-layout"><form onSubmit={submit} className="mw-form mw-form-card mw-card" aria-busy={saving}>
     {error && <p role="alert" className="rounded-xl bg-tomato-50 p-3 text-tomato-600">{error}</p>}
     <label className="mw-field">{t.titleField}<input required maxLength={120} value={title} onChange={event => { setTitle(event.target.value); clearFieldError("title"); }} aria-invalid={Boolean(fieldErrors.title)} aria-describedby={fieldErrors.title ? "title-error" : undefined} className={input}/>{fieldMessage("title")}</label>
     <label className="mw-field">{t.description}<textarea required maxLength={1000} value={description} onChange={event => { setDescription(event.target.value); clearFieldError("description"); }} aria-invalid={Boolean(fieldErrors.description)} aria-describedby={fieldErrors.description ? "description-error" : undefined} rows={4} className={input}/>{fieldMessage("description")}</label>
@@ -264,5 +281,23 @@ export function OfferForm({ locale, offerId }: { locale: string; offerId?: strin
       {offerId && <button type="button" disabled={saving} onClick={() => void action("duplicate")} className="mw-action">{t.duplicate}</button>}
       {offerId && offer?.status === "DRAFT" && <button type="button" disabled={saving} onClick={() => void action("cancel")} className="mw-action mw-error">{t.cancel}</button>}
     </div>
-  </form></>;
+  </form>
+  <aside className="mw-offer-customer-preview">
+    <p className="mw-offer-preview-eyebrow">{previewLabels.eyebrow}</p>
+    <article className="mw-offer-preview-card">
+      <div className="mw-offer-preview-art">
+        <span className="mw-offer-preview-bag" aria-hidden="true">▱</span>
+        {previewDiscount !== null && <span className="mw-offer-preview-discount">-{previewDiscount}%</span>}
+        {previewPriceMinor !== null && <PriceSticker priceMinor={previewPriceMinor} originalPriceMinor={previewOriginalPriceMinor} locale={locale as "fr" | "en" | "ar"} size="md" />}
+      </div>
+      <div className="mw-offer-preview-copy">
+        <small>{previewLabels.shop}</small>
+        <h2>{title.trim() || previewLabels.placeholder}</h2>
+        {description.trim() && <p>{description}</p>}
+        <div className="mw-offer-preview-meta"><span>{previewPickup}</span><strong>{previewQuantity} {previewLabels.left}</strong></div>
+        <div className="mw-offer-preview-food"><span>{previewLabels.food}</span><strong>{allergensUnknown ? t.unknown : allergenCodes.length ? allergenCodes.join(" · ") : t.unknown}</strong></div>
+      </div>
+    </article>
+  </aside>
+  </div></>;
 }

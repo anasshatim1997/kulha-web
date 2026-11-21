@@ -35,12 +35,12 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
  const [audit,setAudit]=useState<AuditPage|null>(null);const [auditFrom,setAuditFrom]=useState("");const [auditTo,setAuditTo]=useState("");const [auditAction,setAuditAction]=useState("");const [auditResult,setAuditResult]=useState("");
  const [reason,setReason]=useState("");const [internalNote,setInternalNote]=useState("");const [draftMessage,setDraftMessage]=useState("");const [sendToCustomer,setSendToCustomer]=useState(true);const [revealed,setRevealed]=useState<{fullName:string;email:string;phone:string|null}|null>(null);const [working,setWorking]=useState(false);
 
- useEffect(()=>{let active=true;setLoading(true);setFailed(false);setMessage("");
+ useEffect(()=>{let active=true;
   const load=async()=>{try{
-   if(page==="merchant-review"){const data=await api.get<Page<Merchant>>("/admin/merchants?status="+merchantStatus+"&page=0&size=50");if(active){setMerchants(data);if(!selectedMerchant&&data.items[0])setSelectedMerchant(data.items[0]);}}
-   if(page==="offer-moderation"){const data=await api.get<Page<Offer>>("/admin/offers?page=0&size=100"+(offerStatus?"&status="+offerStatus:""));if(active){setOffers(data);if(!selectedOffer&&data.items[0])setSelectedOffer(data.items[0]);}}
-   if(page==="support-cases"){const data=await api.get<Page<CaseItem>>("/admin/support-cases?status="+caseStatus+"&page=0&size=100");if(active){setCases(data);if(!selectedCase&&data.items[0]){const d=await api.get<{summary:CaseItem;timeline:Timeline[]}>("/admin/support-cases/"+data.items[0].reference);if(active)setSelectedCase(d);}}}
-   if(page==="audit-log"){const query=new URLSearchParams();if(auditFrom)query.set("from",auditFrom);if(auditTo)query.set("to",auditTo);if(auditAction)query.set("action",auditAction);if(auditResult)query.set("result",auditResult);query.set("page","0");query.set("size","100");const data=await api.get<AuditPage>("/admin/audit-log?"+query.toString());if(active)setAudit(data);}
+   if(page==="merchant-review"){const data=await api.get<Page<Merchant>>("/admin/merchants?status="+merchantStatus+"&page=0&size=50");if(active){setMerchants(data);setFailed(false);setSelectedMerchant(data.items[0]??null);}}
+   if(page==="offer-moderation"){const data=await api.get<Page<Offer>>("/admin/offers?page=0&size=100"+(offerStatus?"&status="+offerStatus:""));if(active){setOffers(data);setFailed(false);setSelectedOffer(data.items[0]??null);}}
+   if(page==="support-cases"){const data=await api.get<Page<CaseItem>>("/admin/support-cases?status="+caseStatus+"&page=0&size=100");if(active){setCases(data);setFailed(false);if(data.items[0]){const d=await api.get<{summary:CaseItem;timeline:Timeline[]}>("/admin/support-cases/"+data.items[0].reference);if(active)setSelectedCase(d);}else setSelectedCase(null);}}
+   if(page==="audit-log"){const query=new URLSearchParams();if(auditFrom)query.set("from",auditFrom);if(auditTo)query.set("to",auditTo);if(auditAction)query.set("action",auditAction);if(auditResult)query.set("result",auditResult);query.set("page","0");query.set("size","100");const data=await api.get<AuditPage>("/admin/audit-log?"+query.toString());if(active){setAudit(data);setFailed(false);}}
   }catch{if(active)setFailed(true);}finally{if(active)setLoading(false);}};
   void load();return()=>{active=false;};
  },[page,reload,merchantStatus,offerStatus,caseStatus,auditFrom,auditTo,auditAction,auditResult]);
@@ -66,7 +66,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
  async function exportAudit(){setWorking(true);try{const query=new URLSearchParams();if(auditFrom)query.set("from",auditFrom);if(auditTo)query.set("to",auditTo);if(auditAction)query.set("action",auditAction);if(auditResult)query.set("result",auditResult);const res=await fetch("/api/bff/admin/audit-log/export?"+query.toString(),{credentials:"same-origin",cache:"no-store"});if(!res.ok)throw new Error();const url=URL.createObjectURL(await res.blob());const a=document.createElement("a");a.href=url;a.download="kulha-audit-log.csv";a.click();URL.revokeObjectURL(url);}catch{setMessage(t.error);}finally{setWorking(false);}}
 
  if(loading)return <main className={styles.page}><div className={styles.header}><div className={styles.skeleton}/><div className={styles.skeletonWide}/></div><div className={styles.skeletonPanel}/></main>;
- if(failed)return <main className={styles.page}><div className={styles.alert}>{t.error}<button onClick={()=>setReload(v=>v+1)}>{t.retry}</button></div></main>;
+ if(failed)return <main className={styles.page}><div className={styles.alert}>{t.error}<button onClick={()=>{setLoading(true);setFailed(false);setReload(v=>v+1);}}>{t.retry}</button></div></main>;
 
  return <main className={styles.page} dir={locale==="ar"?"rtl":"ltr"}>
   <header className={styles.header}><div><p className={styles.kicker}>KULHA! · ADMIN</p><h1>{title}</h1><p>{lead}</p></div>
@@ -76,7 +76,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
 
   {page==="merchant-review"&&merchants&&<div className={styles.split}>
    <section className={styles.panel}>
-    <div className={styles.tabs}>{merchantStatuses.map(([value,label])=><button key={value} className={merchantStatus===value?styles.activeTab:styles.tab} onClick={()=>{setMerchantStatus(value);setSelectedMerchant(null);}}>{value==="PENDING"?t.pending:value==="INFO_REQUIRED"?t.info:value==="APPROVED"?t.approved:t.rejected}</button>)}</div>
+    <div className={styles.tabs}>{merchantStatuses.map(([value])=><button key={value} className={merchantStatus===value?styles.activeTab:styles.tab} onClick={()=>{setLoading(true);setFailed(false);setMerchantStatus(value);setSelectedMerchant(null);}}>{value==="PENDING"?t.pending:value==="INFO_REQUIRED"?t.info:value==="APPROVED"?t.approved:t.rejected}</button>)}</div>
     <div className={styles.list}>{merchants.items.map(item=><button key={item.id} className={selectedMerchant?.id===item.id?styles.selectedRow:styles.listRow} onClick={()=>void loadMerchant(item.id)}>
       <strong>{item.name}</strong><span>{item.businessType} · {item.city}</span><small>{item.ownerEmail}</small><em>{item.status==="PENDING"?t.pending:item.status==="INFO_REQUIRED"?t.info:item.status==="APPROVED"?t.approved:t.rejected}</em>
     </button>)}</div>{!merchants.items.length&&<p className={styles.empty}>{t.empty}</p>}
@@ -95,7 +95,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
   </div>}
 
   {page==="offer-moderation"&&offers&&<section className={styles.panel}>
-   <div className={styles.tabs}><button className={!offerStatus?styles.activeTab:styles.tab} onClick={()=>{setOfferStatus("");setSelectedOffer(null);}}>{t.filter} · {t.all}</button>{offerStatuses.map(value=><button key={value} className={offerStatus===value?styles.activeTab:styles.tab} onClick={()=>{setOfferStatus(value);setSelectedOffer(null);}}>{value}</button>)}</div>
+   <div className={styles.tabs}><button className={!offerStatus?styles.activeTab:styles.tab} onClick={()=>{setLoading(true);setFailed(false);setOfferStatus("");setSelectedOffer(null);}}>{t.filter} · {t.all}</button>{offerStatuses.map(value=><button key={value} className={offerStatus===value?styles.activeTab:styles.tab} onClick={()=>{setLoading(true);setFailed(false);setOfferStatus(value);setSelectedOffer(null);}}>{value}</button>)}</div>
    <div className={styles.offerTable}><table><thead><tr><th>{t.offer}</th><th>{t.shop}</th><th>{t.price}</th><th>{t.foodInfo}</th><th>{t.reports}</th><th>{t.status}</th></tr></thead><tbody>
     {offers.items.map(item=><tr key={item.id} className={selectedOffer?.id===item.id?styles.activeOffer:""} onClick={()=>{setSelectedOffer(item);setReason("");}}>
       <td><strong>{item.title}</strong><small>{item.city}</small></td><td>{item.shopName}</td><td>{money(item.priceMinor,locale)} / {item.originalPriceMinor?money(item.originalPriceMinor,locale):"—"}</td><td><span className={styles.pill}>{item.allergensStatus==="UNKNOWN"?t.hiddenAllergens:(item.allergens||"Complete")}</span></td><td><span className={item.reportedCount>0?styles.high:styles.status}>{item.reportedCount}</span></td><td><span className={styles.status}>{item.status}</span></td>
@@ -111,7 +111,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
 
   {page==="support-cases"&&cases&&<div className={styles.split}>
    <section className={styles.panel}>
-    <div className={styles.tabs}>{[["OPEN",t.open],["ESCALATED",t.high],["WAITING_REPLY",t.waiting],["RESOLVED",t.resolved]].map(([value,label])=><button key={value} className={caseStatus===value?styles.activeTab:styles.tab} onClick={()=>{setCaseStatus(value);setSelectedCase(null);}}>{label}</button>)}</div>
+    <div className={styles.tabs}>{[["OPEN",t.open],["ESCALATED",t.high],["WAITING_REPLY",t.waiting],["RESOLVED",t.resolved]].map(([value,label])=><button key={value} className={caseStatus===value?styles.activeTab:styles.tab} onClick={()=>{setLoading(true);setFailed(false);setCaseStatus(value);setSelectedCase(null);}}>{label}</button>)}</div>
     <div className={styles.list}>{cases.items.map(item=><button key={item.reference} className={selectedCase?.summary.reference===item.reference?styles.selectedRow:styles.listRow} onClick={()=>void loadCase(item.reference)}>
       <strong>{item.subject}</strong><span>{item.category} · {dateTime(item.createdAt,locale)}</span><small>{item.merchantName||item.reservationReference||item.reference}</small><em>{item.priority}</em>
     </button>)}</div>{!cases.items.length&&<p className={styles.empty}>{t.empty}</p>}
@@ -138,7 +138,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     <label>{t.to}<input type="date" value={auditTo} onChange={e=>setAuditTo(e.target.value)}/></label>
     <label>{t.action}<input value={auditAction} onChange={e=>setAuditAction(e.target.value)} placeholder={t.filter}/></label>
     <label>{t.result}<select value={auditResult} onChange={e=>setAuditResult(e.target.value)}><option value="">{t.filter}</option><option value="SUCCESS">{t.success}</option><option value="DENIED">{t.denied}</option></select></label>
-    <button className={styles.neutral} onClick={()=>setReload(v=>v+1)}>{t.filter}</button>
+    <button className={styles.neutral} onClick={()=>{setLoading(true);setFailed(false);setReload(v=>v+1);}}>{t.filter}</button>
    </div>
    <p className={styles.hint}>🔒 {t.immutable}</p>
    <div className={styles.offerTable}><table><thead><tr><th>{t.today} / REF</th><th>{t.person}</th><th>{t.action}</th><th>{t.record}</th><th>{t.reason}</th><th>{t.result}</th></tr></thead><tbody>

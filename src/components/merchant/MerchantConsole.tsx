@@ -47,14 +47,14 @@ export function MerchantConsole({locale,page,shop}:{locale:SiteLocale;page:PageK
  const [message,setMessage]=useState(""); const [working,setWorking]=useState(false); const [email,setEmail]=useState("");
  const [permissions,setPermissions]=useState({canValidatePickups:true,canViewOrders:true,canManageOffers:false});
  const [from,setFrom]=useState(""); const [to,setTo]=useState("");
- const range=useMemo(()=>{const end=to||new Date().toISOString().slice(0,10);const start=from||new Date(Date.now()-6*86400000).toISOString().slice(0,10);return {from:start,to:end};},[from,to]);
+ const range=useMemo(()=>({from,to}),[from,to]);
 
- useEffect(()=>{let active=true;setLoading(true);setFailed(false);setMessage("");
+ useEffect(()=>{let active=true;
   const load=async()=>{try{
-   if(page==="dashboard"){const d=await api.get<Dashboard>("/merchants/me/workspace");if(active)setDashboard(d);}
-   else if(page==="orders"){const d=await api.get<Order[]>("/merchants/me/orders?filter="+filter);if(active)setOrders(d);}
-   else if(page==="staff"){const d=await api.get<Staff[]>("/merchants/me/staff");if(active)setStaff(d);}
-   else{const d=await api.get<Sales>("/merchants/me/sales?from="+range.from+"&to="+range.to);if(active)setSales(d);}
+   if(page==="dashboard"){const d=await api.get<Dashboard>("/merchants/me/workspace");if(active){setDashboard(d);setFailed(false);}}
+   else if(page==="orders"){const d=await api.get<Order[]>("/merchants/me/orders?filter="+filter);if(active){setOrders(d);setFailed(false);}}
+   else if(page==="staff"){const d=await api.get<Staff[]>("/merchants/me/staff");if(active){setStaff(d);setFailed(false);}}
+   else{const query=new URLSearchParams();if(range.from)query.set("from",range.from);if(range.to)query.set("to",range.to);const d=await api.get<Sales>("/merchants/me/sales"+(query.size?"?"+query.toString():""));if(active){setSales(d);setFailed(false);}}
   }catch(e){if(active){setFailed(true);setMessage(e instanceof Error&&"status" in e&&(e as {status:number}).status===403?t.forbidden:t.error);}}
   finally{if(active)setLoading(false);}};
   void load();return()=>{active=false;};
@@ -67,12 +67,12 @@ export function MerchantConsole({locale,page,shop}:{locale:SiteLocale;page:PageK
  async function updateStaff(member:Staff,patch:Partial<Staff>){setWorking(true);const next={canValidatePickups:patch.canValidatePickups??member.canValidatePickups,canViewOrders:patch.canViewOrders??member.canViewOrders,canManageOffers:patch.canManageOffers??member.canManageOffers};
   try{await api.put("/merchants/me/staff/"+member.userId,next);setMessage(t.saved);setReload(v=>v+1);}catch{setMessage(t.error);}finally{setWorking(false);}}
  async function removeStaff(member:Staff){if(!window.confirm(t.removeConfirm))return;setWorking(true);try{const res=await fetch("/api/bff/merchants/me/staff/"+member.userId,{method:"DELETE",credentials:"same-origin"});if(!res.ok)throw new Error();setMessage(t.saved);setReload(v=>v+1);}catch{setMessage(t.error);}finally{setWorking(false);}}
- async function exportCsv(){setWorking(true);try{const res=await fetch("/api/bff/merchants/me/sales/export?from="+range.from+"&to="+range.to,{credentials:"same-origin",cache:"no-store"});if(!res.ok)throw new Error();const blob=await res.blob();const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="kulha-sales.csv";a.click();URL.revokeObjectURL(url);}catch{setMessage(t.error);}finally{setWorking(false);}}
+ async function exportCsv(){setWorking(true);try{const query=new URLSearchParams();if(range.from)query.set("from",range.from);if(range.to)query.set("to",range.to);const res=await fetch("/api/bff/merchants/me/sales/export"+(query.size?"?"+query.toString():""),{credentials:"same-origin",cache:"no-store"});if(!res.ok)throw new Error();const blob=await res.blob();const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="kulha-sales.csv";a.click();URL.revokeObjectURL(url);}catch{setMessage(t.error);}finally{setWorking(false);}}
 
  const isOwner=state.status==="authenticated"&&(state.user.roles.includes("MERCHANT")||state.user.roles.includes("MERCHANT_OWNER"));
  const title=page==="dashboard"?t.dashboard:page==="orders"?t.orders:page==="staff"?t.staff:t.salesTitle;
  if(loading)return <main className={styles.page} dir={locale==="ar"?"rtl":"ltr"}><div className={styles.skeleton}/><div className={styles.skeletonGrid}><i/><i/><i/><i/></div><div className={styles.skeletonPanel}/></main>;
- if(failed)return <main className={styles.page} dir={locale==="ar"?"rtl":"ltr"}><div className={styles.alert}>{message}<button onClick={()=>setReload(v=>v+1)}>{t.retry}</button></div></main>;
+ if(failed)return <main className={styles.page} dir={locale==="ar"?"rtl":"ltr"}><div className={styles.alert}>{message}<button onClick={()=>{setLoading(true);setFailed(false);setReload(v=>v+1);}}>{t.retry}</button></div></main>;
 
  return <main className={styles.page} dir={locale==="ar"?"rtl":"ltr"}>
   <header className={styles.heading}><div><p className={styles.kicker}>{shop?.name||dashboard?.shopName||"KULHA! · SHOP SPACE"}{(shop?.city||dashboard?.city)?" · "+(shop?.city||dashboard?.city):""}</p>
@@ -98,7 +98,7 @@ export function MerchantConsole({locale,page,shop}:{locale:SiteLocale;page:PageK
     <div className={styles.duplicatePanel}><span className={styles.duplicateIcon}>▢</span><h2>{t.duplicateYesterday}</h2><p>{t.duplicateBody}</p><button disabled={working||dashboard.offers.length===0} onClick={()=>void duplicate(dashboard.offers[0].id)}>{t.duplicateYesterday}</button></div>
    </section>
   </>}
-  {page==="orders"&&<><div className={styles.filters}>{([["ALL",t.all],["TO_COLLECT",t.toCollect],["DONE",t.done]] as [string,string][]).map(([value,label])=><button key={value} className={filter===value?styles.filterActive:styles.filter} onClick={()=>setFilter(value)}>{label}</button>)}</div><section className={styles.panel}><OrdersTable rows={orders} locale={locale} t={t} onValidate/></section></>}
+  {page==="orders"&&<><div className={styles.filters}>{([["ALL",t.all],["TO_COLLECT",t.toCollect],["DONE",t.done]] as [string,string][]).map(([value,label])=><button key={value} className={filter===value?styles.filterActive:styles.filter} onClick={()=>{setLoading(true);setFailed(false);setFilter(value);}}>{label}</button>)}</div><section className={styles.panel}><OrdersTable rows={orders} locale={locale} t={t} onValidate/></section></>}
   {page==="staff"&&(!isOwner?<div className={styles.alert}>{t.forbidden}</div>:<>
    <section className={styles.panel}><div className={styles.panelHead}><h2>{t.team} · {staff.length}</h2><p>{t.accessNote}</p></div>
     {!staff.length?<p className={styles.empty}>{t.noStaff}</p>:<div className={styles.staffList}>{staff.map(member=><article key={member.userId} className={styles.staffRow}>
@@ -119,7 +119,7 @@ export function MerchantConsole({locale,page,shop}:{locale:SiteLocale;page:PageK
    </form><section className={styles.panel}><h2>{t.role}</h2><div className={styles.roleGrid}><p><strong>{t.owner}</strong><span>{t.permissionPickup} · {t.permissionOrders} · {t.permissionOffers} · {t.sales}</span></p><p><strong>{t.staff}</strong><span>{t.permissionPickup} · {t.permissionOrders}</span></p></div></section></div>
   </>)}
   {page==="sales"&&sales&&<>
-   <div className={styles.salesToolbar}><div><label>{t.date}<input type="date" value={from} onChange={e=>setFrom(e.target.value)}/></label><label>{t.toCollect}<input type="date" value={to} onChange={e=>setTo(e.target.value)}/></label></div><button className={styles.primaryAction} disabled={working} onClick={()=>void exportCsv()}>{t.export}</button></div>
+   <div className={styles.salesToolbar}><div><label>{t.date}<input type="date" value={from} onChange={e=>{setLoading(true);setFailed(false);setFrom(e.target.value);}}/></label><label>{t.toCollect}<input type="date" value={to} onChange={e=>{setLoading(true);setFailed(false);setTo(e.target.value);}}/></label></div><button className={styles.primaryAction} disabled={working} onClick={()=>void exportCsv()}>{t.export}</button></div>
    <section className={styles.metrics}><article><span>{t.basketsCollected}</span><strong>{sales.basketsCollected}</strong><small>{t.last7}</small></article><article><span>{t.salesMad}</span><strong>{money(sales.salesMinor,locale)}</strong><small>{t.salesNote}</small></article><article><span>{t.cancelled}</span><strong>{sales.cancelled}</strong><small>{t.orders}</small></article><article><span>{t.notCollected}</span><strong>{sales.notCollected}</strong><small>{t.orders}</small></article></section>
    <section className={styles.panel}><h2>{t.byDay}</h2>{sales.daily.length===0?<p className={styles.empty}>{t.noSales}</p>:<div className={styles.chart}>{sales.daily.map(d=><div className={styles.chartBar} key={d.date}><strong>{money(d.amountMinor,locale)}</strong><span style={{height:Math.max(6,d.amountMinor/Math.max(1,...sales.daily.map(x=>x.amountMinor))*150)+"px"}}/><small>{new Intl.DateTimeFormat(locale==="ar"?"ar-MA":locale==="en"?"en-MA":"fr-MA",{timeZone:"Africa/Casablanca",weekday:"short"}).format(new Date(d.date+"T12:00:00"))}</small></div>)}</div>}</section>
    <section className={styles.panel}><h2>{t.latest}</h2><div className={styles.tableWrap}><table className={styles.table}><thead><tr><th>{t.date}</th><th>{t.reference}</th><th>{t.basket}</th><th>{t.quantity}</th><th>{t.amount}</th><th>{t.status}</th></tr></thead><tbody>
