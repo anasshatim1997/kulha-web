@@ -15848,3 +15848,15 @@ body:has(.kulha-reservation-viewport) > main { min-height:0; overflow:visible; }
   body:has(> .ws-sidebar-merchant) .mw-shell > .mw-offer-editor-layout > .mw-form { max-height: none; overflow: visible; }
 }
 html, body { overflow-y: auto; }
+
+/* Workspace account controls belong in the top bar, not the navigation rail. */
+.ws-topbar{justify-content:flex-end;gap:14px}
+.ws-top-user{display:inline-flex;align-items:center;gap:9px;min-width:0}
+.ws-top-identity{display:grid;gap:2px;min-width:0}
+.ws-top-identity strong{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#173c2c;font-size:12px;font-weight:950}
+.ws-top-identity small{color:#728075;font-size:10px;font-weight:750}
+.ws-top-lang select{height:38px;min-width:66px;padding:0 11px;border:1px solid #e3dac8;border-radius:10px;background:#fff;color:#173c2c;font:inherit;font-size:12px;font-weight:900}
+.ws-top-signout{height:38px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 13px;border:1px solid #e3dac8;border-radius:10px;background:#fff;color:#385344;font:inherit;font-size:12px;font-weight:850;cursor:pointer}
+.ws-top-signout:hover{border-color:#c8d4ca;background:#f2f5ef}
+.ws-top-lang select:focus-visible,.ws-top-signout:focus-visible{outline:3px solid #fdbe2e;outline-offset:2px}
+@media(max-width:899px){.ws-topbar{position:sticky;inset:auto;height:auto;padding:8px 14px;display:flex;flex-wrap:wrap;background:#fffdf8;border-bottom:1px solid #ebe3d3}.ws-top-identity strong{max-width:120px}}
