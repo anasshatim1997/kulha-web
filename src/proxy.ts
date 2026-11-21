@@ -41,6 +41,18 @@ export function proxy(request: NextRequest) {
       ? "en"
       : "fr");
   forwardedHeaders.set("x-kulha-locale", pageLocale);
+
+  // French is the canonical unprefixed locale. Resolve those public page URLs
+  // to the [locale] route segment internally without changing the browser URL.
+  const isLocalizedPath = /^\/(?:en|ar)(?:\/|$)/.test(pathname);
+  const isInternalPath = /^\/(?:api|_next|_vercel)(?:\/|$)/.test(pathname);
+  const isFilePath = /\.[^/]+$/.test(pathname);
+  if (!isLocalizedPath && !isInternalPath && !isFilePath) {
+    const target = request.nextUrl.clone();
+    target.pathname = pathname === "/" ? "/fr" : `/fr${pathname}`;
+    return secure(NextResponse.rewrite(target, { request: { headers: forwardedHeaders } }), request);
+  }
+
   return secure(NextResponse.next({ request: { headers: forwardedHeaders } }), request);
 }
 

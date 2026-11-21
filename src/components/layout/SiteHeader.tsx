@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ClipboardList, LayoutDashboard, MapPin, Package, ScanLine, Search } from "lucide-react";
+import { Bell, ClipboardList, LayoutDashboard, MapPin, Package, ScanLine, Search } from "lucide-react";
 import { useSession } from "@/components/session/SessionProvider";
 import { Button, LinkButton } from "@/components/ui/Button";
 import { isCustomerAccountPath, isMerchantWorkspacePath, localeFromPath, localePath, shouldUseCustomerWorkspace, switchLocalePath } from "@/lib/navigation";
 import { siteCopy, type SiteLocale } from "@/lib/i18n/site-copy";
 import { Logo } from "./Logo";
+import { api } from "@/lib/api/client";
 
 const localeOptions: { value: SiteLocale; label: string }[] = [
   { value: "ar", label: "AR" }, { value: "fr", label: "FR" }, { value: "en", label: "EN" },
@@ -19,6 +20,7 @@ export function SiteHeader() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const { state, signOut } = useSession();
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const locale = localeFromPath(pathname) as SiteLocale;
   const copy = siteCopy[locale];
   const links = [
@@ -28,6 +30,22 @@ export function SiteHeader() {
     [copy.nav.shops, localePath(locale, "/for-shops"), "nav-shop-link"],
   ] as const;
   const home = localePath(locale, "/");
+
+  useEffect(() => {
+    if (state.status !== "authenticated") return;
+    let current = true;
+    const refreshUnread = () => {
+      api.get<{ count: number }>("/notifications/unread-count")
+        .then(result => { if (current) setUnreadNotifications(result.count); })
+        .catch(() => { if (current) setUnreadNotifications(0); });
+    };
+    refreshUnread();
+    window.addEventListener("kulha:notifications-updated", refreshUnread);
+    return () => {
+      current = false;
+      window.removeEventListener("kulha:notifications-updated", refreshUnread);
+    };
+  }, [state.status, pathname]);
 
   useEffect(() => {
     document.documentElement.lang = copy.localeTag;
@@ -69,6 +87,8 @@ export function SiteHeader() {
     const mapHref = localePath(locale, "/offers/map");
     const reservationsHref = localePath(locale, "/reservations");
     const customerAccountHref = localePath(locale, "/account");
+    const notificationsHref = localePath(locale, "/notifications");
+    const onNotifications = /^\/(?:(?:en|ar)\/)?notifications(?:\/|$)/.test(pathname);
     const onMap = /^\/(?:(?:en|ar)\/)?offers\/map(?:\/|$)/.test(pathname);
     const onReservations = /^\/(?:(?:en|ar)\/)?reservations(?:\/|$)/.test(pathname);
     const onOffers = /^\/(?:(?:en|ar)\/)?offers(?:\/|$)/.test(pathname) && !onMap;
@@ -80,6 +100,7 @@ export function SiteHeader() {
       map: locale === "ar" ? "الخريطة" : locale === "en" ? "Map" : "Carte",
       reservations: locale === "ar" ? "حجوزاتي" : locale === "en" ? "My reservations" : "Mes réservations",
       profile: locale === "ar" ? "ملفي" : locale === "en" ? "Profile" : "Mon profil",
+      notifications: locale === "ar" ? "الإشعارات" : locale === "en" ? "Notifications" : "Notifications",
     };
     const switchLanguage = (value: SiteLocale) => {
       window.dispatchEvent(new Event("kulha:navigation-start"));
@@ -102,6 +123,10 @@ export function SiteHeader() {
                   {localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
                 </select>
               </label>
+              <Link href={notificationsHref} aria-label={labels.notifications} title={labels.notifications} aria-current={onNotifications ? "page" : undefined} className="customer-notification-link">
+                <Bell size={20} strokeWidth={2.1} />
+                {state.status === "authenticated" && unreadNotifications > 0 && <span className="customer-notification-count">{unreadNotifications > 9 ? "9+" : unreadNotifications}</span>}
+              </Link>
               <Link href={customerAccountHref} aria-label={labels.profile} title={labels.profile}
                 aria-current={onAccount ? "page" : undefined}
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#e7dac4] bg-[#fdbe2e] text-sm font-black text-[#073324]">
