@@ -3,11 +3,14 @@ import { notFound } from "next/navigation";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { OfferMapPage } from "@/components/offers/OfferMapPage";
 
-const locales: SiteLocale[] = ["en", "ar"];
+const locales: SiteLocale[] = ["fr", "en", "ar"];
 export const dynamic = "force-dynamic";
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  return { title: locale === "ar" ? "خريطة المتاجر | KULHA!" : "Store map | KULHA!" };
+  return {
+    title: locale === "ar" ? "خريطة المتاجر | KULHA!" : locale === "fr" ? "Carte des commerces | KULHA!" : "Store map | KULHA!",
+  };
 }
 
 export default async function LocalizedOffersMapRoute({ params, searchParams }: {
