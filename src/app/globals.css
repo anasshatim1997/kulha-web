@@ -15860,3 +15860,57 @@ html, body { overflow-y: auto; }
 .ws-top-signout:hover{border-color:#c8d4ca;background:#f2f5ef}
 .ws-top-lang select:focus-visible,.ws-top-signout:focus-visible{outline:3px solid #fdbe2e;outline-offset:2px}
 @media(max-width:899px){.ws-topbar{position:sticky;inset:auto;height:auto;padding:8px 14px;display:flex;flex-wrap:wrap;background:#fffdf8;border-bottom:1px solid #ebe3d3}.ws-top-identity strong{max-width:120px}}
+
+
+/* Timed marketplace nudge: appears after the visitor has settled into browsing. */
+.kulha-notify-prompt {
+  position: fixed;
+  z-index: 120;
+  inset-inline-end: 28px;
+  inset-block-end: 26px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  width: min(430px, calc(100vw - 32px));
+  padding: 19px 48px 19px 19px;
+  border: 1px solid rgb(255 255 255 / 13%);
+  border-radius: 22px;
+  background: #073324;
+  color: #fffdf8;
+  box-shadow: 0 18px 55px rgb(12 35 25 / 24%), 0 3px 10px rgb(12 35 25 / 12%);
+  animation: kulha-notify-enter .48s cubic-bezier(.2,.8,.2,1) both;
+}
+[dir="rtl"] .kulha-notify-prompt { padding: 19px 19px 19px 48px; }
+.kulha-notify-prompt.is-closing { pointer-events: none; animation: kulha-notify-exit .34s ease-in both; }
+.kulha-notify-prompt-icon {
+  display: grid;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 14px;
+  background: rgb(253 190 46 / 15%);
+  color: #fdbe2e;
+}
+.kulha-notify-prompt-icon svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.kulha-notify-prompt-copy { min-width: 0; flex: 1; }
+.kulha-notify-prompt-copy h2 { margin: 0; color: #fffdf8; font-size: 16px; font-weight: 950; line-height: 1.35; }
+.kulha-notify-prompt-copy p { margin: 5px 0 13px; color: #c7d7cd; font-size: 13px; font-weight: 650; line-height: 1.5; }
+.kulha-notify-prompt-copy a { display: inline-flex; min-height: 38px; align-items: center; justify-content: center; padding: 0 16px; border-radius: 12px; background: #fdbe2e; color: #073324; font-size: 12px; font-weight: 950; text-decoration: none; transition: transform .16s ease, background .16s ease; }
+.kulha-notify-prompt-copy a:hover { transform: translateY(-1px); background: #ffd15d; }
+.kulha-notify-prompt-close { position: absolute; inset-block-start: 11px; inset-inline-end: 11px; display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid rgb(255 255 255 / 18%); border-radius: 9px; background: transparent; color: #d9e5dc; cursor: pointer; }
+.kulha-notify-prompt-close svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.kulha-notify-prompt-close:hover { background: rgb(255 255 255 / 10%); color: #fff; }
+.kulha-notify-prompt a:focus-visible, .kulha-notify-prompt button:focus-visible { outline: 3px solid #fdbe2e; outline-offset: 3px; }
+@keyframes kulha-notify-enter { from { opacity: 0; transform: translate3d(0, 18px, 0) scale(.97); } to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); } }
+@keyframes kulha-notify-exit { to { opacity: 0; transform: translate3d(0, 14px, 0) scale(.98); } }
+@media (max-width: 600px) {
+  .kulha-notify-prompt { inset-inline: 12px; inset-block-end: 14px; width: auto; gap: 11px; padding: 16px 43px 16px 14px; border-radius: 18px; }
+  [dir="rtl"] .kulha-notify-prompt { padding: 16px 14px 16px 43px; }
+  .kulha-notify-prompt-icon { flex-basis: 36px; width: 36px; height: 36px; border-radius: 12px; }
+  .kulha-notify-prompt-copy h2 { font-size: 14px; }
+  .kulha-notify-prompt-copy p { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kulha-notify-prompt, .kulha-notify-prompt.is-closing { animation-duration: .01ms; }
+}
