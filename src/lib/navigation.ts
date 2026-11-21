@@ -22,7 +22,7 @@ export function localePath(locale: SiteLocale, path: string): string {
 }
 /** Root-level French auth pages are defined in src/app/(auth), not under [locale]. */
 export function isCanonicalFrenchAuthPath(pathname: string): boolean {
-  return /^\\/(?:login|register|forgot-password|reset-password|verify-email)(?:\\/|$)/.test(pathname);
+  return /^\/(?:login|register|forgot-password|reset-password|verify-email)(?:\/|$)/.test(pathname);
 }
 
 export function switchLocalePath(pathname: string, locale: SiteLocale): string {
