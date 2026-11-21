@@ -22,7 +22,7 @@ import { localeFromPath, localePath } from "@/lib/navigation";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 
 type BusinessType = "BAKERY" | "CAFE" | "RESTAURANT" | "SUPERMARKET" | "OTHER";
-type MerchantStatus = "PENDING" | "APPROVED" | "REJECTED" | "SUSPENDED";
+type MerchantStatus = "PENDING" | "APPROVED" | "REJECTED" | "INFO_REQUIRED" | "SUSPENDED";
 type MerchantRecord = {
     id: string;
     name: string;
@@ -472,7 +472,7 @@ export function MerchantApplicationPanel() {
         return <MerchantConsole locale={locale} page="dashboard" shop={{ name: merchant.name, city: merchant.city }} />;
     }
 
-    if (merchant && merchant.status !== "REJECTED") {
+    if (merchant && merchant.status !== "REJECTED" && merchant.status !== "INFO_REQUIRED") {
         const suspended = merchant.status === "SUSPENDED";
         return (
             <Shell key="pending" locale={locale}>
@@ -521,9 +521,9 @@ export function MerchantApplicationPanel() {
 
             <div className={styles.layout}>
                 <section className={styles.card} aria-labelledby="merchant-form-title">
-                    {merchant?.status === "REJECTED" && (
-                        <Alert tone="error" title={t.rejectedTitle}>
-                            {t.rejectedBody}{merchant.decisionReason ? ` ${t.reason}: ${merchant.decisionReason}` : ""}
+                    {(merchant?.status === "REJECTED" || merchant?.status === "INFO_REQUIRED") && (
+                        <Alert tone="error" title={merchant.status === "INFO_REQUIRED" ? t.infoRequiredTitle : t.rejectedTitle}>
+                            {merchant.status === "INFO_REQUIRED" ? t.infoRequiredBody : t.rejectedBody}{merchant.decisionReason ? ` ${t.reason}: ${merchant.decisionReason}` : ""}
                         </Alert>
                     )}
                     {fieldError && <Alert tone="error">{fieldError}</Alert>}
