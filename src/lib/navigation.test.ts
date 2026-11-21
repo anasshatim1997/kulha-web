@@ -35,6 +35,11 @@ describe("locale navigation", () => {
     expect(switchLocalePath("/en/how-it-works", "ar")).toBe("/ar/how-it-works");
     expect(switchLocalePath("/ar/register", "fr")).toBe("/register");
     expect(switchLocalePath("/categories", "en")).toBe("/en/categories");
+    expect(switchLocalePath("/login", "en")).toBe("/en/login");
+    expect(switchLocalePath("/en/register", "ar")).toBe("/ar/register");
+    expect(switchLocalePath("/forgot-password", "en")).toBe("/en/forgot-password");
+    expect(switchLocalePath("/reset-password", "ar")).toBe("/ar/reset-password");
+    expect(switchLocalePath("/verify-email", "en")).toBe("/en/verify-email");
   });
   it("keeps the account page, which exists in every language", () => {
     expect(switchLocalePath("/account", "en")).toBe("/en/account");
