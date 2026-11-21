@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { requireMerchantPage } from "@/lib/auth/server-merchant";
 import { OfferForm } from "@/components/merchant/offers/OfferForm";
 import { offerCopy } from "@/lib/i18n/offer-copy";
-const locales = ["en", "ar"];
+const locales = ["fr", "en", "ar"];
 export default async function NewOfferPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params; if (!locales.includes(locale)) notFound();
   await requireMerchantPage(locale); const t = offerCopy(locale);

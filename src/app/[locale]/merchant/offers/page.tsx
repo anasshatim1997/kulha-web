@@ -3,7 +3,7 @@ import { requireMerchantPage } from "@/lib/auth/server-merchant";
 import { OfferList } from "@/components/merchant/offers/OfferList";
 import { offerCopy } from "@/lib/i18n/offer-copy";
 
-const locales = ["en", "ar"];
+const locales = ["fr", "en", "ar"];
 export default async function MerchantOffersPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!locales.includes(locale)) notFound();

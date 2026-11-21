@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Bell, ClipboardList, LayoutDashboard, MapPin, Package, ScanLine, Search } from "lucide-react";
 import { useSession } from "@/components/session/SessionProvider";
 import { Button, LinkButton } from "@/components/ui/Button";
-import { isCustomerAccountPath, isMerchantWorkspacePath, localeFromPath, localePath, shouldUseCustomerWorkspace, switchLocalePath } from "@/lib/navigation";
+import { isAdminWorkspacePath, isCustomerAccountPath, isMerchantWorkspacePath, localeFromPath, localePath, shouldUseCustomerWorkspace, switchLocalePath } from "@/lib/navigation";
 import { siteCopy, type SiteLocale } from "@/lib/i18n/site-copy";
 import { Logo } from "./Logo";
 import { api } from "@/lib/api/client";
@@ -65,12 +65,14 @@ export function SiteHeader() {
   }, [open]);
 
   const authenticated = state.status === "authenticated";
-  const accountHref = state.status === "authenticated" && state.user.roles.includes("MERCHANT")
+  const accountHref = state.status === "authenticated" && state.user.roles.some(role => ["MERCHANT", "MERCHANT_OWNER", "MERCHANT_STAFF"].includes(role))
     ? localePath(locale, "/merchant/dashboard")
     : localePath(locale, "/account");
   const isAuthPage = /\/(login|register(?:\/merchant)?|forgot-password|reset-password|verify-email)\/?$/.test(pathname);
   const isWorkspace = isMerchantWorkspacePath(pathname);
-  const isMerchant = state.status === "authenticated" && state.user.roles.includes("MERCHANT");
+  const isAdminWorkspace = isAdminWorkspacePath(pathname);
+  const isMerchant = state.status === "authenticated" && state.user.roles.some(role => ["MERCHANT", "MERCHANT_OWNER", "MERCHANT_STAFF"].includes(role));
+  const isMerchantOwner = state.status === "authenticated" && state.user.roles.some(role => ["MERCHANT", "MERCHANT_OWNER"].includes(role));
   const isCustomerWorkspace = state.status === "authenticated"
     ? shouldUseCustomerWorkspace(pathname, state.user.roles)
     : isCustomerAccountPath(pathname);
@@ -144,11 +146,44 @@ export function SiteHeader() {
     );
   }
 
+
+  if (isAdminWorkspace) {
+    const adminLinks = [
+      [locale === "ar" ? "مراجعة المتاجر" : locale === "en" ? "Merchant review" : "Revue des commerces", localePath(locale, "/admin/merchant-review"), /\/admin\/merchant-review(?:\/|$)/.test(pathname), LayoutDashboard],
+      [locale === "ar" ? "مراقبة العروض" : locale === "en" ? "Offer moderation" : "Modération des offres", localePath(locale, "/admin/offer-moderation"), /\/admin\/offer-moderation(?:\/|$)/.test(pathname), Package],
+      [locale === "ar" ? "حالات الدعم" : locale === "en" ? "Support cases" : "Dossiers support", localePath(locale, "/admin/support-cases"), /\/admin\/support-cases(?:\/|$)/.test(pathname), ClipboardList],
+      [locale === "ar" ? "سجل التدقيق" : locale === "en" ? "Audit log" : "Journal d’audit", localePath(locale, "/admin/audit-log"), /\/admin\/audit-log(?:\/|$)/.test(pathname), ScanLine],
+    ] as const;
+    return (
+      <header className="site-header site-header-workspace site-header-admin" dir={copy.dir}>
+        <div className="nav-shell">
+          <Link href={home} aria-label="Kulha!" className="brand-link"><Logo /></Link>
+          <nav className="workspace-nav" aria-label={locale === "ar" ? "مساحة الإدارة" : locale === "en" ? "Admin navigation" : "Navigation administration"}>
+            {adminLinks.map(([label, href, active, Icon]) => <Link key={href} href={href} aria-current={active ? "page" : undefined}><span className={active ? "workspace-nav-icon is-active" : "workspace-nav-icon"} aria-hidden="true"><Icon size={19} strokeWidth={2.15}/></span>{label}</Link>)}
+          </nav>
+          <div className="workspace-actions">
+            <label className="language-select-label"><span className="sr-only">{copy.nav.language}</span>
+              <select aria-label={copy.nav.language} value={locale} onChange={(event) => { window.dispatchEvent(new Event("kulha:navigation-start")); router.push(switchLocalePath(pathname, event.target.value as SiteLocale)); }}>
+                {localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+              </select>
+            </label>
+            {authenticated && <button type="button" className="workspace-signout" onClick={() => void signOut()}>{copy.nav.signOut}</button>}
+          </div>
+        </div>
+      </header>
+    );
+  }
+
   if (isWorkspace) {
     const workspaceLinks = [
       [locale === "ar" ? "لوحة المتجر" : locale === "en" ? "Dashboard" : "Tableau de bord", localePath(locale, "/merchant/dashboard"), /\/merchant\/(dashboard|apply)\/?$/.test(pathname), LayoutDashboard],
       [locale === "ar" ? "عروضي" : locale === "en" ? "My offers" : "Mes offres", localePath(locale, "/merchant/offers"), /\/merchant\/offers/.test(pathname), Package],
-      [locale === "ar" ? "مسح الاستلام" : locale === "en" ? "Pickup scanner" : "Scanner de retrait", localePath(locale, "/merchant/reservations/scan"), /\/merchant\/reservations\/scan/.test(pathname), ScanLine],
+      [locale === "ar" ? "الطلبات" : locale === "en" ? "Orders" : "Commandes", localePath(locale, "/merchant/orders"), /\/merchant\/orders(?:\/|$)/.test(pathname), ClipboardList],
+      [locale === "ar" ? "مسح الاستلام" : locale === "en" ? "Pickup" : "Retrait", localePath(locale, "/merchant/reservations/scan"), /\/merchant\/reservations\/scan/.test(pathname), ScanLine],
+      ...(isMerchantOwner ? [
+        [locale === "ar" ? "الفريق" : locale === "en" ? "Staff" : "Équipe", localePath(locale, "/merchant/staff"), /\/merchant\/staff(?:\/|$)/.test(pathname), ClipboardList],
+        [locale === "ar" ? "المبيعات" : locale === "en" ? "Sales" : "Ventes", localePath(locale, "/merchant/sales"), /\/merchant\/sales(?:\/|$)/.test(pathname), LayoutDashboard],
+      ] as const : []),
     ] as const;
     return (
       <header className="site-header site-header-workspace" dir={copy.dir}>

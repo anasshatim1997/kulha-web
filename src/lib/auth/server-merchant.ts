@@ -6,7 +6,7 @@ import { backendRequest } from "./backend";
 
 type CurrentUser = { roles?: string[] };
 
-export async function requireMerchantPage(locale: string) {
+export async function requireMerchantPage(locale: string): Promise<boolean> {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get(ACCESS_COOKIE)?.value;
   if (!accessToken) redirect(localePath(locale as "fr" | "en" | "ar", "/login"));
@@ -18,5 +18,6 @@ export async function requireMerchantPage(locale: string) {
     user = null;
   }
   if (!user) redirect(localePath(locale as "fr" | "en" | "ar", "/login"));
-  if (!user.roles?.includes("MERCHANT")) redirect(localePath(locale as "fr" | "en" | "ar", "/merchant/dashboard"));
+  if (!user.roles?.some(role => ["MERCHANT", "MERCHANT_OWNER", "MERCHANT_STAFF"].includes(role))) redirect(localePath(locale as "fr" | "en" | "ar", "/merchant/dashboard"));
+  return user.roles.some(role => ["MERCHANT", "MERCHANT_OWNER"].includes(role));
 }

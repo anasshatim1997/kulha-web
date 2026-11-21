@@ -26,7 +26,10 @@ export function switchLocalePath(pathname: string, locale: SiteLocale): string {
   const supported = new Set(["how-it-works", "about", "categories", "faq", "for-shops", "pickup-policy", "contact", "terms", "privacy", "login", "register", "account", "notifications", "offers"]);
   if (parts[0] === "reservations" && parts.length >= 1) return localePath(locale, `/${parts.join("/")}`);
   if (parts[0] === "account" && parts.length === 2 && parts[1] === "notifications") return localePath(locale, "/account/notifications");
-  if (parts[0] === "merchant" && parts.length >= 2 && ["apply", "dashboard", "offers", "reservations"].includes(parts[1])) {
+  if (parts[0] === "merchant" && parts.length >= 2 && ["apply", "dashboard", "offers", "reservations", "orders", "staff", "sales"].includes(parts[1])) {
+    return localePath(locale, `/${parts.join("/")}`);
+  }
+  if (parts[0] === "admin" && parts.length === 2 && ["merchant-review", "offer-moderation", "support-cases", "audit-log"].includes(parts[1])) {
     return localePath(locale, `/${parts.join("/")}`);
   }
   if (parts[0] === "offers" && parts.length <= 3) return localePath(locale, `/${parts.join("/")}`);
@@ -36,6 +39,9 @@ export function switchLocalePath(pathname: string, locale: SiteLocale): string {
   if (parts.length > 1 || (parts.length === 1 && !supported.has(parts[0]))) return localePath(locale, "/");
   return localePath(locale, withoutPrefix);
 }
+export function isAdminWorkspacePath(pathname: string): boolean {
+  return /^\/(?:(?:en|ar)\/)?admin(?:\/|$)/.test(pathname);
+}
 export function isMerchantWorkspacePath(pathname: string): boolean {
   return /^\/(?:(?:en|ar)\/)?merchant(?:\/|$)/.test(pathname);
 }
@@ -43,13 +49,14 @@ export function isCustomerAccountPath(pathname: string): boolean {
   return /^\/(?:(?:en|ar)\/)?account\/?$/.test(pathname);
 }
 export function shouldUseCustomerWorkspace(pathname: string, roles: readonly string[]): boolean {
-  if (!roles.includes("CUSTOMER") || roles.includes("MERCHANT") || roles.includes("ADMIN")) return false;
+  if (!roles.includes("CUSTOMER") || roles.some(role => ["MERCHANT", "MERCHANT_OWNER", "MERCHANT_STAFF", "ADMIN", "SUPER_ADMIN", "MODERATOR", "SUPPORT"].includes(role))) return false;
   if (isMerchantWorkspacePath(pathname)) return false;
   if (/^\/(?:(?:en|ar)\/)?(?:login|register(?:\/merchant)?|forgot-password|reset-password|verify-email)\/?$/.test(pathname)) return false;
   return true;
 }
 export function defaultSignedInPath(locale: SiteLocale, roles: readonly string[]): string {
-  if (roles.includes("MERCHANT")) return localePath(locale, "/merchant/dashboard");
+  if (roles.some(role => ["ADMIN", "SUPER_ADMIN", "MODERATOR", "SUPPORT"].includes(role))) return localePath(locale, "/admin/merchant-review");
+  if (roles.some(role => ["MERCHANT", "MERCHANT_OWNER", "MERCHANT_STAFF"].includes(role))) return localePath(locale, "/merchant/dashboard");
   if (roles.includes("CUSTOMER")) return localePath(locale, "/offers");
   return localePath(locale, "/account");
 }
