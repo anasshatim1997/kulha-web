@@ -49,7 +49,7 @@ export function proxy(request: NextRequest) {
   const isFilePath = /\.[^/]+$/.test(pathname);
   // French auth screens are implemented in the root (auth) route group.
   // Rewriting them to /fr/... points to non-existent pages and causes 404s.
-  const isRootAuthRoute = /^\\/(?:login|register|forgot-password|reset-password|verify-email)(?:\\/|$)/.test(pathname);
+  const isRootAuthRoute = /^\/(?:login|register|forgot-password|reset-password|verify-email)(?:\/|$)/.test(pathname);
   // The root URL has its own French landing page at src/app/page.tsx.
   // Do not rewrite `/` to `/fr`: the [locale] landing route is reserved for
   // the explicitly prefixed English and Arabic pages.
