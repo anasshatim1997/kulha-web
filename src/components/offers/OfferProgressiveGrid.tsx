@@ -24,10 +24,11 @@ const copy = {
   ar: { showing: "عرض", of: "من", baskets: "سلة", more: "عرض المزيد من السلال", loading: "جارٍ التحميل…", error: "تعذر تحميل بقية السلال.", retry: "إعادة المحاولة" },
 } as const;
 
-export function OfferProgressiveGrid({ locale, initialPage, search }: {
+export function OfferProgressiveGrid({ locale, initialPage, search, initialPickupWindows }: {
   locale: SiteLocale;
   initialPage: PublicOfferPage;
   search: OfferSearch;
+  initialPickupWindows: Record<string, string>;
 }) {
   const t = copy[locale] ?? copy.en;
   const [items, setItems] = useState<PublicOffer[]>(initialPage.items);
@@ -79,7 +80,7 @@ export function OfferProgressiveGrid({ locale, initialPage, search }: {
         </div>
       )}
       <div className="kulha-offer-grid">
-        {items.map((offer) => <OfferCard key={offer.id} offer={offer} locale={locale} />)}
+        {items.map((offer) => <OfferCard key={offer.id} offer={offer} locale={locale} pickupWindowOverride={initialPickupWindows[offer.id]} />)}
       </div>
       {error && (
         <div className="kulha-progressive-error" role="alert">
