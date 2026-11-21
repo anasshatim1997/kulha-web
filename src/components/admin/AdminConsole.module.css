@@ -140,3 +140,22 @@
 @media(max-width:1100px){.split{grid-template-columns:1fr}.selectedOffer{grid-template-columns:1fr}}
 @media(max-width:899px){.topbar{position:static}}
 @media(max-width:680px){.page{padding:22px 14px 48px;gap:14px}.card{border-radius:18px}.facts{grid-template-columns:1fr}.segment{grid-template-columns:1fr}.cardFoot{flex-direction:column;align-items:stretch}.actionRow>*{flex:1 1 44%}.immutable{margin:0;width:100%}}
+
+/* Separate Outlook-style scrolling panes for merchant review and offer moderation. */
+.reviewWorkspace{height:min(680px,calc(100dvh - 250px));min-height:440px;grid-template-columns:minmax(280px,.78fr) minmax(0,1.22fr);align-items:stretch}
+.merchantPicker,.merchantDetails,.offerPicker,.offerDecision{min-height:0;max-height:100%;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#b9aa90 #f5f1e8}
+.merchantPicker{padding:12px}.merchantPicker .list{gap:7px}.merchantPicker .listRow,.merchantPicker .selectedRow{padding:15px 14px}
+.offerWorkspace{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(340px,.8fr);gap:18px;height:min(720px,calc(100dvh - 250px));min-height:500px;align-items:stretch}
+.offerPicker,.offerDecision{padding:20px;border:1px solid #eee4d1;border-radius:22px;background:#fffdf8;box-shadow:0 8px 28px #60491e0b}
+.offerPicker .tabs{position:sticky;top:-20px;z-index:2;padding:4px 0 14px;background:#fffdf8}
+.offerTable{min-width:0;overflow:auto}.offerTable table{width:100%;min-width:620px;border-collapse:collapse;font-size:13px}
+.offerTable th{position:sticky;top:0;z-index:1;text-align:start;padding:12px 10px;background:#f7f3e9;color:#637267;font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.offerTable td{padding:15px 10px;border-bottom:1px solid #eee8dd;vertical-align:middle}
+.offerTable td strong,.offerTable td small{display:block}.offerTable td strong{font-size:13px;font-weight:900}.offerTable td small{margin-top:4px;color:#7b867d;font-size:11px}
+.offerTable tbody tr{cursor:pointer}.offerTable tbody tr:hover{background:#f8f4e9}
+.offerDecision{display:flex;flex-direction:column;gap:15px}.offerEmpty{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#718075;text-align:center}.offerEmpty svg{color:#9aab9d}.offerEmpty strong{color:#073324;font-size:18px}.offerEmpty span{max-width:240px;font-size:13px;line-height:1.5}
+.merchantPicker::-webkit-scrollbar,.merchantDetails::-webkit-scrollbar,.offerPicker::-webkit-scrollbar,.offerDecision::-webkit-scrollbar{width:10px}
+.merchantPicker::-webkit-scrollbar-track,.merchantDetails::-webkit-scrollbar-track,.offerPicker::-webkit-scrollbar-track,.offerDecision::-webkit-scrollbar-track{background:#f5f1e8;border-radius:99px}
+.merchantPicker::-webkit-scrollbar-thumb,.merchantDetails::-webkit-scrollbar-thumb,.offerPicker::-webkit-scrollbar-thumb,.offerDecision::-webkit-scrollbar-thumb{background:#b9aa90;border:2px solid #f5f1e8;border-radius:99px}
+@media(max-width:1100px){.offerWorkspace{grid-template-columns:1fr;height:auto;min-height:0}.offerPicker,.offerDecision{max-height:620px}.reviewWorkspace{height:auto;min-height:0;grid-template-columns:1fr}.merchantPicker,.merchantDetails{max-height:560px}}
+@media(max-width:680px){.offerWorkspace{gap:12px}.offerPicker,.offerDecision{padding:14px}}
