@@ -11,6 +11,7 @@ import { Button, LinkButton } from "@/components/ui/Button";
 import { ApiError, api } from "@/lib/api/client";
 import { describeError } from "@/lib/api/errors";
 import { CustomerPreview, formatPreviewHours } from "@/components/merchant/shop-setup/CustomerPreview";
+import { MerchantConsole } from "@/components/merchant/MerchantConsole";
 import { SetupStepper } from "@/components/merchant/shop-setup/SetupStepper";
 import { WeekHoursEditor } from "@/components/merchant/shop-setup/WeekHoursEditor";
 import styles from "@/components/merchant/shop-setup/ShopSetup.module.css";
