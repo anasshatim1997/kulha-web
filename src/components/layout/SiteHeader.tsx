@@ -235,18 +235,6 @@ export function SiteHeader() {
             {isWorkspace && isMerchant && (
               <p className="ws-note"><strong>{l("متجر معتمد", "Approved shop", "Commerce approuvé")}</strong>{l("يمكنك نشر العروض واستقبال الحجوزات.", "You can publish offers and receive reservations.", "Vous pouvez publier des offres et recevoir des réservations.")}</p>
             )}
-            {isAdminWorkspace && user && (
-              <div className="ws-user"><strong>{displayName}</strong><span>{roleLabel}</span></div>
-            )}
-            <div className="ws-foot-actions">
-              <label className="ws-lang">
-                <span className="sr-only">{copy.nav.language}</span>
-                <select aria-label={copy.nav.language} value={locale} onChange={(event) => switchLanguage(event.target.value as SiteLocale)}>
-                  {localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                </select>
-              </label>
-              {authenticated && <button type="button" className="ws-signout" onClick={() => void signOut()}><LogOut size={15} strokeWidth={2} aria-hidden="true" />{copy.nav.signOut}</button>}
-            </div>
           </div>
         </aside>
         {isWorkspace && (
@@ -255,7 +243,9 @@ export function SiteHeader() {
               <Bell size={18} strokeWidth={2} />
               {unreadNotifications > 0 && <span className="ws-bell-count">{unreadNotifications > 9 ? "9+" : unreadNotifications}</span>}
             </Link>
-            <span className="ws-avatar" aria-hidden="true">{initial}</span>
+            <div className="ws-top-user"><span className="ws-avatar" aria-hidden="true">{initial}</span><span className="ws-top-identity"><strong>{displayName}</strong><small>{isAdminWorkspace ? roleLabel : shellInfo.shopName || l("مساحة المتجر", "Merchant", "Espace commerçant")}</small></span></div>
+            <label className="ws-top-lang"><span className="sr-only">{copy.nav.language}</span><select aria-label={copy.nav.language} value={locale} onChange={(event) => switchLanguage(event.target.value as SiteLocale)}>{localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+            {authenticated && <button type="button" className="ws-top-signout" onClick={() => void signOut()}><LogOut size={16} strokeWidth={1.9} aria-hidden="true" />{copy.nav.signOut}</button>}
           </div>
         )}
       </>
