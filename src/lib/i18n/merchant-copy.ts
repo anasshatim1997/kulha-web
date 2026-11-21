@@ -138,7 +138,7 @@ export const merchantCopy = {
     rejectedTitle: "Changes are required",
     rejectedBody: "Review the reason, update the details below, and submit your application again.",
     infoRequiredTitle: "More information is needed",
-    infoRequiredBody: "Review the requested information, update your application below, and submit it again."
+    infoRequiredBody: "Review the requested information, update your application below, and submit it again.",
     suspendedTitle: "Shop access suspended",
     suspendedBody: "Your shop permissions are suspended. Contact the KULHA! team for more information.",
     workspaceEyebrow: "YOUR BUSINESS SPACE",
@@ -239,7 +239,7 @@ export const merchantCopy = {
     rejectedTitle: "يلزم إجراء تعديلات",
     rejectedBody: "راجع سبب الرفض، وعدّل المعلومات أدناه، ثم أرسل الطلب مجدداً.",
     infoRequiredTitle: "نحتاج إلى معلومات إضافية",
-    infoRequiredBody: "راجع المعلومات المطلوبة، وحدّث ملف متجرك أدناه، ثم أرسل الطلب مجدداً."
+    infoRequiredBody: "راجع المعلومات المطلوبة، وحدّث ملف متجرك أدناه، ثم أرسل الطلب مجدداً.",
     suspendedTitle: "تم تعليق مساحة المتجر",
     suspendedBody: "تم تعليق صلاحيات متجرك. تواصل مع فريق KULHA! لمزيد من المعلومات.",
     workspaceEyebrow: "مساحة نشاطك التجاري",
