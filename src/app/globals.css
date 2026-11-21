@@ -15617,3 +15617,126 @@ body:has(.kulha-reservation-viewport) > main { min-height:0; overflow:visible; }
     align-items: center;
   }
 }
+
+
+/* Workspace shell: fixed admin/merchant rail, independently scrolling content. */
+@media (min-width: 900px) {
+  .site-header-workspace:not(.site-header-customer) {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 240px;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+    z-index: 100;
+    display: block;
+  }
+  .site-header-workspace:not(.site-header-customer) .nav-shell {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    max-height: 100dvh;
+    padding: 24px 14px 18px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 22px;
+    overflow: hidden;
+  }
+  .site-header-workspace:not(.site-header-customer) .brand-link {
+    flex: 0 0 auto;
+    align-self: flex-start;
+    margin-inline-start: 5px;
+  }
+  .site-header-workspace:not(.site-header-customer) .workspace-nav {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #d8cbb4 transparent;
+  }
+  .site-header-workspace:not(.site-header-customer) .workspace-nav a {
+    flex: 0 0 auto;
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 11px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    border-radius: 11px;
+    font-size: 14px;
+    line-height: 1.35;
+    white-space: normal;
+  }
+  .site-header-workspace:not(.site-header-customer) .workspace-actions {
+    flex: 0 0 auto;
+    width: 100%;
+    margin: auto 0 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 9px;
+  }
+  .site-header-workspace:not(.site-header-customer) .workspace-actions .language-select-label,
+  .site-header-workspace:not(.site-header-customer) .workspace-actions select,
+  .site-header-workspace:not(.site-header-customer) .workspace-signout {
+    width: 100%;
+  }
+  body:has(.site-header-workspace:not(.site-header-customer)) > #contenu,
+  body:has(.site-header-workspace:not(.site-header-customer)) > footer {
+    box-sizing: border-box;
+    width: calc(100% - 240px);
+    max-width: none;
+    min-width: 0;
+    margin-inline-start: 240px;
+  }
+  body:has(.site-header-workspace:not(.site-header-customer)) > #contenu {
+    flex: 1 0 auto;
+  }
+  body:has(.site-header-workspace:not(.site-header-customer)) > footer {
+    flex: 0 0 auto;
+  }
+  .admin-workspace-nav .admin-nav-icon {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    border: 1px solid #e7dfd1;
+    border-radius: 9px;
+    background: #f8f5ee;
+    color: #52685a;
+    transition: background .16s ease, color .16s ease, border-color .16s ease;
+  }
+  .admin-workspace-nav a[aria-current="page"] .admin-nav-icon {
+    border-color: #073324;
+    background: #073324;
+    color: #fdbe2e;
+  }
+  .admin-workspace-nav a:hover .admin-nav-icon {
+    border-color: #cbd8ce;
+    background: #edf3ed;
+    color: #073324;
+    transform: none;
+  }
+}
+@media (max-width: 899px) {
+  body:has(.site-header-workspace:not(.site-header-customer)) > #contenu,
+  body:has(.site-header-workspace:not(.site-header-customer)) > footer {
+    width: 100%;
+    margin-inline-start: 0;
+  }
+  .site-header-workspace:not(.site-header-customer) .workspace-nav {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+}
