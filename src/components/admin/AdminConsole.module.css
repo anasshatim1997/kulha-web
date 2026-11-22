@@ -3130,3 +3130,72 @@
         max-width: none;
     }
 }
+
+
+/* Support workspace: constrain min-content tracks and let action labels wrap.
+   At compact desktop widths the case action buttons were widening the body. */
+.supportWorkspace {
+    grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr);
+}
+.supportWorkspace > * {
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+}
+.caseDetail,
+.caseDetail * {
+    min-width: 0;
+}
+.caseDetail .detailHead > div {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.caseDetail .detailHead h2 {
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+.caseAssignment {
+    flex-wrap: wrap;
+    min-width: 0;
+}
+.caseAssignment > div {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: wrap;
+}
+.caseActions {
+    grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, auto);
+    min-width: 0;
+}
+.caseActions > * {
+    min-width: 0;
+    max-width: 100%;
+}
+.caseActions .primary,
+.caseActions .ghostBtn {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+@media (max-width: 1100px) and (min-width: 900px) {
+    .supportWorkspace {
+        gap: 14px;
+        grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr);
+    }
+    .caseDetail {
+        padding: 18px;
+    }
+    .caseReferenceCards {
+        gap: 8px;
+    }
+    .caseReferenceCards article {
+        padding: 10px;
+    }
+    .caseAssignment > div {
+        gap: 7px;
+    }
+    .caseAssignment .ghostBtn {
+        padding-inline: 10px;
+        white-space: normal;
+    }
+}
