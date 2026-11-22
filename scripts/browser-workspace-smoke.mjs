@@ -202,6 +202,14 @@ async function loginContext(browser, token, viewport = { width: 390, height: 844
   if (!cookies.some(cookie => cookie.name === "kulha_at" && cookie.value === token)) {
     throw new Error("Browser smoke session cookie was not installed.");
   }
+  // The fixture token is intentionally opaque to Next.js; route requests carry it
+  // explicitly so the server-rendered page guard and BFF see the same test session.
+  await context.route("**/*", async route => {
+    if (new URL(route.request().url()).origin !== origin) return route.continue();
+    await route.continue({
+      headers: { ...route.request().headers(), cookie: `kulha_at=${token}` },
+    });
+  });
   return context;
 }
 async function assertNoHorizontalOverflow(page, route, width) {
