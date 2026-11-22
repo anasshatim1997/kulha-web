@@ -261,6 +261,7 @@ async function assertCompactWorkspaceFits(page, route, width, height) {
         const style = getComputedStyle(element);
         return { selector, top: Math.round(rect.top), bottom: Math.round(rect.bottom), height: Math.round(rect.height), clientHeight: element.clientHeight, scrollHeight: element.scrollHeight, overflowY: style.overflowY, gridTemplateColumns: style.gridTemplateColumns };
       }),
+      bodyChildren: [...document.body.children].map(element => ({ tag: element.tagName.toLowerCase(), id: element.id, className: typeof element.className === "string" ? element.className.slice(0, 160) : "", height: Math.round(element.getBoundingClientRect().height), top: Math.round(element.getBoundingClientRect().top), bottom: Math.round(element.getBoundingClientRect().bottom), display: getComputedStyle(element).display, position: getComputedStyle(element).position })),
       overflowElements: [...document.querySelectorAll("*")].map(element => {
         const rect = element.getBoundingClientRect();
         const style = getComputedStyle(element);
