@@ -404,7 +404,7 @@ try {
     await page.getByRole("button", { name: "Resolve case" }).click();
     if (!requests.some(item => item.method === "POST" && item.path.endsWith("/reveal-customer"))
         || !requests.some(item => item.method === "POST" && item.path.endsWith("/actions"))) {
-      throw new Error("Support disclosure or resolution workflow did not reach the API.");
+      throw new Error(`Support disclosure or resolution workflow did not reach the API. Recent backend requests: ${JSON.stringify(requests.slice(-24))}`);
     }
     await context.close();
   }
