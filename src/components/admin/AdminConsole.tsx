@@ -499,10 +499,10 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     </button>)}</div>{!caseItems.length&&<p className={styles.empty}>{t.empty}</p>}
                     <AdminPagination page={casePage} pageCount={casePageCount} total={cases.total} size={cases.size||CASE_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setCasePage(next);setSelectedCase(null);}} />
                 </section>
-                <section className={styles.caseDetail}>
+                <section className={styles.caseDetail} data-testid="support-case-detail">
                     {!selectedCase?<p className={styles.empty}>{t.empty}</p>:<>
                         <div className={styles.detailHead}><div><small>{t.record} {selectedCase.summary.reference} · {selectedCase.summary.category}</small><h2>{selectedCase.summary.subject}</h2></div><span className={styles.pill+" "+priorityTone(selectedCase.summary.priority)}>{priorityLabel(selectedCase.summary.priority)}</span></div>
-                        <div className={styles.caseHistory}>
+                        <div className={styles.caseHistory} data-testid="support-case-history">
                         <div className={styles.caseReferenceCards}>
                             <article><small>{t.caseReservation}</small><strong>{selectedCase.summary.reservationReference||"—"}</strong></article>
                             <article><small>{t.caseOffer}</small><strong>{selectedCase.summary.offerTitle||"—"}</strong></article>
@@ -536,7 +536,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         {!isSupportOnly&&selectedCase.summary.offerId&&<div className={styles.actionRowEnd}><button type="button" className={styles.dangerOutline} disabled={working||!reason.trim()} onClick={()=>void caseAction("KEEP_OFFER_HIDDEN")}>{t.keepOffer}</button></div>}
                         <p className={styles.hint}><ShieldCheck size={13} aria-hidden="true"/>{t.actionNote}</p>
                         </div>
-                        <section className={styles.messageComposer}>
+                        <section className={styles.messageComposer} data-testid="support-message-composer">
                             <div className={styles.messageModes} role="group" aria-label={t.replyNote}>
                                 <button type="button" aria-pressed={sendToCustomer} className={sendToCustomer?styles.modeActive:styles.modeButton} onClick={()=>setSendToCustomer(true)}>{t.replyToCustomer}</button>
                                 <button type="button" aria-pressed={!sendToCustomer} className={!sendToCustomer?styles.modeActive:styles.modeButton} onClick={()=>setSendToCustomer(false)}>{t.internalNoteTab}</button>
