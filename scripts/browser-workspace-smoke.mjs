@@ -282,7 +282,7 @@ try {
         const direction = await page.locator("main").getAttribute("dir");
         if (direction !== route.direction) throw new Error(`${route.path} expected dir=${route.direction}, received ${direction}.`);
       }
-      const screenshotName = `${route.path.replace(/^\\//, "").replaceAll("/", "-")}-${size.width}x${size.height}.png`;
+      const screenshotName = `${route.path.replace(/^\/+/, "").replaceAll("/", "-")}-${size.width}x${size.height}.png`;
       await page.screenshot({ path: join("artifacts/browser-screenshots", screenshotName), animations: "disabled" });
     }
     if (errors.length) throw new Error(`Browser errors on ${route.path}: ${errors.join("; ")}`);
