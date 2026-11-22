@@ -343,6 +343,35 @@ try {
         throw new Error(`Workspace did not render ${route.path}; current URL=${page.url()}; body=${bodyText}; backend requests=${JSON.stringify(requests.slice(-12))}`);
       }
       await assertNoHorizontalOverflow(page, route.path, size.width);
+      if (route.path.endsWith("/admin/support-cases")) {
+        const supportLayout = await page.evaluate(() => {
+          const detail = document.querySelector('[data-testid="support-case-detail"]');
+          const history = document.querySelector('[data-testid="support-case-history"]');
+          const composer = document.querySelector('[data-testid="support-message-composer"]');
+          if (!detail || !history || !composer) return { missingRegion: true };
+          const panel = detail.getBoundingClientRect();
+          const reply = composer.getBoundingClientRect();
+          const style = getComputedStyle(detail);
+          const historyStyle = getComputedStyle(history);
+          return {
+            missingRegion: false,
+            panelBottom: panel.bottom,
+            composerBottom: reply.bottom,
+            documentHeight: document.documentElement.scrollHeight,
+            viewportHeight: innerHeight,
+            detailOverflow: style.overflowY,
+            historyOverflow: historyStyle.overflowY,
+          };
+        });
+        if (supportLayout.missingRegion || supportLayout.composerBottom > supportLayout.panelBottom + 1) {
+          throw new Error(`Support composer escaped its detail panel at ${size.width}x${size.height}: ${JSON.stringify(supportLayout)}`);
+        }
+        if (size.width >= 900 && (supportLayout.documentHeight > size.height + 1
+          || supportLayout.detailOverflow !== "hidden" || supportLayout.historyOverflow !== "auto"
+          || supportLayout.panelBottom > size.height + 1)) {
+          throw new Error(`Desktop support layout/scroll ownership failed at ${size.width}x${size.height}: ${JSON.stringify(supportLayout)}`);
+        }
+      }
       if (route.direction) {
         const direction = await page.locator(route.directionSelector ?? ".kulhaAdminShell").getAttribute("dir");
         if (direction !== route.direction) throw new Error(`${route.path} expected dir=${route.direction}, received ${direction}.`);
@@ -465,14 +494,14 @@ try {
     const page = await context.newPage();
     await page.goto(origin + "/en/admin/support-cases", { waitUntil: "networkidle" });
     await page.setViewportSize({ width: 1366, height: 768 });
-    const detail = page.locator(".caseDetail");
-    const history = page.locator(".caseHistory");
-    const composer = page.locator(".messageComposer");
+    const detail = page.locator('[data-testid="support-case-detail"]');
+    const history = page.locator('[data-testid="support-case-history"]');
+    const composer = page.locator('[data-testid="support-message-composer"]');
     await history.waitFor({ state: "visible" });
     const shortLayout = await page.evaluate(() => {
-      const detailNode = document.querySelector(".caseDetail");
-      const historyNode = document.querySelector(".caseHistory");
-      const composerNode = document.querySelector(".messageComposer");
+      const detailNode = document.querySelector('[data-testid="support-case-detail"]');
+      const historyNode = document.querySelector('[data-testid="support-case-history"]');
+      const composerNode = document.querySelector('[data-testid="support-message-composer"]');
       const panel = detailNode.getBoundingClientRect();
       const reply = composerNode.getBoundingClientRect();
       return {
@@ -506,9 +535,9 @@ try {
     await page.reload({ waitUntil: "networkidle" });
     await history.waitFor({ state: "visible" });
     const longLayout = await page.evaluate(() => {
-      const detailNode = document.querySelector(".caseDetail");
-      const historyNode = document.querySelector(".caseHistory");
-      const composerNode = document.querySelector(".messageComposer");
+      const detailNode = document.querySelector('[data-testid="support-case-detail"]');
+      const historyNode = document.querySelector('[data-testid="support-case-history"]');
+      const composerNode = document.querySelector('[data-testid="support-message-composer"]');
       const detailRect = detailNode.getBoundingClientRect();
       const composerRect = composerNode.getBoundingClientRect();
       return {
