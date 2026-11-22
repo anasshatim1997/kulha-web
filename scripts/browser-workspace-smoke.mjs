@@ -79,7 +79,8 @@ const backend = createServer(async (request, response) => {
   const method = request.method ?? "GET";
   const token = request.headers.authorization ?? "";
   const role = token.includes("support-token") ? "SUPPORT"
-    : token.includes("admin-token") ? "ADMIN" : "MERCHANT_OWNER";
+    : token.includes("admin-token") ? "ADMIN"
+    : token.includes("customer-token") ? "CUSTOMER" : "MERCHANT_OWNER";
   requests.push({ method, path, query: url.search, token });
 
   if (path === "/auth/login" && method === "POST") {
@@ -170,6 +171,7 @@ const backend = createServer(async (request, response) => {
   if (path === "/admin/audit-log" && method === "GET") return json(response, page([]));
   if (path === "/admin/audit-log/export") return csv(response, "kulha-audit-log.csv");
 
+  if (path === "/reservations" && method === "GET") return json(response, page([]));
   if (path === "/reservations/pickup/check" && method === "POST") {
     await bodyOf(request);
     return json(response, {
@@ -270,6 +272,8 @@ try {
     { path: "/fr/admin/support-cases", token: "support-token", heading: "Dossiers support" },
     { path: "/ar/admin/support-cases", token: "support-token", heading: "طلبات الدعم", direction: "rtl" },
     { path: "/en/admin/audit-log", token: "admin-token", heading: "Audit log" },
+    { path: "/fr/reservations", token: "customer-token", heading: "Mes réservations" },
+    { path: "/ar/reservations", token: "customer-token", heading: "حجوزاتي", direction: "rtl", directionSelector: '[lang="ar"]' },
   ];
   for (const route of routes) {
     const context = await loginContext(browser, route.token);
@@ -278,6 +282,7 @@ try {
     page.on("pageerror", error => errors.push(error.message));
     for (const size of sizes) {
       await page.setViewportSize(size);
+      const reservationRequestCount = requests.filter(item => item.path === "/reservations").length;
       await page.goto(origin + route.path, { waitUntil: "networkidle", timeout: 30000 });
       try {
         await page.getByText(route.heading, { exact: true }).first().waitFor({ state: "visible", timeout: 15000 });
@@ -287,10 +292,15 @@ try {
       }
       await assertNoHorizontalOverflow(page, route.path, size.width);
       if (route.direction) {
-        const direction = await page.locator(".kulhaAdminShell").getAttribute("dir");
+        const direction = await page.locator(route.directionSelector ?? ".kulhaAdminShell").getAttribute("dir");
         if (direction !== route.direction) throw new Error(`${route.path} expected dir=${route.direction}, received ${direction}.`);
       }
       const screenshotName = `${route.path.replace(/^\/+/, "").replaceAll("/", "-")}-${size.width}x${size.height}.png`;
+      if (route.token === "customer-token" && route.path.endsWith("/reservations")) {
+        await waitForBackendRequest(item => item.path === "/reservations" && item.query.includes("status=cancelled"), "Customer reservation list");
+        const count = requests.filter(item => item.path === "/reservations").length - reservationRequestCount;
+        if (count !== 3) throw new Error(`${route.path} expected 3 reservation list requests, observed ${count}.`);
+      }
       await page.screenshot({ path: join("artifacts/browser-screenshots", screenshotName), animations: "disabled" });
     }
     if (errors.length) throw new Error(`Browser errors on ${route.path}: ${errors.join("; ")}`);
@@ -434,7 +444,7 @@ try {
 
   process.stdout.write("PASS merchant order filtering, staff permissions, sales download and pickup handover\n");
   process.stdout.write("PASS admin merchant review, offer moderation, assigned support disclosure/resolution and audit download\n");
-  process.stdout.write("PASS 5 viewport widths for 8 authenticated workspaces; merchant/admin modal bounds at 390px; Arabic RTL at 390px\n");
+  process.stdout.write("PASS 7 viewport sizes across 12 authenticated routes; merchant/admin modal bounds at 390px; Arabic RTL at 390px\n");
 } finally {
   await browser?.close();
   app.kill("SIGTERM");
