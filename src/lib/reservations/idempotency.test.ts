@@ -50,4 +50,16 @@ describe("reservation idempotency attempt", () => {
     clearReservationAttempt(storage, "offer-1");
     expect(storage.getItem("kulha:reservation-idempotency:offer-1")).toBeNull();
   });
+
+  it("continues checkout when session storage cannot persist a new attempt", () => {
+    const unavailableStorage = {
+      getItem: () => { throw new Error("storage disabled"); },
+      setItem: () => { throw new Error("storage quota exceeded"); },
+      removeItem: () => { throw new Error("storage disabled"); },
+    };
+
+    expect(getOrCreateReservationAttempt(unavailableStorage, "offer-1", "fingerprint", () => "memory-key"))
+      .toEqual({ fingerprint: "fingerprint", key: "memory-key" });
+  });
+
 });
