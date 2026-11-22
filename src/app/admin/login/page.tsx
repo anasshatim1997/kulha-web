@@ -1,14 +1,26 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { AdminLoginShell } from "@/components/admin/AdminLoginShell";
 import { LoginForm } from "@/components/auth/LoginForm";
-import { AuthCard } from "@/components/layout/AuthCard";
 
-export const metadata: Metadata = { title: "Administration | KULHA" };
+export const metadata: Metadata = {
+    title: "Administration | KULHA",
+    robots: {
+        index: false,
+        follow: false,
+    },
+};
 
 export default function AdminLoginPage() {
-  return (
-    <AuthCard title="Accès administration" lead="Connectez-vous avec votre compte administrateur KULHA.">
-      <Suspense><LoginForm adminOnly /></Suspense>
-    </AuthCard>
-  );
+    return (
+        <AdminLoginShell
+            locale="fr"
+            title="Accès administration"
+            lead="Connectez-vous avec votre compte administrateur KULHA."
+        >
+            <Suspense>
+                <LoginForm locale="fr" adminOnly />
+            </Suspense>
+        </AdminLoginShell>
+    );
 }

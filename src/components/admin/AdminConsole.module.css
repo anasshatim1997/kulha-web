@@ -164,8 +164,8 @@
 /* Merchant review: no fixed canvas and no bottom-anchored decision controls. */
 .reviewWorkspace { height:auto; min-height:0; align-items:start; }
 .merchantPicker,.merchantDetails {
-  position:static; align-self:start; height:auto;
-  max-height:min(680px,calc(100dvh - 250px)); overflow-y:auto;
+    position:static; align-self:start; height:auto;
+    max-height:min(680px,calc(100dvh - 250px)); overflow-y:auto;
 }
 .merchantDetails .cardFoot { position:static; inset:auto; margin-top:22px; }
 
@@ -173,32 +173,32 @@
 .offerHeader { align-items:center; }
 .offerHeader .headerCopy { flex:1 1 250px; min-width:210px; }
 .offerMetrics {
- display:grid; grid-template-columns:repeat(4,minmax(96px,1fr));
- flex:1 1 520px; max-width:650px; gap:10px;
+    display:grid; grid-template-columns:repeat(4,minmax(96px,1fr));
+    flex:1 1 520px; max-width:650px; gap:10px;
 }
 .offerMetrics article {
- display:grid; align-content:center; gap:3px; min-height:66px; padding:10px 14px;
- border:1px solid #eee4d1; border-radius:17px; background:#fffdf8;
- box-shadow:0 5px 18px #60491e08;
+    display:grid; align-content:center; gap:3px; min-height:66px; padding:10px 14px;
+    border:1px solid #eee4d1; border-radius:17px; background:#fffdf8;
+    box-shadow:0 5px 18px #60491e08;
 }
 .offerMetrics strong { color:#073324; font-size:25px; line-height:1; font-weight:1000; }
 .offerMetrics article:nth-child(2) strong { color:#a3281c; }
 .offerMetrics span { color:#5b6e60; font-size:11px; font-weight:850; }
 .offerWorkspace {
- display:grid; grid-template-columns:minmax(300px,.82fr) minmax(0,1.18fr);
- align-items:start; gap:22px; height:auto; min-height:0;
+    display:grid; grid-template-columns:minmax(300px,.82fr) minmax(0,1.18fr);
+    align-items:start; gap:22px; height:auto; min-height:0;
 }
 .offerPicker {
- display:grid; align-content:start; gap:12px; padding:0; border:0; border-radius:0;
- background:transparent; box-shadow:none; height:auto; max-height:none; overflow:visible;
+    display:grid; align-content:start; gap:12px; padding:0; border:0; border-radius:0;
+    background:transparent; box-shadow:none; height:auto; max-height:none; overflow:visible;
 }
 .offerPicker .tabs { position:static; padding:0; background:transparent; }
 .offerQueue { display:grid; gap:10px; }
 .offerItem,.offerItemSelected {
- display:grid; grid-template-columns:54px minmax(0,1fr) auto; align-items:center;
- gap:11px; width:100%; min-width:0; padding:11px; border:1px solid #eee4d1;
- border-radius:16px; background:#fffdf8; color:#073324; text-align:start;
- font:inherit; cursor:pointer; transition:border-color .16s,background .16s,box-shadow .16s;
+    display:grid; grid-template-columns:54px minmax(0,1fr) auto; align-items:center;
+    gap:11px; width:100%; min-width:0; padding:11px; border:1px solid #eee4d1;
+    border-radius:16px; background:#fffdf8; color:#073324; text-align:start;
+    font:inherit; cursor:pointer; transition:border-color .16s,background .16s,box-shadow .16s;
 }
 .offerItem:hover,.offerItemSelected { border-color:#073324; box-shadow:0 5px 18px #07332410; }
 .offerItemSelected { background:#fffefa; }
@@ -217,9 +217,9 @@
 .offerPrice strong { font-size:12px; font-weight:1000; }
 .offerPrice small { color:#637267; font-size:10px; }
 .offerDecision {
- display:block; align-self:start; height:auto; max-height:none; min-height:0; overflow:visible;
- padding:18px 20px 20px; border:1px solid #eee4d1; border-radius:21px;
- background:#fffdf8; box-shadow:0 8px 28px #60491e0b;
+    display:block; align-self:start; height:auto; max-height:none; min-height:0; overflow:visible;
+    padding:18px 20px 20px; border:1px solid #eee4d1; border-radius:21px;
+    background:#fffdf8; box-shadow:0 8px 28px #60491e0b;
 }
 .offerVisual { position:relative; display:grid; place-items:center; height:132px; overflow:hidden; border-radius:15px; background:#eae4d2; }
 .offerVisual>img { width:100%; height:100%; object-fit:cover; }
@@ -251,9 +251,9 @@
 .offerDecisionTitle span { color:#718075; font-size:10px; text-align:end; }
 .offerActionRow { display:flex; flex-wrap:wrap; gap:8px; }
 .offerAction,.offerActionActive {
- flex:0 1 auto; min-height:40px; padding:0 14px; border:1px solid #e3dac8;
- border-radius:12px; background:#fffdf8; color:#29483b; font:inherit;
- font-size:11px; font-weight:950; cursor:pointer;
+    flex:0 1 auto; min-height:40px; padding:0 14px; border:1px solid #e3dac8;
+    border-radius:12px; background:#fffdf8; color:#29483b; font:inherit;
+    font-size:11px; font-weight:950; cursor:pointer;
 }
 .offerActionActive { border-color:#073324; background:#073324; color:#fffdf8; }
 .offerActionActive[data-action="suspend"] { border-color:#a3281c; background:#a3281c; }
@@ -261,8 +261,8 @@
 .offerAction:focus-visible,.offerActionActive:focus-visible,.reasonChip:focus-visible,.reasonChipActive:focus-visible { outline:3px solid #fdbe2e; outline-offset:2px; }
 .reasonChips { display:flex; flex-wrap:wrap; gap:7px; }
 .reasonChip,.reasonChipActive {
- min-height:31px; padding:0 11px; border:1px solid #e3dac8; border-radius:99px;
- background:#fffdf8; color:#29483b; font:inherit; font-size:10px; font-weight:900; cursor:pointer;
+    min-height:31px; padding:0 11px; border:1px solid #e3dac8; border-radius:99px;
+    background:#fffdf8; color:#29483b; font:inherit; font-size:10px; font-weight:900; cursor:pointer;
 }
 .reasonChipActive { border-color:#073324; background:#073324; color:#fffdf8; }
 .offerDecisionFoot { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:2px; padding-top:12px; border-top:1px solid #e4ddce; }
@@ -274,25 +274,25 @@
 .offerEmpty strong { color:#073324; font-size:18px; }
 .offerEmpty span { max-width:240px; font-size:13px; line-height:1.5; }
 @media(max-width:1100px) {
- .offerMetrics { grid-template-columns:repeat(2,minmax(100px,1fr)); max-width:440px; flex-basis:420px; }
- .offerWorkspace { grid-template-columns:minmax(250px,.8fr) minmax(0,1.2fr); }
+    .offerMetrics { grid-template-columns:repeat(2,minmax(100px,1fr)); max-width:440px; flex-basis:420px; }
+    .offerWorkspace { grid-template-columns:minmax(250px,.8fr) minmax(0,1.2fr); }
 }
 @media(max-width:900px) {
- .offerWorkspace { grid-template-columns:1fr; }
- .offerMetrics { max-width:none; flex-basis:100%; }
+    .offerWorkspace { grid-template-columns:1fr; }
+    .offerMetrics { max-width:none; flex-basis:100%; }
 }
 @media(max-width:680px) {
- .offerFacts { grid-template-columns:1fr; }
- .offerDecision { padding:14px; }
- .offerDecisionFoot { align-items:stretch; flex-direction:column; }
- .offerDecisionFoot .primary { width:100%; }
- .offerItem,.offerItemSelected { grid-template-columns:48px minmax(0,1fr) auto; gap:8px; padding:9px; }
- .offerThumb { width:48px; height:48px; }
- .offerPrice strong { font-size:11px; }
+    .offerFacts { grid-template-columns:1fr; }
+    .offerDecision { padding:14px; }
+    .offerDecisionFoot { align-items:stretch; flex-direction:column; }
+    .offerDecisionFoot .primary { width:100%; }
+    .offerItem,.offerItemSelected { grid-template-columns:48px minmax(0,1fr) auto; gap:8px; padding:9px; }
+    .offerThumb { width:48px; height:48px; }
+    .offerPrice strong { font-size:11px; }
 }
 @media(max-width:540px) {
- .offerMetrics { grid-template-columns:repeat(2,minmax(0,1fr)); }
- .offerDecisionTitle { align-items:flex-start; flex-direction:column; }
+    .offerMetrics { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .offerDecisionTitle { align-items:flex-start; flex-direction:column; }
 }
 
 
@@ -409,28 +409,3078 @@
 .auditImmutable{display:flex;align-items:flex-start;gap:7px;margin:12px 0 0;color:#728075;font-size:10px;line-height:1.45}
 .auditImmutable svg{flex:0 0 auto}
 @media(max-width:1100px){
- .merchantReviewWorkspace,.supportWorkspace{grid-template-columns:minmax(245px,.72fr) minmax(0,1.28fr)}
- .auditWorkspace{grid-template-columns:minmax(0,1fr)}
- .auditRecordCard{display:grid;grid-template-columns:1fr 1.8fr;gap:0 18px}
- .auditRecordTitle,.auditRecordFacts,.auditImmutable{grid-column:1/-1}
+    .merchantReviewWorkspace,.supportWorkspace{grid-template-columns:minmax(245px,.72fr) minmax(0,1.28fr)}
+    .auditWorkspace{grid-template-columns:minmax(0,1fr)}
+    .auditRecordCard{display:grid;grid-template-columns:1fr 1.8fr;gap:0 18px}
+    .auditRecordTitle,.auditRecordFacts,.auditImmutable{grid-column:1/-1}
 }
 @media(max-width:900px){
- .merchantReviewWorkspace,.supportWorkspace{grid-template-columns:1fr}
- .merchantPicker,.casePicker{max-height:340px}
- .merchantDetails{max-height:none}
- .merchantOverview{grid-template-columns:1fr 1fr}
- .auditFilters{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .merchantReviewWorkspace,.supportWorkspace{grid-template-columns:1fr}
+    .merchantPicker,.casePicker{max-height:340px}
+    .merchantDetails{max-height:none}
+    .merchantOverview{grid-template-columns:1fr 1fr}
+    .auditFilters{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:680px){
- .merchantOverview,.merchantDecisionFields{grid-template-columns:1fr}
- .merchantStepper{gap:6px}.merchantStepper>div{gap:6px}
- .merchantStepper strong{font-size:10px;white-space:normal}.merchantStepper>i{min-width:7px}
- .merchantDecision{padding:13px}.merchantDecision .segment{grid-template-columns:1fr}
- .merchantDecision .cardFoot{align-items:stretch;flex-direction:column}
- .merchantDecision .primary{width:100%}
- .caseDetail{padding:14px}.caseReferenceCards{grid-template-columns:1fr}
- .caseAssignment{align-items:flex-start;flex-direction:column}
- .caseActions{grid-template-columns:1fr 1fr}.caseActionReason{grid-column:1/-1}
- .composerFoot{align-items:stretch;flex-direction:column}.composerFoot .primary{width:100%}
- .auditFilters{grid-template-columns:1fr}.auditRecordCard{display:block}
+    .merchantOverview,.merchantDecisionFields{grid-template-columns:1fr}
+    .merchantStepper{gap:6px}.merchantStepper>div{gap:6px}
+    .merchantStepper strong{font-size:10px;white-space:normal}.merchantStepper>i{min-width:7px}
+    .merchantDecision{padding:13px}.merchantDecision .segment{grid-template-columns:1fr}
+    .merchantDecision .cardFoot{align-items:stretch;flex-direction:column}
+    .merchantDecision .primary{width:100%}
+    .caseDetail{padding:14px}.caseReferenceCards{grid-template-columns:1fr}
+    .caseAssignment{align-items:flex-start;flex-direction:column}
+    .caseActions{grid-template-columns:1fr 1fr}.caseActionReason{grid-column:1/-1}
+    .composerFoot{align-items:stretch;flex-direction:column}.composerFoot .primary{width:100%}
+    .auditFilters{grid-template-columns:1fr}.auditRecordCard{display:block}
+}
+
+/* --------------------------------------------------------------------------
+   Admin workspace alignment — shared top navigation and natural page flow.
+   These selectors intentionally match the actual AdminConsole markup.
+   -------------------------------------------------------------------------- */
+.shell {
+    min-height: 100dvh;
+    background: #f7f1e5;
+    color: #073324;
+}
+
+/* Search shares the same fixed row as the account / locale / sign-out controls. */
+.topbar {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline-start: var(--ws-w, 248px);
+    inset-inline-end: 0;
+    z-index: 85;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: var(--ws-top, 64px);
+    padding: 0 clamp(24px, 3vw, 42px);
+    border-bottom: 1px solid #ebe3d3;
+    background: #fffdf8;
+    pointer-events: none;
+}
+.search {
+    width: min(640px, calc(100% - 440px));
+    max-width: 640px;
+    min-width: 260px;
+    height: 44px;
+    padding-inline: 16px;
+    border-color: #e6ddcf;
+    background: #fff;
+    pointer-events: auto;
+}
+.search input {
+    min-width: 0;
+    font-size: 14px;
+    line-height: 1.2;
+}
+
+.page {
+    width: 100%;
+    max-width: 1700px;
+    box-sizing: border-box;
+    margin-inline: auto;
+    padding: calc(var(--ws-top, 64px) + 30px) clamp(28px, 2.8vw, 46px) 112px;
+    gap: 24px;
+}
+.header {
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 24px;
+}
+.headerCopy { min-width: 0; }
+.header h1 {
+    max-width: 100%;
+    margin-bottom: 8px;
+    font-size: clamp(32px, 2.65vw, 42px);
+    line-height: 1.08;
+    letter-spacing: -.035em;
+    white-space: nowrap;
+}
+.header p { font-size: 15px; line-height: 1.5; }
+
+/* Let each workspace grow with its content; the document owns vertical scroll. */
+.merchantReviewWorkspace {
+    grid-template-columns: minmax(285px, .72fr) minmax(0, 1.28fr);
+    align-items: start;
+    gap: 26px;
+}
+.merchantPicker,
+.merchantDetails,
+.casePicker,
+.caseDetail,
+.offerPicker,
+.offerDecision {
+    height: auto;
+    max-height: none;
+    min-height: 0;
+    overflow: visible;
+    align-self: start;
+}
+.merchantPicker { padding: 0; }
+.merchantPicker .list { gap: 12px; }
+.merchantListItem,
+.merchantSelected {
+    gap: 8px;
+    padding: 18px 19px;
+    border-radius: 17px;
+}
+.merchantListTop strong { font-size: 15px; line-height: 1.3; }
+.merchantListItem > small,
+.merchantSelected > small { font-size: 13px; line-height: 1.45; }
+.merchantDetails {
+    padding: clamp(23px, 2.2vw, 32px);
+    border-radius: 22px;
+}
+.detailHead {
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.detailHead h2,
+.merchantDetails .detailHead h2 {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: clamp(25px, 2vw, 32px);
+    line-height: 1.12;
+}
+.merchantStepper { gap: 14px; margin: 22px 0 26px; }
+.merchantStepper > div { gap: 9px; }
+.merchantStepper strong { font-size: 13px; white-space: nowrap; }
+.merchantOverview { gap: clamp(22px, 2.3vw, 34px); }
+.merchantOverview h3 { margin-bottom: 13px; font-size: 12px; }
+.merchantFacts > div { gap: 15px; padding: 13px 0; }
+.merchantFacts dt { font-size: 13px; }
+.merchantFacts dd { font-size: 13px; line-height: 1.45; }
+.merchantDocuments .missingDocs { min-height: 90px; padding: 17px; }
+.merchantDocuments .missingDocs strong { font-size: 13px; line-height: 1.4; }
+.merchantDocuments .missingDocs small { font-size: 12px; line-height: 1.5; }
+.merchantDocuments .checkList { gap: 14px; }
+.merchantDocuments .checkList label { gap: 11px; font-size: 13px; line-height: 1.4; }
+.merchantDecision {
+    margin-top: 28px;
+    padding: clamp(21px, 2vw, 28px);
+    border-radius: 20px;
+}
+.merchantDecision > h3 { margin: 0 0 16px; font-size: 13px; }
+.merchantDecision .segment {
+    width: 100%;
+    max-width: none;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 12px;
+}
+.merchantDecision .segment button {
+    min-width: 0;
+    min-height: 48px;
+    padding: 0 12px;
+    border-radius: 13px;
+    font-size: 13px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+.approveNote { margin-top: 12px; font-size: 12px; line-height: 1.5; }
+.merchantDecisionFields { gap: 18px; margin-top: 5px; }
+.merchantDecisionFields .field {
+    min-width: 0;
+    gap: 9px;
+    margin-top: 12px;
+    font-size: 13px;
+    line-height: 1.35;
+}
+.field textarea,
+.merchantDecisionFields .field textarea,
+.messageComposer .field textarea {
+    width: 100%;
+    min-height: 96px;
+    box-sizing: border-box;
+    padding: 15px 17px;
+    border: 1px solid #dfd6c6;
+    border-radius: 14px;
+    background: #fffefa;
+    color: #173c2c;
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: none;
+    overflow-y: auto;
+}
+.merchantDecisionFields .field textarea { min-height: 96px; }
+.field textarea::placeholder { color: #89958b; }
+.merchantDecision .cardFoot {
+    position: static;
+    inset: auto;
+    align-items: center;
+    gap: 20px;
+    margin-top: 24px;
+    padding-top: 20px;
+}
+.merchantDecision .cardFoot p { max-width: 65%; font-size: 12px; line-height: 1.5; }
+.merchantDecision .primary { min-height: 48px; padding-inline: 22px; font-size: 13px; white-space: nowrap; }
+
+/* Keep long workspace headings on one line at desktop widths. */
+.offerSelectedHeading h2,
+.caseDetail .detailHead h2,
+.auditRecordTitle h2 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.offerWorkspace,
+.supportWorkspace,
+.auditWorkspace { align-items: start; }
+.casePicker { padding: 0; }
+.caseDetail { padding: clamp(22px, 2vw, 30px); }
+.messageComposer .field textarea { min-height: 104px; }
+.auditFilters { gap: 14px; padding: 18px; }
+.auditFilters label { font-size: 12px; }
+.auditFilters input,
+.auditFilters select { height: 46px; font-size: 13px; }
+.auditTableCard .table th { font-size: 11px; }
+.auditTableCard .table td { font-size: 12px; }
+
+@media (max-width: 1199px) {
+    .merchantReviewWorkspace { grid-template-columns: minmax(245px, .7fr) minmax(0, 1.3fr); gap: 20px; }
+    .merchantDecision .segment button { font-size: 12px; padding-inline: 8px; }
+    .merchantDecisionFields { gap: 13px; }
+}
+@media (max-width: 899px) {
+    .topbar {
+        position: static;
+        inset: auto;
+        z-index: auto;
+        width: 100%;
+        height: auto;
+        padding: 12px 18px;
+        border-bottom: 1px solid #ebe3d3;
+        pointer-events: auto;
+    }
+    .search { width: 100%; max-width: none; min-width: 0; height: 46px; }
+    .page { padding: 26px 22px 88px; gap: 21px; }
+    .header { align-items: flex-start; flex-wrap: wrap; }
+    .header h1 { white-space: normal; }
+    .merchantReviewWorkspace,
+    .supportWorkspace,
+    .offerWorkspace { grid-template-columns: minmax(0, 1fr); }
+    .merchantPicker,
+    .merchantDetails,
+    .casePicker,
+    .caseDetail,
+    .offerPicker,
+    .offerDecision { max-height: none; overflow: visible; }
+    .merchantOverview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 620px) {
+    .page { padding: 22px 15px 76px; gap: 18px; }
+    .header h1 { font-size: 30px; }
+    .merchantOverview,
+    .merchantDecisionFields { grid-template-columns: minmax(0, 1fr); }
+    .merchantStepper { gap: 7px; }
+    .merchantStepper strong { font-size: 10px; white-space: normal; }
+    .merchantDecision .segment { grid-template-columns: minmax(0, 1fr); }
+    .merchantDecision .segment button { white-space: normal; }
+    .merchantDecision .cardFoot { align-items: stretch; flex-direction: column; }
+    .merchantDecision .cardFoot p { max-width: none; }
+    .merchantDecision .primary { width: 100%; }
+    .detailHead h2,
+    .merchantDetails .detailHead h2,
+    .offerSelectedHeading h2,
+    .caseDetail .detailHead h2 { white-space: normal; }
+}
+
+/* Admin detail-column rhythm and independent offer moderation scrolling. */
+.page {
+    padding-bottom: 144px;
+    row-gap: 28px;
+}
+
+/* The offer queue scrolls independently; the selected offer remains in view. */
+.offerWorkspace {
+    grid-template-columns: minmax(320px, .88fr) minmax(0, 1.12fr);
+    align-items: start;
+    gap: clamp(24px, 2.2vw, 34px);
+    height: auto;
+    min-height: 0;
+}
+.offerPicker {
+    position: sticky;
+    top: calc(var(--ws-top, 64px) + 22px);
+    align-self: start;
+    height: auto;
+    max-height: calc(100dvh - var(--ws-top, 64px) - 44px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #b9aa90 #f5f1e8;
+    padding: 0 10px 14px 0;
+}
+.offerPicker::-webkit-scrollbar { width: 8px; }
+.offerPicker::-webkit-scrollbar-track { background: #f5f1e8; border-radius: 99px; }
+.offerPicker::-webkit-scrollbar-thumb { background: #b9aa90; border: 2px solid #f5f1e8; border-radius: 99px; }
+.offerPicker .tabs { gap: 9px; padding: 0 0 16px; }
+.offerQueue { display: grid; gap: 13px; }
+.offerDecision {
+    position: sticky;
+    top: calc(var(--ws-top, 64px) + 22px);
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 23px;
+    min-width: 0;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    padding: clamp(25px, 2.2vw, 34px);
+}
+.offerVisual { height: clamp(145px, 16vh, 185px); border-radius: 17px; }
+.offerSelectedHeading { display: grid; gap: 6px; margin: 0; }
+.offerSelectedHeading > small { font-size: 12px; }
+.offerSelectedHeading h2 { margin: 0; font-size: clamp(24px, 2.1vw, 32px); line-height: 1.16; }
+.offerSelectedHeading p { font-size: 14px; line-height: 1.45; }
+.foodSafetyAlert { margin: 0; padding: 17px 19px; gap: 13px; border-radius: 15px; }
+.foodSafetyAlert strong { font-size: 14px; }
+.foodSafetyAlert small { font-size: 13px; line-height: 1.5; }
+.offerFacts { margin: 0; column-gap: 30px; }
+.offerFacts > div { gap: 14px; padding: 16px 0; }
+.offerFacts dt, .offerFacts dd { font-size: 13px; line-height: 1.45; }
+.offerReports { display: grid; gap: 11px; margin: 0; }
+.offerReports h3 { margin: 0 0 3px; font-size: 12px; }
+.offerReports > div { min-height: 44px; padding: 13px 15px; font-size: 13px; }
+.offerReports > p, .offerFoodNotes { font-size: 13px; line-height: 1.55; }
+.offerFoodNotes { margin: 0; padding: 15px 17px; }
+.offerDecisionForm { gap: 18px; margin: 0; padding: 23px; border-radius: 18px; }
+.offerDecisionTitle { gap: 16px; }
+.offerDecisionTitle small { font-size: 12px; }
+.offerDecisionTitle span { font-size: 12px; line-height: 1.45; }
+.offerActionRow { gap: 11px; }
+.offerAction, .offerActionActive {
+    flex: 1 1 145px;
+    min-height: 46px;
+    padding-inline: 15px;
+    font-size: 13px;
+    line-height: 1.3;
+}
+.reasonChips { gap: 9px; }
+.reasonChip, .reasonChipActive { min-height: 36px; padding-inline: 14px; font-size: 12px; }
+.offerDecisionForm .field { gap: 11px; margin: 0; font-size: 13px; }
+.offerDecisionForm .field textarea { min-height: 112px; padding: 15px 17px; border-radius: 13px; font-size: 14px; resize: none; }
+.offerDecisionFoot { align-items: center; gap: 18px; margin-top: 4px; padding-top: 18px; }
+.offerDecisionFoot p { max-width: 60%; font-size: 12px; line-height: 1.5; }
+.offerDecisionFoot .primary { min-height: 47px; padding-inline: 22px; font-size: 13px; }
+.offerPagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 7px;
+    padding: 15px 4px 3px;
+    border-top: 1px solid #e8e0d1;
+    color: #52675a;
+    font-size: 12px;
+    font-weight: 850;
+}
+.pageButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 40px;
+    padding: 0 13px;
+    border: 1px solid #e3dac8;
+    border-radius: 11px;
+    background: #fffdf8;
+    color: #073324;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+}
+.pageButton:hover:not(:disabled) { border-color: #073324; background: #f7f2e7; }
+.pageButton:disabled { opacity: .42; cursor: not-allowed; }
+
+/* Merchant review detail panel: separate each information block and action group. */
+.merchantDetails {
+    padding: clamp(27px, 2.4vw, 36px);
+    overflow: visible;
+}
+.merchantDetails .detailHead { gap: 20px; margin-bottom: 0; }
+.merchantDetails .detailHead small { font-size: 12px; line-height: 1.5; }
+.merchantDetails .detailHead h2 { margin-top: 7px; }
+.merchantStepper { gap: 17px; margin: 29px 0 34px; }
+.merchantStepper > div { gap: 11px; }
+.merchantStepper > div > span { flex-basis: 29px; width: 29px; height: 29px; }
+.merchantStepper strong { font-size: 13px; }
+.merchantOverview { gap: clamp(28px, 2.8vw, 42px); }
+.merchantOverview > section { min-width: 0; }
+.merchantOverview h3 { margin: 0 0 16px; font-size: 13px; }
+.merchantFacts > div { gap: 17px; padding: 16px 0; }
+.merchantFacts dt, .merchantFacts dd { font-size: 13px; line-height: 1.5; }
+.merchantDocuments { display: grid; align-content: start; gap: 16px; }
+.merchantDocuments .missingDocs { min-height: 98px; padding: 19px; border-radius: 13px; }
+.merchantDocuments .missingDocs strong { font-size: 13px; line-height: 1.45; }
+.merchantDocuments .missingDocs small { margin-top: 7px; font-size: 12px; line-height: 1.55; }
+.merchantDocuments .checkList { gap: 17px; }
+.merchantDocuments .checkList label { gap: 12px; font-size: 13px; line-height: 1.5; }
+.merchantDecision {
+    display: grid;
+    gap: 18px;
+    margin-top: 35px;
+    padding: clamp(23px, 2.2vw, 31px);
+    border-radius: 20px;
+}
+.merchantDecision > h3 { margin: 0; font-size: 13px; }
+.merchantDecision .segment { gap: 13px; }
+.merchantDecision .segment button { min-height: 49px; padding-inline: 15px; font-size: 13px; }
+.approveNote { margin: -5px 0 0; font-size: 12px; line-height: 1.5; }
+.merchantDecisionFields { gap: 22px; margin-top: 0; }
+.merchantDecisionFields .field { gap: 11px; margin: 0; font-size: 13px; }
+.merchantDecisionFields .field textarea { min-height: 112px; padding: 15px 17px; font-size: 14px; line-height: 1.5; }
+.merchantDecision .cardFoot { gap: 20px; margin-top: 5px; padding-top: 20px; }
+.merchantDecision .cardFoot p { max-width: 62%; font-size: 12px; line-height: 1.5; }
+.merchantDecision .primary { min-height: 48px; padding-inline: 22px; font-size: 13px; }
+
+/* Support case detail panel: timeline, composer and case actions need distinct rhythm. */
+.caseDetail { padding: clamp(27px, 2.4vw, 36px); }
+.caseDetail .detailHead { gap: 20px; margin-bottom: 4px; }
+.caseDetail .detailHead small { font-size: 12px; line-height: 1.5; }
+.caseDetail .detailHead h2 { margin-top: 7px; line-height: 1.16; }
+.caseReferenceCards { gap: 13px; margin: 18px 0 10px; }
+.caseReferenceCards article { gap: 8px; min-height: 70px; padding: 15px; border-radius: 14px; }
+.caseReferenceCards small { font-size: 11px; }
+.caseReferenceCards strong { font-size: 13px; line-height: 1.4; }
+.caseAssignment { gap: 16px; padding: 10px 0 17px; }
+.caseAssignment p { font-size: 13px; line-height: 1.5; }
+.caseAssignment > div { gap: 10px; }
+.caseAssignment .ghostBtn { min-height: 42px; padding-inline: 15px; font-size: 12px; }
+.caseCustomer { gap: 11px; padding: 15px 0 3px; font-size: 13px; }
+.caseCustomer small { font-size: 12px; }
+.caseDetail > .hint { gap: 8px; margin: 0; font-size: 12px; line-height: 1.5; }
+.sectionLabel { margin: 15px 0 2px !important; font-size: 12px; }
+.caseTimeline { gap: 13px; margin: 0 0 7px; }
+.caseTimeline article { max-width: 92%; padding: 15px 17px; border-radius: 15px; }
+.caseTimeline article strong { margin-bottom: 8px; font-size: 11px; }
+.caseTimeline article p { font-size: 13px; line-height: 1.6; }
+.messageComposer { display: grid; gap: 13px; margin: 10px 0 4px; padding: 21px; border-radius: 17px; }
+.messageModes { gap: 9px; margin: 0; }
+.modeButton, .modeActive { min-height: 41px; padding-inline: 16px; font-size: 12px; }
+.messageComposer form { gap: 13px; }
+.messageComposer .field textarea { min-height: 112px; padding: 15px 17px; font-size: 14px; }
+.composerFoot { gap: 16px; }
+.composerFoot p { font-size: 12px; line-height: 1.5; }
+.composerFoot .primary { min-height: 45px; padding-inline: 20px; font-size: 13px; }
+.caseActions { gap: 12px; margin-top: 10px; }
+.caseActionReason { gap: 9px; font-size: 12px; }
+.caseActionReason input { height: 46px; padding-inline: 14px; font-size: 13px; }
+.caseActions .primary, .caseActions .ghostBtn { min-height: 46px; padding-inline: 16px; font-size: 12px; }
+.caseDetail > .actionRowEnd { margin-top: 3px; }
+.caseDetail > .hint:last-child { margin-top: 8px; }
+
+/* Audit selected-record panel: more separation between each immutable field. */
+.auditRecordCard { padding: clamp(24px, 2.2vw, 32px); }
+.auditOverline { display: block; margin-bottom: 8px; font-size: 11px; }
+.auditRecordTitle { gap: 14px; margin: 12px 0 20px; }
+.auditRecordTitle h2 { font-size: 19px; line-height: 1.3; }
+.auditRecordTitle .pill { font-size: 11px; }
+.auditRecordFacts > div { gap: 8px; padding: 17px 0; }
+.auditRecordFacts dt { font-size: 12px; }
+.auditRecordFacts dd { font-size: 13px; line-height: 1.55; }
+.auditImmutable { gap: 9px; margin-top: 22px; font-size: 12px; line-height: 1.55; }
+
+@media (max-width: 1100px) {
+    .offerWorkspace { grid-template-columns: minmax(0, 1fr); }
+    .offerPicker { position: static; max-height: none; padding-right: 0; overflow: visible; }
+    .offerDecision { position: static; }
+    .merchantDetails, .caseDetail, .auditRecordCard { position: static; }
+}
+@media (max-width: 899px) {
+    .offerDecision { padding: 22px; }
+    .merchantDetails, .caseDetail, .auditRecordCard { padding: 22px; }
+    .merchantDecision { margin-top: 26px; }
+}
+@media (max-width: 620px) {
+    .page { padding-bottom: 100px; }
+    .offerDecision { padding: 17px; gap: 18px; }
+    .offerDecisionForm { padding: 18px; }
+    .offerDecisionFoot { align-items: stretch; flex-direction: column; }
+    .offerDecisionFoot p { max-width: none; }
+    .offerPagination { flex-wrap: wrap; }
+    .merchantDetails, .caseDetail, .auditRecordCard { padding: 18px; }
+    .merchantDecision { padding: 18px; gap: 15px; }
+    .merchantDecisionFields { gap: 17px; }
+    .merchantDecision .cardFoot { align-items: stretch; flex-direction: column; }
+    .merchantDecision .cardFoot p { max-width: none; }
+    .caseReferenceCards { grid-template-columns: 1fr; }
+    .caseActions { grid-template-columns: 1fr 1fr; }
+    .caseActionReason { grid-column: 1 / -1; }
+}
+
+.pageButton:focus-visible { outline: 3px solid #fdbe2e; outline-offset: 2px; }
+
+/* V5 — consistent admin pagination, anchored detail panes, and brand scrollbars. */
+.shell {
+    min-height: 100dvh;
+    overflow: visible;
+    scrollbar-color: #9b8b69 #f3ecdf;
+    scrollbar-width: thin;
+}
+.page {
+    padding-bottom: 68px;
+    row-gap: 26px;
+}
+
+/* The list remains part of normal page flow. The selected record stays visible. */
+.merchantReviewWorkspace,
+.offerWorkspace,
+.supportWorkspace,
+.auditWorkspace {
+    align-items: start;
+    min-width: 0;
+}
+.merchantPicker,
+.casePicker,
+.offerPicker {
+    position: static;
+    align-self: start;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    padding-bottom: 0;
+}
+.merchantDetails,
+.caseDetail,
+.offerDecision,
+.auditRecordCard {
+    position: sticky;
+    top: calc(var(--ws-top, 74px) + 18px);
+    align-self: start;
+    max-height: calc(100dvh - var(--ws-top, 74px) - 36px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-color: #9b8b69 #f3ecdf;
+    scrollbar-width: thin;
+}
+.merchantDetails::-webkit-scrollbar,
+.caseDetail::-webkit-scrollbar,
+.offerDecision::-webkit-scrollbar,
+.auditRecordCard::-webkit-scrollbar,
+.merchantPicker::-webkit-scrollbar,
+.casePicker::-webkit-scrollbar,
+.offerPicker::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+}
+.merchantDetails::-webkit-scrollbar-track,
+.caseDetail::-webkit-scrollbar-track,
+.offerDecision::-webkit-scrollbar-track,
+.auditRecordCard::-webkit-scrollbar-track,
+.merchantPicker::-webkit-scrollbar-track,
+.casePicker::-webkit-scrollbar-track,
+.offerPicker::-webkit-scrollbar-track {
+    background: #f3ecdf;
+    border-radius: 99px;
+}
+.merchantDetails::-webkit-scrollbar-thumb,
+.caseDetail::-webkit-scrollbar-thumb,
+.offerDecision::-webkit-scrollbar-thumb,
+.auditRecordCard::-webkit-scrollbar-thumb,
+.merchantPicker::-webkit-scrollbar-thumb,
+.casePicker::-webkit-scrollbar-thumb,
+.offerPicker::-webkit-scrollbar-thumb {
+    background: #9b8b69;
+    border: 2px solid #f3ecdf;
+    border-radius: 99px;
+}
+
+/* Shared pagination is present on every admin collection, including one-page states. */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 16px;
+    padding: 15px 2px 2px;
+    border-top: 1px solid #e8e0d1;
+    color: #52675a;
+    font-size: 13px;
+    line-height: 1.4;
+}
+.paginationSummary {
+    color: #627266;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+.paginationControls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.pageNumber,
+.pageCurrent {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid #e3dac8;
+    border-radius: 10px;
+    background: #fffdf8;
+    color: #173c2c;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+}
+.pageCurrent {
+    border-color: #073324;
+    background: #073324;
+    color: #fffdf8;
+}
+.pageNumber:hover:not(:disabled),
+.pageButton:hover:not(:disabled) {
+    border-color: #073324;
+    background: #f8f2e6;
+}
+.pageNumber:disabled,
+.pageCurrent:disabled { cursor: default; }
+.paginationEllipsis {
+    min-width: 17px;
+    color: #7b887d;
+    text-align: center;
+}
+.pagination .pageButton {
+    min-height: 36px;
+    padding: 0 12px;
+    font-size: 12px;
+}
+.pageNumber:focus-visible,
+.pageCurrent:focus-visible,
+.pagination .pageButton:focus-visible {
+    outline: 3px solid #fdbe2e;
+    outline-offset: 2px;
+}
+.offerPagination { display: none; }
+
+/* Canva audit-log page: full-width filter bar, readable six-column ledger, record card. */
+.auditFilters {
+    grid-template-columns: minmax(140px, 150px) minmax(140px, 150px) minmax(260px, 1fr) minmax(135px, 145px);
+    gap: 14px;
+    padding: 18px;
+    border-radius: 19px;
+}
+.auditFilters label {
+    gap: 8px;
+    font-size: 12px;
+    line-height: 1.35;
+}
+.auditFilters input,
+.auditFilters select {
+    height: 47px;
+    padding-inline: 13px;
+    font-size: 13px;
+    font-weight: 750;
+}
+.auditWorkspace {
+    grid-template-columns: minmax(0, 1.55fr) minmax(300px, .82fr);
+    align-items: start;
+    gap: 24px;
+}
+.auditTableCard {
+    min-width: 0;
+    padding: 17px 0 0;
+    border-radius: 19px;
+}
+.auditTableCard .table { overflow-x: auto; }
+.auditTableCard .table table {
+    width: 100%;
+    min-width: 730px;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.auditTableCard .table th {
+    padding: 0 12px 15px;
+    color: #607164;
+    font-size: 11px;
+    line-height: 1.3;
+    letter-spacing: .09em;
+    white-space: nowrap;
+}
+.auditTableCard .table td {
+    padding: 16px 12px;
+    border-top: 1px solid #eee8dd;
+    color: #244636;
+    font-size: 12.5px;
+    font-weight: 650;
+    line-height: 1.45;
+    vertical-align: middle;
+    overflow-wrap: anywhere;
+}
+.auditTableCard .table td:nth-child(3) strong {
+    color: #073324;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1.4;
+}
+.auditTableCard .table td:nth-child(6) { white-space: nowrap; }
+.auditTableCard .table th:nth-child(1),
+.auditTableCard .table td:nth-child(1) { width: 14%; }
+.auditTableCard .table th:nth-child(2),
+.auditTableCard .table td:nth-child(2) { width: 13%; }
+.auditTableCard .table th:nth-child(3),
+.auditTableCard .table td:nth-child(3) { width: 19%; }
+.auditTableCard .table th:nth-child(4),
+.auditTableCard .table td:nth-child(4) { width: 18%; }
+.auditTableCard .table th:nth-child(5),
+.auditTableCard .table td:nth-child(5) { width: 22%; }
+.auditTableCard .table th:nth-child(6),
+.auditTableCard .table td:nth-child(6) { width: 14%; }
+.auditTableCard > .pagination {
+    margin: 0;
+    padding: 14px 16px 16px;
+    border-top: 1px solid #eee8dd;
+}
+.auditRecordCard {
+    padding: 24px;
+    border-radius: 19px;
+}
+.auditOverline { margin-bottom: 10px; font-size: 11px; }
+.auditRecordTitle { gap: 12px; margin: 12px 0 17px; }
+.auditRecordTitle h2 { font-size: 19px; line-height: 1.3; }
+.auditRecordFacts > div { gap: 7px; padding: 16px 0; }
+.auditRecordFacts dt { font-size: 12px; }
+.auditRecordFacts dd { font-size: 13px; line-height: 1.5; }
+.auditImmutable { margin-top: 19px; font-size: 12px; line-height: 1.5; }
+
+/* Slightly larger text and more air throughout all detail-side content. */
+.header h1 { font-size: clamp(34px, 2.8vw, 43px); }
+.header p { font-size: 16px; line-height: 1.5; }
+.tab, .activeTab { min-height: 42px; padding: 11px 18px; font-size: 14px; }
+.merchantListTop strong,
+.caseItem > strong,
+.caseSelected > strong { font-size: 15px; }
+.merchantListItem > small,
+.merchantSelected > small,
+.caseItem > small:last-child,
+.caseSelected > small:last-child { font-size: 12.5px; }
+.merchantDetails .detailHead h2,
+.caseDetail .detailHead h2 { font-size: clamp(26px, 2.1vw, 33px); }
+.merchantStepper strong { font-size: 13.5px; }
+.merchantFacts dt,
+.merchantFacts dd { font-size: 13.5px; }
+.merchantDocuments .checkList label { font-size: 14px; }
+.merchantDecision > h3 { font-size: 14px; }
+.merchantDecision .segment button { min-height: 51px; font-size: 14px; }
+.merchantDecisionFields .field { font-size: 14px; }
+.merchantDecisionFields .field textarea { min-height: 116px; font-size: 14px; }
+.caseReferenceCards strong { font-size: 13.5px; }
+.caseTimeline article strong { font-size: 12px; }
+.caseTimeline article p { font-size: 14px; }
+.messageComposer .field textarea { min-height: 116px; font-size: 14px; }
+.caseActionReason { font-size: 13px; }
+.caseActionReason input { height: 47px; font-size: 13px; }
+.offerCopy > strong { font-size: 14px; }
+.offerCopy > small { font-size: 12px; }
+.offerPrice strong { font-size: 13px; }
+.offerTags em { font-size: 10px; }
+.offerSelectedHeading h2 { font-size: clamp(25px, 2.2vw, 33px); }
+.offerFacts dt, .offerFacts dd { font-size: 13.5px; }
+.offerReports > div { font-size: 13.5px; }
+.offerAction, .offerActionActive { font-size: 13px; }
+.reasonChip, .reasonChipActive { font-size: 12px; }
+.offerDecisionForm .field { font-size: 14px; }
+.offerDecisionForm .field textarea { min-height: 116px; font-size: 14px; }
+.offerDecisionFoot p { font-size: 12.5px; }
+
+/* Root document scrollbar only while this CSS-module shell is mounted.
+   Keep .shell local in every selector so Next.js CSS Modules accepts it. */
+:global(html):has(.shell) {
+    scrollbar-color: #9b8b69 #f3ecdf;
+    scrollbar-width: thin;
+    scrollbar-gutter: stable;
+}
+:global(html):has(.shell)::-webkit-scrollbar { width: 12px; }
+:global(html):has(.shell)::-webkit-scrollbar-track { background: #f3ecdf; }
+:global(html):has(.shell)::-webkit-scrollbar-thumb {
+    background: #9b8b69;
+    border: 3px solid #f3ecdf;
+    border-radius: 99px;
+}
+
+@media (max-width: 1100px) {
+    .merchantDetails,
+    .caseDetail,
+    .offerDecision,
+    .auditRecordCard {
+        position: static;
+        top: auto;
+        max-height: none;
+        overflow: visible;
+    }
+    .auditWorkspace { grid-template-columns: minmax(0, 1fr); }
+    .auditRecordCard { max-height: none; }
+}
+@media (max-width: 900px) {
+    .auditFilters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .merchantReviewWorkspace,
+    .supportWorkspace,
+    .offerWorkspace { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 620px) {
+    .page { padding-bottom: 50px; }
+    .pagination { align-items: flex-start; }
+    .paginationControls { width: 100%; justify-content: space-between; }
+    .auditFilters { grid-template-columns: minmax(0, 1fr); }
+    .auditTableCard .table table { min-width: 720px; }
+    .auditRecordCard { padding: 19px; }
+}
+
+
+/* Merchant review: use a vertical reading flow in the right-hand detail panel.
+   Business information and documents are stacked, as are the two decision fields. */
+.merchantDetails .merchantOverview {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 30px;
+}
+.merchantDetails .merchantOverview > section {
+    width: 100%;
+    min-width: 0;
+}
+.merchantDetails .merchantBusiness {
+    padding-bottom: 25px;
+    border-bottom: 1px solid #e8e0d2;
+}
+.merchantDetails .merchantBusiness h3,
+.merchantDetails .merchantDocuments h3 {
+    margin-bottom: 16px;
+}
+.merchantDetails .merchantDocuments {
+    padding-top: 0;
+}
+.merchantDetails .merchantDecisionFields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    width: 100%;
+}
+.merchantDetails .merchantDecisionFields > .field {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    width: 100%;
+    margin: 0;
+}
+.merchantDetails .merchantDecisionFields .field > span {
+    display: block;
+    line-height: 1.45;
+}
+.merchantDetails .merchantDecisionFields .field textarea {
+    width: 100%;
+    min-height: 112px;
+    box-sizing: border-box;
+}
+@media (max-width: 620px) {
+    .merchantDetails .merchantOverview,
+    .merchantDetails .merchantDecisionFields {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+
+/* Single document scroll: detail panels must never create nested vertical scroll areas.
+   Keep sticky placement where useful, but let the main page own all vertical scrolling. */
+.merchantDetails,
+.caseDetail,
+.offerDecision,
+.auditRecordCard {
+    max-height: none !important;
+    height: auto;
+    overflow: visible !important;
+    overscroll-behavior: auto;
+    scrollbar-width: auto;
+}
+
+/* Merchant-review compact preview: put the key information above the fold and
+   move the full review workflow into the large two-column dialog below. */
+.merchantDetails {
+    min-width: 0;
+    padding: clamp(24px, 2.4vw, 34px);
+    overflow: visible !important;
+}
+.merchantDetails .detailHead {
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 0;
+}
+.merchantDetails .detailHead h2 {
+    margin: 6px 0 0;
+    font-size: clamp(26px, 2.2vw, 34px);
+    line-height: 1.12;
+}
+.merchantDetails .merchantStepper {
+    gap: 15px;
+    margin: 24px 0 24px;
+}
+.merchantPreviewInfo h3 {
+    margin: 0 0 10px;
+    color: #627466;
+    font-size: 13px;
+    font-weight: 950;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+}
+.merchantDetails .merchantPreviewInfo .merchantFacts > div {
+    gap: 14px;
+    padding: 10px 0;
+    border-top: 1px solid #eee8dd;
+}
+.merchantDetails .merchantPreviewInfo .merchantFacts dt,
+.merchantDetails .merchantPreviewInfo .merchantFacts dd {
+    font-size: 13px;
+    line-height: 1.4;
+}
+.merchantDetails .merchantPreviewInfo .merchantFacts dd {
+    max-width: 68%;
+}
+.merchantReviewCallout {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-top: 20px;
+    padding: 17px 18px;
+    border: 1px solid #e9dfca;
+    border-radius: 16px;
+    background: #f5f0e4;
+}
+.merchantReviewCallout > div { min-width: 0; }
+.merchantReviewCallout strong {
+    display: block;
+    color: #123c2b;
+    font-size: 14px;
+    font-weight: 950;
+}
+.merchantReviewCallout p {
+    margin: 5px 0 0;
+    color: #657469;
+    font-size: 12px;
+    line-height: 1.45;
+}
+.merchantOpenButton {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 48px;
+    padding: 0 20px;
+    border: 1px solid #073b2a;
+    border-radius: 13px;
+    background: #073b2a;
+    color: #fffdf7;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: background .16s ease, transform .16s ease;
+}
+.merchantOpenButton:hover:not(:disabled) { background: #0c5039; transform: translateY(-1px); }
+.merchantOpenButton:disabled { opacity: .55; cursor: wait; }
+
+/* Full merchant-review modal. Its body is the only scrollable area while open;
+   the footer remains visible so the decision action is always within reach. */
+.merchantModalBackdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: grid;
+    place-items: center;
+    padding: clamp(12px, 2vw, 28px);
+    background: rgba(5, 34, 24, .62);
+    backdrop-filter: blur(5px);
+}
+.merchantModal {
+    display: flex;
+    flex-direction: column;
+    width: min(1460px, calc(100vw - 56px));
+    max-height: calc(100dvh - 56px);
+    min-height: 0;
+    overflow: hidden;
+    border: 1px solid #e8dfce;
+    border-radius: 24px;
+    background: #fffdf8;
+    box-shadow: 0 28px 90px rgba(0, 24, 16, .28);
+}
+.merchantModalHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 24px 30px 18px;
+    border-bottom: 1px solid #eee7da;
+    background: #fffdf8;
+}
+.merchantModalTitle { min-width: 0; }
+.merchantModalTitle > small {
+    color: #718073;
+    font-size: 12px;
+    font-weight: 850;
+}
+.merchantModalTitle h2 {
+    margin: 5px 0 0;
+    color: #073b2a;
+    font-size: clamp(25px, 2vw, 32px);
+    font-weight: 950;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+.merchantModalTitle p {
+    margin: 7px 0 0;
+    color: #69796e;
+    font-size: 13px;
+    line-height: 1.45;
+}
+.merchantModalHeaderActions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 12px;
+}
+.merchantModalClose {
+    display: grid;
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border: 1px solid #e7dfd1;
+    border-radius: 12px;
+    background: #fffefa;
+    color: #173c2c;
+    cursor: pointer;
+}
+.merchantModalClose:hover { border-color: #b9aa90; background: #f6f0e3; }
+.merchantModalStepper {
+    flex: 0 0 auto;
+    margin: 0 !important;
+    padding: 16px 30px 18px;
+    border-bottom: 1px solid #eee7da;
+    background: #faf7ef;
+}
+.merchantModalStepper > div > span { width: 30px; height: 30px; flex-basis: 30px; }
+.merchantModalStepper strong { font-size: 13px; }
+.merchantModalBody {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 22px;
+    min-height: 0;
+    padding: 22px 30px 26px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-color: #9b8b69 #f3ecdf;
+    scrollbar-width: thin;
+}
+.merchantModalBody::-webkit-scrollbar { width: 10px; }
+.merchantModalBody::-webkit-scrollbar-track { background: #f3ecdf; border-radius: 99px; }
+.merchantModalBody::-webkit-scrollbar-thumb { background: #9b8b69; border: 2px solid #f3ecdf; border-radius: 99px; }
+.merchantModalColumn {
+    display: grid;
+    align-content: start;
+    gap: 20px;
+    min-width: 0;
+}
+.merchantModalSection {
+    min-width: 0;
+    padding: 22px;
+    border: 1px solid #ece4d6;
+    border-radius: 18px;
+    background: #fffefa;
+}
+.merchantModalSection > h3 {
+    margin: 0 0 16px;
+    color: #617366;
+    font-size: 13px;
+    font-weight: 950;
+    letter-spacing: .085em;
+    text-transform: uppercase;
+}
+.merchantModalSection .merchantFacts > div {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 0;
+    border-top: 1px solid #eee8dd;
+}
+.merchantModalSection .merchantFacts dt {
+    flex: 0 0 116px;
+    color: #69796e;
+    font-size: 13px;
+    line-height: 1.45;
+}
+.merchantModalSection .merchantFacts dd {
+    min-width: 0;
+    color: #173c2c;
+    font-size: 13px;
+    font-weight: 850;
+    line-height: 1.45;
+    text-align: end;
+    overflow-wrap: anywhere;
+}
+.merchantModalSection .missingDocs {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-height: 0;
+    padding: 17px;
+    border: 1px solid #f1c9c2;
+    border-radius: 13px;
+    background: #fbe9e5;
+    color: #a3281c;
+}
+.merchantModalSection .missingDocs > svg { flex: 0 0 auto; margin-top: 2px; }
+.merchantModalSection .missingDocs strong { display: block; font-size: 13px; line-height: 1.4; }
+.merchantModalSection .missingDocs small { display: block; margin-top: 5px; color: #925047; font-size: 12px; line-height: 1.5; }
+.merchantModalSection .checkList {
+    display: grid;
+    gap: 14px;
+}
+.merchantModalSection .checkList label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 32px;
+    color: #173c2c;
+    font-size: 14px;
+    font-weight: 750;
+    line-height: 1.4;
+}
+.merchantModalSection .checkList input { flex: 0 0 auto; width: 19px; height: 19px; accent-color: #073b2a; }
+.merchantModalSection .approveNote { margin: 15px 0 0; color: #778378; font-size: 12px; line-height: 1.45; }
+.merchantModalDecision {
+    display: grid;
+    gap: 17px;
+    margin: 0;
+    padding: 22px;
+    border: 1px solid #ece4d4;
+    border-radius: 18px;
+    background: #f4efe3;
+}
+.merchantModalDecision > h3 { margin: 0; }
+.merchantModalDecision .segment {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 9px;
+}
+.merchantModalDecision .segment button {
+    min-width: 0;
+    min-height: 47px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    line-height: 1.25;
+    white-space: normal;
+}
+.merchantModalDecision .merchantDecisionFields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 17px;
+    margin: 0;
+}
+.merchantModalDecision .field {
+    display: grid;
+    gap: 9px;
+    margin: 0;
+    color: #173c2c;
+    font-size: 13px;
+    font-weight: 850;
+    line-height: 1.4;
+}
+.merchantModalDecision .field textarea {
+    display: block;
+    width: 100%;
+    min-height: 92px;
+    padding: 13px 15px;
+    border: 1px solid #dfd6c6;
+    border-radius: 12px;
+    background: #fffefa;
+    color: #173c2c;
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: none;
+}
+.merchantModalFooter {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 22px;
+    padding: 16px 30px 20px;
+    border-top: 1px solid #eae2d4;
+    background: #fffdf8;
+}
+.merchantModalFooter p {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    max-width: 68%;
+    margin: 0;
+    color: #66766b;
+    font-size: 12px;
+    line-height: 1.45;
+}
+.merchantModalFooter p svg { flex: 0 0 auto; }
+.merchantModalFooter .primary { min-width: 190px; min-height: 48px; white-space: nowrap; }
+
+@media (max-width: 900px) {
+    .merchantModal { width: min(760px, calc(100vw - 28px)); max-height: calc(100dvh - 28px); }
+    .merchantModalBody { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 18px 22px 22px; }
+    .merchantModalHeader { padding: 20px 22px 16px; }
+    .merchantModalStepper { padding-inline: 22px; }
+    .merchantModalFooter { padding-inline: 22px; }
+}
+@media (max-width: 620px) {
+    .merchantDetails { padding: 20px; }
+    .merchantDetails .merchantStepper { gap: 7px; margin: 19px 0; }
+    .merchantDetails .merchantStepper strong { font-size: 10px; white-space: normal; }
+    .merchantDetails .merchantPreviewInfo .merchantFacts > div { gap: 8px; }
+    .merchantDetails .merchantPreviewInfo .merchantFacts dd { max-width: 62%; }
+    .merchantReviewCallout { align-items: stretch; flex-direction: column; }
+    .merchantOpenButton { width: 100%; }
+    .merchantModalBackdrop { padding: 8px; }
+    .merchantModal { width: 100%; max-height: calc(100dvh - 16px); border-radius: 17px; }
+    .merchantModalHeader { gap: 12px; padding: 16px 16px 13px; }
+    .merchantModalTitle h2 { font-size: 22px; }
+    .merchantModalTitle p { font-size: 12px; }
+    .merchantModalHeaderActions { gap: 7px; }
+    .merchantModalHeaderActions .pill { max-width: 100px; white-space: normal; text-align: center; }
+    .merchantModalClose { flex-basis: 38px; width: 38px; height: 38px; }
+    .merchantModalStepper { gap: 6px; padding: 12px 15px; }
+    .merchantModalStepper > div { gap: 5px; }
+    .merchantModalStepper > div > span { width: 24px; height: 24px; flex-basis: 24px; }
+    .merchantModalStepper strong { font-size: 10px; white-space: normal; }
+    .merchantModalBody { gap: 13px; padding: 13px; }
+    .merchantModalColumn { gap: 13px; }
+    .merchantModalSection, .merchantModalDecision { padding: 16px; border-radius: 14px; }
+    .merchantModalSection .merchantFacts dt { flex-basis: 88px; font-size: 12px; }
+    .merchantModalSection .merchantFacts dd { font-size: 12px; }
+    .merchantModalDecision .segment { grid-template-columns: minmax(0, 1fr); }
+    .merchantModalFooter { align-items: stretch; flex-direction: column; gap: 12px; padding: 13px 16px 16px; }
+    .merchantModalFooter p { max-width: none; }
+    .merchantModalFooter .primary { width: 100%; }
+}
+
+
+/* V9 — compact merchant summary: pair short facts, give long values full width. */
+.merchantDetails .merchantPreviewInfo .merchantFacts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 26px;
+    row-gap: 3px;
+}
+.merchantDetails .merchantPreviewInfo .merchantFacts > div {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 5px;
+    min-width: 0;
+    padding: 9px 0 10px;
+    border-top: 1px solid #eee8dd;
+}
+/* Type + phone share a row; address receives the full row; email + submission share a row. */
+.merchantDetails .merchantPreviewInfo .merchantFacts > div:nth-child(2) {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 20px;
+}
+.merchantDetails .merchantPreviewInfo .merchantFacts > div:nth-child(3) {
+    grid-column: 2;
+    grid-row: 1;
+}
+.merchantDetails .merchantPreviewInfo .merchantFacts > div:nth-child(4) {
+    grid-column: 1;
+}
+.merchantDetails .merchantPreviewInfo .merchantFacts > div:nth-child(5) {
+    grid-column: 2;
+}
+.merchantDetails .merchantPreviewInfo .merchantFacts dt {
+    flex: 0 0 auto;
+    color: #637267;
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1.35;
+}
+.merchantDetails .merchantPreviewInfo .merchantFacts dd {
+    max-width: 100%;
+    min-width: 0;
+    color: #173c2c;
+    font-size: 13px;
+    font-weight: 850;
+    line-height: 1.4;
+    text-align: start;
+    overflow-wrap: anywhere;
+}
+.merchantDetails .merchantReviewCallout {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    margin-top: 14px;
+    padding: 14px 16px;
+}
+.merchantDetails .merchantReviewCallout > div {
+    flex: 1 1 auto;
+}
+.merchantDetails .merchantOpenButton {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+@media (max-width: 760px) {
+    .merchantDetails .merchantPreviewInfo .merchantFacts {
+        grid-template-columns: minmax(0, 1fr);
+        column-gap: 0;
+    }
+    .merchantDetails .merchantPreviewInfo .merchantFacts > div,
+    .merchantDetails .merchantPreviewInfo .merchantFacts > div:nth-child(2),
+    .merchantDetails .merchantPreviewInfo .merchantFacts > div:nth-child(3),
+    .merchantDetails .merchantPreviewInfo .merchantFacts > div:nth-child(4),
+    .merchantDetails .merchantPreviewInfo .merchantFacts > div:nth-child(5) {
+        grid-column: 1;
+        grid-row: auto;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
+    }
+    .merchantDetails .merchantReviewCallout {
+        align-items: stretch;
+        flex-direction: column;
+    }
+    .merchantDetails .merchantOpenButton {
+        width: 100%;
+    }
+}
+
+/* V10 — keep the merchant summary compact and move the collection scroll
+   into the left-hand merchant-card list. The detail preview remains natural-height. */
+.merchantReviewWorkspace {
+    align-items: stretch;
+    gap: 22px;
+}
+
+.merchantPicker {
+    display: flex;
+    flex-direction: column;
+    height: clamp(300px, calc(100dvh - 420px), 560px);
+    min-height: 0;
+    max-height: none;
+    overflow: hidden;
+    align-self: stretch;
+    padding: 0;
+}
+
+.merchantPicker .list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-color: #9b8b69 #f3ecdf;
+    scrollbar-width: thin;
+    padding: 0 8px 8px 0;
+    gap: 11px;
+}
+
+.merchantPicker .list::-webkit-scrollbar {
+    width: 9px;
+}
+.merchantPicker .list::-webkit-scrollbar-track {
+    background: #f3ecdf;
+    border-radius: 99px;
+}
+.merchantPicker .list::-webkit-scrollbar-thumb {
+    background: #9b8b69;
+    border: 2px solid #f3ecdf;
+    border-radius: 99px;
+}
+
+.merchantPicker > .pagination {
+    flex: 0 0 auto;
+    margin-top: 10px;
+    padding: 11px 0 0;
+    background: #f7f1e5;
+}
+
+.merchantPicker > .empty {
+    flex: 1 1 auto;
+    display: grid;
+    place-items: center;
+    margin: 0;
+}
+
+.merchantDetails {
+    position: static;
+    align-self: stretch;
+    height: auto;
+    min-height: 0;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: clamp(20px, 1.8vw, 28px);
+}
+
+.merchantDetails .merchantStepper {
+    gap: 12px;
+    margin: 17px 0 18px;
+}
+
+.merchantDetails .merchantPreviewInfo .merchantFacts > div {
+    padding-top: 7px;
+    padding-bottom: 8px;
+}
+
+.merchantDetails .merchantReviewCallout {
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+    padding: 10px 13px;
+}
+
+.merchantDetails .merchantReviewCallout strong {
+    font-size: 13px;
+    line-height: 1.25;
+}
+
+.merchantDetails .merchantReviewCallout p {
+    margin-top: 3px;
+    font-size: 11.5px;
+    line-height: 1.35;
+}
+
+.merchantDetails .merchantOpenButton {
+    min-height: 42px;
+    padding-inline: 16px;
+}
+
+@media (max-width: 900px) {
+    .merchantReviewWorkspace {
+        align-items: stretch;
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .merchantPicker {
+        height: clamp(250px, 42dvh, 380px);
+    }
+    .merchantDetails {
+        align-self: start;
+    }
+}
+
+@media (max-width: 620px) {
+    .merchantPicker {
+        height: min(340px, 45dvh);
+        min-height: 220px;
+    }
+    .merchantDetails .merchantReviewCallout {
+        gap: 9px;
+        padding: 11px 12px;
+    }
+}
+
+
+/* V11 — merchant cards must size to their content, not stretch to fill the list.
+   The list itself remains the scroll container; pagination remains outside it. */
+.merchantPicker .list {
+    display: grid;
+    grid-auto-rows: max-content;
+    align-content: start;
+    align-items: start;
+    justify-items: stretch;
+}
+
+.merchantPicker .merchantListItem,
+.merchantPicker .merchantSelected {
+    height: auto;
+    min-height: 0;
+    align-self: start;
+    justify-self: stretch;
+    padding: 13px 16px;
+    gap: 5px;
+}
+
+.merchantPicker .merchantListTop {
+    min-height: 0;
+}
+
+.merchantPicker .merchantListItem > small,
+.merchantPicker .merchantSelected > small {
+    line-height: 1.35;
+}
+
+
+/* V12 — offer moderation follows the compact preview -> full decision modal workflow. */
+.offerWorkspace {
+    display: grid;
+    grid-template-columns: minmax(300px, .86fr) minmax(0, 1.14fr);
+    gap: 24px;
+    height: min(780px, calc(100dvh - 250px));
+    min-height: 470px;
+    align-items: stretch;
+}
+.offerPicker {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    max-height: none;
+    padding: 20px;
+    overflow: hidden;
+    border: 1px solid #eee4d1;
+    border-radius: 22px;
+    background: #fffdf8;
+    box-shadow: 0 8px 28px #60491e0b;
+}
+.offerPicker .tabs {
+    flex: 0 0 auto;
+    position: static;
+    gap: 9px;
+    padding: 0 0 15px;
+    background: transparent;
+}
+.offerQueue {
+    display: grid;
+    grid-auto-rows: max-content;
+    align-content: start;
+    gap: 12px;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 2px 8px 10px 0;
+    overscroll-behavior: contain;
+    scrollbar-color: #9b8b69 #f3ecdf;
+    scrollbar-width: thin;
+}
+.offerQueue::-webkit-scrollbar { width: 9px; }
+.offerQueue::-webkit-scrollbar-track { background: #f3ecdf; border-radius: 99px; }
+.offerQueue::-webkit-scrollbar-thumb { background: #9b8b69; border: 2px solid #f3ecdf; border-radius: 99px; }
+.offerPicker > .pagination {
+    flex: 0 0 auto;
+    margin-top: 10px;
+    padding-top: 12px;
+}
+.offerPreviewCard {
+    align-self: start;
+    display: grid;
+    gap: 20px;
+    min-width: 0;
+    padding: clamp(22px, 2vw, 30px);
+    border: 1px solid #eee4d1;
+    border-radius: 22px;
+    background: #fffdf8;
+    box-shadow: 0 8px 28px #60491e0b;
+}
+.offerPreviewHeading {
+    display: grid;
+    grid-template-columns: 104px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 17px;
+    min-width: 0;
+}
+.offerPreviewThumb {
+    display: grid;
+    place-items: center;
+    width: 104px;
+    height: 94px;
+    overflow: hidden;
+    border-radius: 15px;
+    background: #eae4d2;
+    color: #708072;
+}
+.offerPreviewThumb img { width: 100%; height: 100%; object-fit: cover; }
+.offerPreviewTitle { min-width: 0; }
+.offerPreviewTitle > small { color: #718075; font-size: 12px; font-weight: 850; }
+.offerPreviewTitle h2 {
+    margin: 5px 0 5px;
+    color: #073b2a;
+    font-size: clamp(23px, 2vw, 30px);
+    font-weight: 950;
+    line-height: 1.12;
+    overflow-wrap: anywhere;
+}
+.offerPreviewTitle p { margin: 0; color: #66776a; font-size: 13px; line-height: 1.4; }
+.offerPreviewFacts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 24px;
+    margin: 0;
+}
+.offerPreviewFacts > div {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+    padding: 13px 0;
+    border-top: 1px solid #eee8dd;
+}
+.offerPreviewFacts dt { color: #66776a; font-size: 13px; }
+.offerPreviewFacts dd { margin: 0; color: #173c2c; font-size: 13px; font-weight: 900; text-align: end; overflow-wrap: anywhere; }
+.offerPreviewAlert {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 13px 15px;
+    border: 1px solid #f0d9a2;
+    border-radius: 14px;
+    background: #fff1c9;
+    color: #71501a;
+}
+.offerPreviewAlert > svg { flex: 0 0 auto; margin-top: 1px; }
+.offerPreviewAlert strong { display: block; font-size: 13px; line-height: 1.4; }
+.offerPreviewAlert small { display: block; margin-top: 3px; color: #806a42; font-size: 12px; line-height: 1.45; }
+.offerReviewCallout {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 16px 17px;
+    border: 1px solid #e9dfca;
+    border-radius: 16px;
+    background: #f5f0e4;
+}
+.offerReviewCallout > div { min-width: 0; }
+.offerReviewCallout strong { display: block; color: #123c2b; font-size: 14px; font-weight: 950; }
+.offerReviewCallout p { margin: 5px 0 0; color: #657469; font-size: 12px; line-height: 1.45; }
+.offerEmpty { min-height: 230px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: #718075; text-align: center; }
+.offerEmpty svg { color: #9aab9d; }
+.offerEmpty strong { color: #073324; font-size: 18px; }
+.offerEmpty span { max-width: 240px; font-size: 13px; line-height: 1.5; }
+.offerModal { width: min(1380px, calc(100vw - 56px)); }
+.offerModalBody { grid-template-columns: minmax(0, 1.04fr) minmax(0, .96fr); }
+.offerModalVisual {
+    display: grid;
+    place-items: center;
+    height: clamp(180px, 24vh, 270px);
+    margin-bottom: 17px;
+    overflow: hidden;
+    border-radius: 15px;
+    background: #eae4d2;
+}
+.offerModalVisual img { width: 100%; height: 100%; object-fit: cover; }
+.offerModalFacts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 18px;
+    margin: 0;
+}
+.offerModalFacts > div {
+    display: grid;
+    gap: 5px;
+    min-width: 0;
+    padding: 11px 0;
+    border-top: 1px solid #eee8dd;
+}
+.offerModalFacts dt { color: #68796d; font-size: 12px; }
+.offerModalFacts dd { margin: 0; color: #173c2c; font-size: 13px; font-weight: 900; overflow-wrap: anywhere; }
+.offerModalReport {
+    display: grid;
+    gap: 6px;
+    padding: 14px 15px;
+    border-radius: 13px;
+    background: #f7f2e6;
+    color: #173c2c;
+    font-size: 13px;
+}
+.offerModalReport strong { font-size: 13px; }
+.offerModalReport span { color: #68796d; font-size: 12px; }
+.offerModalNoReports { margin: 0; color: #68796d; font-size: 13px; line-height: 1.5; }
+.offerModalFoodNotes { margin-top: 15px; padding: 14px 15px; border-radius: 13px; background: #f7f2e6; }
+.offerModalFoodNotes strong { color: #173c2c; font-size: 12px; }
+.offerModalFoodNotes p { margin: 6px 0 0; color: #53675a; font-size: 13px; line-height: 1.5; }
+.offerModalDecision {
+    display: grid;
+    align-content: start;
+    gap: 17px;
+    margin: 0;
+    padding: 22px;
+    border: 1px solid #ece4d4;
+    border-radius: 18px;
+    background: #f4efe3;
+}
+.offerModalDecision > h3 { margin: 0; }
+.offerModalDecisionHint { margin: -8px 0 0; color: #718075; font-size: 12px; line-height: 1.45; }
+.offerModalDecision .offerActionRow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin: 0; }
+.offerModalDecision .offerAction,
+.offerModalDecision .offerActionActive { min-width: 0; min-height: 46px; padding: 8px 10px; font-size: 12px; line-height: 1.3; white-space: normal; }
+.offerModalDecision .reasonChips { display: flex; flex-wrap: wrap; gap: 8px; }
+.offerModalDecision .field { gap: 9px; margin: 0; color: #173c2c; font-size: 13px; }
+.offerModalDecision .field textarea { min-height: 140px; resize: none; border-radius: 13px; font-size: 14px; }
+.offerModal .merchantModalFooter { gap: 20px; }
+.offerModal .merchantModalFooter p { max-width: 65%; }
+.offerModal .merchantModalFooter .primary { min-width: 205px; }
+@media (max-width: 1100px) {
+    .offerWorkspace { height: min(760px, calc(100dvh - 235px)); grid-template-columns: minmax(260px, .78fr) minmax(0, 1.22fr); gap: 18px; }
+    .offerPreviewHeading { grid-template-columns: 82px minmax(0, 1fr); }
+    .offerPreviewHeading > .pill { grid-column: 2; justify-self: start; }
+    .offerPreviewThumb { width: 82px; height: 78px; grid-row: span 2; }
+    .offerPreviewFacts { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 900px) {
+    .offerWorkspace { height: auto; min-height: 0; grid-template-columns: minmax(0, 1fr); }
+    .offerPicker { height: min(560px, 65dvh); min-height: 330px; }
+    .offerPreviewCard { align-self: stretch; }
+    .offerModalBody { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 620px) {
+    .offerPicker { height: min(520px, 62dvh); min-height: 300px; padding: 14px; }
+    .offerPreviewCard { gap: 15px; padding: 17px; }
+    .offerPreviewHeading { grid-template-columns: 70px minmax(0, 1fr); gap: 12px; }
+    .offerPreviewThumb { width: 70px; height: 70px; }
+    .offerPreviewTitle h2 { font-size: 21px; }
+    .offerPreviewHeading > .pill { grid-column: 2; }
+    .offerPreviewFacts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
+    .offerReviewCallout { align-items: stretch; flex-direction: column; }
+    .offerReviewCallout .merchantOpenButton { width: 100%; }
+    .offerModal { width: 100%; }
+    .offerModalFacts { grid-template-columns: minmax(0, 1fr); }
+    .offerModalDecision .offerActionRow { grid-template-columns: minmax(0, 1fr); }
+    .offerModal .merchantModalFooter { align-items: stretch; flex-direction: column; }
+    .offerModal .merchantModalFooter p { max-width: none; }
+    .offerModal .merchantModalFooter .primary { width: 100%; }
+}
+
+
+/* V13 — wider, taller offer queue with no enclosing white card surface.
+   Individual offer rows remain white so the queue is still easy to scan. */
+.offerWorkspace {
+    grid-template-columns: minmax(380px, 1fr) minmax(0, 1.08fr);
+    gap: clamp(22px, 2vw, 30px);
+    height: min(860px, calc(100dvh - 190px));
+    min-height: 580px;
+    align-items: stretch;
+}
+
+.offerPicker {
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+    padding: 0 12px 0 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.offerPicker .tabs {
+    padding: 0 0 17px;
+    background: transparent;
+}
+
+.offerQueue {
+    min-height: 0;
+    gap: 13px;
+    padding: 2px 9px 12px 0;
+}
+
+/* Keep the custom scrollbar but let it visually blend into the page. */
+.offerQueue::-webkit-scrollbar-track {
+    background: #f5efe3;
+}
+.offerQueue::-webkit-scrollbar-thumb {
+    border-color: #f5efe3;
+}
+
+@media (max-width: 1100px) {
+    .offerWorkspace {
+        grid-template-columns: minmax(320px, .96fr) minmax(0, 1.04fr);
+        height: min(820px, calc(100dvh - 180px));
+        min-height: 540px;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 900px) {
+    .offerWorkspace {
+        grid-template-columns: minmax(0, 1fr);
+        height: auto;
+        min-height: 0;
+        gap: 24px;
+    }
+    .offerPicker {
+        height: min(620px, 72dvh);
+        min-height: 360px;
+        padding: 0 10px 0 0;
+    }
+}
+
+@media (max-width: 620px) {
+    .offerPicker {
+        height: min(560px, 68dvh);
+        min-height: 320px;
+        padding-right: 6px;
+    }
+}
+
+/* V14 — Audit Explorer: full-width ledger and a centered, two-column event modal. */
+.auditExplorer {
+    display: grid;
+    gap: 13px;
+    min-width: 0;
+}
+.auditExplorerHeading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    min-width: 0;
+}
+.auditExplorerHeading h2 {
+    margin: 0;
+    color: #073324;
+    font-size: 22px;
+    line-height: 1.2;
+    font-weight: 950;
+    letter-spacing: -.02em;
+}
+.auditExplorerHeading p {
+    margin: 5px 0 0;
+    color: #66776a;
+    font-size: 13px;
+}
+.auditExplorerHeading > span {
+    color: #66776a;
+    font-size: 12px;
+    font-weight: 850;
+    white-space: nowrap;
+}
+.auditExplorer .auditTableCard {
+    padding: 0;
+    border: 1px solid #eee4d1;
+    border-radius: 20px;
+    background: #fffdf8;
+    box-shadow: 0 8px 26px #60491e09;
+    overflow: hidden;
+}
+.auditExplorer .auditTableCard .table {
+    overflow-x: auto;
+}
+.auditExplorer .auditTableCard .table table {
+    width: 100%;
+    min-width: 980px;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.auditExplorer .auditTableCard .table th {
+    padding: 17px 15px;
+    background: #faf6ec;
+    border-bottom: 1px solid #eae1d1;
+    color: #657568;
+    font-size: 10px;
+    line-height: 1.3;
+    letter-spacing: .1em;
+    white-space: nowrap;
+}
+.auditExplorer .auditTableCard .table td {
+    padding: 15px;
+    border-top: 0;
+    border-bottom: 1px solid #eee8dd;
+    color: #254536;
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1.4;
+    vertical-align: middle;
+    overflow-wrap: anywhere;
+}
+.auditExplorer .auditTableCard .table tr:last-child td { border-bottom: 0; }
+.auditExplorer .auditTableCard .table tbody tr {
+    cursor: pointer;
+    transition: background .14s ease;
+}
+.auditExplorer .auditTableCard .table tbody tr:hover { background: #f8f4e9; }
+.auditExplorer .auditTableCard .table tbody tr:focus-visible {
+    outline: 3px solid #fdbe2e;
+    outline-offset: -3px;
+}
+.auditExplorer .auditTableCard .table td strong {
+    display: block;
+    color: #073324;
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1.4;
+}
+.auditExplorer .auditTableCard .table td small {
+    display: block;
+    margin-top: 4px;
+    color: #788679;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 10px;
+    font-weight: 650;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+.auditExplorer .auditTableCard .table th:nth-child(1),
+.auditExplorer .auditTableCard .table td:nth-child(1) { width: 14%; }
+.auditExplorer .auditTableCard .table th:nth-child(2),
+.auditExplorer .auditTableCard .table td:nth-child(2) { width: 15%; }
+.auditExplorer .auditTableCard .table th:nth-child(3),
+.auditExplorer .auditTableCard .table td:nth-child(3) { width: 20%; }
+.auditExplorer .auditTableCard .table th:nth-child(4),
+.auditExplorer .auditTableCard .table td:nth-child(4) { width: 17%; }
+.auditExplorer .auditTableCard .table th:nth-child(5),
+.auditExplorer .auditTableCard .table td:nth-child(5) { width: 22%; }
+.auditExplorer .auditTableCard .table th:nth-child(6),
+.auditExplorer .auditTableCard .table td:nth-child(6) { width: 12%; }
+.auditExplorer .auditTableCard .table td:nth-child(6) { white-space: nowrap; }
+.auditExplorer .empty {
+    margin: 0;
+    padding: 34px 20px;
+    text-align: center;
+}
+.auditPaginationBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 11px 15px 13px;
+    border-top: 1px solid #eee8dd;
+    background: #fffdf8;
+}
+.auditPaginationBar .pagination {
+    flex: 1 1 auto;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+}
+.auditPageSize {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #66776a;
+    font-size: 11px;
+    font-weight: 850;
+    white-space: nowrap;
+}
+.auditPageSize select {
+    width: 70px;
+    height: 37px;
+    padding: 0 9px;
+    border: 1px solid #e3dac8;
+    border-radius: 10px;
+    background: #fffdf8;
+    color: #073324;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 850;
+}
+.auditPageSize select:focus-visible {
+    outline: 3px solid #fdbe2e;
+    outline-offset: 2px;
+}
+
+.auditModalBackdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+    background: rgb(7 35 25 / 52%);
+    backdrop-filter: blur(4px);
+}
+.auditModal {
+    display: flex;
+    flex-direction: column;
+    width: min(1120px, 100%);
+    max-height: min(880px, calc(100dvh - 56px));
+    min-height: 0;
+    overflow: hidden;
+    border: 1px solid #e8dfcf;
+    border-radius: 24px;
+    background: #fffdf8;
+    box-shadow: 0 28px 90px rgb(7 35 25 / 28%);
+}
+.auditModalHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 25px 29px 22px;
+    border-bottom: 1px solid #eee8dd;
+    background: #fffdf8;
+}
+.auditModalTitle { min-width: 0; }
+.auditModalTitle > small {
+    display: block;
+    color: #6d7c70;
+    font-size: 10px;
+    font-weight: 950;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+}
+.auditModalTitle h2 {
+    margin: 7px 0 4px;
+    color: #073324;
+    font-size: clamp(23px, 2.2vw, 30px);
+    font-weight: 950;
+    line-height: 1.15;
+    letter-spacing: -.025em;
+    overflow-wrap: anywhere;
+}
+.auditModalTitle p {
+    margin: 0;
+    color: #748176;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    font-weight: 650;
+    overflow-wrap: anywhere;
+}
+.auditModalHeaderActions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 0 0 auto;
+}
+.auditModalClose {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid #e5dccb;
+    border-radius: 13px;
+    background: #fffdf8;
+    color: #244536;
+    cursor: pointer;
+}
+.auditModalClose:hover { background: #f5efe3; }
+.auditModalClose:focus-visible {
+    outline: 3px solid #fdbe2e;
+    outline-offset: 2px;
+}
+.auditModalBody {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 20px;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 24px 29px;
+    scrollbar-width: thin;
+    scrollbar-color: #9b8b69 #f3ecdf;
+}
+.auditModalBody::-webkit-scrollbar { width: 10px; }
+.auditModalBody::-webkit-scrollbar-track { background: #f3ecdf; border-radius: 99px; }
+.auditModalBody::-webkit-scrollbar-thumb { background: #9b8b69; border: 2px solid #f3ecdf; border-radius: 99px; }
+.auditModalPanel {
+    min-width: 0;
+    padding: 21px 22px;
+    border: 1px solid #eee5d5;
+    border-radius: 18px;
+    background: #f7f2e8;
+}
+.auditModalPanel h3 {
+    margin: 0 0 17px;
+    color: #526c5b;
+    font-size: 11px;
+    font-weight: 1000;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+.auditModalFacts { display: grid; gap: 0; margin: 0; }
+.auditModalFacts > div {
+    display: grid;
+    gap: 7px;
+    min-width: 0;
+    padding: 13px 0;
+    border-top: 1px solid #e5ddcf;
+}
+.auditModalFacts > div:first-child { padding-top: 0; border-top: 0; }
+.auditModalFacts dt {
+    color: #738075;
+    font-size: 11px;
+    font-weight: 750;
+}
+.auditModalFacts dd {
+    min-width: 0;
+    margin: 0;
+    color: #173c2c;
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+.auditModalFacts dd code {
+    color: #526c5b;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    font-weight: 750;
+    overflow-wrap: anywhere;
+}
+.auditModalFacts .auditModalReason dd {
+    padding: 13px 14px;
+    border: 1px solid #e7dece;
+    border-radius: 12px;
+    background: #fffdf8;
+    font-weight: 700;
+}
+.auditModalFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 18px 29px;
+    border-top: 1px solid #eee8dd;
+    background: #fffdf8;
+}
+.auditModalFooter p {
+    display: grid;
+    grid-template-columns: 17px minmax(0, 1fr);
+    align-items: start;
+    gap: 7px 9px;
+    margin: 0;
+    color: #68786d;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+.auditModalFooter p svg { grid-row: span 2; margin-top: 1px; }
+.auditModalFooter p small {
+    grid-column: 2;
+    color: #879287;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 10px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+.auditModalFooter .primary { flex: 0 0 auto; min-width: 110px; }
+
+@media (max-width: 900px) {
+    .auditFilters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .auditModalBackdrop { padding: 18px; }
+    .auditModal { max-height: calc(100dvh - 36px); }
+    .auditModalHeader { padding: 21px 22px 18px; }
+    .auditModalBody { padding: 19px 22px; gap: 15px; }
+    .auditModalPanel { padding: 18px; }
+    .auditModalFooter { padding: 16px 22px; }
+}
+@media (max-width: 700px) {
+    .auditExplorerHeading { align-items: flex-start; flex-direction: column; gap: 5px; }
+    .auditPaginationBar { align-items: stretch; flex-direction: column; gap: 10px; }
+    .auditPaginationBar .pagination { flex-wrap: wrap; }
+    .auditModalBackdrop { align-items: flex-end; padding: 8px; }
+    .auditModal { width: 100%; max-height: calc(100dvh - 16px); border-radius: 21px 21px 15px 15px; }
+    .auditModalHeader { padding: 18px 17px 15px; }
+    .auditModalHeaderActions { gap: 7px; }
+    .auditModalClose { width: 38px; height: 38px; }
+    .auditModalBody { grid-template-columns: minmax(0, 1fr); padding: 15px 17px; gap: 12px; }
+    .auditModalPanel { padding: 17px; }
+    .auditModalFooter { align-items: stretch; flex-direction: column; padding: 15px 17px; }
+    .auditModalFooter .primary { width: 100%; }
+}
+@media (max-width: 560px) {
+    .auditFilters { grid-template-columns: minmax(0, 1fr); }
+    .auditExplorer .auditTableCard .table table { min-width: 930px; }
+}
+.auditTableReason {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    color: #5f7063;
+    font-size: 11.5px;
+    line-height: 1.4;
+}
+
+
+/* V15 — branded audit filter toolbar */
+.auditFilters {
+    display: grid;
+    grid-template-columns: minmax(230px, 1.55fr) repeat(2, minmax(145px, .82fr)) minmax(190px, 1.05fr) minmax(155px, .88fr);
+    align-items: end;
+    gap: 14px;
+    min-width: 0;
+    padding: 19px 20px 20px;
+    border: 1px solid #e9e0d0;
+    border-radius: 21px;
+    background: #fffdf8;
+    box-shadow: 0 8px 26px rgb(75 57 26 / 4%);
+}
+.auditFilterField {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+    color: #586f60;
+    font-size: 11px;
+    font-weight: 950;
+    letter-spacing: .025em;
+}
+.auditFilterControl {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    height: 49px;
+    border: 1px solid #e2d9c9;
+    border-radius: 13px;
+    background: #faf7ef;
+    color: #073324;
+    transition: border-color .16s ease, background .16s ease, box-shadow .16s ease;
+}
+.auditFilterControl:hover {
+    border-color: #c7bda9;
+    background: #fffefa;
+}
+.auditFilterControl:focus-within {
+    border-color: #073324;
+    background: #fffefa;
+    box-shadow: 0 0 0 3px rgb(253 190 46 / 30%);
+}
+.auditFilterLeadingIcon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    z-index: 1;
+    transform: translateY(-50%);
+    flex: 0 0 auto;
+    color: #718174;
+    pointer-events: none;
+}
+.auditFilterControl input,
+.auditFilterControl select {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0 14px 0 43px;
+    border: 0;
+    outline: 0;
+    border-radius: inherit;
+    background: transparent;
+    color: #173c2c;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 750;
+    letter-spacing: 0;
+}
+.auditFilterControl input::placeholder {
+    color: #8b968d;
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 1;
+}
+.auditFilterControl input[type="date"] {
+    color-scheme: light;
+    cursor: pointer;
+    font-variant-numeric: tabular-nums;
+}
+.auditFilterControl input[type="date"]::-webkit-calendar-picker-indicator {
+    width: 18px;
+    height: 18px;
+    margin: 0 0 0 5px;
+    opacity: .48;
+    cursor: pointer;
+    filter: sepia(.25) saturate(.75) hue-rotate(65deg);
+}
+.auditFilterControl input[type="search"]::-webkit-search-cancel-button {
+    cursor: pointer;
+}
+.auditFilterSelect select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 42px;
+    cursor: pointer;
+}
+.auditFilterTrailingIcon {
+    position: absolute;
+    right: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #718174;
+    pointer-events: none;
+}
+.auditFilterSelect:focus-within .auditFilterTrailingIcon {
+    color: #073324;
+}
+.auditPageSize select {
+    height: 40px;
+    min-width: 74px;
+    padding: 0 30px 0 12px;
+    border: 1px solid #e2d9c9;
+    border-radius: 12px;
+    background-color: #faf7ef;
+    color: #173c2c;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 850;
+    cursor: pointer;
+}
+.auditPageSize select:focus-visible {
+    outline: 3px solid #fdbe2e;
+    outline-offset: 2px;
+}
+.shell[dir="rtl"] .auditFilterLeadingIcon {
+    left: auto;
+    right: 14px;
+}
+.shell[dir="rtl"] .auditFilterControl input,
+.shell[dir="rtl"] .auditFilterControl select {
+    padding-left: 14px;
+    padding-right: 43px;
+    text-align: right;
+}
+.shell[dir="rtl"] .auditFilterSelect select {
+    padding-left: 42px;
+    padding-right: 43px;
+}
+.shell[dir="rtl"] .auditFilterTrailingIcon {
+    right: auto;
+    left: 13px;
+}
+@media (max-width: 1260px) {
+    .auditFilters {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .auditFilterSearch {
+        grid-column: span 3;
+    }
+}
+@media (max-width: 780px) {
+    .auditFilters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        padding: 16px;
+    }
+    .auditFilterSearch {
+        grid-column: span 2;
+    }
+}
+@media (max-width: 520px) {
+    .auditFilters {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 11px;
+        padding: 14px;
+        border-radius: 17px;
+    }
+    .auditFilterSearch {
+        grid-column: auto;
+    }
+    .auditFilterControl {
+        height: 47px;
+    }
+}
+
+
+/* V16 — fully custom audit filters: no native date or select controls, no white toolbar card. */
+.auditFilters {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 17px;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+.auditFilterField,
+.auditDatePicker,
+.auditSelectField {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+}
+.auditFilterLabel {
+    display: block;
+    color: #5d7062;
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: .045em;
+    line-height: 1.25;
+    text-transform: uppercase;
+}
+.auditSearchControl {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+    min-height: 56px;
+    padding: 0 17px;
+    border: 1px solid #ddd2bd;
+    border-radius: 15px;
+    background: #eee7d8;
+    color: #607468;
+    transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+}
+.auditSearchControl:focus-within {
+    border-color: #456b55;
+    background: #f3eddf;
+    box-shadow: 0 0 0 3px rgb(253 190 46 / 25%);
+}
+.auditSearchControl > svg { flex: 0 0 auto; color: #607468; }
+.auditSearchControl input {
+    width: 100%;
+    min-width: 0;
+    height: 54px;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #153b2b;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+}
+.auditSearchControl input::placeholder { color: #879287; opacity: 1; font-weight: 500; }
+.auditSearchControl button {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 9px;
+    background: #e1d8c7;
+    color: #476251;
+    cursor: pointer;
+}
+.auditFilterGrid {
+    display: grid;
+    grid-template-columns: minmax(320px, 1.45fr) minmax(220px, 1fr) minmax(205px, .88fr);
+    align-items: start;
+    gap: 17px;
+    min-width: 0;
+}
+.auditDateRange {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 12px;
+    min-width: 0;
+}
+.auditDatePicker,
+.auditSelectField { position: relative; }
+.auditDateTrigger,
+.auditSelectTrigger {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+    min-width: 0;
+    min-height: 56px;
+    padding: 0 14px;
+    border: 1px solid #ddd2bd;
+    border-radius: 14px;
+    background: #eee7d8;
+    color: #173c2c;
+    text-align: start;
+    cursor: pointer;
+    transition: border-color .16s ease, background .16s ease, box-shadow .16s ease;
+}
+.auditDateTrigger:hover,
+.auditSelectTrigger:hover { border-color: #b9ad96; background: #f1eadc; }
+.auditDateTrigger:focus-visible,
+.auditSelectTrigger:focus-visible,
+.auditDateTriggerOpen,
+.auditSelectTriggerOpen {
+    outline: 0;
+    border-color: #456b55;
+    background: #f3eddf;
+    box-shadow: 0 0 0 3px rgb(253 190 46 / 25%);
+}
+.auditDateTriggerIcon,
+.auditSelectIcon { flex: 0 0 auto; color: #597363; }
+.auditDateValue {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    color: #173c2c;
+    font-size: 13px;
+    font-weight: 750;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.auditDatePlaceholder { color: #879287; font-weight: 550; }
+.auditDateChevron,
+.auditSelectChevron { flex: 0 0 auto; color: #758477; }
+.auditDateClear {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 23px;
+    height: 23px;
+    border-radius: 7px;
+    background: #e1d8c7;
+    color: #526858;
+    cursor: pointer;
+}
+.auditCalendarPopover {
+    position: absolute;
+    z-index: 90;
+    top: calc(100% + 9px);
+    inset-inline-start: 0;
+    width: min(328px, calc(100vw - 36px));
+    padding: 14px;
+    border: 1px solid #d9ceb8;
+    border-radius: 17px;
+    background: #f8f2e6;
+    box-shadow: 0 18px 48px rgb(36 44 32 / 19%);
+    color: #173c2c;
+}
+.auditCalendarHeader {
+    display: grid;
+    grid-template-columns: 36px 1fr 36px;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.auditCalendarHeader strong { color: #103c2a; font-size: 14px; font-weight: 850; text-align: center; text-transform: capitalize; }
+.auditCalendarHeader button {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid #e0d6c4;
+    border-radius: 10px;
+    background: #eee7d8;
+    color: #254d38;
+    cursor: pointer;
+}
+.auditCalendarHeader button:hover { border-color: #9eae9e; background: #e6ecdf; }
+.auditCalendarGrid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.auditCalendarWeekday {
+    display: grid;
+    place-items: center;
+    min-height: 29px;
+    color: #7b8779;
+    font-size: 10px;
+    font-weight: 850;
+    text-transform: uppercase;
+}
+.auditCalendarDay {
+    display: grid;
+    place-items: center;
+    min-width: 0;
+    aspect-ratio: 1;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: #244735;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.auditCalendarDay:hover:not(:disabled) { border-color: #b8c5b1; background: #e8edde; }
+.auditCalendarOutside { color: #a7aa9d; font-weight: 500; }
+.auditCalendarToday { border-color: #bd9b46; }
+.auditCalendarSelected,
+.auditCalendarSelected:hover { border-color: #073829; background: #073829; color: #fffaf0; }
+.auditCalendarDay:disabled { color: #c4c2b8; cursor: not-allowed; opacity: .55; }
+.auditCalendarFooter { display: flex; justify-content: space-between; gap: 10px; margin-top: 12px; padding-top: 11px; border-top: 1px solid #e5dccb; }
+.auditCalendarFooter button { padding: 7px 11px; border: 0; border-radius: 9px; background: #e9e3d5; color: #254d38; font-size: 11px; font-weight: 800; cursor: pointer; }
+.auditCalendarFooter button:first-child { background: #073829; color: #fffaf0; }
+.auditSelectSelected { display: flex; flex: 1 1 auto; flex-direction: column; gap: 2px; min-width: 0; }
+.auditSelectSelected strong { overflow: hidden; color: #173c2c; font-size: 13px; font-weight: 780; text-overflow: ellipsis; white-space: nowrap; }
+.auditSelectSelected small { overflow: hidden; color: #829083; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.auditSelectMenu {
+    position: absolute;
+    z-index: 85;
+    top: calc(100% + 9px);
+    inset-inline: 0;
+    max-height: min(330px, 55vh);
+    overflow: auto;
+    padding: 6px;
+    border: 1px solid #d9ceb8;
+    border-radius: 15px;
+    background: #f8f2e6;
+    box-shadow: 0 18px 42px rgb(36 44 32 / 17%);
+    scrollbar-width: thin;
+    scrollbar-color: #9b8b69 #f2eadb;
+}
+.auditSelectMenuTop { top: auto; bottom: calc(100% + 9px); }
+.auditSelectOption {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    width: 100%;
+    min-height: 42px;
+    padding: 9px 34px 9px 11px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: #294936;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: start;
+    cursor: pointer;
+}
+.auditSelectOption:hover { background: #eee7d8; }
+.auditSelectOptionSelected { background: #e7ecdf; color: #073829; }
+.auditSelectOption small { color: #829083; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 10px; font-weight: 500; }
+.auditSelectCheck { position: absolute; inset-inline-end: 12px; top: 50%; transform: translateY(-50%); color: #1f6540; font-size: 15px; font-weight: 900; }
+.auditPageSizeCustom { display: flex; flex-direction: row; align-items: center; gap: 10px; }
+.auditPageSizeCustom > span { white-space: nowrap; }
+.auditPageSizeCustom .auditSelectTrigger { width: 82px; min-height: 40px; padding: 0 10px; gap: 7px; border-radius: 11px; }
+.auditPageSizeCustom .auditSelectSelected strong { font-size: 12px; }
+.auditPageSizeCustom .auditSelectMenu { min-width: 82px; }
+.shell[dir="rtl"] .auditSelectOption { padding-right: 11px; padding-left: 34px; }
+@media (max-width: 1120px) {
+    .auditFilterGrid { grid-template-columns: minmax(0, 1.3fr) repeat(2, minmax(190px, .9fr)); gap: 13px; }
+    .auditDateRange { gap: 9px; }
+}
+@media (max-width: 860px) {
+    .auditFilterGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .auditDateRange { grid-column: 1 / -1; }
+}
+@media (max-width: 560px) {
+    .auditFilters { gap: 13px; }
+    .auditFilterGrid { grid-template-columns: minmax(0, 1fr); gap: 13px; }
+    .auditDateRange { grid-column: auto; grid-template-columns: minmax(0, 1fr); gap: 11px; }
+    .auditDateTrigger,
+    .auditSelectTrigger { min-height: 52px; }
+    .auditSearchControl { min-height: 53px; }
+    .auditSearchControl input { height: 51px; font-size: 13px; }
+    .auditCalendarPopover { width: min(310px, calc(100vw - 28px)); }
+}
+
+.auditDateTriggerRow { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.auditDateTriggerRow .auditDateTrigger { flex: 1 1 auto; width: auto; }
+.auditDateTriggerRow .auditDateClear { flex: 0 0 38px; width: 38px; height: 48px; border: 1px solid #ddd2bd; border-radius: 12px; background: #e6dece; cursor: pointer; }
+.auditDateTriggerRow .auditDateClear:hover { border-color: #b9ad96; background: #ded5c2; }
+
+
+/* V17 — compact, balanced audit filter row with a smaller anchored calendar. */
+.auditFilters {
+    display: grid;
+    grid-template-columns: minmax(210px, .95fr) minmax(300px, 1.35fr) minmax(190px, .9fr) minmax(165px, .78fr);
+    align-items: end;
+    gap: 14px;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+.auditFilterSearch {
+    grid-column: auto;
+    min-width: 0;
+}
+.auditFilterGrid {
+    display: contents;
+}
+.auditFilterLabel {
+    margin-bottom: 1px;
+    color: #526b59;
+    font-size: 11px;
+    font-weight: 850;
+}
+.auditFilterField,
+.auditDatePicker,
+.auditSelectField {
+    gap: 6px;
+    min-width: 0;
+}
+.auditSearchControl {
+    min-height: 48px;
+    gap: 10px;
+    padding: 0 13px;
+    border: 1px solid #cbbda3;
+    border-radius: 13px;
+    background: #e7decd;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 28%);
+}
+.auditSearchControl:focus-within {
+    border-color: #315c42;
+    background: #eee8da;
+    box-shadow: 0 0 0 3px rgb(253 190 46 / 28%);
+}
+.auditSearchControl > svg { color: #365a43; }
+.auditSearchControl input {
+    flex: 1 1 auto;
+    width: auto;
+    height: 46px;
+    font-size: 13px;
+}
+.auditSearchControl input::placeholder { color: #68796b; }
+.auditSearchControl button {
+    width: 29px;
+    height: 29px;
+    border: 1px solid #c7b99e;
+    background: #d7ccb8;
+    color: #173c2c;
+}
+.auditDateRange {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    min-width: 0;
+}
+.auditDatePicker { position: relative; }
+.auditDateTrigger,
+.auditSelectTrigger {
+    min-height: 48px;
+    gap: 8px;
+    padding: 0 11px;
+    border: 1px solid #c8b99c;
+    border-radius: 12px;
+    background: #e5dcc9;
+    color: #173c2c;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 30%);
+}
+.auditDateTrigger:hover,
+.auditSelectTrigger:hover {
+    border-color: #9e8d6e;
+    background: #dcd1bc;
+}
+.auditDateTrigger:focus-visible,
+.auditSelectTrigger:focus-visible,
+.auditDateTriggerOpen,
+.auditSelectTriggerOpen {
+    border-color: #315c42;
+    background: #eee8da;
+    box-shadow: 0 0 0 3px rgb(253 190 46 / 28%);
+}
+.auditDateTriggerIcon,
+.auditSelectIcon { color: #315c42; }
+.auditDateValue,
+.auditSelectSelected strong { font-size: 12px; }
+.auditDatePlaceholder { color: #657767; }
+.auditDateChevron,
+.auditSelectChevron { color: #3e6048; }
+.auditDateTriggerRow { gap: 5px; }
+.auditDateTriggerRow .auditDateClear {
+    flex-basis: 34px;
+    width: 34px;
+    height: 42px;
+    border: 1px solid #c8b99c;
+    border-radius: 10px;
+    background: #d9cfbc;
+    color: #294d38;
+}
+.auditDateTriggerRow .auditDateClear:hover {
+    border-color: #9e8d6e;
+    background: #cec2aa;
+}
+
+/* The calendar is an anchored popover, not part of the filter row's layout. */
+.auditCalendarPopover {
+    position: absolute;
+    z-index: 120;
+    top: calc(100% + 7px);
+    inset-inline-start: 0;
+    width: min(276px, calc(100vw - 32px));
+    padding: 10px;
+    border: 1px solid #c9b99b;
+    border-radius: 14px;
+    background: #f7f1e5;
+    box-shadow: 0 14px 34px rgb(29 44 32 / 22%);
+}
+.auditCalendarHeader {
+    grid-template-columns: 30px 1fr 30px;
+    gap: 7px;
+    margin-bottom: 7px;
+}
+.auditCalendarHeader strong { font-size: 13px; }
+.auditCalendarHeader button {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #c7b99d;
+    border-radius: 8px;
+    background: #e3dac8;
+    color: #173c2c;
+}
+.auditCalendarHeader button:hover {
+    border-color: #8d9c81;
+    background: #d3dfca;
+}
+.auditCalendarGrid { gap: 2px; }
+.auditCalendarWeekday {
+    min-height: 21px;
+    color: #647565;
+    font-size: 9px;
+}
+.auditCalendarDay {
+    height: 29px;
+    aspect-ratio: auto;
+    padding: 0;
+    border-radius: 7px;
+    color: #244735;
+    font-size: 11px;
+}
+.auditCalendarDay:hover:not(:disabled) {
+    border-color: #82977c;
+    background: #dce6d3;
+}
+.auditCalendarOutside { color: #9ba294; }
+.auditCalendarToday { border-color: #a27b2c; background: #f0e3c1; color: #5a4215; }
+.auditCalendarSelected,
+.auditCalendarSelected:hover {
+    border-color: #073829;
+    background: #073829;
+    color: #fffaf0;
+}
+.auditCalendarFooter {
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #d8cdb8;
+}
+.auditCalendarFooter button {
+    padding: 6px 10px;
+    border: 1px solid #c6b89d;
+    border-radius: 8px;
+    background: #e0d6c3;
+    color: #234633;
+    font-size: 10px;
+}
+.auditCalendarFooter button:first-child {
+    border-color: #073829;
+    background: #073829;
+    color: #fffaf0;
+}
+.auditCalendarFooter button:hover { filter: brightness(.96); }
+.auditSelectMenu {
+    top: calc(100% + 7px);
+    max-height: min(280px, 48vh);
+    padding: 5px;
+    border-color: #c9b99b;
+    border-radius: 12px;
+    background: #f7f1e5;
+    box-shadow: 0 14px 32px rgb(29 44 32 / 19%);
+}
+.auditSelectOption {
+    min-height: 38px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    border-radius: 8px;
+}
+.auditSelectOption:hover { background: #e3dac8; }
+.auditSelectOptionSelected {
+    background: #dce6d4;
+    color: #073829;
+    box-shadow: inset 3px 0 0 #315c42;
+}
+.auditSelectOptionSelected:hover { background: #d3dfca; }
+.auditSelectCheck { color: #0b5b35; }
+
+@media (max-width: 1180px) {
+    .auditFilters {
+        grid-template-columns: minmax(230px, 1fr) minmax(300px, 1.25fr);
+        gap: 13px;
+    }
+    .auditFilterGrid {
+        display: contents;
+    }
+}
+@media (max-width: 760px) {
+    .auditFilters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+    .auditFilterSearch { grid-column: 1 / -1; }
+    .auditDateRange { grid-column: 1 / -1; }
+}
+@media (max-width: 500px) {
+    .auditFilters { grid-template-columns: minmax(0, 1fr); gap: 11px; }
+    .auditFilterSearch,
+    .auditDateRange { grid-column: auto; }
+    .auditDateRange { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .auditDateTrigger,
+    .auditSelectTrigger { min-height: 46px; padding-inline: 9px; }
+    .auditDateValue,
+    .auditSelectSelected strong { font-size: 11px; }
+    .auditCalendarPopover { width: min(270px, calc(100vw - 28px)); }
+}
+
+
+/* V19 — Audit filters retain the V18 two-row layout with refined focus and widths. */
+.auditFilters {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.auditFilterTopRow {
+    display: grid;
+    grid-template-columns: minmax(250px, .82fr) minmax(390px, 1.18fr);
+    align-items: end;
+    gap: 18px;
+    min-width: 0;
+}
+
+.auditFilterSearch {
+    width: 100%;
+    max-width: 470px;
+    min-width: 0;
+}
+
+.auditFilterSearch > span,
+.auditFilterField > span,
+.auditFilterLabel {
+    color: #405b49;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .01em;
+}
+
+.auditSearchControl {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    box-sizing: border-box;
+    padding: 0 14px;
+    border: 1px solid #d5c8ad;
+    border-radius: 13px;
+    background: #eee6d6;
+    color: #244b35;
+    transition: border-color .16s ease, background .16s ease;
+}
+
+/* Pointer focus stays quiet; keyboard users retain a restrained indicator. */
+.auditSearchControl:focus-within {
+    border-color: #c9bda5;
+    background: #f3eddf;
+    box-shadow: none;
+}
+
+.auditSearchControl input:focus-visible {
+    outline: 2px solid #54745e;
+    outline-offset: 3px;
+    border-radius: 3px;
+}
+
+.auditSearchControl > svg {
+    flex: 0 0 auto;
+    color: #365d45;
+}
+
+.auditSearchControl input {
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #073324;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.auditSearchControl input::placeholder {
+    color: #758477;
+    opacity: 1;
+}
+
+.auditSearchControl > button {
+    display: grid;
+    flex: 0 0 28px;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: #dcd1bb;
+    color: #254a34;
+    cursor: pointer;
+}
+
+.auditFilterTopRow .auditDateRange {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    min-width: 0;
+}
+
+.auditFilterBottomRow {
+    display: grid;
+    grid-template-columns: minmax(0, 320px) minmax(0, 280px);
+    justify-content: start;
+    align-items: end;
+    gap: 18px;
+    min-width: 0;
+    padding-top: 2px;
+}
+
+.auditFilterBottomRow .auditSelectField {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.auditFilterBottomRow .auditSelectTrigger {
+    width: 100%;
+    min-height: 48px;
+    box-sizing: border-box;
+}
+
+@media (max-width: 980px) {
+    .auditFilterTopRow {
+        grid-template-columns: minmax(210px, .85fr) minmax(340px, 1.15fr);
+        gap: 13px;
+    }
+
+    .auditFilterBottomRow {
+        grid-template-columns: minmax(0, 300px) minmax(0, 260px);
+        gap: 14px;
+    }
+}
+
+@media (max-width: 760px) {
+    .auditFilterTopRow {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 13px;
+    }
+
+    .auditFilterSearch {
+        max-width: none;
+    }
+
+    .auditFilterBottomRow {
+        grid-template-columns: minmax(0, 280px) minmax(0, 240px);
+        gap: 12px;
+    }
+}
+
+@media (max-width: 600px) {
+    .auditFilterTopRow .auditDateRange,
+    .auditFilterBottomRow {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .auditFilterBottomRow {
+        gap: 12px;
+    }
+
+    .auditFilterBottomRow .auditSelectField {
+        width: 100%;
+        max-width: none;
+    }
 }

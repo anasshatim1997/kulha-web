@@ -15914,3 +15914,70 @@ html, body { overflow-y: auto; }
 @media (prefers-reduced-motion: reduce) {
   .kulha-notify-prompt, .kulha-notify-prompt.is-closing { animation-duration: .01ms; }
 }
+
+/* Admin workspace: Canva navigation colors and the shared top-row controls. */
+@media (min-width: 900px) {
+  .ws-sidebar-admin .ws-nav-link {
+    min-height: 46px;
+    padding-inline: 12px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+  .ws-sidebar-admin .ws-nav-link[aria-current="page"] {
+    background: #fdbe2e;
+    color: #073324;
+  }
+  .ws-sidebar-admin .ws-nav-link[aria-current="page"] .ws-badge {
+    background: #073324;
+    color: #fdbe2e;
+  }
+  .ws-topbar {
+    background: transparent;
+    border: 0;
+    pointer-events: none;
+  }
+  .ws-topbar > * { pointer-events: auto; }
+  .ws-topbar .ws-top-user {
+    min-height: 38px;
+    padding: 0 12px 0 5px;
+    border: 1px solid #eee5d5;
+    border-radius: 999px;
+    background: #f7f1e5;
+  }
+  .ws-topbar .ws-avatar { width: 30px; height: 30px; font-size: 12px; }
+  .ws-topbar .ws-top-lang select,
+  .ws-topbar .ws-top-signout { height: 40px; border-radius: 999px; }
+  body:has(> .ws-sidebar-admin) > footer { display: none; }
+}
+@media (max-width: 899px) {
+  .ws-sidebar-admin .ws-nav-link[aria-current="page"] {
+    background: #fdbe2e;
+    color: #073324;
+  }
+}
+@media (min-width: 900px) {
+  .ws-sidebar-admin .ws-brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding-inline: 8px;
+  }
+  .ws-sidebar-admin .ws-brand small {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: #fdbe2e;
+    color: #073324;
+    font-size: 9px;
+    line-height: 1;
+    letter-spacing: .05em;
+    opacity: 1;
+  }
+}
+@media (min-width: 900px) and (max-width: 1199px) {
+  .ws-topbar .ws-top-identity { display: none; }
+  .ws-topbar .ws-top-user { padding-inline: 4px; }
+}
+
+body:has(> .ws-sidebar-admin) > footer { display: none; }

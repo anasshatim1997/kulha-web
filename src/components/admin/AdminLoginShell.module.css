@@ -1,0 +1,388 @@
+
+/* Admin sign-in — same language as the admin workspace:
+   forest rail #073324, cream surfaces #fffdf8, sand borders #e3dac8,
+   sun #fdbe2e only as the accent. */
+
+/* ---------- Layout ---------- */
+
+.layout :global(.site-header) {
+    display: none !important;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: minmax(360px, 1fr) minmax(420px, 1fr);
+    min-height: 100dvh;
+    background: #fffdf8;
+    color: #073324;
+}
+
+/* ---------- Rail (left in LTR, right in RTL) ---------- */
+
+.rail {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding: clamp(26px, 4vw, 52px) clamp(28px, 5vw, 64px);
+    background: #073324;
+    color: #fcf4e7;
+}
+
+.brand {
+    display: grid;
+    gap: 3px;
+    width: max-content;
+    color: #fff;
+    text-decoration: none;
+    line-height: 1;
+}
+
+.brand:focus-visible {
+    outline: 3px solid #fdbe2e;
+    outline-offset: 4px;
+    border-radius: 6px;
+}
+
+.word {
+    font-size: 26px;
+    font-weight: 1000;
+    letter-spacing: -.03em;
+}
+
+.word span {
+    color: #fdbe2e;
+}
+
+.brand small {
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .14em;
+    opacity: .7;
+}
+
+.railBody {
+    margin-block: auto;
+    max-width: 520px;
+}
+
+.headline {
+    margin: 0;
+    color: #fffdf8;
+    font-size: clamp(32px, 3.5vw, 48px);
+    line-height: 1.08;
+    letter-spacing: -.045em;
+    font-weight: 1000;
+    text-wrap: balance;
+}
+
+.intro {
+    max-width: 440px;
+    margin: 16px 0 0;
+    color: #cfe0d5;
+    font-size: 15px;
+    line-height: 1.65;
+}
+
+/* A faithful miniature of what sits behind the door:
+   the four admin sections. */
+
+.console {
+    margin: 34px 0 0;
+    padding: 0;
+    list-style: none;
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / .12);
+    border-radius: 20px;
+    background: rgb(255 255 255 / .05);
+}
+
+.console li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 15px 18px;
+}
+
+.console li + li {
+    border-top: 1px solid rgb(255 255 255 / .09);
+}
+
+.tile {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: rgb(255 255 255 / .09);
+    color: #e7efe9;
+}
+
+.console strong {
+    display: block;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 950;
+}
+
+.console small {
+    display: block;
+    margin-top: 2px;
+    color: #a9c0b1;
+    font-size: 13px;
+    line-height: 1.45;
+    font-weight: 700;
+}
+
+.restricted {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: #a9c0b1;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* ---------- Form side ---------- */
+
+.formSide {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 22px clamp(24px, 6vw, 88px) 28px;
+    background: #fffdf8;
+}
+
+.langs {
+    align-self: flex-end;
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid #e3dac8;
+    border-radius: 99px;
+    background: #fff;
+}
+
+.langs a {
+    padding: 6px 12px;
+    border-radius: 99px;
+    color: #073324;
+    font-size: 13px;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+.langs a:hover {
+    background: #f3efe3;
+}
+
+.langs a[aria-current="page"] {
+    background: #073324;
+    color: #fff;
+}
+
+.langs a:focus-visible {
+    outline: 3px solid #fdbe2e;
+    outline-offset: 2px;
+}
+
+.formWrap {
+    width: min(100%, 420px);
+    margin: auto;
+    padding-block: 32px;
+}
+
+.lockTile {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 20px;
+    border-radius: 15px;
+    background: #f1ecdf;
+    color: #073324;
+}
+
+.formWrap h1 {
+    margin: 0 0 8px;
+    color: #073324;
+    font-size: clamp(28px, 2.6vw, 36px);
+    line-height: 1.1;
+    letter-spacing: -.04em;
+    font-weight: 1000;
+}
+
+.lead {
+    margin: 0 0 26px;
+    color: #5b6e60;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.form {
+    width: 100%;
+}
+
+.note {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin: 20px 0 0;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: #f3efe2;
+    color: #66756a;
+    font-size: 13px;
+    line-height: 1.5;
+    font-weight: 700;
+}
+
+.note svg {
+    flex: 0 0 auto;
+    margin-top: 1px;
+    color: #073324;
+}
+
+.customer {
+    margin: 0;
+    text-align: center;
+    color: #78847a;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.customer a {
+    color: #073324;
+    font-weight: 950;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.customer a:focus-visible {
+    outline: 3px solid #fdbe2e;
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+/* ---------- Login form ---------- */
+/* LoginForm is shared with customer sign-in.
+   Everything is scoped to .form.
+   Selectors override Tailwind utilities on TextField / Button. */
+
+.form :global(.auth-form-fields) {
+    display: grid;
+    gap: 18px;
+}
+
+.form :global(.auth-form-fields label) {
+    color: #244b38;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.form :global(.auth-form-fields input:not([type="checkbox"])) {
+    min-height: 50px;
+    padding-block: 10px;
+    border: 1px solid #e3dac8;
+    border-radius: 14px;
+    background: #fff;
+    color: #073324;
+    font-size: 15px;
+    transition: border-color .15s, box-shadow .15s;
+}
+
+.form :global(.auth-form-fields input)::placeholder {
+    color: #9aa79d;
+}
+
+.form :global(.auth-form-fields input:not([type="checkbox"]):focus) {
+    outline: 0;
+    border-color: #073324;
+    box-shadow: 0 0 0 3px rgb(253 190 46 / .33);
+}
+
+.form :global(.auth-form-fields input[aria-invalid="true"]) {
+    border-color: #d93320;
+}
+
+.form :global(.auth-form-fields [role="alert"]) {
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.form :global(.auth-form-fields > div[role="alert"]) {
+    padding: 11px 14px;
+    border-radius: 14px;
+}
+
+.form :global(.auth-forgot-row) {
+    margin-top: -6px;
+}
+
+.form :global(.auth-form-fields button[type="submit"]) {
+    width: 100%;
+    min-height: 52px;
+    margin-top: 4px;
+    border-radius: 14px;
+    background: #073324;
+    color: #fffdf8;
+    font-size: 15px;
+    font-weight: 950;
+    box-shadow: none;
+    transition: background .15s;
+}
+
+.form :global(.auth-form-fields button[type="submit"]:hover:not(:disabled)) {
+    background: #0a4a33;
+}
+
+.form :global(.auth-form-fields button[type="submit"]:focus-visible) {
+    outline: 3px solid #fdbe2e;
+    outline-offset: 2px;
+}
+
+/* ---------- Narrow screens ---------- */
+/* Slim brand band above the form. */
+
+@media (max-width: 900px) {
+    .layout {
+        grid-template-columns: 1fr;
+        min-height: 0;
+    }
+
+    .rail {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 22px;
+    }
+
+    .railBody {
+        display: none;
+    }
+
+    .word {
+        font-size: 22px;
+    }
+
+    .formSide {
+        padding: 18px 22px 36px;
+    }
+
+    .formWrap {
+        padding-block: 22px 8px;
+        margin-block: 0 auto;
+    }
+
+    .customer {
+        margin-top: 22px;
+    }
+}
+
+@media (max-width: 520px) {
+    .restricted {
+        display: none;
+    }
+}

@@ -186,9 +186,9 @@ export function SiteHeader() {
       : l("مدير", "Admin", "Administrateur");
     type WsLink = readonly [string, string, boolean, typeof Store, number];
     const adminLinks: WsLink[] = [
-      [l("مراجعة المتاجر", "Merchant review", "Revue des commerces"), localePath(locale, "/admin/merchant-review"), /\/admin\/merchant-review(?:\/|$)/.test(pathname), Store, shellInfo.pendingMerchants],
-      [l("مراقبة العروض", "Offer moderation", "Modération des offres"), localePath(locale, "/admin/offer-moderation"), /\/admin\/offer-moderation(?:\/|$)/.test(pathname), Tag, 0],
-      [l("حالات الدعم", "Support cases", "Dossiers support"), localePath(locale, "/admin/support-cases"), /\/admin\/support-cases(?:\/|$)/.test(pathname), Flag, shellInfo.openCases],
+      [l("مراقبة العروض", "Offers", "Offres"), localePath(locale, "/admin/offer-moderation"), /\/admin\/offer-moderation(?:\/|$)/.test(pathname), Tag, 0],
+      [l("مراجعة المتاجر", "Merchants", "Commerces"), localePath(locale, "/admin/merchant-review"), /\/admin\/merchant-review(?:\/|$)/.test(pathname), Store, shellInfo.pendingMerchants],
+      [l("حالات الدعم", "Support", "Support"), localePath(locale, "/admin/support-cases"), /\/admin\/support-cases(?:\/|$)/.test(pathname), Flag, shellInfo.openCases],
       [l("سجل التدقيق", "Audit log", "Journal d’audit"), localePath(locale, "/admin/audit-log"), /\/admin\/audit-log(?:\/|$)/.test(pathname), FileText, 0],
     ];
     const merchantLinks: WsLink[] = [
@@ -237,12 +237,12 @@ export function SiteHeader() {
             )}
           </div>
         </aside>
-        {isWorkspace && (
+        {(isAdminWorkspace || isWorkspace) && (
           <div className="ws-topbar" dir={copy.dir}>
-            <Link href={notificationsHref} className="ws-bell" aria-label={l("الإشعارات", "Notifications", "Notifications")} title={l("الإشعارات", "Notifications", "Notifications")}>
+            {!isAdminWorkspace && <Link href={notificationsHref} className="ws-bell" aria-label={l("الإشعارات", "Notifications", "Notifications")} title={l("الإشعارات", "Notifications", "Notifications")}>
               <Bell size={18} strokeWidth={2} />
               {unreadNotifications > 0 && <span className="ws-bell-count">{unreadNotifications > 9 ? "9+" : unreadNotifications}</span>}
-            </Link>
+            </Link>}
             <div className="ws-top-user"><span className="ws-avatar" aria-hidden="true">{initial}</span><span className="ws-top-identity"><strong>{displayName}</strong><small>{isAdminWorkspace ? roleLabel : shellInfo.shopName || l("مساحة المتجر", "Merchant", "Espace commerçant")}</small></span></div>
             <label className="ws-top-lang"><span className="sr-only">{copy.nav.language}</span><select aria-label={copy.nav.language} value={locale} onChange={(event) => switchLanguage(event.target.value as SiteLocale)}>{localeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
             {authenticated && <button type="button" className="ws-top-signout" onClick={() => void signOut()}><LogOut size={16} strokeWidth={1.9} aria-hidden="true" />{copy.nav.signOut}</button>}
