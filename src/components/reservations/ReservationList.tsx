@@ -51,12 +51,14 @@ export function ReservationList({ locale }: { locale: SiteLocale }) {
   }, []);
 
   useEffect(() => {
-    if (state.status !== "authenticated" || !state.user.roles.includes("CUSTOMER")) return;
+    if (!isCustomer) return;
     let active = true;
-    void load(() => active);
+    void Promise.resolve().then(() => load(() => active));
     return () => { active = false; };
-  }, [state.status, state.status === "authenticated" ? state.user.id : null, state.status === "authenticated" ? state.user.roles.includes("CUSTOMER") : false, load]);
+  }, [isCustomer, userId, load]);
 
+  const isCustomer = state.status === "authenticated" && state.user.roles.includes("CUSTOMER");
+  const userId = state.status === "authenticated" ? state.user.id : null;
   const current = items[active];
   const label = active === "upcoming" ? t.upcoming : active === "past" ? t.past : t.cancelled;
 
