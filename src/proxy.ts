@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { securityHeaders } from "@/lib/security/headers";
+import { isCanonicalFrenchAuthPath } from "@/lib/navigation";
 
 function secure(response: NextResponse, request: NextRequest): NextResponse {
   for (const [name, value] of Object.entries(securityHeaders(process.env.NODE_ENV ?? "development", request.nextUrl.protocol, request.nextUrl.pathname))) {
@@ -21,8 +22,9 @@ export function proxy(request: NextRequest) {
     return secure(NextResponse.redirect(target, 308), request);
   }
 
-  const protectedPath = /^\/(?:account|merchant|admin|reservations)(?:\/|$)/.test(pathname)
-    || /^\/(?:en|ar)\/(?:account|merchant|reservations)(?:\/|$)/.test(pathname);
+  const isAdminLoginPath = /^\/(?:(?:en|ar)\/)?admin\/login\/?$/.test(pathname);
+  const protectedPath = !isAdminLoginPath && (/^\/(?:account|merchant|admin|reservations)(?:\/|$)/.test(pathname)
+    || /^\/(?:en|ar)\/(?:account|merchant|reservations)(?:\/|$)/.test(pathname));
   if (protectedPath && !request.cookies.has("kulha_rt")) {
     const prefix = pathname.startsWith("/en/") ? "/en" : pathname.startsWith("/ar/") ? "/ar" : "";
     const login = new URL(`${prefix}/login`, request.url);
@@ -47,9 +49,14 @@ export function proxy(request: NextRequest) {
   const isLocalizedPath = /^\/(?:en|ar)(?:\/|$)/.test(pathname);
   const isInternalPath = /^\/(?:api|_next|_vercel)(?:\/|$)/.test(pathname);
   const isFilePath = /\.[^/]+$/.test(pathname);
-  if (!isLocalizedPath && !isInternalPath && !isFilePath) {
+  // French auth screens are implemented in the root (auth) route group.
+  // Rewriting them to /fr/... points to non-existent pages and causes 404s.
+  // The root URL has its own French landing page at src/app/page.tsx.
+  // Do not rewrite `/` to `/fr`: the [locale] landing route is reserved for
+  // the explicitly prefixed English and Arabic pages.
+  if (pathname !== "/" && !isLocalizedPath && !isInternalPath && !isFilePath && !isCanonicalFrenchAuthPath(pathname)) {
     const target = request.nextUrl.clone();
-    target.pathname = pathname === "/" ? "/fr" : `/fr${pathname}`;
+    target.pathname = `/fr${pathname}`;
     return secure(NextResponse.rewrite(target, { request: { headers: forwardedHeaders } }), request);
   }
 

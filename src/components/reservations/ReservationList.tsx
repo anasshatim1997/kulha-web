@@ -31,41 +31,34 @@ export function ReservationList({ locale }: { locale: SiteLocale }) {
   const [error, setError] = useState(false);
   const [visibleCodes, setVisibleCodes] = useState<string[]>([]);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (isActive: () => boolean = () => true) => {
     try {
       const [upcoming, past, cancelled] = await Promise.all([
         api.get<ReservationPage>("/reservations?status=upcoming&page=0&size=50"),
         api.get<ReservationPage>("/reservations?status=past&page=0&size=50"),
         api.get<ReservationPage>("/reservations?status=cancelled&page=0&size=50"),
       ]);
-      setItems({ upcoming: upcoming.items, past: past.items, cancelled: cancelled.items });
-      setCounts({ upcoming: upcoming.total, past: past.total, cancelled: cancelled.total });
+      if (isActive()) {
+        setItems({ upcoming: upcoming.items, past: past.items, cancelled: cancelled.items });
+        setCounts({ upcoming: upcoming.total, past: past.total, cancelled: cancelled.total });
+        setError(false);
+      }
     } catch {
-      setError(true);
+      if (isActive()) setError(true);
     } finally {
-      setLoading(false);
+      if (isActive()) setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    let active = true;
-    Promise.all([
-      api.get<ReservationPage>("/reservations?status=upcoming&page=0&size=50"),
-      api.get<ReservationPage>("/reservations?status=past&page=0&size=50"),
-      api.get<ReservationPage>("/reservations?status=cancelled&page=0&size=50"),
-    ]).then(([upcoming, past, cancelled]) => {
-      if (active) {
-        setItems({ upcoming: upcoming.items, past: past.items, cancelled: cancelled.items });
-        setCounts({ upcoming: upcoming.total, past: past.total, cancelled: cancelled.total });
-      }
-    }).catch(() => {
-      if (active) setError(true);
-    }).finally(() => {
-      if (active) setLoading(false);
-    });
-    return () => { active = false; };
-  }, []);
+  const isCustomer = state.status === "authenticated" && state.user.roles.includes("CUSTOMER");
+  const userId = state.status === "authenticated" ? state.user.id : null;
 
+  useEffect(() => {
+    if (!isCustomer) return;
+    let active = true;
+    void Promise.resolve().then(() => load(() => active));
+    return () => { active = false; };
+  }, [isCustomer, userId, load]);
   const current = items[active];
   const label = active === "upcoming" ? t.upcoming : active === "past" ? t.past : t.cancelled;
 

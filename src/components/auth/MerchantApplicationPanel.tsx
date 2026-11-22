@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
@@ -11,6 +10,7 @@ import { Button, LinkButton } from "@/components/ui/Button";
 import { ApiError, api } from "@/lib/api/client";
 import { describeError } from "@/lib/api/errors";
 import { CustomerPreview, formatPreviewHours } from "@/components/merchant/shop-setup/CustomerPreview";
+import { MerchantConsole } from "@/components/merchant/MerchantConsole";
 import { SetupStepper } from "@/components/merchant/shop-setup/SetupStepper";
 import { WeekHoursEditor } from "@/components/merchant/shop-setup/WeekHoursEditor";
 import styles from "@/components/merchant/shop-setup/ShopSetup.module.css";
@@ -21,7 +21,7 @@ import { localeFromPath, localePath } from "@/lib/navigation";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 
 type BusinessType = "BAKERY" | "CAFE" | "RESTAURANT" | "SUPERMARKET" | "OTHER";
-type MerchantStatus = "PENDING" | "APPROVED" | "REJECTED" | "SUSPENDED";
+type MerchantStatus = "PENDING" | "APPROVED" | "REJECTED" | "INFO_REQUIRED" | "SUSPENDED";
 type MerchantRecord = {
     id: string;
     name: string;
@@ -100,65 +100,6 @@ function addressFromGeo(geo: GeoAddress) {
 
 function Shell({ locale, children }: { locale: SiteLocale; children: ReactNode }) {
     return <div className="mw-shell" dir={locale === "ar" ? "rtl" : "ltr"}>{children}</div>;
-}
-
-function ShopMapLocation({ merchant, locale, onUpdated }: { merchant: MerchantRecord; locale: SiteLocale; onUpdated: (merchant: MerchantRecord) => void }) {
-    const [saving, setSaving] = useState(false);
-    const [status, setStatus] = useState<{ kind: "success" | "error"; text: string } | null>(null);
-    const t = merchantCopy[locale];
-
-    async function saveCurrentLocation() {
-        if (!navigator.geolocation) {
-            setStatus({ kind: "error", text: t.mapLocationUnsupported });
-            return;
-        }
-        setSaving(true);
-        setStatus(null);
-        try {
-            const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-                navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 });
-            });
-            const updated = await api.put<MerchantRecord>("/merchants/me", {
-                name: merchant.name,
-                businessType: merchant.businessType,
-                address: merchant.address,
-                city: merchant.city,
-                district: merchant.district,
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
-                phone: merchant.phone,
-                openingHours: merchant.openingHours,
-                pickupInstructions: merchant.pickupInstructions,
-            });
-            onUpdated(updated);
-            setStatus({ kind: "success", text: t.mapLocationSaved });
-        } catch (error) {
-            const denied = typeof error === "object" && error !== null && "code" in error && Number((error as { code?: number }).code) === 1;
-            setStatus({ kind: "error", text: denied ? t.mapLocationDenied : t.mapLocationError });
-        } finally {
-            setSaving(false);
-        }
-    }
-
-    const hasPin = typeof merchant.latitude === "number" && typeof merchant.longitude === "number";
-    return (
-        <section className="mw-map-location" aria-labelledby="mw-map-location-title">
-            <div className="mw-map-location__copy">
-                <span className="mw-map-location__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24"><path d="M19 10.1c0 5.2-7 10.2-7 10.2S5 15.3 5 10.1a7 7 0 1 1 14 0Z" /><circle cx="12" cy="10" r="2.3" /></svg>
-                </span>
-                <div>
-                    <h3 id="mw-map-location-title">{t.mapLocationTitle}</h3>
-                    <p>{hasPin ? t.mapLocationReadyBody : t.mapLocationBody}</p>
-                    {hasPin && <small>{merchant.latitude?.toFixed(5)}, {merchant.longitude?.toFixed(5)}</small>}
-                </div>
-            </div>
-            <Button variant="accent" loading={saving} disabled={saving} onClick={() => void saveCurrentLocation()}>
-                {saving ? t.mapLocationSaving : hasPin ? t.mapLocationUpdate : t.mapLocationSet}
-            </Button>
-            {status && <p className={`mw-map-location__status is-${status.kind}`} role="status">{status.text}</p>}
-        </section>
-    );
 }
 
 function CheckIcon() {
@@ -468,64 +409,10 @@ export function MerchantApplicationPanel() {
     }
 
     if (merchant && merchant.status === "APPROVED") {
-        return (
-            <Shell key="approved" locale={locale}>
-                <section className={`mw-hero mw-rise`}>
-                    <div className="mw-hero-text">
-                        <span className="mw-pill">{t.statuses.APPROVED}</span>
-                        <h1 className="mw-hero-title">{t.welcomeShop.replace("{name}", merchant.name)}</h1>
-                        <p className="mw-hero-lead">{t.workspaceLead}</p>
-                    </div>
-                    <Image src="/brand/kulha-bag.png" alt="" width={300} height={275} priority className="mw-hero-bag" />
-                </section>
-
-                <Link href={localePath(locale, "/merchant/offers/new")} className={`mw-primary-action mw-rise`} style={{ animationDelay: "90ms" }}>
-          <span className="mw-primary-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
-          </span>
-                    <span className="mw-primary-text">
-            <h2 className="mw-primary-title">{t.newOfferTitle}</h2>
-            <p className="mw-primary-body">{t.newOfferBody}</p>
-          </span>
-                    <span className="mw-primary-cta">{t.newOfferCta}</span>
-                </Link>
-
-                <div className={`mw-secondary mw-rise`} style={{ animationDelay: "180ms" }}>
-                    <Link href={localePath(locale, "/merchant/offers")} className="mw-action">
-            <span className="mw-action-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 8.5h16l-1.4 11H5.4L4 8.5Z" /><path d="M8 9V6.8a4 4 0 0 1 8 0V9" /></svg>
-            </span>
-                        <div>
-                            <h2 className="mw-action-title">{t.offersTitle}</h2>
-                            <p className="mw-action-body">{t.offersBody}</p>
-                            <span className="mw-action-cta">{t.offersCta}</span>
-                        </div>
-                    </Link>
-                    <div className={`mw-action mw-action-soon`}>
-            <span className="mw-action-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg>
-            </span>
-                        <div>
-                            <h2 className="mw-action-title">{t.workspaceReservations}</h2>
-                            <p className="mw-action-body">{t.workspaceReservationsBody}</p>
-                            <span className="mw-soon-badge">{t.workspaceComingSoon}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <section className={`mw-card mw-profile mw-rise`} style={{ animationDelay: "270ms" }} aria-labelledby="merchant-profile-title">
-                    <div className="mw-card-head-row">
-                        <h2 id="merchant-profile-title" className="mw-card-title">{t.workspaceProfile}</h2>
-                        <Link href={localePath(locale, "/account")} className="mw-back-link">{t.workspaceBack}</Link>
-                    </div>
-                    <Details merchant={merchant} t={t} wide />
-                    <ShopMapLocation merchant={merchant} locale={locale} onUpdated={setMerchant} />
-                </section>
-            </Shell>
-        );
+        return <MerchantConsole locale={locale} page="dashboard" shop={{ name: merchant.name, city: merchant.city }} />;
     }
 
-    if (merchant && merchant.status !== "REJECTED") {
+    if (merchant && merchant.status !== "REJECTED" && merchant.status !== "INFO_REQUIRED") {
         const suspended = merchant.status === "SUSPENDED";
         return (
             <Shell key="pending" locale={locale}>
@@ -574,9 +461,9 @@ export function MerchantApplicationPanel() {
 
             <div className={styles.layout}>
                 <section className={styles.card} aria-labelledby="merchant-form-title">
-                    {merchant?.status === "REJECTED" && (
-                        <Alert tone="error" title={t.rejectedTitle}>
-                            {t.rejectedBody}{merchant.decisionReason ? ` ${t.reason}: ${merchant.decisionReason}` : ""}
+                    {(merchant?.status === "REJECTED" || merchant?.status === "INFO_REQUIRED") && (
+                        <Alert tone="error" title={merchant.status === "INFO_REQUIRED" ? t.infoRequiredTitle : t.rejectedTitle}>
+                            {merchant.status === "INFO_REQUIRED" ? t.infoRequiredBody : t.rejectedBody}{merchant.decisionReason ? ` ${t.reason}: ${merchant.decisionReason}` : ""}
                         </Alert>
                     )}
                     {fieldError && <Alert tone="error">{fieldError}</Alert>}

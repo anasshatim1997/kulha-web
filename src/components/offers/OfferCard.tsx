@@ -29,16 +29,16 @@ function BasketMark() {
   );
 }
 
-export function OfferCard({ offer, locale }: { offer: PublicOffer; locale: SiteLocale; priority?: boolean }) {
+export function OfferCard({ offer, locale, pickupWindowOverride }: { offer: PublicOffer; locale: SiteLocale; priority?: boolean; pickupWindowOverride?: string }) {
   const t = publicOfferCopy(locale);
   const d = offerDesignCopy(locale);
   const tint = categoryTint[offer.category] ?? categoryTint.OTHER;
   const href = locale === "fr" ? `/offers/${offer.id}` : `/${locale}/offers/${offer.id}`;
   const hasReferencePrice = offer.originalPriceMinor !== null && offer.originalPriceMinor > offer.priceMinor;
   const soldOut = offer.availableUnits === 0;
-  const pickupWindow = offer.pickupStart && offer.pickupEnd
+  const pickupWindow = pickupWindowOverride ?? (offer.pickupStart && offer.pickupEnd
     ? formatPickupWindow(offer.pickupStart, offer.pickupEnd, locale).replace(" · ", " ")
-    : t.notProvided;
+    : t.notProvided);
   const distance = formatDistance(offer.distanceKm, locale);
   const availableLabel = d.left.replace("{count}", String(offer.availableUnits));
 

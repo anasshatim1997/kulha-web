@@ -7,6 +7,7 @@ import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { reservationCopy, reservationLocaleTag } from "@/lib/i18n/reservation-copy";
 import { localePath } from "@/lib/navigation";
 import { api } from "@/lib/api/client";
+import { clearReservationAttempt, getOrCreateReservationAttempt } from "@/lib/reservations/idempotency";
 import { useSession } from "@/components/session/SessionProvider";
 import { formatPickupDate, formatPickupWindow } from "@/lib/offers/format";
 import type { Reservation, ReservationAvailability } from "@/lib/reservations/types";
@@ -80,16 +81,17 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
     setSubmitError(null);
     try {
       const slot = availability.slots[selectedSlot];
-      const created = await api.post<Reservation>("/reservations", {
-        offerId,
-        quantity,
-        pickupStart: slot.start,
-        pickupEnd: slot.end,
+      const payload = { offerId, quantity, pickupStart: slot.start, pickupEnd: slot.end };
+      const fingerprint = JSON.stringify(payload);
+      const attempt = getOrCreateReservationAttempt(window.sessionStorage, offerId, fingerprint);
+      const created = await api.post<Reservation>("/reservations", payload, {
+        headers: { "Idempotency-Key": attempt.key },
       });
       if (!created?.reference) throw new Error("Reservation response did not include a reference.");
       window.dispatchEvent(new Event("kulha:navigation-start"));
       // Client-side replace avoids a full document reload and prevents accidental resubmission via Back.
       router.replace(localePath(locale, "/reservations/confirmed/" + encodeURIComponent(created.reference)));
+      clearReservationAttempt(window.sessionStorage, offerId);
     } catch {
       setSubmitError(t.createError);
       await loadAvailability();

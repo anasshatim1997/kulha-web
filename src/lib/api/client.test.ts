@@ -40,6 +40,19 @@ describe("api client", () => {
     expect(init.body).toBe(JSON.stringify({ email: "a@b.co" }));
   });
 
+  it("forwards the reservation Idempotency-Key header through the BFF client", async () => {
+    const fetchMock = stubFetch();
+    fetchMock.mockResolvedValueOnce(jsonResponse({ reference: "KULHA-123" }));
+
+    await api.post("/reservations", { offerId: "offer-1", quantity: 1 }, {
+      headers: { "Idempotency-Key": "attempt-key-123" },
+    });
+
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/bff/reservations");
+    expect((init.headers as Record<string, string>)["Idempotency-Key"]).toBe("attempt-key-123");
+  });
+
   it("returns nothing for 202 and 204", async () => {
     const fetchMock = stubFetch();
     fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));

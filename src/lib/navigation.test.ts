@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { defaultSignedInPath, localeFromPath, localePath, safeNext, switchLocalePath, isMerchantWorkspacePath, isCustomerAccountPath, shouldUseCustomerWorkspace } from "./navigation";
+import { defaultSignedInPath, localeFromPath, localePath, safeNext, switchLocalePath, isMerchantWorkspacePath, isCustomerAccountPath, shouldUseCustomerWorkspace, isCanonicalFrenchAuthPath } from "./navigation";
 
 describe("safeNext", () => {
   it("keeps simple paths of this site", () => {
@@ -35,6 +35,11 @@ describe("locale navigation", () => {
     expect(switchLocalePath("/en/how-it-works", "ar")).toBe("/ar/how-it-works");
     expect(switchLocalePath("/ar/register", "fr")).toBe("/register");
     expect(switchLocalePath("/categories", "en")).toBe("/en/categories");
+    expect(switchLocalePath("/login", "en")).toBe("/en/login");
+    expect(switchLocalePath("/en/register", "ar")).toBe("/ar/register");
+    expect(switchLocalePath("/forgot-password", "en")).toBe("/en/forgot-password");
+    expect(switchLocalePath("/reset-password", "ar")).toBe("/ar/reset-password");
+    expect(switchLocalePath("/verify-email", "en")).toBe("/en/verify-email");
   });
   it("keeps the account page, which exists in every language", () => {
     expect(switchLocalePath("/account", "en")).toBe("/en/account");
@@ -86,6 +91,16 @@ describe("locale navigation", () => {
     expect(switchLocalePath("/blog/a-post", "ar")).toBe("/ar");
     expect(switchLocalePath("/unknown-page", "en")).toBe("/en");
     expect(switchLocalePath("/admin/merchants", "ar")).toBe("/ar");
+  });
+});
+describe("canonical French auth routes", () => {
+  it("keeps root auth routes out of the /fr rewrite", () => {
+    for (const path of ["/login", "/register", "/register/merchant", "/forgot-password", "/reset-password", "/verify-email"]) {
+      expect(isCanonicalFrenchAuthPath(path)).toBe(true);
+    }
+    for (const path of ["/", "/offers", "/en/login", "/ar/register", "/fr/login", "/login-extra"]) {
+      expect(isCanonicalFrenchAuthPath(path)).toBe(false);
+    }
   });
 });
 describe("post-auth destination", () => {

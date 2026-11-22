@@ -15457,3 +15457,527 @@ body:has(.kulha-reservation-viewport) > main { min-height:0; overflow:visible; }
 
 .codeCard .cancelNotice { display:flex; align-items:center; justify-content:center; gap:8px; max-width:100%; margin:12px 0 0; padding:11px 16px; border-radius:14px; background:#fdecea; color:#a3372a; font-size:14px; font-weight:900; line-height:1.35; text-align:start; }
 .codeCard .cancelNotice svg { flex:none; }
+
+
+/* KULHA merchant/admin workspace sidebar — desktop, collapses to a top nav on mobile. */
+.workspace-nav-icon{display:inline-flex;width:26px;height:26px;flex:0 0 26px;align-items:center;justify-content:center;color:#d94831}
+.workspace-nav a[aria-current="page"] .workspace-nav-icon{color:#fdbe2e}
+@media(min-width:900px){
+  .site-header-workspace{position:fixed;z-index:60;inset-block:0;inset-inline-start:0;width:214px;height:100dvh;overflow-y:auto;border-inline-end:1px solid #e9e1d4;background:#fffdf8;box-shadow:4px 0 18px rgb(7 51 36 / .035)}
+  .site-header-workspace .nav-shell{min-height:100%;height:100%;padding:24px 13px;display:flex;flex-direction:column;align-items:stretch;gap:22px;flex-wrap:nowrap}
+  .site-header-workspace .brand-link{align-self:flex-start;margin-inline-start:6px}
+  .site-header-workspace .workspace-nav{width:100%;margin:0;display:flex;flex-direction:column;align-items:stretch;gap:6px}
+  .site-header-workspace .workspace-nav a{display:flex;align-items:center;gap:9px;width:100%;padding:10px 9px;border-radius:12px;font-size:13px;white-space:normal}
+  .site-header-workspace .workspace-actions{width:100%;margin: auto 0 0;display:flex;flex-direction:column;align-items:stretch;gap:8px}
+  .site-header-workspace .workspace-actions .language-select-label,.site-header-workspace .workspace-actions select{width:100%}
+  .site-header-workspace .workspace-signout{width:100%;border-radius:12px}
+  body:has(.site-header-workspace) > #contenu{width:calc(100% - 214px);margin-inline-start:214px;min-width:0}
+  body:has(.site-header-workspace) > #contenu > *{max-width:none}
+}
+@media(max-width:899px){
+  .site-header-workspace{position:sticky;top:0;z-index:60;border-bottom:1px solid #e9e1d4;background:#fffdf8}
+  .site-header-workspace .nav-shell{padding:10px 14px;min-height:62px}
+  .site-header-workspace .workspace-nav{order:3;width:100%;margin:0;overflow-x:auto;padding-bottom:3px}
+  .site-header-workspace .workspace-nav a{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;font-size:11px}
+  .site-header-workspace .workspace-actions{margin-inline-start:auto}
+  .site-header-workspace .workspace-actions select{max-width:84px}
+}
+
+
+/* Offer authoring: live customer preview beside the editor. */
+.mw-offer-editor-layout{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(280px,.88fr);align-items:start;gap:20px;flex:1 1 auto;min-height:0}
+.mw-offer-editor-layout>.mw-form{min-height:0;max-height:100%;overflow-y:auto;overflow-x:hidden;padding:2px 5px 10px;scrollbar-width:thin;scrollbar-color:#dcae2d transparent}
+.mw-offer-customer-preview{position:sticky;top:12px;display:grid;gap:10px;align-content:start;padding:17px;border:1px solid #e8dfcc;border-radius:22px;background:#fffdf8;box-shadow:0 12px 30px rgb(7 51 36 / .06)}
+.mw-offer-preview-eyebrow{margin:0;color:#788274;font-size:9px;font-weight:1000;letter-spacing:.12em}
+.mw-offer-preview-card{overflow:hidden;border:1px solid #eee5d4;border-radius:19px;background:#fff}
+.mw-offer-preview-art{position:relative;min-height:165px;display:flex;align-items:center;justify-content:center;gap:14px;padding:20px;background:radial-gradient(circle at 20% 20%,#fff8df,transparent 50%),linear-gradient(135deg,#f8edcf,#fff8e9)}
+.mw-offer-preview-bag{font-size:64px;line-height:1;color:#83917e;filter:drop-shadow(0 8px 10px rgb(7 51 36 / .12))}
+.mw-offer-preview-discount{position:absolute;top:15px;inset-inline-end:15px;padding:6px 9px;border-radius:99px;background:#fdbe2e;color:#073324;font-size:10px;font-weight:1000}
+.mw-offer-preview-copy{display:grid;gap:8px;padding:14px}
+.mw-offer-preview-copy>small{font-size:10px;font-weight:800;color:#859085}
+.mw-offer-preview-copy h2{margin:0;color:#073324;font-size:18px;line-height:1.2;font-weight:1000}
+.mw-offer-preview-copy>p{margin:0;color:#69796d;font-size:11px;line-height:1.45}
+.mw-offer-preview-meta{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center;margin-top:3px}
+.mw-offer-preview-meta span,.mw-offer-preview-meta strong{padding:6px 9px;border-radius:99px;background:#f2f4ec;color:#4d6556;font-size:10px;font-weight:850}
+.mw-offer-preview-food{display:flex;justify-content:space-between;gap:8px;padding-top:8px;border-top:1px solid #f0eadf}
+.mw-offer-preview-food span{font-size:10px;color:#828c80}.mw-offer-preview-food strong{max-width:65%;text-align:end;font-size:10px;color:#405c4b}
+@media(max-width:980px){
+ .mw-shell:has(.mw-offer-editor-layout){height:auto;min-height:calc(100dvh - var(--mw-header))}
+ .mw-offer-editor-layout{grid-template-columns:1fr;overflow:visible}
+ .mw-offer-editor-layout>.mw-form{max-height:none;overflow:visible}
+ .mw-offer-customer-preview{position:static;grid-row:2}
+}
+@media(max-width:620px){
+ .mw-offer-editor-layout{gap:13px}
+ .mw-offer-customer-preview{padding:13px;border-radius:17px}
+ .mw-offer-preview-art{min-height:135px}
+ .mw-offer-preview-bag{font-size:52px}
+}
+
+
+/* Customer marketplace uses a full-width top navbar; only merchant/admin keep the left sidebar. */
+@media (min-width: 900px) {
+  .site-header-workspace.site-header-customer {
+    position: sticky;
+    inset: auto;
+    top: 0;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    border-inline-end: 0;
+    border-bottom: 1px solid #e9e1d4;
+    background: #fffdf8;
+    box-shadow: 0 3px 14px rgb(7 51 36 / .035);
+  }
+  .site-header-workspace.site-header-customer .nav-shell {
+    width: 100%;
+    max-width: 1560px;
+    min-height: 76px;
+    height: auto;
+    margin-inline: auto;
+    padding: 10px clamp(22px, 3.4vw, 54px);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: clamp(18px, 2.4vw, 38px);
+  }
+  .site-header-workspace.site-header-customer .brand-link { align-self: center; margin: 0; }
+  .site-header-workspace.site-header-customer .workspace-nav {
+    width: auto;
+    margin-inline-start: auto; /* nav sits on the right, next to the language picker */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+  }
+  .site-header-workspace.site-header-customer .workspace-nav a {
+    display: inline-flex;
+    width: auto;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 15px;
+    font-size: 15px;
+    white-space: nowrap;
+  }
+  .site-header-workspace.site-header-customer .workspace-actions {
+    width: auto;
+    margin-inline-start: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+  .site-header-workspace.site-header-customer .workspace-actions .language-select-label,
+  .site-header-workspace.site-header-customer .workspace-actions select { width: auto; }
+  body:has(.site-header-workspace.site-header-customer) > #contenu {
+    width: 100%;
+    margin-inline-start: 0;
+    min-width: 0;
+  }
+}
+@media (max-width: 899px) {
+  .site-header-workspace.site-header-customer {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .site-header-workspace.site-header-customer .nav-shell {
+    min-height: 62px;
+    height: auto;
+    padding: 9px 16px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 10px;
+  }
+  .site-header-workspace.site-header-customer .workspace-nav {
+    order: 0;
+    width: auto;
+    flex: 1 1 auto;
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 0;
+  }
+  .site-header-workspace.site-header-customer .workspace-nav a {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+  .site-header-workspace.site-header-customer .workspace-actions {
+    width: auto;
+    margin-inline-start: auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+
+/* Workspace shell: fixed admin/merchant rail, independently scrolling content. */
+@media (min-width: 900px) {
+  .site-header-workspace:not(.site-header-customer) {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 240px;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+    z-index: 100;
+    display: block;
+  }
+  .site-header-workspace:not(.site-header-customer) .nav-shell {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    max-height: 100dvh;
+    padding: 24px 14px 18px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 22px;
+    overflow: hidden;
+  }
+  .site-header-workspace:not(.site-header-customer) .brand-link {
+    flex: 0 0 auto;
+    align-self: flex-start;
+    margin-inline-start: 5px;
+  }
+  .site-header-workspace:not(.site-header-customer) .workspace-nav {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #d8cbb4 transparent;
+  }
+  .site-header-workspace:not(.site-header-customer) .workspace-nav a {
+    flex: 0 0 auto;
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 11px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    border-radius: 11px;
+    font-size: 14px;
+    line-height: 1.35;
+    white-space: normal;
+  }
+  .site-header-workspace:not(.site-header-customer) .workspace-actions {
+    flex: 0 0 auto;
+    width: 100%;
+    margin: auto 0 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 9px;
+  }
+  .site-header-workspace:not(.site-header-customer) .workspace-actions .language-select-label,
+  .site-header-workspace:not(.site-header-customer) .workspace-actions select,
+  .site-header-workspace:not(.site-header-customer) .workspace-signout {
+    width: 100%;
+  }
+  body:has(.site-header-workspace:not(.site-header-customer)) > #contenu,
+  body:has(.site-header-workspace:not(.site-header-customer)) > footer {
+    box-sizing: border-box;
+    width: calc(100% - 240px);
+    max-width: none;
+    min-width: 0;
+    margin-inline-start: 240px;
+  }
+  body:has(.site-header-workspace:not(.site-header-customer)) > #contenu {
+    flex: 1 0 auto;
+  }
+  body:has(.site-header-workspace:not(.site-header-customer)) > footer {
+    flex: 0 0 auto;
+  }
+  .admin-workspace-nav .admin-nav-icon {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    border: 1px solid #e7dfd1;
+    border-radius: 9px;
+    background: #f8f5ee;
+    color: #52685a;
+    transition: background .16s ease, color .16s ease, border-color .16s ease;
+  }
+  .admin-workspace-nav a[aria-current="page"] .admin-nav-icon {
+    border-color: #073324;
+    background: #073324;
+    color: #fdbe2e;
+  }
+  .admin-workspace-nav a:hover .admin-nav-icon {
+    border-color: #cbd8ce;
+    background: #edf3ed;
+    color: #073324;
+    transform: none;
+  }
+}
+@media (max-width: 899px) {
+  body:has(.site-header-workspace:not(.site-header-customer)) > #contenu,
+  body:has(.site-header-workspace:not(.site-header-customer)) > footer {
+    width: 100%;
+    margin-inline-start: 0;
+  }
+  .site-header-workspace:not(.site-header-customer) .workspace-nav {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+}
+
+
+/* ==========================================================================
+   KULHA workspace shell (admin + merchant)
+   Dedicated .ws-* classes. They deliberately do NOT reuse .site-header, because
+   the global `.site-header { position: relative !important }` rule used to
+   override the fixed sidebar and pushed the page content below a full-height
+   sidebar row. Nothing here should need !important.
+   ========================================================================== */
+:root { --ws-w: 248px; --ws-top: 64px; }
+.ws-sidebar, .ws-sidebar *, .ws-topbar, .ws-topbar * { box-sizing: border-box; }
+
+.ws-sidebar {
+  position: fixed; inset-block: 0; inset-inline-start: 0; z-index: 100;
+  width: var(--ws-w); height: 100dvh; box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 18px;
+  padding: 22px 14px 16px; overflow: hidden;
+  font-family: inherit;
+}
+.ws-brand { display: grid; gap: 2px; padding-inline: 8px; text-decoration: none; line-height: 1; }
+.ws-brand-word { font-size: 24px; font-weight: 1000; letter-spacing: -.03em; }
+.ws-brand-word span { color: #fdbe2e; }
+.ws-brand small { font-size: 10px; font-weight: 900; letter-spacing: .14em; opacity: .7; }
+
+.ws-nav { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.ws-nav-link { display: flex; align-items: center; gap: 11px; min-height: 42px; padding: 9px 12px; border-radius: 11px; font-size: 13.5px; font-weight: 850; line-height: 1.25; text-decoration: none; transition: background .15s, color .15s; }
+.ws-nav-link svg { flex: 0 0 auto; }
+.ws-nav-label { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.ws-badge { flex: 0 0 auto; min-width: 22px; height: 22px; padding: 0 6px; display: inline-grid; place-items: center; border-radius: 99px; background: #fdbe2e; color: #073324; font-size: 11px; font-weight: 1000; }
+.ws-nav-link:focus-visible, .ws-signout:focus-visible, .ws-lang select:focus-visible { outline: 3px solid #fdbe2e; outline-offset: 2px; }
+
+.ws-sidebar-foot { margin-top: auto; display: grid; gap: 10px; }
+.ws-foot-actions { display: grid; gap: 8px; }
+.ws-lang select { width: 100%; height: 40px; padding: 0 12px; border-radius: 99px; font: inherit; font-size: 13px; font-weight: 900; cursor: pointer; }
+.ws-signout { width: 100%; height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border-radius: 99px; background: transparent; font: inherit; font-size: 13px; font-weight: 900; cursor: pointer; }
+.ws-user { display: grid; gap: 2px; padding: 12px 14px; border-radius: 14px; font-size: 12px; }
+.ws-user strong { font-weight: 950; font-size: 13px; overflow-wrap: anywhere; }
+.ws-user span { opacity: .75; font-weight: 700; }
+.ws-note { margin: 0; display: grid; gap: 3px; padding: 12px 13px; border-radius: 14px; background: #fdf0cc; color: #6b4a00; font-size: 11.5px; line-height: 1.45; font-weight: 700; }
+.ws-note strong { font-weight: 950; color: #4a3200; }
+.ws-shop-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; background: #e9f0e3; color: #073324; }
+.ws-shop-avatar { flex: 0 0 auto; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: #073324; color: #fcf4e7; font-weight: 1000; font-size: 14px; }
+.ws-shop-text { display: grid; min-width: 0; line-height: 1.25; }
+.ws-shop-text strong { font-size: 13px; font-weight: 950; overflow-wrap: anywhere; }
+.ws-shop-text small { font-size: 11px; font-weight: 700; color: #4c6a58; }
+
+/* Admin: dark forest rail */
+.ws-sidebar-admin { background: #073324; color: #fcf4e7; }
+.ws-sidebar-admin .ws-brand { color: #fff; }
+.ws-sidebar-admin .ws-nav-link { color: #d9e6dd; }
+.ws-sidebar-admin .ws-nav-link:hover { background: rgb(255 255 255 / .07); color: #fff; }
+.ws-sidebar-admin .ws-nav-link[aria-current="page"] { background: rgb(255 255 255 / .13); color: #fff; }
+.ws-sidebar-admin .ws-user { background: rgb(255 255 255 / .07); color: #fff; }
+.ws-sidebar-admin .ws-lang select { background: rgb(255 255 255 / .08); border: 1px solid rgb(255 255 255 / .18); color: #fff; }
+.ws-sidebar-admin .ws-lang select option { color: #073324; }
+.ws-sidebar-admin .ws-signout { border: 1px solid rgb(255 255 255 / .22); color: #fcf4e7; }
+.ws-sidebar-admin .ws-signout:hover { background: rgb(255 255 255 / .1); }
+
+/* Merchant: light rail */
+.ws-sidebar-merchant { background: #fffdf8; color: #073324; border-inline-end: 1px solid #ebe3d3; }
+.ws-sidebar-merchant .ws-brand { color: #073324; }
+.ws-sidebar-merchant .ws-nav-link { color: #29483b; }
+.ws-sidebar-merchant .ws-nav-link:hover { background: #f3efe3; }
+.ws-sidebar-merchant .ws-nav-link[aria-current="page"] { background: #073324; color: #fff; }
+.ws-sidebar-merchant .ws-lang select { background: #fff; border: 1px solid #e3dac8; color: #073324; }
+.ws-sidebar-merchant .ws-signout { border: 1px solid #e3dac8; color: #073324; }
+.ws-sidebar-merchant .ws-signout:hover { background: #073324; color: #fcf4e7; }
+
+/* Merchant top bar (shell-level, so it appears on every merchant page) */
+.ws-topbar { position: fixed; z-index: 90; inset-block-start: 0; inset-inline: var(--ws-w) 0; height: var(--ws-top); box-sizing: border-box; display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding-inline: clamp(16px, 3vw, 40px); background: #fffdf8; border-bottom: 1px solid #ebe3d3; }
+.ws-bell { position: relative; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; border: 1px solid #e3dac8; background: #fff; color: #073324; }
+.ws-bell:hover { background: #f3efe3; }
+.ws-bell:focus-visible { outline: 3px solid #fdbe2e; outline-offset: 2px; }
+.ws-bell-count { position: absolute; top: -4px; inset-inline-end: -4px; min-width: 18px; height: 18px; padding: 0 4px; display: grid; place-items: center; border-radius: 99px; background: #fdbe2e; color: #073324; font-size: 10px; font-weight: 1000; }
+.ws-avatar { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; background: #fdbe2e; color: #073324; font-weight: 1000; font-size: 14px; }
+
+/* Page area: always sits beside the rail, never below it */
+@media (min-width: 900px) {
+  body:has(> .ws-sidebar) > #contenu { box-sizing: border-box; flex: 1 0 auto; width: calc(100% - var(--ws-w)); min-width: 0; margin-inline-start: var(--ws-w); }
+  body:has(> .ws-sidebar-merchant) > #contenu { padding-top: var(--ws-top); }
+  body:has(> .ws-sidebar-merchant) .mw-shell { --mw-header: var(--ws-top); }
+  body:has(> .ws-sidebar) > #contenu > * { max-width: none; }
+}
+
+/* Small screens: the rail becomes a compact top bar with a scrolling nav row */
+@media (max-width: 899px) {
+  .ws-sidebar { position: sticky; inset-block-start: 0; inset-inline-start: auto; width: 100%; height: auto; max-height: none; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 14px; overflow: visible; }
+  .ws-sidebar-merchant { border-inline-end: 0; border-bottom: 1px solid #ebe3d3; }
+  .ws-brand { padding-inline: 0; }
+  .ws-shop-card, .ws-note, .ws-user { display: none; }
+  .ws-nav { order: 3; flex: 1 1 100%; flex-direction: row; overflow-x: auto; overflow-y: hidden; padding-bottom: 2px; }
+  .ws-nav-link { flex: 0 0 auto; min-height: 38px; padding: 7px 11px; font-size: 12.5px; white-space: nowrap; }
+  .ws-sidebar-foot { margin: 0 0 0 auto; display: flex; align-items: center; }
+  [dir="rtl"] .ws-sidebar-foot { margin: 0 auto 0 0; }
+  .ws-foot-actions { display: flex; align-items: center; }
+  .ws-lang select, .ws-signout { width: auto; height: 36px; padding-inline: 12px; }
+  .ws-topbar { position: absolute; inset-block-start: 10px; inset-inline: auto 14px; height: auto; padding: 0; background: transparent; border: 0; display: none; }
+  body:has(> .ws-sidebar) > #contenu { width: 100%; margin-inline-start: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .ws-nav-link { transition: none; } }
+
+
+/* Workspace pages scroll with the document: no fixed-height shell that traps content. */
+@media (min-width: 900px) {
+  body:has(> .ws-sidebar-merchant) .mw-shell { height: auto; min-height: calc(100dvh - var(--ws-top)); }
+  body:has(> .ws-sidebar-merchant) .mw-shell > .mw-offer-editor-layout > .mw-form { max-height: none; overflow: visible; }
+}
+html, body { overflow-y: auto; }
+
+/* Workspace account controls belong in the top bar, not the navigation rail. */
+.ws-topbar{justify-content:flex-end;gap:14px}
+.ws-top-user{display:inline-flex;align-items:center;gap:9px;min-width:0}
+.ws-top-identity{display:grid;gap:2px;min-width:0}
+.ws-top-identity strong{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#173c2c;font-size:12px;font-weight:950}
+.ws-top-identity small{color:#728075;font-size:10px;font-weight:750}
+.ws-top-lang select{height:38px;min-width:66px;padding:0 11px;border:1px solid #e3dac8;border-radius:10px;background:#fff;color:#173c2c;font:inherit;font-size:12px;font-weight:900}
+.ws-top-signout{height:38px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 13px;border:1px solid #e3dac8;border-radius:10px;background:#fff;color:#385344;font:inherit;font-size:12px;font-weight:850;cursor:pointer}
+.ws-top-signout:hover{border-color:#c8d4ca;background:#f2f5ef}
+.ws-top-lang select:focus-visible,.ws-top-signout:focus-visible{outline:3px solid #fdbe2e;outline-offset:2px}
+@media(max-width:899px){.ws-topbar{position:sticky;inset:auto;height:auto;padding:8px 14px;display:flex;flex-wrap:wrap;background:#fffdf8;border-bottom:1px solid #ebe3d3}.ws-top-identity strong{max-width:120px}}
+
+
+/* Timed marketplace nudge: appears after the visitor has settled into browsing. */
+.kulha-notify-prompt {
+  position: fixed;
+  z-index: 120;
+  inset-inline-end: 28px;
+  inset-block-end: 26px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  width: min(430px, calc(100vw - 32px));
+  padding: 19px 48px 19px 19px;
+  border: 1px solid rgb(255 255 255 / 13%);
+  border-radius: 22px;
+  background: #073324;
+  color: #fffdf8;
+  box-shadow: 0 18px 55px rgb(12 35 25 / 24%), 0 3px 10px rgb(12 35 25 / 12%);
+  animation: kulha-notify-enter .48s cubic-bezier(.2,.8,.2,1) both;
+}
+[dir="rtl"] .kulha-notify-prompt { padding: 19px 19px 19px 48px; }
+.kulha-notify-prompt.is-closing { pointer-events: none; animation: kulha-notify-exit .34s ease-in both; }
+.kulha-notify-prompt-icon {
+  display: grid;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 14px;
+  background: rgb(253 190 46 / 15%);
+  color: #fdbe2e;
+}
+.kulha-notify-prompt-icon svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.kulha-notify-prompt-copy { min-width: 0; flex: 1; }
+.kulha-notify-prompt-copy h2 { margin: 0; color: #fffdf8; font-size: 16px; font-weight: 950; line-height: 1.35; }
+.kulha-notify-prompt-copy p { margin: 5px 0 13px; color: #c7d7cd; font-size: 13px; font-weight: 650; line-height: 1.5; }
+.kulha-notify-prompt-copy a { display: inline-flex; min-height: 38px; align-items: center; justify-content: center; padding: 0 16px; border-radius: 12px; background: #fdbe2e; color: #073324; font-size: 12px; font-weight: 950; text-decoration: none; transition: transform .16s ease, background .16s ease; }
+.kulha-notify-prompt-copy a:hover { transform: translateY(-1px); background: #ffd15d; }
+.kulha-notify-prompt-close { position: absolute; inset-block-start: 11px; inset-inline-end: 11px; display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid rgb(255 255 255 / 18%); border-radius: 9px; background: transparent; color: #d9e5dc; cursor: pointer; }
+.kulha-notify-prompt-close svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.kulha-notify-prompt-close:hover { background: rgb(255 255 255 / 10%); color: #fff; }
+.kulha-notify-prompt a:focus-visible, .kulha-notify-prompt button:focus-visible { outline: 3px solid #fdbe2e; outline-offset: 3px; }
+@keyframes kulha-notify-enter { from { opacity: 0; transform: translate3d(0, 18px, 0) scale(.97); } to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); } }
+@keyframes kulha-notify-exit { to { opacity: 0; transform: translate3d(0, 14px, 0) scale(.98); } }
+@media (max-width: 600px) {
+  .kulha-notify-prompt { inset-inline: 12px; inset-block-end: 14px; width: auto; gap: 11px; padding: 16px 43px 16px 14px; border-radius: 18px; }
+  [dir="rtl"] .kulha-notify-prompt { padding: 16px 14px 16px 43px; }
+  .kulha-notify-prompt-icon { flex-basis: 36px; width: 36px; height: 36px; border-radius: 12px; }
+  .kulha-notify-prompt-copy h2 { font-size: 14px; }
+  .kulha-notify-prompt-copy p { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kulha-notify-prompt, .kulha-notify-prompt.is-closing { animation-duration: .01ms; }
+}
+
+/* Admin workspace: Canva navigation colors and the shared top-row controls. */
+@media (min-width: 900px) {
+  .ws-sidebar-admin .ws-nav-link {
+    min-height: 46px;
+    padding-inline: 12px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+  .ws-sidebar-admin .ws-nav-link[aria-current="page"] {
+    background: #fdbe2e;
+    color: #073324;
+  }
+  .ws-sidebar-admin .ws-nav-link[aria-current="page"] .ws-badge {
+    background: #073324;
+    color: #fdbe2e;
+  }
+  .ws-topbar {
+    background: transparent;
+    border: 0;
+    pointer-events: none;
+  }
+  .ws-topbar > * { pointer-events: auto; }
+  .ws-topbar .ws-top-user {
+    min-height: 38px;
+    padding: 0 12px 0 5px;
+    border: 1px solid #eee5d5;
+    border-radius: 999px;
+    background: #f7f1e5;
+  }
+  .ws-topbar .ws-avatar { width: 30px; height: 30px; font-size: 12px; }
+  .ws-topbar .ws-top-lang select,
+  .ws-topbar .ws-top-signout { height: 40px; border-radius: 999px; }
+  body:has(> .ws-sidebar-admin) > footer { display: none; }
+}
+@media (max-width: 899px) {
+  .ws-sidebar-admin .ws-nav-link[aria-current="page"] {
+    background: #fdbe2e;
+    color: #073324;
+  }
+}
+@media (min-width: 900px) {
+  .ws-sidebar-admin .ws-brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding-inline: 8px;
+  }
+  .ws-sidebar-admin .ws-brand small {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: #fdbe2e;
+    color: #073324;
+    font-size: 9px;
+    line-height: 1;
+    letter-spacing: .05em;
+    opacity: 1;
+  }
+}
+@media (min-width: 900px) and (max-width: 1199px) {
+  .ws-topbar .ws-top-identity { display: none; }
+  .ws-topbar .ws-top-user { padding-inline: 4px; }
+}
+
+body:has(> .ws-sidebar-admin) > footer { display: none; }

@@ -16,8 +16,10 @@ import { searchFromParams } from "@/lib/offers/search-params";
 import { getCasablancaQuickPickupRanges } from "@/lib/time/casablanca";
 import { OfferResultsProgress } from "@/components/offers/OfferResultsProgress";
 import { OfferMapButton } from "@/components/offers/OfferMapButton";
+import { OfferNotifyPrompt } from "@/components/offers/OfferNotifyPrompt";
 import { offerDesignCopy, offerAreaLabel } from "@/lib/offers/design-copy";
 import { offerDistricts } from "@/lib/offers/location-options";
+import { formatPickupWindow } from "@/lib/offers/format";
 
 function offersPath(locale: SiteLocale): string {
   return locale === "fr" ? "/offers" : `/${locale}/offers`;
@@ -79,6 +81,13 @@ export async function OfferListPage({ locale, params }: { locale: SiteLocale; pa
   const result: PublicOfferPage | undefined = loaded.page;
   const error = loaded.error;
   const total = result?.total ?? 0;
+  // Serialize pickup labels from the server so SSR and browser hydration use identical text.
+  const initialPickupWindows = Object.fromEntries((result?.items ?? []).map((offer) => [
+    offer.id,
+    offer.pickupStart && offer.pickupEnd
+      ? formatPickupWindow(offer.pickupStart, offer.pickupEnd, locale).replace(" · ", " ")
+      : t.notProvided,
+  ]));
   const explicitCity = Array.isArray(params.city) ? params.city[0] : params.city;
   const isFiltered = Boolean(
     search.q || search.category || search.maxPriceMinor || explicitCity || search.district ||
@@ -159,7 +168,7 @@ export async function OfferListPage({ locale, params }: { locale: SiteLocale; pa
                     <OfferErrorState locale={locale} href={retryHref} />
                   ) : result?.items.length ? (
                     <>
-                      <OfferProgressiveGrid key={JSON.stringify(search)} locale={locale} initialPage={result} search={search} />
+                      <OfferProgressiveGrid key={JSON.stringify(search)} locale={locale} initialPage={result} search={search} initialPickupWindows={initialPickupWindows} />
                     </>
                   ) : (
                     <OfferEmptyState
@@ -173,19 +182,11 @@ export async function OfferListPage({ locale, params }: { locale: SiteLocale; pa
                 </section>
               </OfferNearbyResults>
 
-              <section className="kulha-offers-notify-banner">
-                <div className="kulha-offers-notify-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-2.5 7-2.5 9h17C20.5 16 18 16 18 9ZM10 21h4" /></svg>
-                </div>
-                <div>
-                  <h2>{d.missTitle}</h2>
-                  <p>{d.missBody.replace("{area}", bannerArea)}</p>
-                </div>
-                <Link href="/register">{d.missCta}</Link>
-              </section>
+
             </div>
           </div>
       </main>
+      <OfferNotifyPrompt locale={locale} title={d.missTitle} body={d.missBody.replace("{area}", bannerArea)} cta={d.missCta} />
       </OfferNearbyProvider>
     </div>
   );
