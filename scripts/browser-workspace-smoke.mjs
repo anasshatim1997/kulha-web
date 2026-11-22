@@ -88,12 +88,15 @@ const backend = createServer(async (request, response) => {
     const accessToken = String(payload.email ?? "").split("@")[0];
     return json(response, { accessToken, refreshToken: `refresh-${accessToken}`, expiresIn: 3600 });
   }
+  if (path === "/me/preferences" && method === "GET") return json(response, { preferredCity: "Casablanca", preferredDistrict: null, locale: url.searchParams.get("locale") ?? "fr" });
+  if (path === "/me/notification-preferences" && method === "GET") return json(response, { reservationConfirmations: true, pickupReminders: true, cancellationsAndStatusChanges: true, nearbyBaskets: false, reminderMinutesBefore: 60, emailEnabled: true, smsEnabled: false });
   if (path === "/me") {
     return json(response, {
       id: actorId, email: "browser-smoke@kulha.test", fullName: "KULHA Browser Smoke",
       phone: null, emailVerified: true, roles: [role],
     });
   }
+  if (path === "/offers" && method === "GET") return json(response, page([{ id: offer.id, title: offer.title, category: "BREAD_PASTRY", priceMinor: 4000, originalPriceMinor: 8000, quantityTotal: 10, availableUnits: 8, pickupStart, pickupEnd, merchant: { name: "Boulangerie Test", address: "12 Avenue Hassan II", city: "Casablanca", district: null, pickupInstructions: null } }]));
   if (path === "/merchants/me/workspace") {
     return json(response, {
       shopName: "Boulangerie Test", city: "Casablanca", liveOffers: 2,
