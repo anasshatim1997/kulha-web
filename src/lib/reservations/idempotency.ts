@@ -29,7 +29,11 @@ export function getOrCreateReservationAttempt(
   }
 
   const attempt = { fingerprint, key: createKey() };
-  storage.setItem(key, JSON.stringify(attempt));
+  try {
+    storage.setItem(key, JSON.stringify(attempt));
+  } catch {
+    // Storage may be disabled or full. Continue this checkout attempt in memory.
+  }
   return attempt;
 }
 
