@@ -320,7 +320,7 @@ try {
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
-    await page.getByRole("button", { name: "Open review" }).click();
+    await page.getByRole("button", { name: "Review application" }).click();
     await assertDialogWithinViewport(page, "/en/admin/merchant-review");
     const dialog = page.getByRole("dialog");
     await dialog.getByLabel("Address and location checked").check();
