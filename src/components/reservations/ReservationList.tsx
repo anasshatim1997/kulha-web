@@ -50,15 +50,15 @@ export function ReservationList({ locale }: { locale: SiteLocale }) {
     }
   }, []);
 
+  const isCustomer = state.status === "authenticated" && state.user.roles.includes("CUSTOMER");
+  const userId = state.status === "authenticated" ? state.user.id : null;
+
   useEffect(() => {
     if (!isCustomer) return;
     let active = true;
     void Promise.resolve().then(() => load(() => active));
     return () => { active = false; };
   }, [isCustomer, userId, load]);
-
-  const isCustomer = state.status === "authenticated" && state.user.roles.includes("CUSTOMER");
-  const userId = state.status === "authenticated" ? state.user.id : null;
   const current = items[active];
   const label = active === "upcoming" ? t.upcoming : active === "past" ? t.past : t.cancelled;
 
