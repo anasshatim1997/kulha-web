@@ -267,7 +267,7 @@ try {
       await page.setViewportSize(size);
       await page.goto(origin + route.path, { waitUntil: "networkidle", timeout: 30000 });
       try {
-        await page.getByRole("heading", { name: route.heading }).waitFor({ state: "visible", timeout: 15000 });
+        await page.getByText(route.heading, { exact: true }).first().waitFor({ state: "visible", timeout: 15000 });
       } catch {
         const bodyText = (await page.locator("body").innerText()).slice(0, 1200);
         throw new Error(`Workspace did not render ${route.path}; current URL=${page.url()}; body=${bodyText}; backend requests=${JSON.stringify(requests.slice(-12))}`);
