@@ -70,7 +70,7 @@ export function ProfileSettingsPanel({ initialSection = "profile" }: { initialSe
     }).catch(cause => { if (!cancelled) setError(describeError(cause) || t.loadError); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [state, t.loadError]);
+  }, [state, locale, t.loadError]);
 
   if (state.status === "loading" || loading && state.status === "authenticated") {
     return <main className="ps-page"><div className="ps-loading">{t.loading}</div></main>;
