@@ -53,7 +53,7 @@ const backend = createServer(async (request, response) => {
     return json(response, { items: [], page: 0, size: 20, total: 0 });
   }
   if (path === "/reservations/pickup/check" && request.method === "POST") {
-    for await (const _chunk of request) { /* consume request body */ }
+    for await (const chunk of request) { void chunk; }
     return json(response, {
       reference: "KULHA-SMOKE-001", merchantName: "Boulangerie Test",
       offerTitle: "Panier du fournil", quantity: 1, totalPriceMinor: 4000,
@@ -73,7 +73,7 @@ const backend = createServer(async (request, response) => {
   return json(response, {});
 });
 
-const app = spawn("pnpm", ["start", "--hostname", "127.0.0.1", "--port", String(port)], {
+const app = spawn("pnpm", ["exec", "next", "start", "--hostname", "127.0.0.1", "--port", String(port)], {
   env: {
     ...process.env,
     API_BASE_URL: `http://127.0.0.1:${apiPort}`,
