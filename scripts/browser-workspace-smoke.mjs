@@ -254,6 +254,13 @@ async function assertCompactWorkspaceFits(page, route, width, height) {
       documentHeight: document.documentElement.scrollHeight,
       bodyHeight: document.body.scrollHeight,
       verticalScrollOwners: owners,
+      layoutNodes: [".shell", ".shell > main", ".supportWorkspace", ".casePicker", ".caseDetail", "#contenu"].map(selector => {
+        const element = document.querySelector(selector);
+        if (!element) return { selector, missing: true };
+        const rect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return { selector, top: Math.round(rect.top), bottom: Math.round(rect.bottom), height: Math.round(rect.height), clientHeight: element.clientHeight, scrollHeight: element.scrollHeight, overflowY: style.overflowY, gridTemplateColumns: style.gridTemplateColumns };
+      }),
     };
   });
   if (metrics.documentHeight > height + 2 || metrics.bodyHeight > height + 2) {
