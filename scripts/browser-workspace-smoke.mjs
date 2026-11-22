@@ -415,7 +415,7 @@ try {
     const page = await context.newPage();
     await page.goto(origin + "/en/admin/audit-log", { waitUntil: "networkidle" });
     const downloadPromise = page.waitForEvent("download");
-    await page.getByRole("button", { name: "Export (logged)" }).click();
+    await page.getByRole("button", { name: "Export CSV" }).click();
     const download = await downloadPromise;
     if (download.suggestedFilename() !== "kulha-audit-log.csv") throw new Error("Audit CSV download failed.");
     await context.close();
