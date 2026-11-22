@@ -1,5 +1,7 @@
 export type RoleSet = readonly string[];
 
+export const SUPPORT_DISCLOSURE_REASON_MAX_LENGTH = 500;
+
 export function canAccessAdminWorkspace(roles: RoleSet): boolean {
   return roles.includes("ADMIN") || roles.includes("SUPER_ADMIN");
 }
