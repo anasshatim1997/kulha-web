@@ -277,6 +277,10 @@ try {
     { path: "/en/admin/audit-log", token: "admin-token", heading: "Audit log" },
     { path: "/fr/reservations", token: "customer-token", heading: "Mes réservations" },
     { path: "/ar/reservations", token: "customer-token", heading: "حجوزاتي", direction: "rtl", directionSelector: '[lang="ar"]' },
+    { path: "/fr/account", token: "customer-token", heading: "Profil et paramètres" },
+    { path: "/ar/account", token: "customer-token", heading: "الملف الشخصي والإعدادات", direction: "rtl", directionSelector: '[lang="ar"]' },
+    { path: "/fr/offers", token: "customer-token", heading: "Paniers près de chez vous" },
+    { path: "/ar/offers", token: "customer-token", heading: "سلال بالقرب منك", direction: "rtl", directionSelector: '[lang="ar"]' },
   ];
   for (const route of routes) {
     const context = await loginContext(browser, route.token);
@@ -447,7 +451,7 @@ try {
 
   process.stdout.write("PASS merchant order filtering, staff permissions, sales download and pickup handover\n");
   process.stdout.write("PASS admin merchant review, offer moderation, assigned support disclosure/resolution and audit download\n");
-  process.stdout.write("PASS 7 viewport sizes across 12 authenticated routes; merchant/admin modal bounds at 390px; Arabic RTL at 390px\n");
+  process.stdout.write("PASS 7 viewport sizes across 16 authenticated routes; merchant/admin modal bounds at 390px; Arabic RTL at 390px\n");
 } finally {
   await browser?.close();
   app.kill("SIGTERM");
