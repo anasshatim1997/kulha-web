@@ -92,3 +92,20 @@
 @keyframes pulse{50%{opacity:.45}}
 @media(max-width:1000px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.staffRow{grid-template-columns:36px 1fr auto}.staffPerms{grid-column:2/4;grid-row:2;grid-template-columns:repeat(2,minmax(0,1fr))}.removeButton{grid-column:3;grid-row:1}}
 @media(max-width:720px){.page{padding:22px 14px 45px;gap:15px}.heading h1{font-size:29px}.bottomGrid{grid-template-columns:1fr}.metrics{gap:9px}.metrics article{padding:15px;border-radius:16px;min-height:102px}.metrics article strong{font-size:29px}.panel{padding:15px;border-radius:17px}.table{min-width:640px}.staffRow{grid-template-columns:34px minmax(0,1fr) auto;gap:9px}.staffPerms{grid-column:1/4;grid-template-columns:1fr}.removeButton{grid-column:3;grid-row:1}.salesToolbar{align-items:stretch}.salesToolbar>div{width:100%}.salesToolbar label{flex:1}.salesToolbar input{width:100%;min-width:0}.salesToolbar>.primaryAction{width:100%}}
+
+
+/* Compact operational viewports keep the page within the available window. */
+@media (min-width: 721px) and (max-height: 760px) {
+  .page {
+    padding-top: 20px;
+    padding-bottom: 18px;
+    gap: 16px;
+  }
+  .metrics article {
+    min-height: 96px;
+    padding: 14px 16px;
+  }
+  .panel {
+    padding: 16px;
+  }
+}
