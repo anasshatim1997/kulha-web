@@ -1092,7 +1092,6 @@
 /* Single document scroll: detail panels must never create nested vertical scroll areas.
    Keep sticky placement where useful, but let the main page own all vertical scrolling. */
 .merchantDetails,
-.caseDetail,
 .offerDecision,
 .auditRecordCard {
     max-height: none !important;
@@ -3311,5 +3310,101 @@
         height: 100%;
         min-height: 0;
         overflow: hidden;
+    }
+}
+
+/* Support case detail: the panel is a three-row layout. The case heading keeps
+   its natural size, history owns vertical scrolling, and the composer stays
+   in the final row instead of participating in the conversation's scroll. */
+@media (min-width: 900px) {
+    .supportWorkspace {
+        height: clamp(340px, calc(100dvh - 360px), 720px);
+        min-height: 0;
+        align-items: stretch;
+    }
+
+    .casePicker {
+        box-sizing: border-box;
+        height: 100%;
+        min-height: 0;
+        max-height: none;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .caseDetail {
+        position: static;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        align-content: stretch;
+        box-sizing: border-box;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        max-height: none !important;
+        overflow: hidden !important;
+        overscroll-behavior: auto;
+        padding: 16px;
+    }
+
+    .caseHistory {
+        min-width: 0;
+        min-height: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-color: #9b8b69 #f3ecdf;
+        scrollbar-width: thin;
+        padding-inline-end: 5px;
+    }
+
+    .caseHistory::-webkit-scrollbar { width: 8px; }
+    .caseHistory::-webkit-scrollbar-track { background: #f3ecdf; border-radius: 99px; }
+    .caseHistory::-webkit-scrollbar-thumb { background: #9b8b69; border: 2px solid #f3ecdf; border-radius: 99px; }
+
+    .messageComposer {
+        flex: 0 0 auto;
+        min-height: 0;
+        margin: 10px 0 0;
+        padding: 12px 14px;
+        gap: 9px;
+    }
+
+    .messageComposer form { min-height: 0; gap: 8px; }
+    .messageComposer .field textarea {
+        box-sizing: border-box;
+        display: block;
+        width: 100%;
+        min-height: 72px;
+        max-height: 132px;
+        height: 84px;
+        padding: 10px 12px;
+        line-height: 1.45;
+        resize: vertical;
+        overflow-y: auto;
+    }
+
+    .messageModes { gap: 7px; }
+    .modeButton, .modeActive { min-height: 36px; padding-inline: 12px; }
+    .composerFoot { align-items: center; gap: 10px; }
+    .composerFoot .primary { min-height: 40px; padding-inline: 16px; }
+}
+
+@media (max-width: 899px) {
+    .supportWorkspace { height: auto; min-height: 0; }
+    .caseDetail {
+        display: block;
+        height: auto;
+        min-height: 0;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+    .caseHistory { min-height: 0; overflow: visible; }
+    .messageComposer .field textarea {
+        box-sizing: border-box;
+        width: 100%;
+        min-height: 72px;
+        max-height: 132px;
+        resize: vertical;
     }
 }
