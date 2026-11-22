@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode, type RefObject, type SyntheticEvent } from "react";
 import { api } from "@/lib/api/client";
-import { canRevealSupportCustomerDetails } from "@/lib/auth/admin-access";
+import { canRevealSupportCustomerDetails, SUPPORT_DISCLOSURE_REASON_MAX_LENGTH } from "@/lib/auth/admin-access";
 import { useSession } from "@/components/session/SessionProvider";
 import { AlertTriangle, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, ClipboardCheck, Eye, FileText, Filter, Image as ImageIcon, Lock, Search, ShieldCheck, Tag, X } from "lucide-react";
 import styles from "./AdminConsole.module.css";
@@ -517,7 +517,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         </div>
                         {!revealed&&canRevealSupportCustomerDetails(roles,actorId,selectedCase.summary.assignedTo)&&
                             <div className={styles.caseCustomerDisclosure}>
-                                <label className={styles.field}><span>{t.disclosureReason}</span><input value={disclosureReason} maxLength={1000} onChange={event=>setDisclosureReason(event.target.value)} required /></label>
+                                <label className={styles.field}><span>{t.disclosureReason}</span><input value={disclosureReason} maxLength={SUPPORT_DISCLOSURE_REASON_MAX_LENGTH} onChange={event=>setDisclosureReason(event.target.value)} required /></label>
                                 <button className={styles.linkBtn} type="button" disabled={working||!disclosureReason.trim()} onClick={()=>void revealCustomer()}><Eye size={13} aria-hidden="true"/>{t.reveal}</button>
                             </div>
                         }
