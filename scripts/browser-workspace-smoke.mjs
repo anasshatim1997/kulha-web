@@ -194,7 +194,14 @@ async function waitFor(url, child) {
 }
 async function loginContext(browser, token, viewport = { width: 390, height: 844 }) {
   const context = await browser.newContext({ viewport });
-  await context.addCookies([{ name: "kulha_at", value: token, url: origin, httpOnly: true, sameSite: "Lax" }]);
+  await context.addCookies([{
+    name: "kulha_at", value: token, domain: "127.0.0.1", path: "/",
+    httpOnly: true, secure: false, sameSite: "Lax",
+  }]);
+  const cookies = await context.cookies(origin);
+  if (!cookies.some(cookie => cookie.name === "kulha_at" && cookie.value === token)) {
+    throw new Error("Browser smoke session cookie was not installed.");
+  }
   return context;
 }
 async function assertNoHorizontalOverflow(page, route, width) {
