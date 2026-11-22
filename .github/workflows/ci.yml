@@ -44,3 +44,15 @@ jobs:
 
       - name: Build frontend
         run: pnpm run build
+
+      - name: Install Chromium for browser verification
+        run: |
+          npm install --global playwright@1.56.1
+          playwright install --with-deps chromium
+
+      - name: Run authenticated browser workflows and viewport checks
+        env:
+          PLAYWRIGHT_CLI: ${{ runner.temp }}/playwright-cli-path
+        run: |
+          echo "PLAYWRIGHT_CLI=$(command -v playwright)" >> "$GITHUB_ENV"
+          PLAYWRIGHT_CLI="$(command -v playwright)" node scripts/browser-workspace-smoke.mjs
