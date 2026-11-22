@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
@@ -101,65 +100,6 @@ function addressFromGeo(geo: GeoAddress) {
 
 function Shell({ locale, children }: { locale: SiteLocale; children: ReactNode }) {
     return <div className="mw-shell" dir={locale === "ar" ? "rtl" : "ltr"}>{children}</div>;
-}
-
-function ShopMapLocation({ merchant, locale, onUpdated }: { merchant: MerchantRecord; locale: SiteLocale; onUpdated: (merchant: MerchantRecord) => void }) {
-    const [saving, setSaving] = useState(false);
-    const [status, setStatus] = useState<{ kind: "success" | "error"; text: string } | null>(null);
-    const t = merchantCopy[locale];
-
-    async function saveCurrentLocation() {
-        if (!navigator.geolocation) {
-            setStatus({ kind: "error", text: t.mapLocationUnsupported });
-            return;
-        }
-        setSaving(true);
-        setStatus(null);
-        try {
-            const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-                navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 });
-            });
-            const updated = await api.put<MerchantRecord>("/merchants/me", {
-                name: merchant.name,
-                businessType: merchant.businessType,
-                address: merchant.address,
-                city: merchant.city,
-                district: merchant.district,
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
-                phone: merchant.phone,
-                openingHours: merchant.openingHours,
-                pickupInstructions: merchant.pickupInstructions,
-            });
-            onUpdated(updated);
-            setStatus({ kind: "success", text: t.mapLocationSaved });
-        } catch (error) {
-            const denied = typeof error === "object" && error !== null && "code" in error && Number((error as { code?: number }).code) === 1;
-            setStatus({ kind: "error", text: denied ? t.mapLocationDenied : t.mapLocationError });
-        } finally {
-            setSaving(false);
-        }
-    }
-
-    const hasPin = typeof merchant.latitude === "number" && typeof merchant.longitude === "number";
-    return (
-        <section className="mw-map-location" aria-labelledby="mw-map-location-title">
-            <div className="mw-map-location__copy">
-                <span className="mw-map-location__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24"><path d="M19 10.1c0 5.2-7 10.2-7 10.2S5 15.3 5 10.1a7 7 0 1 1 14 0Z" /><circle cx="12" cy="10" r="2.3" /></svg>
-                </span>
-                <div>
-                    <h3 id="mw-map-location-title">{t.mapLocationTitle}</h3>
-                    <p>{hasPin ? t.mapLocationReadyBody : t.mapLocationBody}</p>
-                    {hasPin && <small>{merchant.latitude?.toFixed(5)}, {merchant.longitude?.toFixed(5)}</small>}
-                </div>
-            </div>
-            <Button variant="accent" loading={saving} disabled={saving} onClick={() => void saveCurrentLocation()}>
-                {saving ? t.mapLocationSaving : hasPin ? t.mapLocationUpdate : t.mapLocationSet}
-            </Button>
-            {status && <p className={`mw-map-location__status is-${status.kind}`} role="status">{status.text}</p>}
-        </section>
-    );
 }
 
 function CheckIcon() {
