@@ -54,3 +54,12 @@ jobs:
         run: |
           echo "PLAYWRIGHT_CLI=$(command -v playwright)" >> "$GITHUB_ENV"
           PLAYWRIGHT_CLI="$(command -v playwright)" node scripts/browser-workspace-smoke.mjs
+
+      - name: Upload browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kulha-browser-screenshots
+          path: artifacts/browser-screenshots/
+          if-no-files-found: warn
+          retention-days: 14
