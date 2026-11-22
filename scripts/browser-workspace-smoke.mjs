@@ -41,7 +41,7 @@ const supportCase = {
   assigneeName: "Support Agent", hiddenOffer: false, createdAt: now.toISOString(),
   updatedAt: now.toISOString(), resolvedAt: null,
 };
-const timeline = [{
+let timeline = [{
   id: "00000000-0000-4000-8000-000000000104", authorType: "CUSTOMER",
   authorUserId: customerId, authorLabel: "Customer", visibility: "CUSTOMER",
   message: "Can you confirm the allergens?", createdAt: now.toISOString(),
@@ -160,6 +160,16 @@ const backend = createServer(async (request, response) => {
   }
   if (path === `/admin/support-cases/${supportCase.reference}` && method === "GET") {
     return json(response, { summary: { ...supportCase, status: caseStatus }, timeline });
+  }
+  if (path === `/admin/support-cases/${supportCase.reference}/messages` && method === "POST") {
+    const payload = await bodyOf(request);
+    timeline.push({
+      id: `00000000-0000-4000-8000-${String(200 + timeline.length).padStart(12, "0")}`,
+      authorType: "AGENT", authorUserId: actorId, authorLabel: "Support Agent",
+      visibility: payload.sendToCustomer ? "CUSTOMER" : "INTERNAL",
+      message: payload.message, createdAt: new Date().toISOString(),
+    });
+    return json(response, {});
   }
   if (path === `/admin/support-cases/${supportCase.reference}/reveal-customer` && method === "POST") {
     await bodyOf(request);
@@ -454,6 +464,84 @@ try {
     const context = await loginContext(browser, "support-token");
     const page = await context.newPage();
     await page.goto(origin + "/en/admin/support-cases", { waitUntil: "networkidle" });
+    await page.setViewportSize({ width: 1366, height: 768 });
+    const detail = page.locator(".caseDetail");
+    const history = page.locator(".caseHistory");
+    const composer = page.locator(".messageComposer");
+    await history.waitFor({ state: "visible" });
+    const shortLayout = await page.evaluate(() => {
+      const detailNode = document.querySelector(".caseDetail");
+      const historyNode = document.querySelector(".caseHistory");
+      const composerNode = document.querySelector(".messageComposer");
+      const panel = detailNode.getBoundingClientRect();
+      const reply = composerNode.getBoundingClientRect();
+      return {
+        documentHeight: document.documentElement.scrollHeight,
+        viewportHeight: window.innerHeight,
+        detailOverflow: getComputedStyle(detailNode).overflowY,
+        historyOverflow: getComputedStyle(historyNode).overflowY,
+        composerBottom: reply.bottom,
+        detailBottom: panel.bottom,
+        textareaHeight: composerNode.querySelector("textarea").getBoundingClientRect().height,
+      };
+    });
+    if (shortLayout.documentHeight > shortLayout.viewportHeight + 1
+      || shortLayout.detailOverflow !== "hidden"
+      || shortLayout.historyOverflow !== "auto"
+      || shortLayout.composerBottom > shortLayout.detailBottom + 1
+      || shortLayout.textareaHeight > 140) {
+      throw new Error(`Short support conversation layout failed: ${JSON.stringify(shortLayout)}`);
+    }
+
+    // Long history must scroll inside .caseHistory; the detail panel and composer stay fixed.
+    timeline = Array.from({ length: 48 }, (_, index) => ({
+      id: `00000000-0000-4000-8000-${String(300 + index).padStart(12, "0")}`,
+      authorType: index % 2 ? "AGENT" : "CUSTOMER",
+      authorUserId: index % 2 ? actorId : customerId,
+      authorLabel: index % 2 ? "Support Agent" : "Customer",
+      visibility: "CUSTOMER",
+      message: `Conversation history entry ${index + 1}: ${"The complete case discussion remains available to the support team. ".repeat(3)}`,
+      createdAt: new Date(Date.now() - (48 - index) * 60000).toISOString(),
+    }));
+    await page.reload({ waitUntil: "networkidle" });
+    await history.waitFor({ state: "visible" });
+    const longLayout = await page.evaluate(() => {
+      const detailNode = document.querySelector(".caseDetail");
+      const historyNode = document.querySelector(".caseHistory");
+      const composerNode = document.querySelector(".messageComposer");
+      const detailRect = detailNode.getBoundingClientRect();
+      const composerRect = composerNode.getBoundingClientRect();
+      return {
+        documentHeight: document.documentElement.scrollHeight,
+        viewportHeight: window.innerHeight,
+        detailClient: detailNode.clientHeight,
+        detailScroll: detailNode.scrollHeight,
+        historyClient: historyNode.clientHeight,
+        historyScroll: historyNode.scrollHeight,
+        historyOverflow: getComputedStyle(historyNode).overflowY,
+        composerTop: composerRect.top,
+        composerBottom: composerRect.bottom,
+        detailTop: detailRect.top,
+        detailBottom: detailRect.bottom,
+      };
+    });
+    if (longLayout.documentHeight > longLayout.viewportHeight + 1
+      || longLayout.detailScroll > longLayout.detailClient + 2
+      || longLayout.historyScroll <= longLayout.historyClient + 2
+      || longLayout.historyOverflow !== "auto"
+      || longLayout.composerBottom > longLayout.detailBottom + 1
+      || longLayout.composerTop < longLayout.detailTop - 1) {
+      throw new Error(`Long support conversation layout failed: ${JSON.stringify(longLayout)}`);
+    }
+    await history.evaluate(element => { element.scrollTop = element.scrollHeight; });
+    const composerAfterScroll = await composer.boundingBox();
+    if (!composerAfterScroll || composerAfterScroll.y + composerAfterScroll.height > longLayout.detailBottom + 1) {
+      throw new Error("Reply composer moved outside the detail panel while scrolling the conversation.");
+    }
+    await composer.getByPlaceholder("Write a message…").fill("Reply sent from the long-conversation browser test.");
+    await composer.getByRole("button", { name: "Send to customer" }).click();
+    await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/messages"), "Support reply submission");
+    await page.getByText("Reply sent from the long-conversation browser test.").waitFor({ state: "visible" });
     await page.getByLabel("Reason for viewing customer details (required)").fill("Confirming a food-safety complaint.");
     await page.getByRole("button", { name: "Reveal" }).click();
     await page.getByText("customer@kulha.test").waitFor({ state: "visible" });
