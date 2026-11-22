@@ -3402,7 +3402,17 @@
 }
 
 @media (max-width: 899px) {
-    .supportWorkspace { height: auto; min-height: 0; }
+    .supportWorkspace {
+        grid-template-columns: minmax(0, 1fr);
+        height: auto;
+        min-height: 0;
+        align-items: start;
+    }
+    .casePicker {
+        height: auto;
+        max-height: none;
+        overflow: visible;
+    }
     .caseDetail {
         display: block;
         height: auto;
