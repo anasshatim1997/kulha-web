@@ -52,6 +52,14 @@ function json(response, value, status = 200) {
   response.end(JSON.stringify(value));
 }
 function page(items) { return { items, page: 0, size: 20, total: items.length }; }
+async function waitForBackendRequest(predicate, description) {
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    const match = requests.find(predicate);
+    if (match) return match;
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  throw new Error(`${description} did not reach the backend. Recent requests: ${JSON.stringify(requests.slice(-24))}`);
+}
 async function bodyOf(request) {
   let raw = "";
   for await (const chunk of request) raw += chunk;
@@ -315,9 +323,7 @@ try {
     await page.getByText("new-staff@kulha.test").waitFor({ state: "visible" });
     const offersPermission = page.getByLabel("Create and edit offers").first();
     if (!(await offersPermission.isChecked())) throw new Error("Staff offer permission was not persisted.");
-    if (!requests.some(item => item.method === "POST" && item.path === "/merchants/me/staff")) {
-      throw new Error("Staff grant action did not reach the API.");
-    }
+    await waitForBackendRequest(item => item.method === "POST" && item.path === "/merchants/me/staff", "Staff grant action");
     await context.close();
   }
 
@@ -365,9 +371,7 @@ try {
     await dialog.getByRole("button", { name: "Approve" }).click();
     await dialog.getByLabel("Reason (required)").fill("Verified during browser workflow test.");
     await dialog.getByRole("button", { name: "Submit decision" }).click();
-    if (!requests.some(item => item.method === "POST" && item.path.endsWith("/approve"))) {
-      throw new Error("Merchant approval was not submitted.");
-    }
+    await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/approve"), "Merchant approval");
     await context.close();
   }
 
@@ -384,9 +388,7 @@ try {
     await dialog.locator('[data-action="suspend"]').click();
     await dialog.getByLabel("Reason (required)").fill("Allergen information needs verification.");
     await dialog.getByRole("button", { name: "Hide offer" }).last().click();
-    if (!requests.some(item => item.method === "POST" && item.path.endsWith("/suspend"))) {
-      throw new Error("Offer moderation action was not submitted.");
-    }
+    await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/suspend"), "Offer moderation action");
     await context.close();
   }
 
@@ -402,10 +404,8 @@ try {
     await page.getByText("customer@kulha.test").waitFor({ state: "visible" });
     await page.getByLabel(/Reason for the action/).fill("Food-safety case reviewed and resolved.");
     await page.getByRole("button", { name: "Resolve case" }).click();
-    if (!requests.some(item => item.method === "POST" && item.path.endsWith("/reveal-customer"))
-        || !requests.some(item => item.method === "POST" && item.path.endsWith("/actions"))) {
-      throw new Error(`Support disclosure or resolution workflow did not reach the API. Recent backend requests: ${JSON.stringify(requests.slice(-24))}`);
-    }
+    await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/reveal-customer"), "Support customer disclosure");
+    await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/actions"), "Support case resolution");
     await context.close();
   }
 
