@@ -39,7 +39,7 @@ function OrdersTable({rows,locale,t,onValidate=false}:{rows:Order[];locale:SiteL
  </table></div>;
 }
 
-export function MerchantConsole({locale,page,shop}:{locale:SiteLocale;page:PageKey;shop?:Shop}){
+export function MerchantConsole({locale,page}:{locale:SiteLocale;page:PageKey;shop?:Shop}){
  const t=copy[locale]; const {state}=useSession();
  const [dashboard,setDashboard]=useState<Dashboard|null>(null); const [orders,setOrders]=useState<Order[]>([]);
  const [filter,setFilter]=useState("ALL"); const [staff,setStaff]=useState<Staff[]>([]); const [sales,setSales]=useState<Sales|null>(null);
