@@ -3282,7 +3282,12 @@
         scrollbar-width: thin;
     }
     .casePicker { padding: 0 8px 8px 0; }
-    .caseDetail { padding: 16px; }
+    .caseDetail {
+        padding: 16px;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        overscroll-behavior: contain;
+    }
     .caseActions {
         position: sticky;
         bottom: 0;
