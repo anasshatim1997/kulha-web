@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { reservationCopy, reservationLocaleTag } from "@/lib/i18n/reservation-copy";
 import { localePath } from "@/lib/navigation";
 import { api } from "@/lib/api/client";
+import { clearReservationAttempt, getOrCreateReservationAttempt } from "@/lib/reservations/idempotency";
 import { useSession } from "@/components/session/SessionProvider";
 import { formatPickupDate, formatPickupWindow } from "@/lib/offers/format";
 import type { Reservation, ReservationAvailability } from "@/lib/reservations/types";
@@ -36,7 +37,6 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const reservationAttempt = useRef<{ fingerprint: string; key: string } | null>(null);
 
   async function loadAvailability() {
     setLoading(true);
@@ -83,22 +83,7 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
       const slot = availability.slots[selectedSlot];
       const payload = { offerId, quantity, pickupStart: slot.start, pickupEnd: slot.end };
       const fingerprint = JSON.stringify(payload);
-      const storageKey = "kulha:reservation-idempotency:" + offerId;
-      let attempt = reservationAttempt.current;
-      if (!attempt || attempt.fingerprint !== fingerprint) {
-        let saved: { fingerprint?: string; key?: string } | null = null;
-        try {
-          const raw = window.sessionStorage.getItem(storageKey);
-          saved = raw ? JSON.parse(raw) as { fingerprint?: string; key?: string } : null;
-        } catch {
-          saved = null;
-        }
-        attempt = saved?.fingerprint === fingerprint && saved.key
-          ? { fingerprint, key: saved.key }
-          : { fingerprint, key: window.crypto.randomUUID() };
-        reservationAttempt.current = attempt;
-        window.sessionStorage.setItem(storageKey, JSON.stringify(attempt));
-      }
+      const attempt = getOrCreateReservationAttempt(window.sessionStorage, offerId, fingerprint);
       const created = await api.post<Reservation>("/reservations", payload, {
         headers: { "Idempotency-Key": attempt.key },
       });
@@ -106,8 +91,7 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
       window.dispatchEvent(new Event("kulha:navigation-start"));
       // Client-side replace avoids a full document reload and prevents accidental resubmission via Back.
       router.replace(localePath(locale, "/reservations/confirmed/" + encodeURIComponent(created.reference)));
-      window.sessionStorage.removeItem(storageKey);
-      reservationAttempt.current = null;
+      clearReservationAttempt(window.sessionStorage, offerId);
     } catch {
       setSubmitError(t.createError);
       await loadAvailability();
