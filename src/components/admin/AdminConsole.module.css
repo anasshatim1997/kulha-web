@@ -3283,6 +3283,7 @@
     }
     .casePicker { padding: 0 8px 8px 0; }
     .caseDetail {
+        position: static !important;
         padding: 16px;
         overflow-x: hidden !important;
         overflow-y: auto !important;
