@@ -351,12 +351,16 @@ try {
           if (!detail || !history || !composer) return { missingRegion: true };
           const panel = detail.getBoundingClientRect();
           const reply = composer.getBoundingClientRect();
+          const picker = detail.parentElement?.children[0];
+          const pickerBottom = picker?.getBoundingClientRect().bottom ?? null;
           const style = getComputedStyle(detail);
           const historyStyle = getComputedStyle(history);
           return {
             missingRegion: false,
             panelBottom: panel.bottom,
             composerBottom: reply.bottom,
+            detailTop: panel.top,
+            pickerBottom,
             documentHeight: document.documentElement.scrollHeight,
             viewportHeight: innerHeight,
             detailOverflow: style.overflowY,
@@ -365,6 +369,10 @@ try {
         });
         if (supportLayout.missingRegion || supportLayout.composerBottom > supportLayout.panelBottom + 1) {
           throw new Error(`Support composer escaped its detail panel at ${size.width}x${size.height}: ${JSON.stringify(supportLayout)}`);
+        }
+        if (size.width < 900 && supportLayout.pickerBottom !== null
+          && supportLayout.detailTop < supportLayout.pickerBottom - 1) {
+          throw new Error(`Support detail must stack below the case picker at ${size.width}px: ${JSON.stringify(supportLayout)}`);
         }
         if (size.width >= 900 && (supportLayout.documentHeight > size.height + 1
           || supportLayout.detailOverflow !== "hidden" || supportLayout.historyOverflow !== "auto"
