@@ -51,8 +51,6 @@ jobs:
           playwright install --with-deps chromium
 
       - name: Run authenticated browser workflows and viewport checks
-        env:
-          PLAYWRIGHT_CLI: ${{ runner.temp }}/playwright-cli-path
         run: |
           echo "PLAYWRIGHT_CLI=$(command -v playwright)" >> "$GITHUB_ENV"
           PLAYWRIGHT_CLI="$(command -v playwright)" node scripts/browser-workspace-smoke.mjs
