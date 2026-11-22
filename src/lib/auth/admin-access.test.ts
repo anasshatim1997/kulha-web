@@ -6,7 +6,10 @@ import {
   SUPPORT_DISCLOSURE_REASON_MAX_LENGTH,
 } from "./admin-access";
 
-describe("admin and support role boundaries", () => {\n  it("matches the backend disclosure reason limit", () => {\n    expect(SUPPORT_DISCLOSURE_REASON_MAX_LENGTH).toBe(500);\n  });
+describe("admin and support role boundaries", () => {
+  it("matches the backend disclosure reason limit", () => {
+    expect(SUPPORT_DISCLOSURE_REASON_MAX_LENGTH).toBe(500);
+  });
   it("keeps the general admin workspace restricted to admins", () => {
     expect(canAccessAdminWorkspace(["ADMIN"])).toBe(true);
     expect(canAccessAdminWorkspace(["SUPER_ADMIN"])).toBe(true);
