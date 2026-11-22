@@ -1,6 +1,6 @@
 import { createServer } from "node:http";
 import { spawn } from "node:child_process";
-import { realpathSync } from "node:fs";
+import { mkdirSync, realpathSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -245,9 +245,12 @@ try {
   browser = await chromium.launch({ headless: true });
 
   const sizes = [
-    { width: 1920, height: 1080 }, { width: 1365, height: 900 },
-    { width: 1024, height: 768 }, { width: 768, height: 1024 }, { width: 390, height: 844 },
+    { width: 1920, height: 1080 }, { width: 1440, height: 900 },
+    { width: 1366, height: 768 }, { width: 1280, height: 720 },
+    { width: 1024, height: 768 }, { width: 768, height: 1024 },
+    { width: 390, height: 844 },
   ];
+  mkdirSync("artifacts/browser-screenshots", { recursive: true });
   const routes = [
     { path: "/en/merchant/orders", token: "merchant-token", heading: "Orders" },
     { path: "/en/merchant/reservations/scan", token: "merchant-token", heading: "Validate a pickup" },
@@ -256,6 +259,8 @@ try {
     { path: "/en/admin/merchant-review", token: "admin-token", heading: "Merchant review" },
     { path: "/en/admin/offer-moderation", token: "admin-token", heading: "Offer moderation" },
     { path: "/en/admin/support-cases", token: "support-token", heading: "Support cases" },
+    { path: "/fr/admin/support-cases", token: "support-token", heading: "Dossiers support" },
+    { path: "/ar/admin/support-cases", token: "support-token", heading: "طلبات الدعم", direction: "rtl" },
     { path: "/en/admin/audit-log", token: "admin-token", heading: "Audit log" },
   ];
   for (const route of routes) {
@@ -273,6 +278,12 @@ try {
         throw new Error(`Workspace did not render ${route.path}; current URL=${page.url()}; body=${bodyText}; backend requests=${JSON.stringify(requests.slice(-12))}`);
       }
       await assertNoHorizontalOverflow(page, route.path, size.width);
+      if (route.direction) {
+        const direction = await page.locator("main").getAttribute("dir");
+        if (direction !== route.direction) throw new Error(`${route.path} expected dir=${route.direction}, received ${direction}.`);
+      }
+      const screenshotName = `${route.path.replace(/^\\//, "").replaceAll("/", "-")}-${size.width}x${size.height}.png`;
+      await page.screenshot({ path: join("artifacts/browser-screenshots", screenshotName), animations: "disabled" });
     }
     if (errors.length) throw new Error(`Browser errors on ${route.path}: ${errors.join("; ")}`);
     await context.close();
