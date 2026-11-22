@@ -277,7 +277,7 @@ try {
     await page.getByLabel("Create and edit offers").check();
     await page.getByRole("button", { name: "Grant access" }).click();
     await page.getByText("new-staff@kulha.test").waitFor({ state: "visible" });
-    const offersPermission = page.getByLabel("Create and edit offers").last();
+    const offersPermission = page.getByLabel("Create and edit offers").first();
     if (!(await offersPermission.isChecked())) throw new Error("Staff offer permission was not persisted.");
     if (!requests.some(item => item.method === "POST" && item.path === "/merchants/me/staff")) {
       throw new Error("Staff grant action did not reach the API.");
