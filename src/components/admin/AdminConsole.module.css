@@ -3358,6 +3358,17 @@
         padding-inline-end: 5px;
     }
 
+    /* Case actions now live inside the history scroller, not as an overlay
+       above it; sticky positioning would cover earlier messages and controls. */
+    .caseHistory .caseActions {
+        position: static;
+        inset: auto;
+        z-index: auto;
+        padding: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
     .caseHistory::-webkit-scrollbar { width: 8px; }
     .caseHistory::-webkit-scrollbar-track { background: #f3ecdf; border-radius: 99px; }
     .caseHistory::-webkit-scrollbar-thumb { background: #9b8b69; border: 2px solid #f3ecdf; border-radius: 99px; }
