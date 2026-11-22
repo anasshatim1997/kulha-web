@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { ACCESS_COOKIE } from "./cookies";
 import { localePath } from "@/lib/navigation";
 import { backendRequest } from "./backend";
+import { canAccessAdminWorkspace, canAccessSupportCases } from "./admin-access";
 
 type CurrentUser = { roles?: string[] };
 
@@ -18,7 +19,7 @@ export async function requireAdminPage(locale: string) {
     user = null;
   }
   if (!user) redirect(localePath(locale as "fr" | "en" | "ar", "/login"));
-  if (!user.roles?.some(role => ["ADMIN", "SUPER_ADMIN"].includes(role))) {
+  if (!user.roles || !canAccessAdminWorkspace(user.roles)) {
     redirect(localePath(locale as "fr" | "en" | "ar", "/offers"));
   }
 }
@@ -37,7 +38,7 @@ export async function requireSupportCasesPage(locale: string) {
     user = null;
   }
   if (!user) redirect(localePath(locale as "fr" | "en" | "ar", "/login"));
-  if (!user.roles?.some(role => ["SUPPORT", "ADMIN", "SUPER_ADMIN"].includes(role))) {
+  if (!user.roles || !canAccessSupportCases(user.roles)) {
     redirect(localePath(locale as "fr" | "en" | "ar", "/offers"));
   }
 }
