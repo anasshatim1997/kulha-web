@@ -279,7 +279,7 @@ try {
       }
       await assertNoHorizontalOverflow(page, route.path, size.width);
       if (route.direction) {
-        const direction = await page.locator("main").getAttribute("dir");
+        const direction = await page.locator(".kulhaAdminShell").getAttribute("dir");
         if (direction !== route.direction) throw new Error(`${route.path} expected dir=${route.direction}, received ${direction}.`);
       }
       const screenshotName = `${route.path.replace(/^\/+/, "").replaceAll("/", "-")}-${size.width}x${size.height}.png`;
