@@ -468,7 +468,7 @@ try {
     const context = await loginContext(browser, "merchant-token");
     const page = await context.newPage();
     await page.goto(origin + "/ar/merchant/reservations/scan", { waitUntil: "networkidle" });
-    const direction = await page.locator('main[lang="ar"]').getAttribute("dir");
+    const direction = await page.locator('#contenu main[lang="ar"]').getAttribute("dir");
     await assertNoHorizontalOverflow(page, "/ar/merchant/reservations/scan", 390);
     if (direction !== "rtl") throw new Error("Arabic pickup scanner is not RTL.");
     await context.close();
