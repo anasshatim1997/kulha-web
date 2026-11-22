@@ -3302,15 +3302,6 @@
 /* The admin shell owns the compact desktop viewport. Prevent the root flex
    item from expanding the document; collection panels own their own scrolling. */
 @media (min-width: 900px) and (max-height: 800px) {
-    :global(body:has(> .ws-sidebar-admin)) {
-        height: 100dvh;
-        overflow: hidden;
-    }
-    :global(body:has(> .ws-sidebar-admin) > #contenu) {
-        flex: 1 1 0%;
-        min-height: 0;
-        overflow: hidden;
-    }
     .shell {
         height: 100%;
         min-height: 0;
