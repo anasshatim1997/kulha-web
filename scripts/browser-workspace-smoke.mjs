@@ -6,7 +6,7 @@ import { pathToFileURL } from "node:url";
 
 const port = 3000;
 const apiPort = 8080;
-const origin = `http://127.0.0.1:${port}`;
+const origin = `http://localhost:${port}`;
 const actorId = "00000000-0000-4000-8000-000000000001";
 const customerId = "00000000-0000-4000-8000-000000000002";
 const now = new Date();
@@ -74,6 +74,11 @@ const backend = createServer(async (request, response) => {
     : token.includes("admin-token") ? "ADMIN" : "MERCHANT_OWNER";
   requests.push({ method, path, query: url.search, token });
 
+  if (path === "/auth/login" && method === "POST") {
+    const payload = await bodyOf(request);
+    const accessToken = String(payload.email ?? "").split("@")[0];
+    return json(response, { accessToken, refreshToken: `refresh-${accessToken}`, expiresIn: 3600 });
+  }
   if (path === "/me") {
     return json(response, {
       id: actorId, email: "browser-smoke@kulha.test", fullName: "KULHA Browser Smoke",
@@ -176,7 +181,7 @@ const backend = createServer(async (request, response) => {
   return json(response, {});
 });
 
-const app = spawn("pnpm", ["exec", "next", "start", "--hostname", "127.0.0.1", "--port", String(port)], {
+const app = spawn("pnpm", ["exec", "next", "start", "--hostname", "0.0.0.0", "--port", String(port)], {
   env: { ...process.env, API_BASE_URL: `http://127.0.0.1:${apiPort}`, APP_ORIGIN: origin, NODE_ENV: "production" },
   stdio: "inherit",
 });
@@ -194,22 +199,22 @@ async function waitFor(url, child) {
 }
 async function loginContext(browser, token, viewport = { width: 390, height: 844 }) {
   const context = await browser.newContext({ viewport });
-  await context.addCookies([{
-    name: "kulha_at", value: token, domain: "127.0.0.1", path: "/",
-    httpOnly: true, secure: false, sameSite: "Lax",
-  }]);
+  const page = await context.newPage();
+  await page.goto(origin + "/en/login", { waitUntil: "domcontentloaded" });
+  const status = await page.evaluate(async accessToken => {
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email: accessToken + "@kulha.test", password: "browser-smoke" }),
+    });
+    return response.status;
+  }, token);
+  if (status !== 200) throw new Error(`Browser smoke login failed with HTTP ${status} for ${token}.`);
   const cookies = await context.cookies(origin);
   if (!cookies.some(cookie => cookie.name === "kulha_at" && cookie.value === token)) {
-    throw new Error("Browser smoke session cookie was not installed.");
+    throw new Error("Login endpoint did not issue the HttpOnly KULHA access cookie.");
   }
-  // The fixture token is intentionally opaque to Next.js; route requests carry it
-  // explicitly so the server-rendered page guard and BFF see the same test session.
-  await context.route("**/*", async route => {
-    if (new URL(route.request().url()).origin !== origin) return route.continue();
-    await route.continue({
-      headers: { ...route.request().headers(), cookie: `kulha_at=${token}` },
-    });
-  });
+  await page.close();
   return context;
 }
 async function assertNoHorizontalOverflow(page, route, width) {
