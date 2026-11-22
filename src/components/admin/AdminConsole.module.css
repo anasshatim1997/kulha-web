@@ -3258,3 +3258,36 @@
         box-shadow: 0 -8px 12px #f3efe2;
     }
 }
+
+/* Support is a dense operational queue: keep the case list and case record
+   independently scrollable on compact desktop windows. */
+@media (min-width: 900px) and (max-height: 800px) {
+    .supportWorkspace {
+        height: clamp(340px, calc(100dvh - 360px), 410px);
+        min-height: 0;
+        align-items: stretch;
+        gap: 16px;
+        overflow: hidden;
+    }
+    .casePicker,
+    .caseDetail {
+        box-sizing: border-box;
+        height: 100%;
+        min-height: 0;
+        max-height: none;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-color: #9b8b69 #f3ecdf;
+        scrollbar-width: thin;
+    }
+    .casePicker { padding: 0 8px 8px 0; }
+    .caseDetail { padding: 16px; }
+    .caseActions {
+        position: sticky;
+        bottom: 0;
+        z-index: 2;
+        padding: 12px 0 4px;
+        background: #fffdf8;
+        box-shadow: 0 -8px 12px #fffdf8;
+    }
+}
