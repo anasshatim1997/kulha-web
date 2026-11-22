@@ -254,13 +254,18 @@ async function assertCompactWorkspaceFits(page, route, width, height) {
       documentHeight: document.documentElement.scrollHeight,
       bodyHeight: document.body.scrollHeight,
       verticalScrollOwners: owners,
-      layoutNodes: [".shell", ".shell > main", ".supportWorkspace", ".casePicker", ".caseDetail", "#contenu"].map(selector => {
+      layoutNodes: [".kulhaAdminShell", ".kulhaAdminShell > main", ".kulhaAdminShell > main > *", "#contenu", "#contenu > *", "body > footer"].map(selector => {
         const element = document.querySelector(selector);
         if (!element) return { selector, missing: true };
         const rect = element.getBoundingClientRect();
         const style = getComputedStyle(element);
         return { selector, top: Math.round(rect.top), bottom: Math.round(rect.bottom), height: Math.round(rect.height), clientHeight: element.clientHeight, scrollHeight: element.scrollHeight, overflowY: style.overflowY, gridTemplateColumns: style.gridTemplateColumns };
       }),
+      overflowElements: [...document.querySelectorAll("*")].map(element => {
+        const rect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return { tag: element.tagName.toLowerCase(), className: typeof element.className === "string" ? element.className.slice(0, 100) : "", top: Math.round(rect.top), bottom: Math.round(rect.bottom), height: Math.round(rect.height), position: style.position, overflowY: style.overflowY };
+      }).filter(item => item.bottom > window.innerHeight + 2 && item.height > 0 && item.position !== "fixed").sort((a,b) => b.bottom-a.bottom).slice(0, 12),
     };
   });
   if (metrics.documentHeight > height + 2 || metrics.bodyHeight > height + 2) {
