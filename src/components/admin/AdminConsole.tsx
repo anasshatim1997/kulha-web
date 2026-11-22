@@ -502,6 +502,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                 <section className={styles.caseDetail}>
                     {!selectedCase?<p className={styles.empty}>{t.empty}</p>:<>
                         <div className={styles.detailHead}><div><small>{t.record} {selectedCase.summary.reference} · {selectedCase.summary.category}</small><h2>{selectedCase.summary.subject}</h2></div><span className={styles.pill+" "+priorityTone(selectedCase.summary.priority)}>{priorityLabel(selectedCase.summary.priority)}</span></div>
+                        <div className={styles.caseHistory}>
                         <div className={styles.caseReferenceCards}>
                             <article><small>{t.caseReservation}</small><strong>{selectedCase.summary.reservationReference||"—"}</strong></article>
                             <article><small>{t.caseOffer}</small><strong>{selectedCase.summary.offerTitle||"—"}</strong></article>
@@ -527,6 +528,14 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             <strong>{item.visibility==="INTERNAL"?t.internal:item.authorType==="CUSTOMER"?t.customer:t.reply} · {new Intl.DateTimeFormat(loc(locale),{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(new Date(item.createdAt))}</strong>
                             <p>{item.message}</p>
                         </article>)}</div>
+                        <section className={styles.caseActions}>
+                            <label className={styles.caseActionReason}><span>{t.actionReason}</span><input value={reason} onChange={e=>setReason(e.target.value)} placeholder={t.needsReason}/></label>
+                            <button type="button" className={styles.ghostBtn} disabled={working||!reason.trim()} onClick={()=>void caseAction("ESCALATE")}>{t.escalate}</button>
+                            <button type="button" className={styles.primary} disabled={working||!reason.trim()} onClick={()=>void caseAction("RESOLVE")}>{t.resolve}</button>
+                        </section>
+                        {!isSupportOnly&&selectedCase.summary.offerId&&<div className={styles.actionRowEnd}><button type="button" className={styles.dangerOutline} disabled={working||!reason.trim()} onClick={()=>void caseAction("KEEP_OFFER_HIDDEN")}>{t.keepOffer}</button></div>}
+                        <p className={styles.hint}><ShieldCheck size={13} aria-hidden="true"/>{t.actionNote}</p>
+                        </div>
                         <section className={styles.messageComposer}>
                             <div className={styles.messageModes} role="group" aria-label={t.replyNote}>
                                 <button type="button" aria-pressed={sendToCustomer} className={sendToCustomer?styles.modeActive:styles.modeButton} onClick={()=>setSendToCustomer(true)}>{t.replyToCustomer}</button>
@@ -537,13 +546,6 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                 <div className={styles.composerFoot}><p>{sendToCustomer?t.replyVisibleHint:t.internalVisibleHint}</p><button className={styles.primary} disabled={working||!draftMessage.trim()}>{sendToCustomer?t.sendCustomer:t.saveNote}</button></div>
                             </form>
                         </section>
-                        <section className={styles.caseActions}>
-                            <label className={styles.caseActionReason}><span>{t.actionReason}</span><input value={reason} onChange={e=>setReason(e.target.value)} placeholder={t.needsReason}/></label>
-                            <button type="button" className={styles.ghostBtn} disabled={working||!reason.trim()} onClick={()=>void caseAction("ESCALATE")}>{t.escalate}</button>
-                            <button type="button" className={styles.primary} disabled={working||!reason.trim()} onClick={()=>void caseAction("RESOLVE")}>{t.resolve}</button>
-                        </section>
-                        {!isSupportOnly&&selectedCase.summary.offerId&&<div className={styles.actionRowEnd}><button type="button" className={styles.dangerOutline} disabled={working||!reason.trim()} onClick={()=>void caseAction("KEEP_OFFER_HIDDEN")}>{t.keepOffer}</button></div>}
-                        <p className={styles.hint}><ShieldCheck size={13} aria-hidden="true"/>{t.actionNote}</p>
                     </>}
                 </section>
             </div>
