@@ -571,6 +571,60 @@ try {
     await composer.getByRole("button", { name: "Send to customer" }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/messages"), "Support reply submission");
     await page.getByText("Reply sent from the long-conversation browser test.").waitFor({ state: "visible" });
+
+    // Repeat the long-history behavior at every required viewport. Desktop scroll
+    // stays in history; narrow layouts retain ordinary document scrolling.
+    for (const size of sizes) {
+      await page.setViewportSize(size);
+      await page.reload({ waitUntil: "networkidle" });
+      const matrixLayout = await page.evaluate(() => {
+        const detailNode = document.querySelector('[data-testid="support-case-detail"]');
+        const historyNode = document.querySelector('[data-testid="support-case-history"]');
+        const composerNode = document.querySelector('[data-testid="support-message-composer"]');
+        const detailRect = detailNode.getBoundingClientRect();
+        const composerRect = composerNode.getBoundingClientRect();
+        return {
+          viewportHeight: innerHeight,
+          documentHeight: document.documentElement.scrollHeight,
+          detailClient: detailNode.clientHeight,
+          detailScroll: detailNode.scrollHeight,
+          detailBottom: detailRect.bottom,
+          composerBottom: composerRect.bottom,
+          historyClient: historyNode.clientHeight,
+          historyScroll: historyNode.scrollHeight,
+          historyOverflow: getComputedStyle(historyNode).overflowY,
+          detailOverflow: getComputedStyle(detailNode).overflowY,
+          firstEntry: historyNode.textContent.includes("Conversation history entry 1"),
+          lastEntry: historyNode.textContent.includes("Conversation history entry 48"),
+        };
+      });
+      if (matrixLayout.composerBottom > matrixLayout.detailBottom + 1
+        || !matrixLayout.firstEntry || !matrixLayout.lastEntry) {
+        throw new Error(`Long support conversation content/composer failed at ${size.width}x${size.height}: ${JSON.stringify(matrixLayout)}`);
+      }
+      if (size.width >= 900) {
+        if (matrixLayout.documentHeight > size.height + 1
+          || matrixLayout.detailScroll > matrixLayout.detailClient + 2
+          || matrixLayout.historyScroll <= matrixLayout.historyClient + 2
+          || matrixLayout.historyOverflow !== "auto"
+          || matrixLayout.detailOverflow !== "hidden"
+          || matrixLayout.detailBottom > size.height + 1) {
+          throw new Error(`Long desktop history scroll ownership failed at ${size.width}x${size.height}: ${JSON.stringify(matrixLayout)}`);
+        }
+      } else {
+        if (matrixLayout.historyOverflow !== "visible" || matrixLayout.documentHeight <= size.height) {
+          throw new Error(`Long mobile conversation must use document scrolling at ${size.width}x${size.height}: ${JSON.stringify(matrixLayout)}`);
+        }
+        await page.locator('[data-testid="support-message-composer"]').scrollIntoViewIfNeeded();
+        const composerVisible = await page.locator('[data-testid="support-message-composer"]').evaluate(element => {
+          const rect = element.getBoundingClientRect();
+          return rect.top >= 0 && rect.bottom <= innerHeight;
+        });
+        if (!composerVisible) throw new Error(`Mobile reply composer is unreachable at ${size.width}px.`);
+      }
+    }
+    await page.setViewportSize({ width: 1366, height: 768 });
+    await page.reload({ waitUntil: "networkidle" });
     await page.getByLabel("Reason for viewing customer details (required)").fill("Confirming a food-safety complaint.");
     await page.getByRole("button", { name: "Reveal" }).click();
     await page.getByText("customer@kulha.test").waitFor({ state: "visible" });
