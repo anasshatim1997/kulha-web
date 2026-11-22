@@ -238,6 +238,28 @@ async function assertNoHorizontalOverflow(page, route, width) {
     throw new Error(`Horizontal overflow at ${width}px on ${route}: ${JSON.stringify(dimensions)}`);
   }
 }
+async function assertCompactWorkspaceFits(page, route, width, height) {
+  const metrics = await page.evaluate(() => {
+    const owners = [...document.querySelectorAll("*")].filter(element => {
+      const style = getComputedStyle(element);
+      return ["auto", "scroll"].includes(style.overflowY) && element.scrollHeight > element.clientHeight + 2;
+    }).slice(0, 8).map(element => ({
+      tag: element.tagName.toLowerCase(),
+      className: typeof element.className === "string" ? element.className.slice(0, 100) : "",
+      clientHeight: element.clientHeight,
+      scrollHeight: element.scrollHeight,
+    }));
+    return {
+      viewportHeight: window.innerHeight,
+      documentHeight: document.documentElement.scrollHeight,
+      bodyHeight: document.body.scrollHeight,
+      verticalScrollOwners: owners,
+    };
+  });
+  if (metrics.documentHeight > height + 2 || metrics.bodyHeight > height + 2) {
+    throw new Error(`Unnecessary page scrolling at ${width}x${height} on ${route}: ${JSON.stringify(metrics)}`);
+  }
+}
 async function assertDialogWithinViewport(page, route) {
   const rect = await page.getByRole("dialog").evaluate(element => {
     const value = element.getBoundingClientRect();
@@ -265,16 +287,16 @@ try {
   ];
   mkdirSync("artifacts/browser-screenshots", { recursive: true });
   const routes = [
-    { path: "/en/merchant/orders", token: "merchant-token", heading: "Orders" },
-    { path: "/en/merchant/reservations/scan", token: "merchant-token", heading: "Validate a pickup" },
-    { path: "/en/merchant/staff", token: "merchant-token", heading: "Staff" },
-    { path: "/en/merchant/sales", token: "merchant-token", heading: "Sales" },
-    { path: "/en/admin/merchant-review", token: "admin-token", heading: "Merchant review" },
-    { path: "/en/admin/offer-moderation", token: "admin-token", heading: "Offer moderation" },
-    { path: "/en/admin/support-cases", token: "support-token", heading: "Support cases" },
-    { path: "/fr/admin/support-cases", token: "support-token", heading: "Dossiers support" },
-    { path: "/ar/admin/support-cases", token: "support-token", heading: "طلبات الدعم", direction: "rtl" },
-    { path: "/en/admin/audit-log", token: "admin-token", heading: "Audit log" },
+    { path: "/en/merchant/orders", token: "merchant-token", heading: "Orders" , compact: true },
+    { path: "/en/merchant/reservations/scan", token: "merchant-token", heading: "Validate a pickup" , compact: true },
+    { path: "/en/merchant/staff", token: "merchant-token", heading: "Staff" , compact: true },
+    { path: "/en/merchant/sales", token: "merchant-token", heading: "Sales" , compact: true },
+    { path: "/en/admin/merchant-review", token: "admin-token", heading: "Merchant review" , compact: true },
+    { path: "/en/admin/offer-moderation", token: "admin-token", heading: "Offer moderation" , compact: true },
+    { path: "/en/admin/support-cases", token: "support-token", heading: "Support cases" , compact: true },
+    { path: "/fr/admin/support-cases", token: "support-token", heading: "Dossiers support" , compact: true },
+    { path: "/ar/admin/support-cases", token: "support-token", heading: "طلبات الدعم", direction: "rtl" , compact: true },
+    { path: "/en/admin/audit-log", token: "admin-token", heading: "Audit log" , compact: true },
     { path: "/fr/reservations", token: "customer-token", heading: "Mes réservations" },
     { path: "/ar/reservations", token: "customer-token", heading: "حجوزاتي", direction: "rtl", directionSelector: '[lang="ar"]' },
     { path: "/fr/account", token: "customer-token", heading: "Profil et paramètres" },
@@ -309,6 +331,9 @@ try {
         if (count !== 3) throw new Error(`${route.path} expected 3 reservation list requests, observed ${count}.`);
       }
       await page.screenshot({ path: join("artifacts/browser-screenshots", screenshotName), animations: "disabled" });
+      if (route.compact && size.width >= 1024 && size.height <= 768) {
+        await assertCompactWorkspaceFits(page, route.path, size.width, size.height);
+      }
     }
     if (errors.length) throw new Error(`Browser errors on ${route.path}: ${errors.join("; ")}`);
     await context.close();
