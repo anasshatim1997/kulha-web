@@ -390,17 +390,6 @@ async function assertOfferModerationLayout(page, width, height) {
     throw new Error(`Offer moderation fixture must exercise a populated queue: ${JSON.stringify(metrics)}`);
 }
 
-async function assertDialogWithinViewport(page, route) {
-  const rect = await page.getByRole("dialog").evaluate(element => {
-    const value = element.getBoundingClientRect();
-    return { left: value.left, top: value.top, right: value.right, bottom: value.bottom, width: value.width, height: value.height };
-  });
-  const viewport = page.viewportSize();
-  if (!viewport || rect.left < -1 || rect.top < -1 || rect.right > viewport.width + 1 || rect.bottom > viewport.height + 1) {
-    throw new Error(`Dialog exceeds viewport on ${route}: ${JSON.stringify({ rect, viewport })}`);
-  }
-}
-
 let browser;
 try {
   await new Promise(resolve => backend.listen(apiPort, "127.0.0.1", resolve));
