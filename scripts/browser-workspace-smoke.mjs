@@ -320,39 +320,46 @@ async function assertAdminLoginLayout(page, width, height) {
   const metrics = await page.evaluate(() => {
     const root = document.querySelector("main.admin-login-shell");
     if (!root) return { missingRoot: true };
-    const rail = root.querySelector('[data-testid="admin-login-brand-panel"]');
-    const formSide = root.querySelector('[data-testid="admin-login-access-panel"]');
+    const accessPanel = root.querySelector('[data-testid="admin-login-access-panel"]');
     const form = root.querySelector("form.auth-form-fields");
     const fields = [...(form?.querySelectorAll("input, button[type=submit]") ?? [])];
     const rect = element => {
       if (!element) return null;
       const value = element.getBoundingClientRect();
-      return { top:value.top,bottom:value.bottom,left:value.left,right:value.right,height:value.height };
+      return { top: value.top, bottom: value.bottom, left: value.left, right: value.right, height: value.height };
     };
     return {
-      missingRoot:false, documentWidth:document.documentElement.scrollWidth, bodyWidth:document.body.scrollWidth,
-      documentHeight:document.documentElement.scrollHeight, bodyHeight:document.body.scrollHeight,
-      root:rect(root), rail:rect(rail), formSide:rect(formSide),
-      railClientHeight:rail?.clientHeight ?? 0, railScrollHeight:rail?.scrollHeight ?? 0,
-      formClientHeight:formSide?.clientHeight ?? 0, formScrollHeight:formSide?.scrollHeight ?? 0,
-      fields:fields.map(element=>{const value=element.getBoundingClientRect();return{
-        type:element.getAttribute("type"),top:value.top,bottom:value.bottom,left:value.left,right:value.right,
-        visible:!!(element.offsetWidth||element.offsetHeight),
-      };}),
+      missingRoot: false,
+      documentWidth: document.documentElement.scrollWidth,
+      bodyWidth: document.body.scrollWidth,
+      documentHeight: document.documentElement.scrollHeight,
+      bodyHeight: document.body.scrollHeight,
+      root: rect(root),
+      accessPanel: rect(accessPanel),
+      accessClientHeight: accessPanel?.clientHeight ?? 0,
+      accessScrollHeight: accessPanel?.scrollHeight ?? 0,
+      fields: fields.map(element => {
+        const value = element.getBoundingClientRect();
+        return {
+          type: element.getAttribute("type"),
+          top: value.top, bottom: value.bottom, left: value.left, right: value.right,
+          visible: !!(element.offsetWidth || element.offsetHeight)
+        };
+      })
     };
   });
-  if (metrics.missingRoot || metrics.documentWidth > width+1 || metrics.bodyWidth > width+1) {
-    throw new Error(`Admin login horizontal overflow or missing layout at ${width}x${height}: ${JSON.stringify(metrics)}`);
+  if (metrics.missingRoot || !metrics.accessPanel || metrics.documentWidth > width + 1 || metrics.bodyWidth > width + 1) {
+    throw new Error("Admin login horizontal overflow or missing layout at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (metrics.fields.length < 3 || metrics.fields.some(field=>!field.visible||field.left < -1
-    ||field.right > width+1||field.top < -1||field.bottom > height+1)) {
-    throw new Error(`Admin login form controls are missing or clipped at ${width}x${height}: ${JSON.stringify(metrics)}`);
+  if (metrics.fields.length < 3 || metrics.fields.some(field => !field.visible || field.left < -1
+    || field.right > width + 1 || field.top < -1 || field.bottom > height + 1)) {
+    throw new Error("Admin login form controls are missing or clipped at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (width >= 761 && (metrics.documentHeight > height+1 || metrics.bodyHeight > height+1
-    || metrics.root.top < -1 || metrics.root.bottom > height+1
-    || metrics.railScrollHeight > metrics.railClientHeight+2
-    || metrics.formScrollHeight > metrics.formClientHeight+2)) {
-    throw new Error(`Admin login must fit without page or inner-panel scrolling at ${width}x${height}: ${JSON.stringify(metrics)}`);
+  if (width >= 761 && (metrics.documentHeight > height + 1 || metrics.bodyHeight > height + 1
+    || metrics.root.top < -1 || metrics.root.bottom > height + 1
+    || metrics.accessPanel.top < -1 || metrics.accessPanel.bottom > height + 1
+    || metrics.accessScrollHeight > metrics.accessClientHeight + 2)) {
+    throw new Error("Admin login must fit without page or inner-panel scrolling at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
 }
 async function assertOfferModerationLayout(page, width, height) {
