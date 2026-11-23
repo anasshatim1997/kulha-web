@@ -15981,3 +15981,35 @@ html, body { overflow-y: auto; }
 }
 
 body:has(> .ws-sidebar-admin) > footer { display: none; }
+
+
+/* Immersive admin sign-in route: reserve the full viewport for the login
+   surface by removing the public site chrome from the root layout. */
+body:has(.admin-login-shell) {
+    height: 100svh;
+    min-height: 0;
+    overflow: hidden;
+}
+body:has(.admin-login-shell) .site-header,
+body:has(.admin-login-shell) footer {
+    display: none !important;
+}
+body:has(.admin-login-shell) #contenu {
+    flex: 1 1 0%;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+@media (max-width: 760px) {
+    body:has(.admin-login-shell) {
+        height: auto;
+        min-height: 100svh;
+        overflow-x: clip;
+        overflow-y: auto;
+    }
+    body:has(.admin-login-shell) #contenu {
+        height: auto;
+        min-height: 100svh;
+        overflow: visible;
+    }
+}
