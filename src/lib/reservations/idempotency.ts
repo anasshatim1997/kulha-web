@@ -7,7 +7,7 @@ function storageKey(offerId: string): string {
 }
 
 export function getOrCreateReservationAttempt(
-  storage: StorageLike,
+  storage: StorageLike | null | undefined,
   offerId: string,
   fingerprint: string,
   createKey: () => string = () => crypto.randomUUID(),
@@ -19,7 +19,7 @@ export function getOrCreateReservationAttempt(
 
   const key = storageKey(offerId);
   try {
-    const raw = storage.getItem(key);
+    const raw = storage?.getItem(key);
     if (raw) {
       const saved: unknown = JSON.parse(raw);
       if (typeof saved === "object" && saved !== null) {
@@ -35,7 +35,7 @@ export function getOrCreateReservationAttempt(
 
   const attempt = { fingerprint, key: createKey() };
   try {
-    storage.setItem(key, JSON.stringify(attempt));
+    storage?.setItem(key, JSON.stringify(attempt));
   } catch {
     // Storage may be disabled or full. Continue this checkout attempt in memory.
   }
