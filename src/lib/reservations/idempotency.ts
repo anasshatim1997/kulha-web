@@ -11,7 +11,12 @@ export function getOrCreateReservationAttempt(
   offerId: string,
   fingerprint: string,
   createKey: () => string = () => crypto.randomUUID(),
+  previousAttempt?: ReservationAttempt | null,
 ): ReservationAttempt {
+  if (previousAttempt?.fingerprint === fingerprint && previousAttempt.key.length > 0) {
+    return previousAttempt;
+  }
+
   const key = storageKey(offerId);
   try {
     const raw = storage.getItem(key);
