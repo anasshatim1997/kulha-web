@@ -626,15 +626,14 @@ try {
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
-    await page.getByRole("button", { name: "Review application" }).click();
-    await assertDialogWithinViewport(page, "/en/admin/merchant-review");
-    const dialog = page.getByRole("dialog");
-    await dialog.getByLabel("Address and location checked").check();
-    await dialog.getByLabel("Phone number reachable").check();
-    await dialog.getByLabel("Documents readable and valid").check();
-    await dialog.getByRole("button", { name: "Approve" }).click();
-    await dialog.getByLabel("Reason (required)").fill("Verified during browser workflow test.");
-    await dialog.getByRole("button", { name: "Submit decision" }).click();
+    const inlineReview = page.locator(".merchantInlineBody");
+    await inlineReview.waitFor({ state: "visible" });
+    await inlineReview.getByLabel("Address and location checked").check();
+    await inlineReview.getByLabel("Phone number reachable").check();
+    await inlineReview.getByLabel("Documents readable and valid").check();
+    await inlineReview.getByRole("button", { name: "Approve" }).click();
+    await inlineReview.getByLabel("Reason (required)").fill("Verified during browser workflow test.");
+    await page.locator(".merchantInlineFooter").getByRole("button", { name: "Submit decision" }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/approve"), "Merchant approval");
     await context.close();
   }
