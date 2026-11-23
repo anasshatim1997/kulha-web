@@ -844,19 +844,25 @@ try {
     const page = await context.newPage();
     await page.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
     await page.getByRole("tab", { name: /Rejected/ }).click();
+    await page.locator('[data-testid="merchant-review-queue"] .merchantListItem').count().then(count => { if(count!==0) throw new Error(`Merchant empty-state queue had ${count} records.`); });
     await page.locator('[data-testid="merchant-review-detail"]').getByText("Nothing to show yet.").waitFor();
     await page.screenshot({ path: join("artifacts/browser-screenshots", "en-admin-merchant-review-empty-1366x768.png"), animations: "disabled" });
+    offerStatus = "PUBLISHED";
     await page.goto(origin + "/en/admin/offer-moderation", { waitUntil: "networkidle" });
     await page.getByRole("tab", { name: /Hidden/ }).click();
+    await page.locator('[data-testid="offer-moderation-queue"]').waitFor();
+    if(await page.locator('[data-testid="offer-moderation-queue"] button').count()!==0) throw new Error("Offer empty-state queue was not empty.");
     await page.locator('[data-testid="offer-moderation-detail"]').getByText("Nothing to show yet.").waitFor();
     await page.screenshot({ path: join("artifacts/browser-screenshots", "en-admin-offer-moderation-empty-1366x768.png"), animations: "disabled" });
     await page.goto(origin + "/en/admin/support-cases", { waitUntil: "networkidle" });
     await page.getByRole("tab", { name: /Resolved/ }).click();
     await page.locator('[data-testid="support-case-queue"]').getByText("Nothing to show yet.").waitFor();
+    if(await page.locator('[data-testid="support-case-queue"] button').count()!==0) throw new Error("Support empty-state queue was not empty.");
     await page.screenshot({ path: join("artifacts/browser-screenshots", "en-admin-support-cases-empty-1366x768.png"), animations: "disabled" });
     await page.goto(origin + "/en/admin/audit-log", { waitUntil: "networkidle" });
     await page.getByLabel(/Search people, actions, records, reasons/).fill("no matching audit record");
     await page.locator('[data-testid="audit-record-detail"]').getByText("Nothing to show yet.").waitFor();
+    if(await page.locator('[data-admin-page="audit-log"] tbody tr').count()!==0) throw new Error("Audit empty-state ledger still contains events.");
     await page.screenshot({ path: join("artifacts/browser-screenshots", "en-admin-audit-log-empty-1366x768.png"), animations: "disabled" });
     await context.close();
   }
