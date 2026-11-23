@@ -81,7 +81,6 @@ export function AdminLoginShell({ locale = "fr", title, lead, children }: AdminL
                         })}
                     </div>
                     <div className={styles.restricted}><ShieldCheck size={16} aria-hidden="true" />{t.restricted}</div>
-                    <div className={styles.panelWatermark} aria-hidden="true">K!</div>
                 </section>
 
                 <section className={styles.accessPanel} aria-labelledby="admin-login-title">
