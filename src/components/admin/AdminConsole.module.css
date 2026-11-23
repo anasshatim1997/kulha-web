@@ -5015,3 +5015,29 @@
         max-width: 280px;
     }
 }
+
+
+/* Offer detail hierarchy also applies to full-height desktop viewports. */
+@media (min-width: 1100px) and (min-height: 821px) {
+    .shell[data-page="offer-moderation"] .offerInlineBody {
+        grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
+        grid-template-rows: auto auto;
+        align-items: start;
+        row-gap: 10px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child {
+        grid-column: 1 / -1;
+        grid-row: 1;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:nth-child(2) {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:nth-child(3) {
+        grid-column: 2;
+        grid-row: 2;
+    }
+}
