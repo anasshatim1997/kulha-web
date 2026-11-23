@@ -835,7 +835,7 @@ try {
     await page.screenshot({ path: join("artifacts/browser-screenshots", "en-admin-offer-moderation-empty-1366x768.png"), animations: "disabled" });
     await page.goto(origin + "/en/admin/support-cases", { waitUntil: "networkidle" });
     await page.getByRole("tab", { name: /Resolved/ }).click();
-    await page.locator(".casePicker").getByText("Nothing to show yet.").waitFor();
+    await page.locator('[data-testid="support-case-queue"]').getByText("Nothing to show yet.").waitFor();
     await page.screenshot({ path: join("artifacts/browser-screenshots", "en-admin-support-cases-empty-1366x768.png"), animations: "disabled" });
     await page.goto(origin + "/en/admin/audit-log", { waitUntil: "networkidle" });
     await page.getByLabel(/Search people, actions, records, reasons/).fill("no matching audit record");
