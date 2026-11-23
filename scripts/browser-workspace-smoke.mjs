@@ -645,12 +645,11 @@ try {
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(origin + "/en/admin/offer-moderation", { waitUntil: "networkidle" });
-    await page.getByRole("button", { name: "Open moderation" }).click();
-    await assertDialogWithinViewport(page, "/en/admin/offer-moderation");
-    const dialog = page.getByRole("dialog");
-    await dialog.locator('[data-action="suspend"]').click();
-    await dialog.getByLabel("Reason (required)").fill("Allergen information needs verification.");
-    await dialog.getByRole("button", { name: "Hide offer" }).last().click();
+    const inlineOffer = page.locator(".offerInlineBody");
+    await inlineOffer.waitFor({ state: "visible" });
+    await inlineOffer.locator('[data-action="suspend"]').click();
+    await inlineOffer.getByLabel("Reason (required)").fill("Allergen information needs verification.");
+    await page.locator(".offerInlineFooter").getByRole("button", { name: "Hide offer" }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/suspend"), "Offer moderation action");
     await context.close();
   }
