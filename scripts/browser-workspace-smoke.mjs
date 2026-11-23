@@ -377,6 +377,7 @@ async function assertOfferModerationLayout(page, width, height) {
       documentWidth: document.documentElement.scrollWidth,
       bodyWidth: document.body.scrollWidth,
       workspace: box(workspace), picker: box(picker), preview: box(preview),
+      direction: workspace ? getComputedStyle(workspace).direction : "missing",
       tabHeights: tabs.map(tab => Math.round(tab.getBoundingClientRect().height)),
       offerCount: document.querySelectorAll('[data-testid="offer-queue"] > *').length,
       columns: workspace ? getComputedStyle(workspace).gridTemplateColumns : "",
@@ -388,8 +389,12 @@ async function assertOfferModerationLayout(page, width, height) {
     throw new Error(`Offer moderation layout regions are missing at ${width}x${height}: ${JSON.stringify(metrics)}`);
   if (metrics.tabHeights.some(value => value > 44))
     throw new Error(`Admin status filters must remain compact at ${width}x${height}: ${JSON.stringify(metrics.tabHeights)}`);
-  if (width >= 900 && metrics.picker.left >= metrics.preview.left)
-    throw new Error(`Offer queue must remain beside its detail panel at ${width}px: ${JSON.stringify(metrics)}`);
+  if (width >= 900) {
+    const wrongSide = metrics.direction === "rtl"
+      ? metrics.picker.left <= metrics.preview.left
+      : metrics.picker.left >= metrics.preview.left;
+    if (wrongSide) throw new Error(`Offer queue must remain beside its detail panel in ${metrics.direction} layout at ${width}px: ${JSON.stringify(metrics)}`);
+  }
   if (width < 900 && metrics.picker.bottom > metrics.preview.top + 2)
     throw new Error(`Mobile offer panels must stack naturally at ${width}px: ${JSON.stringify(metrics)}`);
   if (metrics.offerCount < 10)
