@@ -531,8 +531,12 @@ try {
         const count = requests.filter(item => item.path === "/reservations").length - reservationRequestCount;
         if (count !== 3) throw new Error(`${route.path} expected 3 reservation list requests, observed ${count}.`);
       }
-      await page.screenshot({ path: join("artifacts/browser-screenshots", screenshotName), animations: "disabled" });
-      if(route.path.endsWith("/admin/audit-log") && size.width===1366) {\n        const firstEvent = page.locator(".auditExplorer .auditTableCard tbody tr").first();\n        await firstEvent.click();\n        await page.locator(".auditRecordCard .auditRecordHeader").waitFor({ state: "visible" });\n      }\n      if(route.path.endsWith("/admin/offer-moderation")&&size.width===390) await page.screenshot({
+      if (route.path.endsWith("/admin/audit-log") && size.width === 1366) {
+        const firstEvent = page.locator(".auditExplorer .auditTableCard tbody tr").first();
+        await firstEvent.click();
+        await page.locator(".auditRecordCard .auditRecordHeader").waitFor({ state: "visible" });
+      }
+      await page.screenshot({ path: join("artifacts/browser-screenshots", screenshotName), animations: "disabled" });\n      if(route.path.endsWith("/admin/offer-moderation")&&size.width===390) await page.screenshot({
         path:join("artifacts/browser-screenshots","en-admin-offer-moderation-390x844-full.png"),
         animations:"disabled",fullPage:true,
       });
