@@ -461,7 +461,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             <article><small>{t.caseShop}</small><strong>{selectedCase.summary.merchantName||"—"}</strong></article>
                         </div>
                         <h3 className={styles.sectionLabel}>{t.timeline}</h3>
-                        <div className={styles.caseTimeline}>{selectedCase.timeline.map(item=><article key={item.id} className={item.visibility==="INTERNAL"?styles.timelineInternal:item.authorType==="CUSTOMER"?styles.timelineCustomer:styles.timelineAgent}>
+                        <div className={styles.caseTimeline} data-testid="support-case-timeline">{selectedCase.timeline.map(item=><article key={item.id} className={item.visibility==="INTERNAL"?styles.timelineInternal:item.authorType==="CUSTOMER"?styles.timelineCustomer:styles.timelineAgent}>
                             <strong>{item.visibility==="INTERNAL"?t.internal:item.authorType==="CUSTOMER"?t.customer:t.reply} · {new Intl.DateTimeFormat(loc(locale),{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(new Date(item.createdAt))}</strong>
                             <p>{item.message}</p>
                         </article>)}</div>
@@ -480,7 +480,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             </div>
                         }
                         <p className={styles.hint}><Lock size={13} aria-hidden="true"/>{t.masked}</p>
-                        <section className={styles.caseActions}>
+                        <section className={styles.caseActions} data-testid="support-case-actions">
                             <label className={styles.caseActionReason}><span>{t.actionReason}</span><input value={reason} onChange={e=>setReason(e.target.value)} placeholder={t.needsReason}/></label>
                             <button type="button" className={styles.ghostBtn} disabled={working||!reason.trim()} onClick={()=>void caseAction("ESCALATE")}>{t.escalate}</button>
                             <button type="button" className={styles.primary} disabled={working||!reason.trim()} onClick={()=>void caseAction("RESOLVE")}>{t.resolve}</button>
