@@ -625,16 +625,21 @@ try {
         const count = requests.filter(item => item.path === "/reservations").length - reservationRequestCount;
         if (count !== 3) throw new Error(`${route.path} expected 3 reservation list requests, observed ${count}.`);
       }
-      if (route.path.endsWith("/admin/audit-log") && size.width === 1366) {
-        const firstEvent = page.locator(".auditExplorer .auditTableCard tbody tr").first();
-        await firstEvent.click();
-        await page.locator(".auditRecordCard .auditRecordHeader").waitFor({ state: "visible" });
+      if (route.path.endsWith("/admin/audit-log")) {
+        const events = page.getByTestId("audit-record-row");
+        if (await events.count() < 7) throw new Error(route.path + " must render at least seven populated audit events.");
+        await events.last().click();
+        await page.getByTestId("audit-record-header").waitFor({ state: "visible" });
+        const detailText = await page.getByTestId("audit-record-detail").innerText();
+        if (detailText.length < 180) throw new Error(route.path + " selected audit detail did not render the long record fields.");
       }
       await page.screenshot({ path: join("artifacts/browser-screenshots", screenshotName), animations: "disabled" });
-      if(route.path.endsWith("/admin/offer-moderation")&&size.width===390) await page.screenshot({
-        path:join("artifacts/browser-screenshots","en-admin-offer-moderation-390x844-full.png"),
-        animations:"disabled",fullPage:true,
-      });
+      if (route.adminPage && size.width === 390) {
+        await page.screenshot({
+          path: join("artifacts/browser-screenshots", route.path.slice(1).replaceAll("/", "-") + "-390x844-full.png"),
+          animations: "disabled", fullPage: true,
+        });
+      }
       if (size.width === 1366 && size.height === 768 && route.path.includes("/admin/")) {
         const fullName = route.path.replace(/^\/+/, "").replaceAll("/", "-");
         await page.screenshot({
@@ -643,8 +648,8 @@ try {
           fullPage: true,
         });
         const search = route.path.endsWith("/audit-log")
-          ? page.locator('.auditFilters input[type="search"]')
-          : page.locator(".kulhaAdminShell .search input");
+          ? page.getByTestId("audit-search-input")
+          : page.getByTestId("admin-global-search");
         await search.fill("no matching KULHA record");
         await page.waitForTimeout(450);
         await page.screenshot({
