@@ -253,7 +253,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const switchTab=(apply:()=>void)=>{setLoading(true);setFailed(false);apply();};
 
     const searchPlaceholder=page==="merchant-review"?t.searchMerchant:page==="offer-moderation"?t.searchOffers:page==="support-cases"?t.searchCases:t.searchAudit;
-    const topbar=<div className={styles.topbar}>{page!=="audit-log"&&<label className={styles.search}><Search size={17} aria-hidden="true"/><span className="sr-only">{searchPlaceholder}</span><input type="search" value={query} onChange={e=>{setQuery(e.target.value);}} placeholder={searchPlaceholder}/></label>}</div>;
+    const topbar=<div className={styles.topbar}>{page!=="audit-log"&&<label className={styles.search}><Search size={17} aria-hidden="true"/><span className="sr-only">{searchPlaceholder}</span><input type="search" data-testid="admin-global-search" value={query} onChange={e=>{setQuery(e.target.value);}} placeholder={searchPlaceholder}/></label>}</div>;
     const frame=(content:ReactNode)=><div className={`${styles.shell} kulhaAdminShell`} data-page={page} dir={locale==="ar"?"rtl":"ltr"}>{topbar}<main className={styles.page}>{content}</main></div>;
 
     if(loading)return frame(<><div className={styles.header}><div><div className={styles.skeleton}/><div className={styles.skeletonWide}/></div></div><div className={styles.skeletonPanel}/></>);
@@ -308,7 +308,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     </button>)}</div>{!merchantItems.length&&<p className={styles.empty}>{t.empty}</p>}
                     <AdminPagination page={merchantPage} pageCount={merchantPageCount} total={merchants.total} size={merchants.size||MERCHANT_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setMerchantPage(next);setSelectedMerchant(null);}} />
                 </section>
-                <section className={styles.card+" "+styles.merchantDetails}>
+                <section className={styles.card+" "+styles.merchantDetails} data-testid="merchant-review-detail-panel">
                     {!selectedMerchant?<p className={styles.empty}>{t.empty}</p>:<>
                         <div className={styles.detailHead}><div><small>{t.application} KLH-M-{selectedMerchant.id.slice(0,4).toUpperCase()}</small><h2>{selectedMerchant.name}</h2></div><span className={styles.pill+" "+merchantTone(selectedMerchant.status)}>{merchantLabel(selectedMerchant.status)}</span></div>
                         <div className={styles.merchantStepper} aria-label={t.application}>
@@ -326,7 +326,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                 <div><dt>{t.submitted}</dt><dd>{dateTime(selectedMerchant.createdAt,locale)}</dd></div>
                             </dl>
                         </section>
-                        <div className={styles.merchantInlineBody}>
+                        <div className={styles.merchantInlineBody} data-testid="merchant-review-workflow">
                             <div className={styles.merchantModalColumn}>
                                 <section className={styles.merchantModalSection}>
                                     <h3>{t.documents}</h3>
@@ -339,7 +339,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                     <div className={styles.checkList}>{[t.locationChecked,t.phoneChecked,t.docsChecked].map((label,i)=><label key={label}><input type="checkbox" checked={checks[i]} onChange={e=>setChecks(current=>current.map((value,index)=>index===i?e.target.checked:value))}/>{label}</label>)}</div>
                                     <p className={styles.approveNote}>{t.approveUnlocks}</p>
                                 </section>
-                                <section className={styles.merchantDecision+" "+styles.merchantModalDecision}>
+                                <section className={styles.merchantDecision+" "+styles.merchantModalDecision} data-testid="merchant-review-decision">
                                     <h3>{t.decision}</h3>
                                     <div className={styles.segment} role="group" aria-label={t.decision}>
                                         <button type="button" aria-pressed={merchantAction==="approve"} className={styles.segApprove+" "+(merchantAction==="approve"?styles.segOn:"")} disabled={working||checks.some(value=>!value)} onClick={()=>setMerchantAction("approve")}>{t.approve}</button>
@@ -353,7 +353,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                 </section>
                             </div>
                         </div>
-                        <footer className={styles.merchantInlineFooter}>
+                        <footer className={styles.merchantInlineFooter} data-testid="merchant-review-footer">
                             <p><ShieldCheck size={15} aria-hidden="true"/>{t.decisionNote}</p>
                             <button className={styles.primary} disabled={working||!merchantAction||!reason.trim()||(merchantAction==="approve"&&checks.some(value=>!value))} onClick={()=>void submitMerchant()}>{working?t.loading:t.save}</button>
                         </footer>
@@ -363,8 +363,8 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
             
         </>}
         {page==="offer-moderation"&&offers&&<>
-            <div className={styles.offerWorkspace}>
-                <section className={styles.offerPicker} aria-label={t.offersTitle}>
+            <div className={styles.offerWorkspace} data-testid="offer-workspace">
+                <section className={styles.offerPicker} aria-label={t.offersTitle} data-testid="offer-picker">
                     <div className={styles.tabs} role="tablist" aria-label={t.filter}>
                         {[
                             {value:"",label:t.all,count:offers.total},
@@ -373,7 +373,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             {value:"SUSPENDED",label:t.hiddenFilter,count:hiddenOfferCount}
                         ].map(tab=><button key={tab.value||"all"} type="button" role="tab" aria-selected={offerStatus===tab.value} className={offerStatus===tab.value?styles.activeTab:styles.tab} onClick={()=>{setOfferStatus(tab.value);setOfferPage(0);setSelectedOffer(null);setReason("");}}>{tab.label} · {tab.count}</button>)}
                     </div>
-                    <div className={styles.offerQueue}>
+                    <div className={styles.offerQueue} data-testid="offer-queue">
                         {offerItems.map(item=>{const d=discount(item);return <button type="button" key={item.id} aria-pressed={selectedOffer?.id===item.id} className={selectedOffer?.id===item.id?styles.offerItemSelected:styles.offerItem} onClick={()=>{setSelectedOffer(item);setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");}}>
                             <span className={styles.offerThumb}>{item.imageUrl?<OfferImage src={item.imageUrl} alt="" lazy/>:<ImageIcon size={20} aria-hidden="true"/>}</span>
                             <span className={styles.offerCopy}><strong>{item.title}</strong><small>{item.shopName} · {item.city}</small><span className={styles.offerTags}>
@@ -387,7 +387,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     {!offerItems.length&&<p className={styles.empty}>{t.empty}</p>}
                     <AdminPagination page={offerPage} pageCount={offerPageCount} total={offers.total} size={offers.size||OFFER_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setOfferPage(next);setSelectedOffer(null);}} />
                 </section>
-                <section className={styles.offerPreviewCard} aria-label={t.selectedOffer}>
+                <section className={styles.offerPreviewCard} aria-label={t.selectedOffer} data-testid="offer-detail-panel">
                     {!selectedOffer?<div className={styles.offerEmpty}><Tag size={28} aria-hidden="true"/><strong>{t.selectedOffer}</strong><span>{t.empty}</span></div>:<>
                         <div className={styles.offerPreviewHeading}>
                             <div className={styles.offerPreviewThumb}>{selectedOffer.imageUrl?<OfferImage src={selectedOffer.imageUrl} alt={selectedOffer.title}/>:<ImageIcon size={24} aria-hidden="true"/>}</div>
@@ -404,8 +404,8 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             <div><dt>{t.stock}</dt><dd>{selectedOffer.quantityReserved} / {selectedOffer.quantityTotal} {t.reserved}</dd></div>
                             <div><dt>{t.reportsTitle}</dt><dd>{selectedOffer.reportedCount}</dd></div>
                         </dl>
-                        {selectedOffer.allergensStatus==="UNKNOWN"&&<div className={styles.offerPreviewAlert}><AlertTriangle size={17} aria-hidden="true"/><span><strong>{t.foodSafetyTitle}</strong><small>{t.foodSafetyBody}</small></span></div>}
-                        <div className={styles.offerInlineBody}>
+                        {selectedOffer.allergensStatus==="UNKNOWN"&&<div className={styles.offerPreviewAlert} data-testid="offer-food-safety-alert"><AlertTriangle size={17} aria-hidden="true"/><span><strong>{t.foodSafetyTitle}</strong><small>{t.foodSafetyBody}</small></span></div>}
+                        <div className={styles.offerInlineBody} data-testid="offer-moderation-workflow">
                             <div className={styles.merchantModalColumn}>
                                 <section className={styles.merchantModalSection}>
                                     <h3>{t.reportsTitle} · {selectedOffer.reportedCount}</h3>
@@ -430,7 +430,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                 </section>
                             </div>
                         </div>
-                        <footer className={styles.offerInlineFooter}>
+                        <footer className={styles.offerInlineFooter} data-testid="offer-moderation-footer">
                             <p><ShieldCheck size={15} aria-hidden="true"/>{t.auditRecorded}</p>
                             <button className={styles.primary} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{working?t.loading:offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
                         </footer>
@@ -444,9 +444,9 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
             <div className={styles.tabs} role="tablist" aria-label={t.casesTitle}>
                 {([["OPEN",t.open,caseCounts.open],["ESCALATED",t.escalated,caseCounts.escalated],["WAITING_REPLY",t.waiting,caseCounts.waiting],["RESOLVED",t.resolved,caseCounts.resolved]] as const).map(([value,label,count])=><button key={value} role="tab" aria-selected={caseStatus===value} className={caseStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setCaseStatus(value);setCasePage(0);setSelectedCase(null);setReason("");})}>{label}{typeof count==="number"?" · "+count:""}</button>)}
             </div>
-            <div className={styles.supportWorkspace}>
-                <section className={styles.casePicker} aria-label={t.casesTitle}>
-                    <div className={styles.caseList}>{caseItems.map(item=><button key={item.reference} className={selectedCase?.summary.reference===item.reference?styles.caseSelected:styles.caseItem} onClick={()=>void loadCase(item.reference)}>
+            <div className={styles.supportWorkspace} data-testid="support-workspace">
+                <section className={styles.casePicker} aria-label={t.casesTitle} data-testid="support-case-queue">
+                    <div className={styles.caseList}>{caseItems.map(item=><button key={item.reference} data-testid="support-case-row" className={selectedCase?.summary.reference===item.reference?styles.caseSelected:styles.caseItem} onClick={()=>void loadCase(item.reference)}>
                         <span className={styles.caseListTop}><small>{item.reference} · {item.category}</small><em className={styles.pill+" "+priorityTone(item.priority)}>{priorityLabel(item.priority)}</em></span>
                         <strong>{item.subject}</strong><small>{item.reservationReference?item.reservationReference+" · ":""}{item.merchantName||t.shop}</small>
                     </button>)}</div>{!caseItems.length&&<p className={styles.empty}>{t.empty}</p>}
@@ -510,7 +510,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         <span>{auditUi.searchLabel}</span>
                         <div className={styles.auditSearchControl}>
                             <Search size={19} aria-hidden="true"/>
-                            <input type="search" aria-label={more[locale].searchAudit} value={query} onChange={e=>{setQuery(e.target.value);setAuditPage(0);setAuditModalOpen(false);}} placeholder={more[locale].searchAudit}/>
+                            <input type="search" data-testid="audit-search-input" aria-label={more[locale].searchAudit} value={query} onChange={e=>{setQuery(e.target.value);setAuditPage(0);setAuditModalOpen(false);}} placeholder={more[locale].searchAudit}/>
                             {query&&<button type="button" aria-label={locale==="fr"?"Effacer la recherche":locale==="ar"?"مسح البحث":"Clear search"} onClick={()=>{setQuery("");setAuditSearch("");setAuditPage(0);}}><X size={15}/></button>}
                         </div>
                     </label>
@@ -532,15 +532,15 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     ]} onChange={value=>{setAuditResult(value);setAuditPage(0);setAuditModalOpen(false);}}/>
                 </div>
             </section>
-            <section className={styles.auditExplorer} aria-label={auditUi.history}>
+            <section className={styles.auditExplorer} aria-label={auditUi.history} data-testid="audit-explorer">
                 <div className={styles.auditExplorerHeading}>
                     <div><h2>{auditUi.history}</h2><p>{auditUi.latest}</p></div>
                     <span>{audit.total.toLocaleString(loc(locale))} · {t.audit}</span>
                 </div>
-                <section className={styles.auditTableCard}>
+                <section className={styles.auditTableCard} data-testid="audit-table-card">
                     <div className={styles.table}>
                         <table><thead><tr><th>{t.when.toUpperCase()}</th><th>{t.person.toUpperCase()}</th><th>{t.action.toUpperCase()}</th><th>{t.record.toUpperCase()}</th><th>{t.reason.toUpperCase()}</th><th>{t.result.toUpperCase()}</th></tr></thead>
-                            <tbody>{auditItems.map(item=><tr key={item.id} tabIndex={0} aria-label={`${auditActionLabel(item.action,locale)} · ${item.actorName}`} aria-pressed={auditModalOpen&&selectedAuditId===item.id} className={auditModalOpen&&selectedAuditId===item.id?styles.auditSelectedRow:""} onClick={()=>{setSelectedAuditId(item.id);setAuditModalOpen(true);}} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();setSelectedAuditId(item.id);setAuditModalOpen(true);}}}>
+                            <tbody>{auditItems.map(item=><tr key={item.id} data-testid="audit-record-row" tabIndex={0} aria-label={`${auditActionLabel(item.action,locale)} · ${item.actorName}`} aria-pressed={auditModalOpen&&selectedAuditId===item.id} className={auditModalOpen&&selectedAuditId===item.id?styles.auditSelectedRow:""} onClick={()=>{setSelectedAuditId(item.id);setAuditModalOpen(true);}} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();setSelectedAuditId(item.id);setAuditModalOpen(true);}}}>
                                 <td>{shortDateTime(item.createdAt,locale)}</td>
                                 <td><strong>{item.actorName}</strong></td>
                                 <td><strong>{auditActionLabel(item.action,locale)}</strong><small>{item.action}</small></td>
@@ -557,9 +557,9 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     </div>
                 </section>
             </section>
-            {audit&&<section className={styles.auditRecordCard} aria-label={auditUi.eventDetails}>
+            {audit&&<section className={styles.auditRecordCard} aria-label={auditUi.eventDetails} data-testid="audit-record-detail">
                 {!selectedAudit||!auditModalOpen?<div className={styles.auditRecordEmpty}><ShieldCheck size={22} aria-hidden="true"/><strong>{auditUi.eventDetails}</strong><p>{locale==="fr"?"Sélectionnez une ligne du journal pour consulter les détails.":locale==="ar"?"اختر سجلاً من الجدول لعرض التفاصيل.":"Select an audit row to inspect its details."}</p></div>:<>
-                    <header className={styles.auditRecordHeader}>
+                    <header className={styles.auditRecordHeader} data-testid="audit-record-header">
                         <div><small>{auditUi.eventDetails}</small><h2>{auditActionLabel(selectedAudit.action,locale)}</h2><code>{selectedAudit.action}</code></div>
                         {resultPill(selectedAudit.result)}
                     </header>
