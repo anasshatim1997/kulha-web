@@ -190,13 +190,29 @@
     padding-left: 6rem;
 }
 
+@media (min-width: 761px) {
+    .layout {
+        height: 100vh;
+        min-height: 100vh;
+        overflow: hidden;
+    }
+
+    .stage {
+        height: calc(100vh - 78px);
+        min-height: 0;
+        padding-block: 18px;
+    }
+}
+
 @media (min-width: 761px) and (max-height: 760px) {
     .topbar {
         height: 68px;
     }
 
     .stage {
-        min-height: calc(100svh - 68px);
+        height: calc(100vh - 68px);
+        min-height: 0;
+        padding-block: 12px;
         padding: 18px 0 24px;
     }
 
