@@ -66,6 +66,16 @@ describe("reservation idempotency attempt", () => {
     expect(generated).toBe(1);
   });
 
+  it("reuses an in-memory attempt when accessing session storage itself is unavailable", () => {
+    let generated = 0;
+    const createKey = () => "no-storage-key-" + ++generated;
+    const first = getOrCreateReservationAttempt(null, "offer-3", "same-request", createKey);
+    const retry = getOrCreateReservationAttempt(null, "offer-3", "same-request", createKey, first);
+
+    expect(retry).toEqual(first);
+    expect(generated).toBe(1);
+  });
+
   it("continues checkout when session storage cannot persist a new attempt", () => {
     const unavailableStorage = {
       getItem: () => { throw new Error("storage disabled"); },
