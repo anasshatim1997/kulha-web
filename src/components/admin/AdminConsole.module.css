@@ -3449,7 +3449,6 @@
   .auditWorkspace { min-height: 0; }
   .merchantPicker,
   .merchantDetails,
-  .casePicker,
   .caseDetail,
   .auditRecordCard {
     max-height: none;
@@ -3505,4 +3504,20 @@
   .auditExplorer { grid-template-columns:minmax(0,1fr); }
   .auditExplorerHeading,.auditExplorer > .auditTableCard,.auditExplorer > .auditRecordCard { grid-column:1; grid-row:auto; }
   .auditExplorer > .auditRecordCard { position:static; max-height:none; overflow:visible; padding:18px; border:1px solid #e8dfd1; border-radius:15px; background:#fffdf8; }
+}
+
+@media (min-width: 1100px) {
+  .auditFilters {
+    display:grid;
+    grid-template-columns:minmax(220px,1.4fr) minmax(250px,1.15fr) minmax(150px,.8fr) minmax(150px,.8fr);
+    align-items:end;
+    gap:10px;
+  }
+  .auditFilterTopRow,.auditFilterBottomRow { display:contents; }
+  .auditExplorer .auditTableCard .table table { min-width:760px; }
+}
+@media (min-width: 900px) and (max-width: 1099px) {
+  .auditFilters { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+  .auditFilterTopRow,.auditFilterBottomRow { display:contents; }
+  .auditExplorer .auditTableCard .table table { min-width:760px; }
 }
