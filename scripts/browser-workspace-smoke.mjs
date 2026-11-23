@@ -823,8 +823,8 @@ try {
 
   // Empty states stay composed and useful; these are captured separately from the populated route matrix.
   {
-    const context = await loginContext(browser, "admin-token");
-    const page = await context.newPage({ viewport: { width: 1366, height: 768 } });
+    const context = await loginContext(browser, "admin-token", { width: 1366, height: 768 });
+    const page = await context.newPage();
     await page.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
     await page.getByRole("tab", { name: /Rejected/ }).click();
     await page.locator('[data-testid="merchant-review-detail"]').getByText("Nothing to show yet.").waitFor();
