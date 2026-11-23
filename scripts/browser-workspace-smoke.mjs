@@ -476,7 +476,7 @@ try {
       }
       await assertNoHorizontalOverflow(page, route.path, size.width);
       if (size.width === 1366 && route.path.endsWith("/admin/merchant-review")) {
-        await page.locator(".merchantListItem").first().click();
+        await page.locator(".merchantPicker button").first().click();
         await page.locator(".merchantDetails").waitFor({ state: "visible" });
       }
       if (size.width === 1366 && route.path.endsWith("/admin/support-cases")) {
