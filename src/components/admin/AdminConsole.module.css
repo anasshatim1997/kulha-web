@@ -4908,44 +4908,46 @@
 @media (min-width: 1100px) and (max-height: 820px) {
     .shell[data-page="offer-moderation"] .offerModalReason {
         margin-top: 0;
-        padding: 8px 9px;
-        border-radius: 10px;
+        padding: 6px 7px;
+        border-radius: 9px;
     }
 
     .shell[data-page="offer-moderation"] .offerModalReason > h3 {
-        margin: 0 0 5px;
-        font-size: 9px;
+        margin: 0 0 4px;
+        font-size: 8px;
     }
 
     .shell[data-page="offer-moderation"] .offerModalReason .reasonChips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px;
-        margin: 4px 0 6px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 3px;
+        margin: 3px 0 4px;
     }
 
     .shell[data-page="offer-moderation"] .offerModalReason .reasonChip,
     .shell[data-page="offer-moderation"] .offerModalReason .reasonChipActive {
-        min-height: 22px;
-        padding: 3px 6px;
-        border-radius: 6px;
-        font-size: 8px;
-        line-height: 1.15;
+        min-width: 0;
+        min-height: 18px;
+        padding: 2px 4px;
+        border-radius: 5px;
+        font-size: 7px;
+        line-height: 1.1;
+        white-space: normal;
     }
 
     .shell[data-page="offer-moderation"] .offerModalReason .field {
-        gap: 3px;
+        gap: 2px;
         margin-top: 0;
-        font-size: 9px;
+        font-size: 8px;
     }
 
     .shell[data-page="offer-moderation"] .offerModalReason .field textarea {
-        height: 48px;
-        min-height: 48px;
-        max-height: 48px;
-        padding: 6px 7px;
-        border-radius: 7px;
-        font-size: 9px;
+        height: 34px;
+        min-height: 34px;
+        max-height: 34px;
+        padding: 4px 6px;
+        border-radius: 6px;
+        font-size: 8px;
         line-height: 1.2;
     }
 }
@@ -5020,7 +5022,7 @@
 /* Offer detail hierarchy also applies to full-height desktop viewports. */
 @media (min-width: 1100px) and (min-height: 821px) {
     .shell[data-page="offer-moderation"] .offerInlineBody {
-        grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
+        grid-template-columns: minmax(0, .94fr) minmax(0, 1.06fr);
         grid-template-rows: auto auto;
         align-items: start;
         row-gap: 10px;
