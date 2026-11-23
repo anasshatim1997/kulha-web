@@ -536,7 +536,8 @@ try {
         await firstEvent.click();
         await page.locator(".auditRecordCard .auditRecordHeader").waitFor({ state: "visible" });
       }
-      await page.screenshot({ path: join("artifacts/browser-screenshots", screenshotName), animations: "disabled" });\n      if(route.path.endsWith("/admin/offer-moderation")&&size.width===390) await page.screenshot({
+      await page.screenshot({ path: join("artifacts/browser-screenshots", screenshotName), animations: "disabled" });
+      if(route.path.endsWith("/admin/offer-moderation")&&size.width===390) await page.screenshot({
         path:join("artifacts/browser-screenshots","en-admin-offer-moderation-390x844-full.png"),
         animations:"disabled",fullPage:true,
       });
