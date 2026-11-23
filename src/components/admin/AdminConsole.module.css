@@ -3521,3 +3521,38 @@
   .auditFilterTopRow,.auditFilterBottomRow { display:contents; }
   .auditExplorer .auditTableCard .table table { min-width:760px; }
 }
+
+/* Merchant review is an in-context decision workspace, not a second modal. */
+@media (min-width: 900px) {
+  .merchantReviewWorkspace { height:auto; min-height:0; align-items:start; }
+  .merchantInlineBody {
+    display:grid; grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);
+    align-items:start; gap:12px; min-width:0; margin-top:16px;
+  }
+  .merchantInlineBody .merchantModalColumn { gap:12px; }
+  .merchantInlineBody .merchantModalSection { padding:15px; border-radius:13px; }
+  .merchantInlineBody .merchantModalSection > h3 { margin-bottom:10px; font-size:11px; }
+  .merchantInlineBody .merchantDecisionFields { grid-template-columns:minmax(0,1fr); gap:8px; }
+  .merchantInlineBody .merchantDecisionFields .field { margin-top:0; }
+  .merchantInlineBody .merchantDecisionFields .field textarea { min-height:60px; }
+  .merchantInlineFooter {
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    margin-top:14px; padding-top:13px; border-top:1px solid #eee8dd;
+  }
+  .merchantInlineFooter p { display:flex; align-items:flex-start; gap:8px; max-width:68%; margin:0; color:#66766b; font-size:10px; line-height:1.45; }
+  .merchantInlineFooter p svg { flex:0 0 auto; }
+  .merchantInlineFooter .primary { min-width:160px; min-height:42px; border-radius:10px; }
+}
+@media (max-width: 1099px) {
+  .merchantInlineBody { grid-template-columns:minmax(0,1fr); }
+  .merchantInlineBody .merchantDecisionFields { grid-template-columns:minmax(0,1fr); }
+}
+@media (max-width: 899px) {
+  .merchantInlineBody { display:grid; grid-template-columns:minmax(0,1fr); gap:12px; margin-top:14px; }
+  .merchantInlineBody .merchantModalSection { padding:15px; border-radius:13px; }
+  .merchantInlineBody .merchantModalSection > h3 { margin-bottom:10px; font-size:11px; }
+  .merchantInlineBody .merchantDecisionFields { grid-template-columns:minmax(0,1fr); gap:9px; }
+  .merchantInlineFooter { display:grid; gap:12px; margin-top:12px; padding-top:12px; border-top:1px solid #eee8dd; }
+  .merchantInlineFooter p { display:flex; gap:8px; margin:0; color:#66766b; font-size:10px; line-height:1.45; }
+  .merchantInlineFooter .primary { width:100%; min-height:44px; }
+}
