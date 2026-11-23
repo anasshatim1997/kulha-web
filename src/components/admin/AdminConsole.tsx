@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode, type RefObject, type Synth
 import { api } from "@/lib/api/client";
 import { canRevealSupportCustomerDetails, SUPPORT_DISCLOSURE_REASON_MAX_LENGTH } from "@/lib/auth/admin-access";
 import { useSession } from "@/components/session/SessionProvider";
-import { AlertTriangle, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, Filter, Image as ImageIcon, Lock, Search, ShieldCheck, Tag, X } from "lucide-react";
+import { AlertTriangle, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, Filter, Image as ImageIcon, Lock, Search, ShieldCheck, Tag } from "lucide-react";
 import styles from "./AdminConsole.module.css";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 
@@ -200,7 +200,6 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const [audit,setAudit]=useState<AuditPage|null>(null);const [auditPage,setAuditPage]=useState(0);const [auditPageSize,setAuditPageSize]=useState(AUDIT_PAGE_SIZE);const [selectedAuditId,setSelectedAuditId]=useState<string|null>(null);const [auditModalOpen,setAuditModalOpen]=useState(false);const [auditSearch,setAuditSearch]=useState("");const [auditFrom,setAuditFrom]=useState("");const [auditTo,setAuditTo]=useState("");const [auditAction,setAuditAction]=useState("");const [auditResult,setAuditResult]=useState("");
     const [reason,setReason]=useState("");const [disclosureReason,setDisclosureReason]=useState("");const [internalNote,setInternalNote]=useState("");const [draftMessage,setDraftMessage]=useState("");const [sendToCustomer,setSendToCustomer]=useState(true);const [revealed,setRevealed]=useState<{fullName:string;email:string;phone:string|null}|null>(null);const [working,setWorking]=useState(false);
 
-    useEffect(()=>{if(!auditModalOpen)return;const previousOverflow=document.body.style.overflow;document.body.style.overflow="hidden";const onKeyDown=(event:KeyboardEvent)=>{if(event.key==="Escape"){setAuditModalOpen(false);}};window.addEventListener("keydown",onKeyDown);return()=>{document.body.style.overflow=previousOverflow;window.removeEventListener("keydown",onKeyDown);};},[auditModalOpen]);
     useEffect(()=>{if(page!=="audit-log")return;const timeout=window.setTimeout(()=>setAuditSearch(query.trim()),280);return()=>window.clearTimeout(timeout);},[page,query]);
 
     useEffect(()=>{let active=true;
