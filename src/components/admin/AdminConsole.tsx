@@ -412,6 +412,13 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                     {selectedOffer.reportedCount>0?<div className={styles.offerModalReport}><strong>{selectedOffer.reportedCount} {t.reportReceived}</strong><span>{t.status}: {offerLabel(selectedOffer.status)}</span></div>:<p className={styles.offerModalNoReports}>{t.noReports}</p>}
                                     {selectedOffer.foodNotes&&<div className={styles.offerModalFoodNotes}><strong>{t.foodInfo}</strong><p>{selectedOffer.foodNotes}</p></div>}
                                 </section>
+                                <section className={styles.merchantModalSection+" "+styles.offerModalReason} data-testid="offer-decision-reason">
+                                    <h3>{t.reason}</h3>
+                                    <div className={styles.reasonChips}>
+                                        {[t.reasonMisleading,t.reasonAllergens,t.reasonPhoto,t.reasonOther].map(label=><button key={label} type="button" className={reason.startsWith(label)?styles.reasonChipActive:styles.reasonChip} onClick={()=>setReason(label+": ")}>{label}</button>)}
+                                    </div>
+                                    <label className={styles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
+                                </section>
                             </div>
                             <div className={styles.merchantModalColumn}>
                                 <section className={styles.merchantDecision+" "+styles.offerModalDecision}>
@@ -422,10 +429,6 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                         <button type="button" data-action="request-edit" aria-pressed={offerAction==="request-edit"} className={offerAction==="request-edit"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("request-edit")}>{t.askEdit}</button>
                                         <button type="button" data-action="suspend" aria-pressed={offerAction==="suspend"} className={offerAction==="suspend"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("suspend")}>{selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
                                     </div>
-                                    <div className={styles.reasonChips}>
-                                        {[t.reasonMisleading,t.reasonAllergens,t.reasonPhoto,t.reasonOther].map(label=><button key={label} type="button" className={reason.startsWith(label)?styles.reasonChipActive:styles.reasonChip} onClick={()=>setReason(label+": ")}>{label}</button>)}
-                                    </div>
-                                    <label className={styles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
                                 </section>
                             </div>
                         </div>
