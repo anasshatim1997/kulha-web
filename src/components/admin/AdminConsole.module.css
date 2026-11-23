@@ -3801,6 +3801,7 @@
     }
 
     .merchantInlineBody .merchantModalDecision .segment {
+        max-width: none;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 7px;
     }
