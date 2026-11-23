@@ -31,6 +31,16 @@ const offer = {
   foodNotes: "Prepared today", status: offerStatus, reportedCount: 2,
   pickupStart, pickupEnd, imageUrl: null,
 };
+const moderationOffers = Array.from({ length: 14 }, (_, index) => ({
+  id: `00000000-0000-4000-8000-${String(102 + index).padStart(12, "0")}`,
+  title: index === 0 ? "Panier du fournil" : `Basket selection ${index + 1}`,
+  shopName: "Boulangerie Test", city: "Casablanca", priceMinor: 4000 + index * 100,
+  originalPriceMinor: 8000 + index * 100, quantityTotal: 10, quantityReserved: 2,
+  allergensStatus: index % 3 === 0 ? "UNKNOWN" : "DECLARED", allergens: index % 3 === 0 ? null : "Wheat",
+  foodNotes: "Prepared today", status: "PUBLISHED", reportedCount: index % 3 === 0 ? 2 : 0,
+  pickupStart, pickupEnd, imageUrl: null,
+}));
+
 const supportCase = {
   id: "00000000-0000-4000-8000-000000000103", reference: "SUP-2026-0001",
   category: "FOOD_SAFETY", subject: "Allergen information needs review",
@@ -147,7 +157,7 @@ const backend = createServer(async (request, response) => {
     return json(response, {});
   }
   if (path === "/admin/offers" && method === "GET") {
-    return json(response, page([{ ...offer, status: offerStatus }]));
+    return json(response, page(moderationOffers.map(item => ({ ...item, status: offerStatus }))));
   }
   if (path === `/admin/offers/${offer.id}/suspend` && method === "POST") {
     await bodyOf(request);
@@ -283,6 +293,83 @@ async function assertCompactWorkspaceFits(page, route, width, height) {
     throw new Error(`Unnecessary page scrolling at ${width}x${height} on ${route}: ${JSON.stringify(metrics)}`);
   }
 }
+async function assertAdminLoginLayout(page, width, height) {
+  const metrics = await page.evaluate(() => {
+    const root = document.querySelector("main.admin-login-shell");
+    const byClass = fragment => [...(root?.querySelectorAll("*") ?? [])].find(element =>
+      typeof element.className === "string" && element.className.includes(fragment));
+    if (!root) return { missingRoot: true };
+    const rail = byClass("rail"), formSide = byClass("formSide");
+    const form = root.querySelector("form.auth-form-fields");
+    const fields = [...(form?.querySelectorAll("input, button[type=submit]") ?? [])];
+    const rect = element => {
+      if (!element) return null;
+      const value = element.getBoundingClientRect();
+      return { top:value.top,bottom:value.bottom,left:value.left,right:value.right,height:value.height };
+    };
+    return {
+      missingRoot:false, documentWidth:document.documentElement.scrollWidth, bodyWidth:document.body.scrollWidth,
+      documentHeight:document.documentElement.scrollHeight, bodyHeight:document.body.scrollHeight,
+      root:rect(root), rail:rect(rail), formSide:rect(formSide),
+      railClientHeight:rail?.clientHeight ?? 0, railScrollHeight:rail?.scrollHeight ?? 0,
+      formClientHeight:formSide?.clientHeight ?? 0, formScrollHeight:formSide?.scrollHeight ?? 0,
+      fields:fields.map(element=>{const value=element.getBoundingClientRect();return{
+        type:element.getAttribute("type"),top:value.top,bottom:value.bottom,left:value.left,right:value.right,
+        visible:!!(element.offsetWidth||element.offsetHeight),
+      };}),
+    };
+  });
+  if (metrics.missingRoot || metrics.documentWidth > width+1 || metrics.bodyWidth > width+1) {
+    throw new Error(`Admin login horizontal overflow or missing layout at ${width}x${height}: ${JSON.stringify(metrics)}`);
+  }
+  if (metrics.fields.length < 3 || metrics.fields.some(field=>!field.visible||field.left < -1
+    ||field.right > width+1||field.top < -1||field.bottom > height+1)) {
+    throw new Error(`Admin login form controls are missing or clipped at ${width}x${height}: ${JSON.stringify(metrics)}`);
+  }
+  if (width >= 761 && (metrics.documentHeight > height+1 || metrics.bodyHeight > height+1
+    || metrics.root.top < -1 || metrics.root.bottom > height+1
+    || metrics.railScrollHeight > metrics.railClientHeight+2
+    || metrics.formScrollHeight > metrics.formClientHeight+2)) {
+    throw new Error(`Admin login must fit without page or inner-panel scrolling at ${width}x${height}: ${JSON.stringify(metrics)}`);
+  }
+}
+async function assertOfferModerationLayout(page, width, height) {
+  const metrics = await page.evaluate(() => {
+    const all=[...document.querySelectorAll("*")];
+    const byClass=fragment=>all.find(element=>typeof element.className==="string"&&element.className.includes(fragment));
+    const workspace=byClass("offerWorkspace"),picker=byClass("offerPicker"),queue=byClass("offerQueue");
+    const pagination=byClass("pagination"),preview=byClass("offerPreviewCard"),decision=byClass("offerReviewCallout");
+    const rect=element=>{if(!element)return null;const value=element.getBoundingClientRect();return{
+      top:value.top,bottom:value.bottom,left:value.left,right:value.right,height:value.height,
+    };};
+    return {
+      documentWidth:document.documentElement.scrollWidth,bodyWidth:document.body.scrollWidth,
+      documentHeight:document.documentElement.scrollHeight,workspace:rect(workspace),picker:rect(picker),
+      queue:rect(queue),pagination:rect(pagination),preview:rect(preview),decision:rect(decision),
+      queueClientHeight:queue?.clientHeight??0,queueScrollHeight:queue?.scrollHeight??0,
+      queueOverflow:queue?getComputedStyle(queue).overflowY:"missing",
+    };
+  });
+  if(metrics.documentWidth>width+1||metrics.bodyWidth>width+1)
+    throw new Error(`Offer moderation horizontal overflow at ${width}x${height}: ${JSON.stringify(metrics)}`);
+  if(!metrics.workspace||!metrics.picker||!metrics.queue||!metrics.pagination||!metrics.preview||!metrics.decision)
+    throw new Error(`Offer moderation layout regions are missing at ${width}x${height}: ${JSON.stringify(metrics)}`);
+  if(width>=900){
+    const aligned=Math.abs(metrics.picker.top-metrics.preview.top)<=2
+      &&Math.abs(metrics.picker.bottom-metrics.preview.bottom)<=2
+      &&Math.abs(metrics.picker.height-metrics.preview.height)<=2;
+    if(metrics.documentHeight>height+2||!aligned||metrics.picker.height<height*.58
+      ||height-metrics.picker.bottom>64||height-metrics.picker.bottom<8
+      ||metrics.pagination.bottom>metrics.picker.bottom+1||metrics.picker.bottom-metrics.pagination.bottom>3
+      ||metrics.queueOverflow!=="auto"||metrics.queueScrollHeight<=metrics.queueClientHeight+4
+      ||metrics.decision.bottom>metrics.preview.bottom-8){
+      throw new Error(`Desktop offer moderation workspace/scroll ownership failed at ${width}x${height}: ${JSON.stringify(metrics)}`);
+    }
+  }else if(metrics.picker.bottom>=metrics.preview.top-1){
+    throw new Error(`Mobile offer moderation panels must stack naturally at ${width}px: ${JSON.stringify(metrics)}`);
+  }
+}
+
 async function assertDialogWithinViewport(page, route) {
   const rect = await page.getByRole("dialog").evaluate(element => {
     const value = element.getBoundingClientRect();
@@ -309,6 +396,31 @@ try {
     { width: 390, height: 844 },
   ];
   mkdirSync("artifacts/browser-screenshots", { recursive: true });
+
+  // Admin login is public: capture it without creating an authenticated session.
+  {
+    const context=await browser.newContext({viewport:{width:1920,height:1080}});
+    const page=await context.newPage(),errors=[];
+    page.on("pageerror",error=>errors.push(error.message));
+    for(const size of [{width:1366,height:768},{width:1920,height:1080},{width:390,height:844}]){
+      await page.setViewportSize(size);
+      await page.goto(origin+"/en/admin/login",{waitUntil:"networkidle",timeout:30000});
+      await page.getByRole("heading",{name:"Administrator sign in"}).waitFor({state:"visible"});
+      await page.locator('input[type="email"]').waitFor({state:"visible"});
+      await page.locator('input[type="password"]').waitFor({state:"visible"});
+      await assertNoHorizontalOverflow(page,"/en/admin/login",size.width);
+      await assertAdminLoginLayout(page,size.width,size.height);
+      await page.screenshot({path:join("artifacts/browser-screenshots",`en-admin-login-${size.width}x${size.height}.png`),animations:"disabled"});
+      if(size.width<761) await page.screenshot({
+        path:join("artifacts/browser-screenshots",`en-admin-login-${size.width}x${size.height}-full.png`),
+        animations:"disabled",fullPage:true,
+      });
+    }
+    if(errors.length) throw new Error(`Browser errors on /en/admin/login: ${errors.join("; ")}`);
+    await context.close();
+    process.stdout.write("PASS admin login at 1366x768, 1920x1080 and 390x844; desktop page and inner panels fit without scrollbars; no horizontal overflow\\n");
+  }
+
   const routes = [
     { path: "/en/merchant/orders", token: "merchant-token", heading: "Orders" , compact: true },
     { path: "/en/merchant/reservations/scan", token: "merchant-token", heading: "Validate a pickup" , compact: true },
@@ -343,6 +455,7 @@ try {
         throw new Error(`Workspace did not render ${route.path}; current URL=${page.url()}; body=${bodyText}; backend requests=${JSON.stringify(requests.slice(-12))}`);
       }
       await assertNoHorizontalOverflow(page, route.path, size.width);
+      if(route.path.endsWith("/admin/offer-moderation")) await assertOfferModerationLayout(page,size.width,size.height);
       if (route.path.endsWith("/admin/support-cases")) {
         const supportLayout = await page.evaluate(() => {
           const detail = document.querySelector('[data-testid="support-case-detail"]');
@@ -391,6 +504,10 @@ try {
         if (count !== 3) throw new Error(`${route.path} expected 3 reservation list requests, observed ${count}.`);
       }
       await page.screenshot({ path: join("artifacts/browser-screenshots", screenshotName), animations: "disabled" });
+      if(route.path.endsWith("/admin/offer-moderation")&&size.width===390) await page.screenshot({
+        path:join("artifacts/browser-screenshots","en-admin-offer-moderation-390x844-full.png"),
+        animations:"disabled",fullPage:true,
+      });
       if (route.compact && size.width >= 1024 && size.height <= 768) {
         await assertCompactWorkspaceFits(page, route.path, size.width, size.height);
       }
@@ -668,6 +785,8 @@ try {
 
   process.stdout.write("PASS merchant order filtering, staff permissions, sales download and pickup handover\n");
   process.stdout.write("PASS admin merchant review, offer moderation, assigned support disclosure/resolution and audit download\n");
+  process.stdout.write("PASS admin login screenshots/layout at 1366x768, 1920x1080 and 390x844\n");
+  process.stdout.write("PASS moderation panels align at 1366x768 and 1920x1080; pagination anchored; populated offer queue internally scrollable; mobile stack checked\n");
   process.stdout.write("PASS 7 viewport sizes across 16 authenticated routes; merchant/admin modal bounds at 390px; Arabic RTL at 390px\n");
 } finally {
   await browser?.close();
