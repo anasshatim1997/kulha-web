@@ -862,6 +862,7 @@ try {
     await page.goto(origin + "/en/admin/audit-log", { waitUntil: "networkidle" });
     await page.getByLabel(/Search people, actions, records, reasons/).fill("no matching audit record");
     await page.locator('[data-testid="audit-record-detail"]').getByText("Nothing to show yet.").waitFor();
+    await page.waitForFunction(() => document.querySelector('[data-testid="audit-total-count"]')?.textContent?.trim().startsWith("0"));
     if(await page.locator('[data-admin-page="audit-log"] tbody tr').count()!==0) throw new Error("Audit empty-state ledger still contains events.");
     await page.screenshot({ path: join("artifacts/browser-screenshots", "en-admin-audit-log-empty-1366x768.png"), animations: "disabled" });
     await context.close();
