@@ -3417,8 +3417,6 @@
 
 
 
-   The queue and detail surface share one measured grid row; only their content
-   scrolls. Small screens return to natural document flow. */
 /* ==========================================================================
    KULHA Admin layout system
    Shared chrome establishes normal page flow. Each workspace owns only its
