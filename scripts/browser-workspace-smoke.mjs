@@ -516,7 +516,19 @@ try {
         throw new Error(`Workspace did not render ${route.path}; current URL=${page.url()}; body=${bodyText}; backend requests=${JSON.stringify(requests.slice(-12))}`);
       }
       await assertNoHorizontalOverflow(page, route.path, size.width);
-      if(route.path.includes("/admin/")) await assertCompactAdminFilters(page,route.path,size.width);
+      if(route.path.includes("/admin/")) {
+        await assertCompactAdminFilters(page,route.path,size.width);
+        if(size.width>=900) {
+          const titleLayout=await page.evaluate(()=>{
+            const heading=document.querySelector(".kulhaAdminShell main h1");
+            const toolbar=document.querySelector(".ws-topbar");
+            if(!heading||!toolbar)return null;
+            const title=heading.getBoundingClientRect(),bar=toolbar.getBoundingClientRect();
+            return {titleTop:title.top,titleBottom:title.bottom,barBottom:bar.bottom};
+          });
+          if(!titleLayout||titleLayout.titleTop<titleLayout.barBottom+4) throw new Error(`Admin page title is covered by the fixed toolbar at ${size.width}px on ${route.path}: ${JSON.stringify(titleLayout)}`);
+        }
+      }
       if(route.path.endsWith("/admin/offer-moderation")) await assertOfferModerationLayout(page,size.width,size.height);
       if(route.path.endsWith("/admin/audit-log") && size.width===1366) {
         await page.locator('[data-testid="audit-record-detail"]').waitFor({state:"visible"});
@@ -821,6 +833,10 @@ try {
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/actions"), "Support case resolution");
     await context.close();
   }
+
+  // Reset the support mock after the prior resolution workflow so Resolved remains a true empty state.
+  caseStatus = "OPEN";
+  supportCase.status = caseStatus;
 
   // Empty states stay composed and useful; these are captured separately from the populated route matrix.
   {
