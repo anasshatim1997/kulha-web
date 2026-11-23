@@ -488,6 +488,8 @@ async function assertOfferDecisionAccessible(page, width, height) {
     const preview = document.querySelector('[data-testid="offer-detail-panel"]');
     const workflow = document.querySelector('[data-testid="offer-moderation-workflow"]');
     const footer = document.querySelector('[data-testid="offer-moderation-footer"]');
+    const reasonPanel = document.querySelector('[data-testid="offer-decision-reason"]');
+    const reasonField = reasonPanel?.querySelector("textarea");
     const box = element => {
       if (!element) return null;
       const rect = element.getBoundingClientRect();
@@ -497,6 +499,7 @@ async function assertOfferDecisionAccessible(page, width, height) {
     return {
       workspace: box(workspace), picker: box(picker), queue: box(queue), pagination: box(pagination),
       preview: box(preview), workflow: box(workflow), footer: box(footer), action: box(action),
+      reasonPanel: box(reasonPanel), reasonField: box(reasonField),
       queueClient: queue?.clientHeight ?? 0, queueScroll: queue?.scrollHeight ?? 0,
       queueOverflow: queue ? getComputedStyle(queue).overflowY : "missing",
       previewClient: preview?.clientHeight ?? 0, previewScroll: preview?.scrollHeight ?? 0,
@@ -506,7 +509,8 @@ async function assertOfferDecisionAccessible(page, width, height) {
     };
   });
   if (!metrics.workspace || !metrics.picker || !metrics.queue || !metrics.pagination
-      || !metrics.preview || !metrics.workflow || !metrics.footer || !metrics.action) {
+      || !metrics.preview || !metrics.workflow || !metrics.footer || !metrics.action
+      || !metrics.reasonPanel || !metrics.reasonField || metrics.reasonField.height < 20) {
     throw new Error("Offer queue pagination or selected-offer decision is missing at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
   if (metrics.documentWidth > width + 1 || metrics.pagination.top < metrics.picker.top - 1
@@ -520,7 +524,9 @@ async function assertOfferDecisionAccessible(page, width, height) {
     if (metrics.queueClient < 40 || metrics.queueScroll <= metrics.queueClient + 2
         || metrics.queueOverflow !== "auto" || metrics.previewOverflow !== "auto"
         || metrics.previewClient < 100 || metrics.footer.bottom > metrics.preview.bottom + 2
-        || metrics.action.bottom > height + 2) {
+        || metrics.action.bottom > height + 2
+        || metrics.reasonField.top < metrics.preview.top - 1
+        || metrics.reasonField.bottom > metrics.footer.top + 1) {
       throw new Error("Offer moderation must keep a scrollable queue, pinned pagination and accessible decision action at "
         + width + "x" + height + ": " + JSON.stringify(metrics));
     }
