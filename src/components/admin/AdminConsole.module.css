@@ -3299,21 +3299,6 @@
     }
 }
 
-/* The admin shell owns the compact desktop viewport. Prevent the root flex
-   item from expanding the document; collection panels own their own scrolling. */
-@media (min-width: 900px) and (max-height: 800px) {
-    .shell {
-        height: 100%;
-        min-height: 0;
-        overflow: hidden;
-    }
-    .page {
-        height: 100%;
-        min-height: 0;
-        overflow: hidden;
-    }
-}
-
 /* Support case detail: the panel is a three-row layout. The case heading keeps
    its natural size, history owns vertical scrolling, and the composer stays
    in the final row instead of participating in the conversation's scroll. */
