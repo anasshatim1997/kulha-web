@@ -233,15 +233,15 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const priorityTone=(p:string)=>p==="HIGH"?styles.toneBad:p==="MEDIUM"?styles.toneWarn:p==="LOW"?styles.toneMuted:styles.toneInfo;
     const discount=(o:Offer)=>o.originalPriceMinor&&o.originalPriceMinor>o.priceMinor?Math.round((1-o.priceMinor/o.originalPriceMinor)*100):null;
 
-    async function loadMerchant(id:string){setWorking(true);try{const data=await api.get<Merchant>("/admin/merchants/"+id);setSelectedMerchant(data);setMerchantReviewOpen(false);setReason("");setInternalNote("");setMerchantAction(null);setChecks([false,false,false]);}catch{setMessage(t.error);}finally{setWorking(false);}}
+    async function loadMerchant(id:string){setWorking(true);try{const data=await api.get<Merchant>("/admin/merchants/"+id);setSelectedMerchant(data);setReason("");setInternalNote("");setMerchantAction(null);setChecks([false,false,false]);}catch{setMessage(t.error);}finally{setWorking(false);}}
     async function submitMerchant(){
         if(!selectedMerchant)return;if(!merchantAction||!reason.trim()){setMessage(t.needsReason);return;}if(merchantAction==="approve"&&checks.some(value=>!value)){setMessage(t.approveUnlocks);return;}setWorking(true);setMessage("");
-        try{await api.post("/admin/merchants/"+selectedMerchant.id+"/"+merchantAction,{reason:reason.trim(),internalNote:internalNote.trim()});setMessage(t.save);setReload(v=>v+1);setSelectedMerchant(null);setMerchantReviewOpen(false);setReason("");setInternalNote("");setMerchantAction(null);}
+        try{await api.post("/admin/merchants/"+selectedMerchant.id+"/"+merchantAction,{reason:reason.trim(),internalNote:internalNote.trim()});setMessage(t.save);setReload(v=>v+1);setSelectedMerchant(null);setReason("");setInternalNote("");setMerchantAction(null);}
         catch{setMessage(t.error);}finally{setWorking(false);}
     }
     async function submitOffer(){
         if(!selectedOffer)return;if(!reason.trim()){setMessage(t.saveReason);return;}setWorking(true);setMessage("");
-        try{await api.post("/admin/offers/"+selectedOffer.id+"/"+offerAction,{reason:reason.trim()});setMessage(t.save);setReload(v=>v+1);setSelectedOffer(null);setOfferReviewOpen(false);setReason("");}
+        try{await api.post("/admin/offers/"+selectedOffer.id+"/"+offerAction,{reason:reason.trim()});setMessage(t.save);setReload(v=>v+1);setSelectedOffer(null);setReason("");}
         catch{setMessage(t.error);}finally{setWorking(false);}
     }
     async function loadCase(reference:string){setWorking(true);setRevealed(null);setDisclosureReason("");try{const d=await api.get<{summary:CaseItem;timeline:Timeline[]}>("/admin/support-cases/"+reference);setSelectedCase(d);setReason("");}catch{setMessage(t.error);}finally{setWorking(false);}}
@@ -299,14 +299,14 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
         {message&&<div className={styles.notice} role="status">{message}</div>}
 
         {page==="merchant-review"&&merchants&&<>
-            <div className={styles.tabs} role="tablist" aria-label={t.merchantTitle}>{merchantStatuses.map(value=>{const n=tabCount(value);return <button key={value} role="tab" aria-selected={merchantStatus===value} className={merchantStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setMerchantStatus(value);setMerchantPage(0);setSelectedMerchant(null);setMerchantReviewOpen(false);setReason("");setInternalNote("");})}>{merchantLabel(value)}{typeof n==="number"?" · "+n:""}</button>;})}</div>
+            <div className={styles.tabs} role="tablist" aria-label={t.merchantTitle}>{merchantStatuses.map(value=>{const n=tabCount(value);return <button key={value} role="tab" aria-selected={merchantStatus===value} className={merchantStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setMerchantStatus(value);setMerchantPage(0);setSelectedMerchant(null);setReason("");setInternalNote("");})}>{merchantLabel(value)}{typeof n==="number"?" · "+n:""}</button>;})}</div>
             <div className={styles.merchantReviewWorkspace}>
                 <section className={styles.merchantPicker} aria-label={t.merchantTitle}>
                     <div className={styles.list}>{merchantItems.map(item=><button key={item.id} className={selectedMerchant?.id===item.id?styles.merchantSelected:styles.merchantListItem} onClick={()=>void loadMerchant(item.id)}>
                         <span className={styles.merchantListTop}><strong>{item.name}</strong><em className={styles.pill+" "+merchantTone(item.status)}>{merchantLabel(item.status)}</em></span>
                         <small>{item.businessType} · {item.city}</small><small>{item.ownerEmail}</small>
                     </button>)}</div>{!merchantItems.length&&<p className={styles.empty}>{t.empty}</p>}
-                    <AdminPagination page={merchantPage} pageCount={merchantPageCount} total={merchants.total} size={merchants.size||MERCHANT_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setMerchantPage(next);setSelectedMerchant(null);setMerchantReviewOpen(false);}} />
+                    <AdminPagination page={merchantPage} pageCount={merchantPageCount} total={merchants.total} size={merchants.size||MERCHANT_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setMerchantPage(next);setSelectedMerchant(null);}} />
                 </section>
                 <section className={styles.card+" "+styles.merchantDetails}>
                     {!selectedMerchant?<p className={styles.empty}>{t.empty}</p>:<>
@@ -371,10 +371,10 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             {value:"REPORTED",label:t.reportedFilter,count:reportedOfferCount},
                             {value:"ALLERGENS_UNKNOWN",label:t.allergensUnknown,count:unknownAllergenCount},
                             {value:"SUSPENDED",label:t.hiddenFilter,count:hiddenOfferCount}
-                        ].map(tab=><button key={tab.value||"all"} type="button" role="tab" aria-selected={offerStatus===tab.value} className={offerStatus===tab.value?styles.activeTab:styles.tab} onClick={()=>{setOfferStatus(tab.value);setOfferPage(0);setSelectedOffer(null);setOfferReviewOpen(false);setReason("");}}>{tab.label} · {tab.count}</button>)}
+                        ].map(tab=><button key={tab.value||"all"} type="button" role="tab" aria-selected={offerStatus===tab.value} className={offerStatus===tab.value?styles.activeTab:styles.tab} onClick={()=>{setOfferStatus(tab.value);setOfferPage(0);setSelectedOffer(null);setReason("");}}>{tab.label} · {tab.count}</button>)}
                     </div>
                     <div className={styles.offerQueue}>
-                        {offerItems.map(item=>{const d=discount(item);return <button type="button" key={item.id} aria-pressed={selectedOffer?.id===item.id} className={selectedOffer?.id===item.id?styles.offerItemSelected:styles.offerItem} onClick={()=>{setSelectedOffer(item);setOfferReviewOpen(false);setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");}}>
+                        {offerItems.map(item=>{const d=discount(item);return <button type="button" key={item.id} aria-pressed={selectedOffer?.id===item.id} className={selectedOffer?.id===item.id?styles.offerItemSelected:styles.offerItem} onClick={()=>{setSelectedOffer(item);setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");}}>
                             <span className={styles.offerThumb}>{item.imageUrl?<OfferImage src={item.imageUrl} alt="" lazy/>:<ImageIcon size={20} aria-hidden="true"/>}</span>
                             <span className={styles.offerCopy}><strong>{item.title}</strong><small>{item.shopName} · {item.city}</small><span className={styles.offerTags}>
                                 {item.reportedCount>0&&<em className={styles.reportTag}>{item.reportedCount} {item.reportedCount===1?t.report:t.reportsN}</em>}
@@ -385,7 +385,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         </button>;})}
                     </div>
                     {!offerItems.length&&<p className={styles.empty}>{t.empty}</p>}
-                    <AdminPagination page={offerPage} pageCount={offerPageCount} total={offers.total} size={offers.size||OFFER_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setOfferPage(next);setSelectedOffer(null);setOfferReviewOpen(false);}} />
+                    <AdminPagination page={offerPage} pageCount={offerPageCount} total={offers.total} size={offers.size||OFFER_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setOfferPage(next);setSelectedOffer(null);}} />
                 </section>
                 <section className={styles.offerPreviewCard} aria-label={t.selectedOffer}>
                     {!selectedOffer?<div className={styles.offerEmpty}><Tag size={28} aria-hidden="true"/><strong>{t.selectedOffer}</strong><span>{t.empty}</span></div>:<>
