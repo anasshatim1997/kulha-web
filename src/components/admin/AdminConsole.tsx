@@ -385,7 +385,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         </button>;})}
                     </div>
                     {!offerItems.length&&<p className={styles.empty}>{t.empty}</p>}
-                    <AdminPagination page={offerPage} pageCount={offerPageCount} total={offers.total} size={offers.size||OFFER_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setOfferPage(next);setSelectedOffer(null);}} />
+                    <div className={styles.offerPagination} data-testid="offer-pagination"><AdminPagination page={offerPage} pageCount={offerPageCount} total={offers.total} size={offers.size||OFFER_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setOfferPage(next);setSelectedOffer(null);}} /></div>
                 </section>
                 <section className={styles.offerPreviewCard} aria-label={t.selectedOffer} data-testid="offer-detail-panel">
                     {!selectedOffer?<div className={styles.offerEmpty}><Tag size={28} aria-hidden="true"/><strong>{t.selectedOffer}</strong><span>{t.empty}</span></div>:<>
@@ -414,7 +414,6 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                 </section>
                             </div>
                             <div className={styles.merchantModalColumn}>
-                                {selectedOffer.allergensStatus==="UNKNOWN"&&<div className={styles.foodSafetyAlert}><AlertTriangle size={18} aria-hidden="true"/><span><strong>{t.foodSafetyTitle}</strong><small>{t.foodSafetyBody}</small></span></div>}
                                 <section className={styles.merchantDecision+" "+styles.offerModalDecision}>
                                     <h3>{t.decision}</h3>
                                     <p className={styles.offerModalDecisionHint}>{t.reinstateOnlyHidden}</p>
@@ -461,6 +460,11 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             <article><small>{t.caseOffer}</small><strong>{selectedCase.summary.offerTitle||"—"}</strong></article>
                             <article><small>{t.caseShop}</small><strong>{selectedCase.summary.merchantName||"—"}</strong></article>
                         </div>
+                        <h3 className={styles.sectionLabel}>{t.timeline}</h3>
+                        <div className={styles.caseTimeline}>{selectedCase.timeline.map(item=><article key={item.id} className={item.visibility==="INTERNAL"?styles.timelineInternal:item.authorType==="CUSTOMER"?styles.timelineCustomer:styles.timelineAgent}>
+                            <strong>{item.visibility==="INTERNAL"?t.internal:item.authorType==="CUSTOMER"?t.customer:t.reply} · {new Intl.DateTimeFormat(loc(locale),{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(new Date(item.createdAt))}</strong>
+                            <p>{item.message}</p>
+                        </article>)}</div>
                         <div className={styles.caseAssignment}>
                             <p>{t.assignedTo}: <strong>{selectedCase.summary.assigneeName||"Unassigned"}</strong></p>
                             <div><button className={styles.ghostBtn} type="button" disabled={working} onClick={()=>void caseAction("CONTACT_SHOP")}>{t.contactShop}</button>{!isSupportOnly&&<button className={styles.ghostBtn} type="button" disabled={working} onClick={()=>void assignToMe()}>{t.assign}</button>}</div>
@@ -476,11 +480,6 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             </div>
                         }
                         <p className={styles.hint}><Lock size={13} aria-hidden="true"/>{t.masked}</p>
-                        <h3 className={styles.sectionLabel}>{t.timeline}</h3>
-                        <div className={styles.caseTimeline}>{selectedCase.timeline.map(item=><article key={item.id} className={item.visibility==="INTERNAL"?styles.timelineInternal:item.authorType==="CUSTOMER"?styles.timelineCustomer:styles.timelineAgent}>
-                            <strong>{item.visibility==="INTERNAL"?t.internal:item.authorType==="CUSTOMER"?t.customer:t.reply} · {new Intl.DateTimeFormat(loc(locale),{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(new Date(item.createdAt))}</strong>
-                            <p>{item.message}</p>
-                        </article>)}</div>
                         <section className={styles.caseActions}>
                             <label className={styles.caseActionReason}><span>{t.actionReason}</span><input value={reason} onChange={e=>setReason(e.target.value)} placeholder={t.needsReason}/></label>
                             <button type="button" className={styles.ghostBtn} disabled={working||!reason.trim()} onClick={()=>void caseAction("ESCALATE")}>{t.escalate}</button>
@@ -540,7 +539,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                 <section className={styles.auditTableCard} data-testid="audit-table-card">
                     <div className={styles.table}>
                         <table><thead><tr><th>{t.when.toUpperCase()}</th><th>{t.person.toUpperCase()}</th><th>{t.action.toUpperCase()}</th><th>{t.record.toUpperCase()}</th><th>{t.reason.toUpperCase()}</th><th>{t.result.toUpperCase()}</th></tr></thead>
-                            <tbody>{auditItems.map(item=><tr key={item.id} data-testid="audit-record-row" tabIndex={0} aria-label={`${auditActionLabel(item.action,locale)} · ${item.actorName}`} aria-pressed={auditModalOpen&&selectedAuditId===item.id} className={auditModalOpen&&selectedAuditId===item.id?styles.auditSelectedRow:""} onClick={()=>{setSelectedAuditId(item.id);setAuditModalOpen(true);}} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();setSelectedAuditId(item.id);setAuditModalOpen(true);}}}>
+                            <tbody>{auditItems.map(item=><tr key={item.id} data-testid="audit-record-row" tabIndex={0} aria-label={`${auditActionLabel(item.action,locale)} · ${item.actorName}`} aria-pressed={selectedAuditId===item.id} className={selectedAuditId===item.id?styles.auditSelectedRow:""} onClick={()=>{setSelectedAuditId(item.id);setAuditModalOpen(true);}} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();setSelectedAuditId(item.id);setAuditModalOpen(true);}}}>
                                 <td>{shortDateTime(item.createdAt,locale)}</td>
                                 <td><strong>{item.actorName}</strong></td>
                                 <td><strong>{auditActionLabel(item.action,locale)}</strong><small>{item.action}</small></td>
@@ -556,9 +555,8 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         <AdminPagination page={auditPage} pageCount={auditPageCount} total={audit.total} size={audit.size||auditPageSize} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setAuditPage(next);setAuditModalOpen(false);setSelectedAuditId(null);}} />
                     </div>
                 </section>
-            </section>
             {audit&&<section className={styles.auditRecordCard} aria-label={auditUi.eventDetails} data-testid="audit-record-detail">
-                {!selectedAudit||!auditModalOpen?<div className={styles.auditRecordEmpty}><ShieldCheck size={22} aria-hidden="true"/><strong>{auditUi.eventDetails}</strong><p>{locale==="fr"?"Sélectionnez une ligne du journal pour consulter les détails.":locale==="ar"?"اختر سجلاً من الجدول لعرض التفاصيل.":"Select an audit row to inspect its details."}</p></div>:<>
+                {!selectedAudit?<div className={styles.auditRecordEmpty}><ShieldCheck size={22} aria-hidden="true"/><strong>{auditUi.eventDetails}</strong><p>{locale==="fr"?"Sélectionnez une ligne du journal pour consulter les détails.":locale==="ar"?"اختر سجلاً من الجدول لعرض التفاصيل.":"Select an audit row to inspect its details."}</p></div>:<>
                     <header className={styles.auditRecordHeader} data-testid="audit-record-header">
                         <div><small>{auditUi.eventDetails}</small><h2>{auditActionLabel(selectedAudit.action,locale)}</h2><code>{selectedAudit.action}</code></div>
                         {resultPill(selectedAudit.result)}
@@ -586,6 +584,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     <p className={styles.auditRecordNotice}><Lock size={14} aria-hidden="true"/>{auditUi.immutableNotice}</p>
                 </>}
             </section>}
+            </section>
         </>}
 
     </>);
