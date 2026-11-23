@@ -58,8 +58,14 @@ describe("reservation idempotency attempt", () => {
       removeItem: () => { throw new Error("storage disabled"); },
     };
 
-    expect(getOrCreateReservationAttempt(unavailableStorage, "offer-1", "fingerprint", () => "memory-key"))
-      .toEqual({ fingerprint: "fingerprint", key: "memory-key" });
+    let generated = 0;
+    const createKey = () => "memory-key-" + ++generated;
+    const first = getOrCreateReservationAttempt(unavailableStorage, "offer-1", "fingerprint", createKey);
+    const retry = getOrCreateReservationAttempt(unavailableStorage, "offer-1", "fingerprint", createKey, first);
+
+    expect(first).toEqual({ fingerprint: "fingerprint", key: "memory-key-1" });
+    expect(retry).toEqual(first);
+    expect(generated).toBe(1);
   });
 
 });
