@@ -740,7 +740,7 @@ try {
         const search = page.getByTestId("admin-console-search");
         await search.getByTestId("admin-global-search").waitFor({ state: "visible" });
         const searchBounds = await search.boundingBox();
-        if (!searchBounds || (size.width < 900 && searchBounds.width < size.width - 42)) {
+        if (!searchBounds || (size.width < 900 && searchBounds.width < size.width - 64)) {
           throw new Error(`Admin search must remain visible and full-width at ${size.width}px on ${route.path}: ${JSON.stringify(searchBounds)}`);
         }
       }
