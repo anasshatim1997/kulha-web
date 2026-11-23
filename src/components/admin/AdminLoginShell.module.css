@@ -5,26 +5,6 @@
 
 /* ---------- Layout ---------- */
 
-/* Admin sign-in is an immersive route: remove the public-site chrome
-   from the actual root layout, not from inside the login component. */
-:global(body:has(.admin-login-shell)) {
-    height: 100svh;
-    min-height: 0;
-    overflow: hidden;
-}
-
-:global(body:has(.admin-login-shell) .site-header),
-:global(body:has(.admin-login-shell) footer) {
-    display: none !important;
-}
-
-:global(body:has(.admin-login-shell) #contenu) {
-    flex: 1 1 0%;
-    height: 100%;
-    min-height: 0;
-    overflow: hidden;
-}
-
 .layout :global(.site-header) {
     display: none !important;
 }
@@ -514,19 +494,6 @@
 }
 
 @media (max-width: 760px) {
-    :global(body:has(.admin-login-shell)) {
-        height: auto;
-        min-height: 100svh;
-        overflow-x: clip;
-        overflow-y: auto;
-    }
-
-    :global(body:has(.admin-login-shell) #contenu) {
-        height: auto;
-        min-height: 100svh;
-        overflow: visible;
-    }
-
     .layout {
         box-sizing: border-box;
         width: 100%;
