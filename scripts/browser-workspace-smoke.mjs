@@ -80,7 +80,7 @@ const supportCaseRows = [
   })),
 ];
 const auditRows = Array.from({ length: 14 }, (_, index) => {
-  const actions = ["MERCHANT_APPROVED", "OFFER_SUSPENDED", "SUPPORT_CASE_RESOLVED", "SUPPORT_CUSTOMER_DETAILS_REVEALED", "AUDIT_LOG_EXPORTED"];
+  const actions = ["merchant.approve", "offer.suspend", "support.resolve", "support.reply", "merchant.request-info"];
   const targets = ["MERCHANT", "OFFER", "SUPPORT_CASE", "CUSTOMER", "AUDIT_LOG"];
   const actors = ["Nadia El Amrani", "Youssef Benali", "Salma Idrissi", "KULHA System"];
   const reasons = [
@@ -667,7 +667,7 @@ try {
     const detail = page.locator('[data-testid="offer-moderation-detail"]');
     await detail.locator('[data-action="suspend"]').click();
     await detail.getByLabel("Reason (required)").fill("Allergen information needs verification.");
-    await detail.getByRole("button", { name: "Hide offer", exact: true }).click();
+    await detail.getByRole("button", { name: "Hide offer", exact: true }).last().click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/suspend"), "Offer moderation action");
     await context.close();
   }
@@ -839,9 +839,7 @@ try {
     await page.screenshot({ path: join("artifacts/browser-screenshots", "en-admin-support-cases-empty-1366x768.png"), animations: "disabled" });
     await page.goto(origin + "/en/admin/audit-log", { waitUntil: "networkidle" });
     await page.getByLabel(/Search people, actions, records, reasons/).fill("no matching audit record");
-    await page.getByText("No matching audit events.").waitFor({ timeout: 5000 }).catch(async () => {
-      await page.locator('[data-testid="audit-record-detail"]').getByText("Nothing to show yet.").waitFor();
-    });
+    await page.locator('[data-testid="audit-record-detail"]').getByText("Nothing to show yet.").waitFor();
     await page.screenshot({ path: join("artifacts/browser-screenshots", "en-admin-audit-log-empty-1366x768.png"), animations: "disabled" });
     await context.close();
   }
