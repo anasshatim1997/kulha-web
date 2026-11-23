@@ -389,6 +389,74 @@ async function assertOfferModerationLayout(page, width, height) {
     throw new Error(`Offer moderation fixture must exercise a populated queue: ${JSON.stringify(metrics)}`);
 }
 
+
+async function assertAdminStatusControls(page, route, width, height) {
+  const controls = await page.evaluate(() => [...document.querySelectorAll('[role="tablist"] button')].map(button => {
+    const rect = button.getBoundingClientRect();
+    const style = getComputedStyle(button);
+    return { height: rect.height, radius: parseFloat(style.borderTopLeftRadius) };
+  }));
+  if (controls.some(control => control.height > 44 || control.radius > 16)) {
+    throw new Error("Admin status controls are oversized at " + width + "x" + height + " on " + route + ": " + JSON.stringify(controls));
+  }
+}
+
+async function assertMerchantReviewLayout(page, width, height) {
+  const metrics = await page.evaluate(() => {
+    const detail = document.querySelector('[data-testid="merchant-review-detail-panel"]');
+    const workflow = document.querySelector('[data-testid="merchant-review-workflow"]');
+    const decision = document.querySelector('[data-testid="merchant-review-decision"]');
+    const footer = document.querySelector('[data-testid="merchant-review-footer"]');
+    const box = element => {
+      if (!element) return null;
+      const rect = element.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height: rect.height };
+    };
+    const buttons = [...(decision?.querySelectorAll('button') ?? [])].map(button => {
+      const rect = button.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right };
+    });
+    const textareas = [...(decision?.querySelectorAll('textarea') ?? [])].map(element => {
+      const rect = element.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, visible: rect.width > 0 && rect.height > 0 };
+    });
+    const footerButton = footer?.querySelector('button');
+    const footerText = footer?.querySelector('p');
+    const actionRect = footerButton?.getBoundingClientRect();
+    const noteRect = footerText?.getBoundingClientRect();
+    return {
+      detail: box(detail), workflow: box(workflow), decision: box(decision), footer: box(footer),
+      documentWidth: document.documentElement.scrollWidth,
+      buttons, textareas,
+      footerAction: actionRect ? { top: actionRect.top, bottom: actionRect.bottom, left: actionRect.left, right: actionRect.right } : null,
+      footerNote: noteRect ? { top: noteRect.top, bottom: noteRect.bottom, left: noteRect.left, right: noteRect.right } : null,
+      selectedMerchant: detail?.textContent?.includes('Boulangerie Test') ?? false
+    };
+  });
+  if (!metrics.detail || !metrics.workflow || !metrics.decision || !metrics.footer
+      || !metrics.footerAction || !metrics.footerNote || !metrics.selectedMerchant) {
+    throw new Error("Merchant review decision workspace is incomplete at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (metrics.documentWidth > width + 1 || metrics.detail.left < -1 || metrics.detail.right > width + 1) {
+    throw new Error("Merchant review horizontal clipping at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (metrics.buttons.length !== 3 || metrics.textareas.length !== 2 || metrics.textareas.some(field => !field.visible)) {
+    throw new Error("Merchant review decision controls are missing at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  const overlaps = (a, b) => a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1;
+  for (let i = 0; i < metrics.buttons.length; i++) for (let j = i + 1; j < metrics.buttons.length; j++) {
+    if (overlaps(metrics.buttons[i], metrics.buttons[j])) {
+      throw new Error("Merchant review decision buttons overlap at " + width + "x" + height + ": " + JSON.stringify(metrics));
+    }
+  }
+  if (overlaps(metrics.footerAction, metrics.footerNote)) {
+    throw new Error("Merchant review decision note overlaps the final action at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (metrics.footer.bottom > height + 2) {
+    throw new Error("Merchant review final action is below the desktop viewport at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+}
+
 let browser;
 try {
   await new Promise(resolve => backend.listen(apiPort, "127.0.0.1", resolve));
@@ -405,28 +473,59 @@ try {
   ];
   mkdirSync("artifacts/browser-screenshots", { recursive: true });
 
-  // Admin login is public: capture it without creating an authenticated session.
+  // Admin login is public: cover the required viewport matrix in English and Arabic.
   {
-    const context=await browser.newContext({viewport:{width:1920,height:1080}});
-    const page=await context.newPage(),errors=[];
-    page.on("pageerror",error=>errors.push(error.message));
-    for(const size of [{width:1366,height:768},{width:1920,height:1080},{width:390,height:844}]){
-      await page.setViewportSize(size);
-      await page.goto(origin+"/en/admin/login",{waitUntil:"networkidle",timeout:30000});
-      await page.getByRole("heading",{name:"Administrator sign in"}).waitFor({state:"visible"});
-      await page.locator('input[type="email"]').waitFor({state:"visible"});
-      await page.locator('input[type="password"]').waitFor({state:"visible"});
-      await assertNoHorizontalOverflow(page,"/en/admin/login",size.width);
-      await assertAdminLoginLayout(page,size.width,size.height);
-      await page.screenshot({path:join("artifacts/browser-screenshots",`en-admin-login-${size.width}x${size.height}.png`),animations:"disabled"});
-      if(size.width<761) await page.screenshot({
-        path:join("artifacts/browser-screenshots",`en-admin-login-${size.width}x${size.height}-full.png`),
-        animations:"disabled",fullPage:true,
-      });
+    const loginSizes = sizes.filter(size => [1920, 1440, 1366, 1280, 390].includes(size.width));
+    for (const locale of [
+      { code: "en", heading: "Administrator sign in", direction: "ltr" },
+      { code: "ar", heading: "دخول الإدارة", direction: "rtl" }
+    ]) {
+      const context = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
+      const page = await context.newPage();
+      const errors = [];
+      page.on("pageerror", error => errors.push(error.message));
+      for (const size of loginSizes) {
+        await page.setViewportSize(size);
+        const route = "/" + locale.code + "/admin/login";
+        await page.goto(origin + route, { waitUntil: "networkidle", timeout: 30000 });
+        await page.getByRole("heading", { name: locale.heading }).waitFor({ state: "visible" });
+        await page.locator('input[type="email"]').waitFor({ state: "visible" });
+        await page.locator('input[type="password"]').waitFor({ state: "visible" });
+        const direction = await page.locator("main.admin-login-shell").getAttribute("dir");
+        if (direction !== locale.direction) throw new Error(route + " expected dir=" + locale.direction + ", received " + direction + ".");
+        await assertNoHorizontalOverflow(page, route, size.width);
+        await assertAdminLoginLayout(page, size.width, size.height);
+        await page.screenshot({
+          path: join("artifacts/browser-screenshots", locale.code + "-admin-login-" + size.width + "x" + size.height + ".png"),
+          animations: "disabled"
+        });
+        if (size.width === 390) {
+          await page.screenshot({
+            path: join("artifacts/browser-screenshots", locale.code + "-admin-login-390x844-full.png"),
+            animations: "disabled", fullPage: true
+          });
+          await page.locator('form.auth-form-fields button[type="submit"]').click();
+          await page.waitForFunction(() => document.querySelector('#email[aria-invalid="true"]')
+            && document.querySelector('#password[aria-invalid="true"]'));
+          await page.screenshot({
+            path: join("artifacts/browser-screenshots", locale.code + "-admin-login-390x844-validation.png"),
+            animations: "disabled", fullPage: true
+          });
+          const password = page.locator("#password");
+          await page.locator(".password-toggle").click();
+          if (await password.getAttribute("type") !== "text") {
+            throw new Error(route + " password visibility control did not reveal the password field.");
+          }
+          await page.locator(".password-toggle").click();
+          if (await password.getAttribute("type") !== "password") {
+            throw new Error(route + " password visibility control did not conceal the password field.");
+          }
+        }
+      }
+      if (errors.length) throw new Error("Browser errors on /" + locale.code + "/admin/login: " + errors.join("; "));
+      await context.close();
     }
-    if(errors.length) throw new Error(`Browser errors on /en/admin/login: ${errors.join("; ")}`);
-    await context.close();
-    process.stdout.write("PASS admin login at 1366x768, 1920x1080 and 390x844; desktop page and inner panels fit without scrollbars; no horizontal overflow\\n");
+    process.stdout.write("PASS admin login: five required viewports, English and Arabic RTL, validation errors and password visibility\n");
   }
 
   const routes = [
@@ -434,12 +533,15 @@ try {
     { path: "/en/merchant/reservations/scan", token: "merchant-token", heading: "Validate a pickup" , compact: true },
     { path: "/en/merchant/staff", token: "merchant-token", heading: "Staff" , compact: true },
     { path: "/en/merchant/sales", token: "merchant-token", heading: "Sales" , compact: true },
-    { path: "/en/admin/merchant-review", token: "admin-token", heading: "Merchant review" },
-    { path: "/en/admin/offer-moderation", token: "admin-token", heading: "Offer moderation" },
-    { path: "/en/admin/support-cases", token: "support-token", heading: "Support cases" , compact: true },
-    { path: "/fr/admin/support-cases", token: "support-token", heading: "Dossiers support" , compact: true },
-    { path: "/ar/admin/support-cases", token: "support-token", heading: "طلبات الدعم", direction: "rtl" , compact: true },
-    { path: "/en/admin/audit-log", token: "admin-token", heading: "Audit log" },
+    { path: "/en/admin/merchant-review", token: "admin-token", heading: "Merchant review", adminPage: true },
+    { path: "/ar/admin/merchant-review", token: "admin-token", heading: "مراجعة المتاجر", direction: "rtl", adminPage: true },
+    { path: "/en/admin/offer-moderation", token: "admin-token", heading: "Offer moderation", adminPage: true },
+    { path: "/ar/admin/offer-moderation", token: "admin-token", heading: "مراجعة العروض", direction: "rtl", adminPage: true },
+    { path: "/en/admin/support-cases", token: "support-token", heading: "Support cases", compact: true, adminPage: true },
+    { path: "/fr/admin/support-cases", token: "support-token", heading: "Dossiers support", compact: true, adminPage: true },
+    { path: "/ar/admin/support-cases", token: "support-token", heading: "طلبات الدعم", direction: "rtl", compact: true, adminPage: true },
+    { path: "/en/admin/audit-log", token: "admin-token", heading: "Audit log", adminPage: true },
+    { path: "/ar/admin/audit-log", token: "admin-token", heading: "سجل التدقيق", direction: "rtl", adminPage: true },
     { path: "/fr/reservations", token: "customer-token", heading: "Mes réservations" },
     { path: "/ar/reservations", token: "customer-token", heading: "حجوزاتي", direction: "rtl", directionSelector: '[lang="ar"]' },
     { path: "/fr/account", token: "customer-token", heading: "Profil et paramètres" },
@@ -464,13 +566,18 @@ try {
       }
       await assertNoHorizontalOverflow(page, route.path, size.width);
       if (size.width === 1366 && route.path.endsWith("/admin/merchant-review")) {
-        await page.locator(".merchantInlineBody").waitFor({ state: "visible" });
+        await page.getByTestId("merchant-review-workflow").waitFor({ state: "visible" });
       }
       if (size.width === 1366 && route.path.endsWith("/admin/support-cases")) {
-        await page.locator(".caseItem").first().click();
+        await page.getByTestId("support-case-row").first().click();
         await page.locator('[data-testid="support-case-detail"] h2').waitFor({ state: "visible" });
       }
-      if(route.path.endsWith("/admin/offer-moderation")) await assertOfferModerationLayout(page,size.width,size.height);
+      if (route.adminPage) await assertAdminStatusControls(page, route.path, size.width, size.height);
+      if (route.path.endsWith("/admin/merchant-review")) await assertMerchantReviewLayout(page, size.width, size.height);
+      if (route.path.endsWith("/admin/offer-moderation")) {
+        await assertOfferModerationLayout(page, size.width, size.height);
+        await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
+      }
       if (route.path.endsWith("/admin/support-cases")) {
         const supportLayout = await page.evaluate(() => {
           const detail = document.querySelector('[data-testid="support-case-detail"]');
