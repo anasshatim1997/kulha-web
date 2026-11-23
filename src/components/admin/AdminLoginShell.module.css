@@ -1,4 +1,4 @@
-.layout{box-sizing:border-box;min-height:calc(100svh - 64px);display:grid;grid-template-rows:auto minmax(0,1fr) auto;padding:16px clamp(18px,4vw,64px) 14px;background:radial-gradient(ellipse at 50% 40%,rgb(225 234 221 / 72%) 0,rgb(247 244 235 / 0%) 52%),#f7f4eb;color:#073324}
+.layout{box-sizing:border-box;min-height:100svh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;padding:16px clamp(18px,4vw,64px) 14px;background:radial-gradient(ellipse at 50% 40%,rgb(225 234 221 / 72%) 0,rgb(247 244 235 / 0%) 52%),#f7f4eb;color:#073324}
 .topbar{width:min(100%,1440px);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:18px}
 .brand{display:inline-flex;align-items:center;gap:12px;color:#073324;text-decoration:none}
 .word{font-size:25px;font-weight:1000;letter-spacing:-.045em;line-height:1}.word span{color:#d99b13}
