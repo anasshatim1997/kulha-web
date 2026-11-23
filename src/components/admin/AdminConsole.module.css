@@ -4032,7 +4032,7 @@
    pagination visible alongside the selected application at 720–820px tall. */
 @media (min-width: 1100px) and (max-height: 820px) {
     .shell[data-page="merchant-review"] .page {
-        padding-top: 0;
+        padding-top: calc(var(--ws-top, 64px) + 6px);
         padding-bottom: 5px;
         row-gap: 5px;
     }
