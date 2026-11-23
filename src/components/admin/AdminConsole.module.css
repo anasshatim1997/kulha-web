@@ -21,12 +21,13 @@
 .notice{background:#e5efe3;border-radius:12px;padding:11px 14px;color:#2b5a37;font-weight:850;font-size:13px;margin:0}
 .card{background:#fffdf8;border:1px solid #eee4d1;border-radius:24px;padding:clamp(18px,2vw,26px);box-shadow:0 8px 28px #60491e0b;min-width:0}
 
-/* Tabs */
-.tabs{display:flex;flex-wrap:wrap;gap:8px}
-.tab,.activeTab{border:1px solid #e3dac8;background:#fffdf8;color:#073324;border-radius:99px;padding:10px 18px;font-size:13px;font-weight:900;cursor:pointer}
-.tab:hover{background:#f3efe3}
-.activeTab{background:#073324;color:#fff;border-color:#073324}
+/* Shared compact admin status controls */
+.tabs{display:flex;align-items:center;align-content:flex-start;flex-wrap:wrap;gap:7px;min-width:0}
+.tab,.activeTab{box-sizing:border-box;display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;min-height:36px;max-width:100%;border:1px solid #ded7c9;background:#fffdf8;color:#29483b;border-radius:9px;padding:7px 12px;font-size:12px;line-height:1.2;font-weight:850;white-space:nowrap;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.tab:hover{background:#f3efe3;border-color:#b9c7bb}
+.activeTab{background:#073324;color:#fff;border-color:#073324;box-shadow:inset 0 0 0 1px #073324}
 .card>.tabs{margin-bottom:18px}
+.tabs:focus-within{outline:none}
 .list{display:grid;gap:6px}
 
 /* Pills / tones */
@@ -3431,176 +3432,53 @@
 }
 
 
-/* Offer moderation: use the space below the fixed admin bar and page heading.
-   The queue and detail surface share one measured grid row; only their content
-   scrolls. Small screens return to natural document flow. */
+/* Page layout ownership: every admin route uses natural document flow.
+   Offer moderation may size its own queue, but never the shared shell/page. */
 @media (min-width: 900px) {
-    .shell {
-        box-sizing: border-box;
-        height: 100dvh;
-        min-height: 0;
-        overflow: hidden;
-    }
-
-    .page {
-        box-sizing: border-box;
-        display: grid;
-        grid-template-rows: auto minmax(0, 1fr);
-        height: 100dvh;
-        min-height: 0;
-        padding-top: calc(var(--ws-top, 64px) + 24px);
-        padding-bottom: 18px;
-        row-gap: 20px;
-        overflow: hidden;
-    }
-
-    .offerHeader { min-width: 0; }
-
-    .offerWorkspace {
-        grid-template-columns: minmax(320px, .88fr) minmax(0, 1.12fr);
-        align-items: stretch;
-        height: 100%;
-        min-height: 0;
-        gap: clamp(18px, 2vw, 30px);
-    }
-
-    .offerPicker {
-        position: static;
-        display: grid;
-        grid-template-rows: auto minmax(0, 1fr) auto;
-        align-content: stretch;
-        align-self: stretch;
-        box-sizing: border-box;
-        width: 100%;
-        height: 100%;
-        min-height: 0;
-        max-height: none;
-        padding: 0 8px 0 0;
-        overflow: hidden;
-    }
-
-    .offerPicker .tabs {
-        position: static;
-        align-self: start;
-        padding: 0 0 14px;
-        background: transparent;
-    }
-
-    .offerQueue {
-        display: grid;
-        align-content: start;
-        align-self: stretch;
-        min-height: 0;
-        overflow-x: hidden;
-        overflow-y: auto;
-        padding: 0 4px 8px 0;
-        overscroll-behavior: contain;
-        scrollbar-width: thin;
-        scrollbar-color: #b9aa90 #f5f1e8;
-    }
-
-    .offerQueue::-webkit-scrollbar { width: 8px; }
-    .offerQueue::-webkit-scrollbar-track { background: #f5f1e8; border-radius: 99px; }
-    .offerQueue::-webkit-scrollbar-thumb { background: #b9aa90; border: 2px solid #f5f1e8; border-radius: 99px; }
-
-    .offerPicker > .pagination {
-        align-self: end;
-        margin-top: 0;
-        padding: 12px 2px 0;
-        background: #f7f1e5;
-    }
-
-    .offerPreviewCard {
-        display: flex;
-        flex-direction: column;
-        align-self: stretch;
-        box-sizing: border-box;
-        width: 100%;
-        height: 100%;
-        min-width: 0;
-        min-height: 0;
-        max-height: none;
-        overflow-x: hidden;
-        overflow-y: auto;
-        overscroll-behavior: contain;
-        padding: clamp(20px, 2vw, 30px);
-        scrollbar-width: thin;
-        scrollbar-color: #b9aa90 #f5f1e8;
-    }
-
-    .offerPreviewHeading,
-    .offerPreviewFacts,
-    .offerPreviewAlert { flex: 0 0 auto; }
-
-    .offerReviewCallout {
-        flex: 0 0 auto;
-        margin-top: auto;
-        padding: 16px 17px;
-    }
-
-    .offerEmpty {
-        flex: 1 1 auto;
-        min-height: 0;
-    }
+  .shell { min-height: 100dvh; height: auto; overflow: visible; }
+  .page {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-rows: none;
+    height: auto;
+    min-height: calc(100dvh - var(--ws-top, 64px));
+    padding-top: calc(var(--ws-top, 64px) + 28px);
+    padding-bottom: 44px;
+    row-gap: 22px;
+    overflow: visible;
+  }
+  .shell[data-page="offer-moderation"] .offerWorkspace {
+    align-items: start;
+    height: auto;
+    min-height: 0;
+  }
+  .shell[data-page="offer-moderation"] .offerPicker,
+  .shell[data-page="offer-moderation"] .offerDecision,
+  .shell[data-page="offer-moderation"] .offerPreviewCard {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+  .merchantReviewWorkspace,
+  .supportWorkspace,
+  .auditWorkspace { min-height: 0; }
+  .merchantPicker,
+  .merchantDetails,
+  .casePicker,
+  .caseDetail,
+  .auditRecordCard {
+    max-height: none;
+    overflow: visible;
+  }
 }
-
 @media (max-width: 899px) {
-    .shell {
-        height: auto;
-        min-height: 100dvh;
-        overflow: visible;
-    }
-
-    .page {
-        display: grid;
-        grid-template-rows: auto auto;
-        height: auto;
-        min-height: 0;
-        padding-bottom: 42px;
-        overflow: visible;
-    }
-
-    .offerWorkspace {
-        height: auto;
-        min-height: 0;
-        align-items: stretch;
-    }
-
-    .offerPicker {
-        display: grid;
-        grid-template-rows: auto auto auto;
-        height: auto;
-        min-height: 0;
-        max-height: none;
-        overflow: visible;
-        padding: 0;
-    }
-
-    .offerQueue {
-        min-height: 0;
-        overflow: visible;
-    }
-
-    .offerPreviewCard {
-        height: auto;
-        min-height: 300px;
-        max-height: none;
-        overflow: visible;
-    }
-
-    .offerReviewCallout { margin-top: 8px; }
+  .shell { height: auto; min-height: 100dvh; overflow: visible; }
+  .page { display: grid; grid-template-rows: none; height: auto; min-height: 0; padding-top: 24px; padding-bottom: 42px; overflow: visible; }
+  .tabs { flex-wrap: nowrap; overflow-x: auto; padding: 2px 1px 7px; scrollbar-width: thin; }
+  .tab,.activeTab { flex: 0 0 auto; }
 }
-
-@media (max-width: 620px) {
-    .offerPicker .tabs { gap: 7px; }
-    .offerPicker > .pagination {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-    .offerPreviewCard { padding: 18px; }
-    .offerPreviewHeading { grid-template-columns: 64px minmax(0, 1fr); }
-    .offerPreviewHeading > .pill { grid-column: 2; justify-self: start; }
-    .offerPreviewThumb { width: 64px; height: 64px; }
-    .offerReviewCallout { align-items: stretch; flex-direction: column; }
-    .offerReviewCallout .merchantOpenButton { width: 100%; }
+@media (max-width: 680px) {
+  .page { gap: 14px; }
+  .tabs { gap: 6px; }
+  .tab,.activeTab { min-height: 34px; padding: 6px 10px; font-size: 11px; }
 }
