@@ -518,6 +518,10 @@ try {
       await assertNoHorizontalOverflow(page, route.path, size.width);
       if(route.path.includes("/admin/")) {
         await assertCompactAdminFilters(page,route.path,size.width);
+        if(size.width<900 && !route.path.endsWith("/admin/audit-log")) {
+          const searchWidth=await page.locator(".kulhaAdminShell label").filter({has:page.locator(".kulhaAdminShell input[type=search]")}).first().evaluate(element=>element.getBoundingClientRect().width);
+          if(searchWidth<size.width-42) throw new Error(`Mobile admin search collapsed at ${size.width}px on ${route.path}: ${searchWidth}px`);
+        }
         if(size.width>=900) {
           const titleLayout=await page.evaluate(()=>{
             const heading=document.querySelector(".kulhaAdminShell main h1");
