@@ -3467,3 +3467,42 @@
   .tabs { gap: 6px; }
   .tab,.activeTab { min-height: 34px; padding: 6px 10px; font-size: 11px; }
 }
+
+/* Audit ledger follows the reference's ledger + selected-record composition. */
+@media (min-width: 900px) {
+  .auditExplorer {
+    grid-template-columns:minmax(0,1.48fr) minmax(300px,.72fr);
+    align-items:start;
+    column-gap:18px;
+  }
+  .auditExplorerHeading { grid-column:1 / -1; }
+  .auditExplorer > .auditTableCard { grid-column:1; grid-row:2; min-width:0; }
+  .auditExplorer > .auditRecordCard {
+    grid-column:2; grid-row:2;
+    position:sticky; top:calc(var(--ws-top,64px) + 18px);
+    box-sizing:border-box; min-width:0; max-height:calc(100dvh - var(--ws-top,64px) - 36px);
+    overflow:auto; padding:20px; border:1px solid #e8dfd1; border-radius:16px;
+    background:#fffdf8; box-shadow:0 8px 24px #60491e09;
+  }
+}
+.auditRecordHeader { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding-bottom:16px; border-bottom:1px solid #eee8dd; }
+.auditRecordHeader small { color:#728075; font-size:10px; font-weight:900; letter-spacing:.1em; text-transform:uppercase; }
+.auditRecordHeader h2 { margin:6px 0; color:#073324; font-size:20px; line-height:1.2; font-weight:950; }
+.auditRecordHeader code,.auditRecordFacts code { display:inline-block; max-width:100%; overflow-wrap:anywhere; color:#52685a; font-size:10px; }
+.auditRecordSection { padding-top:5px; }
+.auditRecordSection h3 { margin:18px 0 8px; color:#68786d; font-size:10px; font-weight:950; letter-spacing:.1em; text-transform:uppercase; }
+.auditRecordFacts { display:grid; gap:0; margin:0; }
+.auditRecordFacts>div { display:grid; grid-template-columns:minmax(90px,.72fr) minmax(0,1.28fr); gap:12px; padding:9px 0; border-top:1px solid #f0ece4; }
+.auditRecordFacts dt { color:#78847a; font-size:11px; }
+.auditRecordFacts dd { min-width:0; margin:0; color:#173c2c; font-size:11px; font-weight:850; text-align:end; overflow-wrap:anywhere; }
+.auditRecordNotice { display:flex; align-items:flex-start; gap:8px; margin:18px 0 0; padding-top:14px; border-top:1px solid #eee8dd; color:#6b776d; font-size:10px; line-height:1.5; }
+.auditRecordNotice svg { flex:0 0 auto; }
+.auditRecordEmpty { display:grid; justify-items:start; gap:10px; min-height:230px; align-content:center; color:#6b776d; }
+.auditRecordEmpty svg { color:#66806c; }
+.auditRecordEmpty strong { color:#173c2c; font-size:14px; }
+.auditRecordEmpty p { max-width:250px; margin:0; font-size:11px; line-height:1.5; }
+@media(max-width:899px) {
+  .auditExplorer { grid-template-columns:minmax(0,1fr); }
+  .auditExplorerHeading,.auditExplorer > .auditTableCard,.auditExplorer > .auditRecordCard { grid-column:1; grid-row:auto; }
+  .auditExplorer > .auditRecordCard { position:static; max-height:none; overflow:visible; padding:18px; border:1px solid #e8dfd1; border-radius:15px; background:#fffdf8; }
+}
