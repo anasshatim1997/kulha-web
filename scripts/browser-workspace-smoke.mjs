@@ -651,7 +651,21 @@ try {
           ? page.getByTestId("audit-search-input")
           : page.getByTestId("admin-global-search");
         await search.fill("no matching KULHA record");
-        await page.waitForTimeout(450);
+        if (route.path.endsWith("/audit-log")) {
+          await page.waitForFunction(() => document.querySelectorAll('[data-testid="audit-record-row"]').length === 0, undefined, { timeout: 8000 });
+        } else {
+          await page.waitForTimeout(450);
+        }
+        const emptyCounts = await page.evaluate(() => ({
+          merchants: document.querySelector('[data-testid="merchant-review-list"]')?.children.length ?? null,
+          offers: document.querySelector('[data-testid="offer-queue"]')?.children.length ?? null,
+          support: document.querySelector('[data-testid="support-case-list"]')?.children.length ?? null,
+          audit: document.querySelectorAll('[data-testid="audit-record-row"]').length
+        }));
+        const emptyCount = route.path.endsWith("/merchant-review") ? emptyCounts.merchants
+          : route.path.endsWith("/offer-moderation") ? emptyCounts.offers
+          : route.path.endsWith("/support-cases") ? emptyCounts.support : emptyCounts.audit;
+        if (emptyCount !== 0) throw new Error(route.path + " empty-state search returned " + emptyCount + " rows.");
         await page.screenshot({
           path: join("artifacts/browser-screenshots", `${route.path.replace(/^\/+/, "").replaceAll("/", "-")}-empty-state-1366x768.png`),
           animations: "disabled",
