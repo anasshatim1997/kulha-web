@@ -50,4 +50,60 @@ describe("reservation idempotency attempt", () => {
     clearReservationAttempt(storage, "offer-1");
     expect(storage.getItem("kulha:reservation-idempotency:offer-1")).toBeNull();
   });
+
+  it("reuses the same attempt after a quota error on storage writes", () => {
+    const quotaStorage = {
+      getItem: () => null,
+      setItem: () => { throw new Error("quota exceeded"); },
+      removeItem: () => undefined,
+    };
+    let generated = 0;
+    const createKey = () => "quota-key-" + ++generated;
+    const first = getOrCreateReservationAttempt(quotaStorage, "offer-2", "same-request", createKey);
+    const retry = getOrCreateReservationAttempt(quotaStorage, "offer-2", "same-request", createKey, first);
+
+    expect(retry).toEqual(first);
+    expect(generated).toBe(1);
+  });
+
+  it("reuses the same key after an ambiguous network failure when storage is unavailable", async () => {
+    let generated = 0;
+    const createKey = () => "ambiguous-key-" + ++generated;
+    const first = getOrCreateReservationAttempt(null, "offer-4", "same-payload", createKey);
+
+    // The server may have committed the reservation even though the client saw a network error.
+    await expect(Promise.reject(new Error("connection reset"))).rejects.toThrow("connection reset");
+
+    const retry = getOrCreateReservationAttempt(null, "offer-4", "same-payload", createKey, first);
+    expect(retry.key).toBe(first.key);
+    expect(generated).toBe(1);
+  });
+
+  it("reuses an in-memory attempt when accessing session storage itself is unavailable", () => {
+    let generated = 0;
+    const createKey = () => "no-storage-key-" + ++generated;
+    const first = getOrCreateReservationAttempt(null, "offer-3", "same-request", createKey);
+    const retry = getOrCreateReservationAttempt(null, "offer-3", "same-request", createKey, first);
+
+    expect(retry).toEqual(first);
+    expect(generated).toBe(1);
+  });
+
+  it("continues checkout when session storage cannot persist a new attempt", () => {
+    const unavailableStorage = {
+      getItem: () => { throw new Error("storage disabled"); },
+      setItem: () => { throw new Error("storage quota exceeded"); },
+      removeItem: () => { throw new Error("storage disabled"); },
+    };
+
+    let generated = 0;
+    const createKey = () => "memory-key-" + ++generated;
+    const first = getOrCreateReservationAttempt(unavailableStorage, "offer-1", "fingerprint", createKey);
+    const retry = getOrCreateReservationAttempt(unavailableStorage, "offer-1", "fingerprint", createKey, first);
+
+    expect(first).toEqual({ fingerprint: "fingerprint", key: "memory-key-1" });
+    expect(retry).toEqual(first);
+    expect(generated).toBe(1);
+  });
+
 });
