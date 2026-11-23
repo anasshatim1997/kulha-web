@@ -253,7 +253,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const switchTab=(apply:()=>void)=>{setLoading(true);setFailed(false);apply();};
 
     const searchPlaceholder=page==="merchant-review"?t.searchMerchant:page==="offer-moderation"?t.searchOffers:page==="support-cases"?t.searchCases:t.searchAudit;
-    const topbar=<div className={styles.topbar}>{page!=="audit-log"&&<label className={styles.search}><Search size={17} aria-hidden="true"/><span className="sr-only">{searchPlaceholder}</span><input type="search" data-testid="admin-global-search" value={query} onChange={e=>{setQuery(e.target.value);}} placeholder={searchPlaceholder}/></label>}</div>;
+    const topbar=<div className={styles.topbar} data-testid="admin-console-topbar">{page!=="audit-log"&&<label className={styles.search}><Search size={17} aria-hidden="true"/><span className="sr-only">{searchPlaceholder}</span><input type="search" data-testid="admin-global-search" value={query} onChange={e=>{setQuery(e.target.value);}} placeholder={searchPlaceholder}/></label>}</div>;
     const frame=(content:ReactNode)=><div className={`${styles.shell} kulhaAdminShell`} data-page={page} dir={locale==="ar"?"rtl":"ltr"}>{topbar}<main className={styles.page}>{content}</main></div>;
 
     if(loading)return frame(<><div className={styles.header}><div><div className={styles.skeleton}/><div className={styles.skeletonWide}/></div></div><div className={styles.skeletonPanel}/></>);
@@ -286,7 +286,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const tabCount=(value:string)=>value==="PENDING"?(merchantStatus==="PENDING"?merchants?.total:tabCounts.pending):value==="INFO_REQUIRED"?(merchantStatus==="INFO_REQUIRED"?merchants?.total:tabCounts.info):merchantStatus===value?merchants?.total:null;
 
     return frame(<>
-        <header className={`${styles.header} ${page==="offer-moderation"?styles.offerHeader:""}`}>
+        <header className={`${styles.header} ${page==="offer-moderation"?styles.offerHeader:""}`} data-testid="admin-page-heading">
             <div className={styles.headerCopy}><h1>{title}</h1><p>{lead}</p></div>
             {page==="offer-moderation"&&offers&&<div className={styles.offerMetrics}>
                 <article><strong>{needsReviewCount}</strong><span>{t.needsReview}</span></article>
