@@ -65,7 +65,7 @@ export function AdminLoginShell({ locale = "fr", title, lead, children }: AdminL
             </header>
 
             <div className={styles.stage}>
-                <section className={styles.brandPanel} aria-label={t.workspace}>
+                <section className={styles.brandPanel} aria-label={t.workspace} data-testid="admin-login-brand-panel">
                     <div className={styles.panelEyebrow}><span />{t.eyebrow}</div>
                     <h2>{t.headline}</h2>
                     <p className={styles.intro}>{t.intro}</p>
@@ -83,7 +83,7 @@ export function AdminLoginShell({ locale = "fr", title, lead, children }: AdminL
                     <div className={styles.restricted}><ShieldCheck size={16} aria-hidden="true" />{t.restricted}</div>
                 </section>
 
-                <section className={styles.accessPanel} aria-labelledby="admin-login-title">
+                <section className={styles.accessPanel} aria-labelledby="admin-login-title" data-testid="admin-login-access-panel">
                     <div className={styles.accessCard}>
                         <div className={styles.lockTile} aria-hidden="true"><ShieldCheck size={21} strokeWidth={1.9} /></div>
                         <span className={styles.cardEyebrow}>{t.eyebrow}</span>
