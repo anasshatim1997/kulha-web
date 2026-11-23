@@ -3444,7 +3444,7 @@
     min-height: 0;
     height: auto;
     margin-inline: auto;
-    padding: 26px clamp(22px, 2.8vw, 44px) 64px;
+    padding: calc(var(--ws-top, 64px) + 26px) clamp(22px, 2.8vw, 44px) 64px;
     gap: 18px;
     overflow: visible;
 }
@@ -3683,7 +3683,7 @@
     grid-template-columns: minmax(255px, .72fr) minmax(0, 1.28fr);
     align-items: stretch;
     gap: 18px;
-    height: clamp(360px, calc(100dvh - 360px), 720px);
+    height: clamp(420px, calc(100dvh - 228px), 900px);
     min-height: 0;
 }
 .page[data-admin-page="support-cases"] .casePicker {
@@ -3783,10 +3783,20 @@
 .page[data-admin-page="audit-log"] .auditTableCard .table { overflow-x: auto; }
 .page[data-admin-page="audit-log"] .auditTableCard .table table {
     width: 100%;
-    min-width: 690px;
+    min-width: 0;
     table-layout: fixed;
     font-size: 11px;
 }
+.page[data-admin-page="audit-log"] .auditTableCard .table th:nth-child(1),
+.page[data-admin-page="audit-log"] .auditTableCard .table td:nth-child(1) { width: 12%; }
+.page[data-admin-page="audit-log"] .auditTableCard .table th:nth-child(2),
+.page[data-admin-page="audit-log"] .auditTableCard .table td:nth-child(2) { width: 14%; }
+.page[data-admin-page="audit-log"] .auditTableCard .table th:nth-child(3),
+.page[data-admin-page="audit-log"] .auditTableCard .table td:nth-child(3) { width: 15%; }
+.page[data-admin-page="audit-log"] .auditTableCard .table th:nth-child(4),
+.page[data-admin-page="audit-log"] .auditTableCard .table td:nth-child(4) { width: 14%; }
+.page[data-admin-page="audit-log"] .auditTableCard .table th:nth-child(6),
+.page[data-admin-page="audit-log"] .auditTableCard .table td:nth-child(6) { width: 11%; }
 .page[data-admin-page="audit-log"] .auditTableCard .table th { padding: 0 9px 10px; font-size: 9px; }
 .page[data-admin-page="audit-log"] .auditTableCard .table td {
     padding: 11px 9px;
@@ -3851,7 +3861,10 @@
     .page[data-admin-page="audit-log"] .auditRecordCard { order: 2; }
     .merchantInlineBody, .offerInlineBody { grid-template-columns: minmax(0, 1fr); }
     .page[data-admin-page="merchant-review"] .merchantModalFooter,
-    .page[data-admin-page="offer-moderation"] .merchantModalFooter { align-items: stretch; flex-direction: column; }
+    .page[data-admin-page="offer-moderation"] .merchantModalFooter {@media (max-width: 899px) {
+    .page[data-admin-page="audit-log"] .auditTableCard .table table { min-width: 690px; }
+}
+ align-items: stretch; flex-direction: column; }
     .page[data-admin-page="merchant-review"] .merchantModalFooter p,
     .page[data-admin-page="offer-moderation"] .merchantModalFooter p { max-width: none; }
     .page[data-admin-page="merchant-review"] .merchantModalFooter .primary,
