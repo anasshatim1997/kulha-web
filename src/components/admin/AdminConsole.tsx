@@ -412,6 +412,8 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                     {selectedOffer.reportedCount>0?<div className={styles.offerModalReport}><strong>{selectedOffer.reportedCount} {t.reportReceived}</strong><span>{t.status}: {offerLabel(selectedOffer.status)}</span></div>:<p className={styles.offerModalNoReports}>{t.noReports}</p>}
                                     {selectedOffer.foodNotes&&<div className={styles.offerModalFoodNotes}><strong>{t.foodInfo}</strong><p>{selectedOffer.foodNotes}</p></div>}
                                 </section>
+                            </div>
+                            <div className={styles.merchantModalColumn}>
                                 <section className={styles.merchantModalSection+" "+styles.offerModalReason} data-testid="offer-decision-reason">
                                     <h3>{t.reason}</h3>
                                     <div className={styles.reasonChips}>
