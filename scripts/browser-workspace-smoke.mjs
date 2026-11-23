@@ -224,8 +224,8 @@ const backend = createServer(async (request, response) => {
   }
   if (path === "/admin/support-cases" && method === "GET") {
     const status = url.searchParams.get("status");
-    const rows = supportCaseRows.filter(item => item.reference === supportCase.reference
-      ? item.status === caseStatus : item.status === status);
+    const rows = supportCaseRows.filter(item =>
+      item.reference === supportCase.reference ? caseStatus === status : item.status === status);
     return json(response, page(rows));
   }
   if (path.startsWith("/admin/support-cases/") && method === "GET") {
