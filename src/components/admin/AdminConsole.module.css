@@ -4192,7 +4192,7 @@
         display: grid;
         grid-template-columns: minmax(260px, .88fr) minmax(0, 1.12fr);
         align-items: stretch;
-        height: clamp(420px, calc(100dvh - 260px), 500px);
+        height: clamp(520px, calc(100dvh - 208px), 560px);
         min-height: 0;
         gap: 14px;
     }
