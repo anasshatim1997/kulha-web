@@ -3890,6 +3890,21 @@
     .merchantInlineBody, .offerInlineBody { grid-template-columns: minmax(0, 1fr); }
     .page[data-admin-page="merchant-review"] .merchantModalFooter,
     .page[data-admin-page="offer-moderation"] .merchantModalFooter {@media (max-width: 899px) {
+    .topbar {
+        box-sizing: border-box;
+        width: 100%;
+        height: 56px;
+        min-height: 56px;
+        padding: 8px 14px;
+    }
+    .search {
+        box-sizing: border-box;
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+        height: 40px;
+    }
+    .search input { width: 100%; min-width: 0; }
     .page[data-admin-page="audit-log"] .auditTableCard .table table { min-width: 690px; }
 }
  align-items: stretch; flex-direction: column; }
