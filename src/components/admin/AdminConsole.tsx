@@ -540,12 +540,12 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     <div className={styles.table}>
                         <table><thead><tr><th>{t.when.toUpperCase()}</th><th>{t.person.toUpperCase()}</th><th>{t.action.toUpperCase()}</th><th>{t.record.toUpperCase()}</th><th>{t.reason.toUpperCase()}</th><th>{t.result.toUpperCase()}</th></tr></thead>
                             <tbody>{auditItems.map(item=><tr key={item.id} data-testid="audit-record-row" tabIndex={0} aria-label={`${auditActionLabel(item.action,locale)} · ${item.actorName}`} aria-pressed={selectedAuditId===item.id} className={selectedAuditId===item.id?styles.auditSelectedRow:""} onClick={()=>{setSelectedAuditId(item.id);setAuditModalOpen(true);}} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();setSelectedAuditId(item.id);setAuditModalOpen(true);}}}>
-                                <td>{shortDateTime(item.createdAt,locale)}</td>
-                                <td><strong>{item.actorName}</strong></td>
-                                <td><strong>{auditActionLabel(item.action,locale)}</strong><small>{item.action}</small></td>
-                                <td><strong>{item.targetType}</strong><small>{item.targetId}</small></td>
-                                <td><span className={styles.auditTableReason}>{item.reason||"—"}</span></td>
-                                <td>{resultPill(item.result)}</td>
+                                <td data-label={t.when}>{shortDateTime(item.createdAt,locale)}</td>
+                                <td data-label={t.person}><strong>{item.actorName}</strong></td>
+                                <td data-label={t.action}><strong>{auditActionLabel(item.action,locale)}</strong><small>{item.action}</small></td>
+                                <td data-label={t.record}><strong>{item.targetType}</strong><small>{item.targetId}</small></td>
+                                <td data-label={t.reason}><span className={styles.auditTableReason}>{item.reason||"—"}</span></td>
+                                <td data-label={t.result}>{resultPill(item.result)}</td>
                             </tr>)}</tbody>
                         </table>
                     </div>
