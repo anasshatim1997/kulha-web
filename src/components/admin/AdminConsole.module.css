@@ -3556,3 +3556,46 @@
   .merchantInlineFooter p { display:flex; gap:8px; margin:0; color:#66766b; font-size:10px; line-height:1.45; }
   .merchantInlineFooter .primary { width:100%; min-height:44px; }
 }
+
+/* Offer moderation keeps reports and the moderation decision in the selected-offer panel. */
+@media (min-width: 900px) {
+  .offerWorkspace { height:auto; min-height:0; align-items:start; }
+  .offerInlineBody {
+    display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
+    align-items:start; gap:12px; min-width:0; margin-top:16px;
+  }
+  .offerInlineBody .merchantModalColumn { gap:12px; }
+  .offerInlineBody .merchantModalSection,
+  .offerInlineBody .merchantDecision { padding:14px; border-radius:13px; }
+  .offerInlineBody .merchantModalSection > h3,
+  .offerInlineBody .merchantDecision > h3 { margin-bottom:10px; font-size:11px; }
+  .offerInlineBody .offerActionRow { display:flex; flex-wrap:wrap; gap:6px; }
+  .offerInlineBody .offerAction,
+  .offerInlineBody .offerActionActive { min-height:34px; padding:7px 10px; border-radius:8px; font-size:10px; }
+  .offerInlineBody .reasonChips { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; }
+  .offerInlineBody .reasonChip,
+  .offerInlineBody .reasonChipActive { min-height:30px; padding:6px 9px; border-radius:8px; font-size:10px; }
+  .offerInlineBody .field textarea { min-height:66px; border-radius:9px; }
+  .offerInlineFooter {
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    margin-top:14px; padding-top:13px; border-top:1px solid #eee8dd;
+  }
+  .offerInlineFooter p { display:flex; align-items:flex-start; gap:8px; max-width:68%; margin:0; color:#66766b; font-size:10px; line-height:1.45; }
+  .offerInlineFooter p svg { flex:0 0 auto; }
+  .offerInlineFooter .primary { min-width:160px; min-height:42px; border-radius:10px; }
+}
+@media (max-width: 1099px) {
+  .offerInlineBody { grid-template-columns:minmax(0,1fr); }
+}
+@media (max-width: 899px) {
+  .offerInlineBody { display:grid; grid-template-columns:minmax(0,1fr); gap:12px; margin-top:14px; }
+  .offerInlineBody .merchantModalSection,
+  .offerInlineBody .merchantDecision { padding:14px; border-radius:13px; }
+  .offerInlineBody .merchantModalSection > h3,
+  .offerInlineBody .merchantDecision > h3 { margin-bottom:10px; font-size:11px; }
+  .offerInlineBody .offerActionRow { display:flex; flex-wrap:wrap; gap:6px; }
+  .offerInlineBody .reasonChips { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; }
+  .offerInlineFooter { display:grid; gap:12px; margin-top:12px; padding-top:12px; border-top:1px solid #eee8dd; }
+  .offerInlineFooter p { display:flex; gap:8px; margin:0; color:#66766b; font-size:10px; line-height:1.45; }
+  .offerInlineFooter .primary { width:100%; min-height:44px; }
+}
