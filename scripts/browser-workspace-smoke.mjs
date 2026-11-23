@@ -51,6 +51,29 @@ const supportCase = {
   assigneeName: "Support Agent", hiddenOffer: false, createdAt: now.toISOString(),
   updatedAt: now.toISOString(), resolvedAt: null,
 };
+const merchantRows = [
+  merchant,
+  { ...merchant, id: "00000000-0000-4000-8000-000000000111", name: "Épicerie Atlas", businessType: "GROCERY", ownerEmail: "atlas@kulha.test", city: "Rabat", status: "PENDING" },
+  { ...merchant, id: "00000000-0000-4000-8000-000000000112", name: "Pâtisserie Zayna", businessType: "PASTRY", ownerEmail: "zayna@kulha.test", city: "Marrakech", status: "INFO_REQUIRED" },
+];
+const supportCases = [
+  supportCase,
+  { ...supportCase, id: "00000000-0000-4000-8000-000000000121", reference: "SUP-2026-0002", category: "RESERVATION", subject: "Reservation pickup window mismatch", priority: "MEDIUM" },
+  { ...supportCase, id: "00000000-0000-4000-8000-000000000122", reference: "SUP-2026-0003", category: "MERCHANT", subject: "Merchant cannot update opening hours", priority: "LOW" },
+  { ...supportCase, id: "00000000-0000-4000-8000-000000000123", reference: "SUP-2026-0004", category: "FOOD_SAFETY", subject: "Packaging condition reported", priority: "HIGH" },
+];
+const auditRows = Array.from({ length: 9 }, (_, index) => ({
+  id: `00000000-0000-4000-8000-${String(500 + index).padStart(12, "0")}`,
+  actorUserId: actorId,
+  actorName: index % 3 === 0 ? "Nadia El Amrani" : index % 3 === 1 ? "Youssef Bennani" : "Support Agent",
+  action: ["MERCHANT_APPROVED", "OFFER_SUSPENDED", "SUPPORT_CASE_RESOLVED", "SUPPORT_CUSTOMER_DETAILS_REVEALED", "AUDIT_LOG_EXPORTED"][index % 5],
+  targetType: ["MERCHANT", "OFFER", "SUPPORT_CASE", "CUSTOMER", "AUDIT_EXPORT"][index % 5],
+  targetId: [merchant.id, offer.id, supportCase.reference, customerId, "audit-export-2026-11-23"][index % 5],
+  reason: index === 0 ? "Business registration, address and owner identity were checked against the submitted application." : index === 1 ? "Offer temporarily hidden while allergen declarations are verified with the merchant." : index === 2 ? "Customer received a resolution after the pickup and food-safety details were reviewed." : index === 3 ? "Authorized support disclosure for a food-safety investigation; customer details were accessed only for this case." : "Operational review completed and action recorded.",
+  result: index === 4 ? "DENIED" : index === 7 ? "FAILED" : "SUCCESS",
+  correlationId: `kulha-admin-smoke-${index + 1}`,
+  createdAt: new Date(now.getTime() - index * 17 * 60000).toISOString(),
+}));
 let timeline = [{
   id: "00000000-0000-4000-8000-000000000104", authorType: "CUSTOMER",
   authorUserId: customerId, authorLabel: "Customer", visibility: "CUSTOMER",
@@ -146,7 +169,7 @@ const backend = createServer(async (request, response) => {
   if (path === "/merchants/me/sales/export") return csv(response, "kulha-sales.csv");
 
   if (path === "/admin/merchants" && method === "GET") {
-    const rows = url.searchParams.get("status") === "PENDING" && merchantStatus === "PENDING" ? [merchant] : [];
+    const rows = url.searchParams.get("status") === "PENDING" && merchantStatus === "PENDING" ? merchantRows.filter(item => item.status === "PENDING") : merchantRows.filter(item => item.status === url.searchParams.get("status"));
     return json(response, page(rows));
   }
   if (path === `/admin/merchants/${merchant.id}` && method === "GET") return json(response, merchant);
@@ -165,7 +188,7 @@ const backend = createServer(async (request, response) => {
     return json(response, {});
   }
   if (path === "/admin/support-cases" && method === "GET") {
-    const rows = url.searchParams.get("status") === caseStatus ? [supportCase] : [];
+    const rows = url.searchParams.get("status") === caseStatus ? supportCases : [];
     return json(response, page(rows));
   }
   if (path === `/admin/support-cases/${supportCase.reference}` && method === "GET") {
@@ -191,7 +214,7 @@ const backend = createServer(async (request, response) => {
     supportCase.status = caseStatus;
     return json(response, {});
   }
-  if (path === "/admin/audit-log" && method === "GET") return json(response, page([]));
+  if (path === "/admin/audit-log" && method === "GET") return json(response, page(auditRows));
   if (path === "/admin/audit-log/export") return csv(response, "kulha-audit-log.csv");
 
   if (path === "/reservations" && method === "GET") return json(response, page([]));
@@ -452,6 +475,14 @@ try {
         throw new Error(`Workspace did not render ${route.path}; current URL=${page.url()}; body=${bodyText}; backend requests=${JSON.stringify(requests.slice(-12))}`);
       }
       await assertNoHorizontalOverflow(page, route.path, size.width);
+      if (size.width === 1366 && route.path.endsWith("/admin/merchant-review")) {
+        await page.locator(".merchantListItem").first().click();
+        await page.locator(".merchantDetails").waitFor({ state: "visible" });
+      }
+      if (size.width === 1366 && route.path.endsWith("/admin/support-cases")) {
+        await page.locator(".caseItem").first().click();
+        await page.locator('[data-testid="support-case-detail"] h2').waitFor({ state: "visible" });
+      }
       if(route.path.endsWith("/admin/offer-moderation")) await assertOfferModerationLayout(page,size.width,size.height);
       if (route.path.endsWith("/admin/support-cases")) {
         const supportLayout = await page.evaluate(() => {
