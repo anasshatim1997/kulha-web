@@ -3444,7 +3444,7 @@
     min-height: 0;
     height: auto;
     margin-inline: auto;
-    padding: calc(var(--ws-top, 64px) + 26px) clamp(22px, 2.8vw, 44px) 64px;
+    padding: 26px clamp(22px, 2.8vw, 44px) 64px;
     gap: 18px;
     overflow: visible;
 }
@@ -3833,7 +3833,7 @@
     .page[data-admin-page="offer-moderation"] .offerWorkspace { grid-template-columns: minmax(250px, .8fr) minmax(0, 1.2fr); }
 }
 @media (max-width: 899px) {
-    .page { padding: calc(var(--ws-top, 64px) + 20px) 18px 48px; gap: 16px; }
+    .page { padding: 20px 18px 48px; gap: 16px; }
     .page[data-admin-page="merchant-review"] .merchantReviewWorkspace,
     .page[data-admin-page="offer-moderation"] .offerWorkspace,
     .page[data-admin-page="support-cases"] .supportWorkspace,
@@ -3863,7 +3863,7 @@
     .page[data-admin-page="support-cases"] .caseHistory { min-height: 0; overflow: visible; }
 }
 @media (max-width: 620px) {
-    .page { padding: calc(var(--ws-top, 64px) + 14px) 13px 38px; gap: 14px; }
+    .page { padding: 14px 13px 38px; gap: 14px; }
     .header h1 { font-size: 28px; }
     .tabs { gap: 6px; }
     .tab, .activeTab { height: 32px; min-height: 32px; padding-inline: 10px; font-size: 11px; }
