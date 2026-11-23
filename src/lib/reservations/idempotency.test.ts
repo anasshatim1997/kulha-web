@@ -51,6 +51,21 @@ describe("reservation idempotency attempt", () => {
     expect(storage.getItem("kulha:reservation-idempotency:offer-1")).toBeNull();
   });
 
+  it("reuses the same attempt after a quota error on storage writes", () => {
+    const quotaStorage = {
+      getItem: () => null,
+      setItem: () => { throw new Error("quota exceeded"); },
+      removeItem: () => undefined,
+    };
+    let generated = 0;
+    const createKey = () => "quota-key-" + ++generated;
+    const first = getOrCreateReservationAttempt(quotaStorage, "offer-2", "same-request", createKey);
+    const retry = getOrCreateReservationAttempt(quotaStorage, "offer-2", "same-request", createKey, first);
+
+    expect(retry).toEqual(first);
+    expect(generated).toBe(1);
+  });
+
   it("continues checkout when session storage cannot persist a new attempt", () => {
     const unavailableStorage = {
       getItem: () => { throw new Error("storage disabled"); },
