@@ -347,7 +347,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             {value:"SUSPENDED",label:t.hiddenFilter,count:hiddenOfferCount}
                         ].map(tab=><button key={tab.value||"all"} type="button" role="tab" aria-selected={offerStatus===tab.value} className={offerStatus===tab.value?styles.activeTab:styles.tab} onClick={()=>{setOfferStatus(tab.value);setOfferPage(0);setSelectedOffer(null);setReason("");}}>{tab.label} · {tab.count}</button>)}
                     </div>
-                    <div className={styles.offerQueue}>
+                    <div className={styles.offerQueue} data-testid="offer-moderation-queue">
                         {offerItems.map(item=>{const d=discount(item);return <button type="button" key={item.id} aria-pressed={selectedOffer?.id===item.id} className={selectedOffer?.id===item.id?styles.offerItemSelected:styles.offerItem} onClick={()=>{setSelectedOffer(item);setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");}}>
                             <span className={styles.offerThumb}>{item.imageUrl?<OfferImage src={item.imageUrl} alt="" lazy/>:<ImageIcon size={20} aria-hidden="true"/>}</span>
                             <span className={styles.offerCopy}><strong>{item.title}</strong><small>{item.shopName} · {item.city}</small><span className={styles.offerTags}>
