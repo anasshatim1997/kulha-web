@@ -3726,6 +3726,15 @@
     background: #fffdf8;
     box-shadow: 0 5px 20px rgb(38 49 34 / 5%);
 }
+.page[data-admin-page="support-cases"] .caseDetailEmpty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.page[data-admin-page="support-cases"] .caseDetailEmpty .empty {
+    margin: 0;
+    text-align: center;
+}
 .page[data-admin-page="support-cases"] .caseHistory {
     min-width: 0;
     min-height: 0;
@@ -3869,6 +3878,12 @@
     .page[data-admin-page="support-cases"] .caseDetail { height: auto; min-height: 0; max-height: none; overflow: visible; }
     .page[data-admin-page="support-cases"] .supportWorkspace { min-height: 0; }
     .page[data-admin-page="support-cases"] .caseDetail { display: block; }
+    .page[data-admin-page="support-cases"] .caseDetailEmpty {
+        display: flex;
+        min-height: 220px;
+        align-items: center;
+        justify-content: center;
+    }
     .page[data-admin-page="support-cases"] .caseHistory { overflow: visible; }
     .page[data-admin-page="audit-log"] .auditTableCard { order: 1; }
     .page[data-admin-page="audit-log"] .auditRecordCard { order: 2; }
