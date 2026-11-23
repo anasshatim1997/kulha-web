@@ -4942,9 +4942,9 @@
     }
 
     .shell[data-page="offer-moderation"] .offerModalReason .field textarea {
-        height: 34px;
-        min-height: 34px;
-        max-height: 34px;
+        height: 30px;
+        min-height: 30px;
+        max-height: 30px;
         padding: 4px 6px;
         border-radius: 6px;
         font-size: 8px;
