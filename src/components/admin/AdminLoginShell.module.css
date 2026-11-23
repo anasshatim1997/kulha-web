@@ -1,19 +1,19 @@
-.layout{box-sizing:border-box;min-height:100svh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;padding:24px clamp(18px,4vw,64px) 22px;background:radial-gradient(ellipse at 50% 40%,rgb(225 234 221 / 72%) 0,rgb(247 244 235 / 0%) 52%),#f7f4eb;color:#073324}
+.layout{box-sizing:border-box;min-height:calc(100svh - 64px);display:grid;grid-template-rows:auto minmax(0,1fr) auto;padding:16px clamp(18px,4vw,64px) 14px;background:radial-gradient(ellipse at 50% 40%,rgb(225 234 221 / 72%) 0,rgb(247 244 235 / 0%) 52%),#f7f4eb;color:#073324}
 .topbar{width:min(100%,1440px);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:18px}
 .brand{display:inline-flex;align-items:center;gap:12px;color:#073324;text-decoration:none}
 .word{font-size:25px;font-weight:1000;letter-spacing:-.045em;line-height:1}.word span{color:#d99b13}
 .brandDivider{width:1px;height:25px;background:#d7cebb}.brandLabel{color:#66776a;font-size:10px;font-weight:950;letter-spacing:.18em}
 .restricted{display:inline-flex;align-items:center;gap:8px;min-height:34px;padding:0 11px;border:1px solid #ded6c6;border-radius:8px;background:rgb(255 253 248 / 80%);color:#52685a;font-size:11px;font-weight:800}.restricted svg{color:#3d654b;flex:0 0 auto}
-.stage{display:grid;place-items:center;min-width:0;padding:32px 0}
-.portal{box-sizing:border-box;width:min(100%,492px);padding:clamp(26px,4vw,42px);border:1px solid #e6dece;border-radius:22px;background:#fffdf8;box-shadow:0 24px 70px rgb(35 53 38 / 10%),0 3px 12px rgb(35 53 38 / 5%)}
-.portalMark{display:grid;place-items:center;width:48px;height:48px;margin-bottom:24px;border:1px solid #dce6d9;border-radius:13px;background:#edf3eb;color:#174c32}
+.stage{display:grid;place-items:center;min-width:0;padding:16px 0}
+.portal{box-sizing:border-box;width:min(100%,492px);padding:clamp(22px,3vw,32px);border:1px solid #e6dece;border-radius:22px;background:#fffdf8;box-shadow:0 24px 70px rgb(35 53 38 / 10%),0 3px 12px rgb(35 53 38 / 5%)}
+.portalMark{display:grid;place-items:center;width:48px;height:48px;margin-bottom:16px;border:1px solid #dce6d9;border-radius:13px;background:#edf3eb;color:#174c32}
 .eyebrow{margin:0 0 9px;color:#56715e;font-size:11px;font-weight:950;letter-spacing:.11em;text-transform:uppercase}
 .portal h1{margin:0;color:#073324;font-size:clamp(27px,3vw,34px);font-weight:950;line-height:1.12;letter-spacing:-.035em}
-.lead{margin:11px 0 26px;color:#68776b;font-size:14px;line-height:1.6}
-.form{width:100%;min-width:0}.form :global(.auth-form-fields){gap:16px}
-.form :global(.auth-form-fields input:not([type=checkbox])){box-sizing:border-box;min-height:48px;border-radius:10px}
-.form :global(.auth-form-fields button[type=submit]){min-height:49px;border-radius:10px}
-.assurance{display:flex;align-items:flex-start;gap:9px;margin-top:22px;padding-top:17px;border-top:1px solid #eee8dc;color:#68776b}
+.lead{margin:8px 0 18px;color:#68776b;font-size:14px;line-height:1.6}
+.form{width:100%;min-width:0}.form :global(.auth-form-fields){gap:12px}
+.form :global(.auth-form-fields input:not([type=checkbox])){box-sizing:border-box;min-height:44px;border-radius:9px}
+.form :global(.auth-form-fields button[type=submit]){min-height:45px;border-radius:9px}
+.assurance{display:flex;align-items:flex-start;gap:9px;margin-top:16px;padding-top:13px;border-top:1px solid #eee8dc;color:#68776b}
 .assurance svg{flex:0 0 auto;margin-top:1px;color:#567a60}.assurance p{margin:0;font-size:11px;line-height:1.5}
 .footer{display:flex;justify-content:center;align-items:center;gap:7px;color:#728075;font-size:12px;text-align:center}
 .footer a{color:#174c32;font-weight:900;text-decoration:underline;text-underline-offset:3px}
