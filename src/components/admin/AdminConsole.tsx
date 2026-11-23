@@ -587,7 +587,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                 <section className={styles.auditTableCard}>
                     <div className={styles.table}>
                         <table><thead><tr><th>{t.when.toUpperCase()}</th><th>{t.person.toUpperCase()}</th><th>{t.action.toUpperCase()}</th><th>{t.record.toUpperCase()}</th><th>{t.reason.toUpperCase()}</th><th>{t.result.toUpperCase()}</th></tr></thead>
-                            <tbody>{auditItems.map(item=><tr key={item.id} tabIndex={0} aria-haspopup="dialog" aria-label={`${auditActionLabel(item.action,locale)} · ${item.actorName}`} aria-selected={auditModalOpen&&selectedAuditId===item.id} className={auditModalOpen&&selectedAuditId===item.id?styles.auditSelectedRow:""} onClick={()=>{setSelectedAuditId(item.id);setAuditModalOpen(true);}} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();setSelectedAuditId(item.id);setAuditModalOpen(true);}}}>
+                            <tbody>{auditItems.map(item=><tr key={item.id} tabIndex={0} aria-label={`${auditActionLabel(item.action,locale)} · ${item.actorName}`} aria-pressed={auditModalOpen&&selectedAuditId===item.id} className={auditModalOpen&&selectedAuditId===item.id?styles.auditSelectedRow:""} onClick={()=>{setSelectedAuditId(item.id);setAuditModalOpen(true);}} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();setSelectedAuditId(item.id);setAuditModalOpen(true);}}}>
                                 <td>{shortDateTime(item.createdAt,locale)}</td>
                                 <td><strong>{item.actorName}</strong></td>
                                 <td><strong>{auditActionLabel(item.action,locale)}</strong><small>{item.action}</small></td>
@@ -604,47 +604,35 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     </div>
                 </section>
             </section>
-            {auditModalOpen&&selectedAudit&&<div className={styles.auditModalBackdrop} role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setAuditModalOpen(false);}}>
-                <section className={styles.auditModal} role="dialog" aria-modal="true" aria-labelledby="audit-modal-title" onMouseDown={event=>event.stopPropagation()}>
-                    <header className={styles.auditModalHeader}>
-                        <div className={styles.auditModalTitle}>
-                            <small>{auditUi.eventDetails}</small>
-                            <h2 id="audit-modal-title">{auditActionLabel(selectedAudit.action,locale)}</h2>
-                            <p>{selectedAudit.action}</p>
-                        </div>
-                        <div className={styles.auditModalHeaderActions}>
-                            {resultPill(selectedAudit.result)}
-                            <button type="button" className={styles.auditModalClose} aria-label={auditUi.close} autoFocus onClick={()=>setAuditModalOpen(false)}><X size={20} aria-hidden="true"/></button>
-                        </div>
+            {audit&&<section className={styles.auditRecordCard} aria-label={auditUi.eventDetails}>
+                {!selectedAudit||!auditModalOpen?<div className={styles.auditRecordEmpty}><ShieldCheck size={22} aria-hidden="true"/><strong>{auditUi.eventDetails}</strong><p>{locale==="fr"?"Sélectionnez une ligne du journal pour consulter les détails.":locale==="ar"?"اختر سجلاً من الجدول لعرض التفاصيل.":"Select an audit row to inspect its details."}</p></div>:<>
+                    <header className={styles.auditRecordHeader}>
+                        <div><small>{auditUi.eventDetails}</small><h2>{auditActionLabel(selectedAudit.action,locale)}</h2><code>{selectedAudit.action}</code></div>
+                        {resultPill(selectedAudit.result)}
                     </header>
-                    <div className={styles.auditModalBody}>
-                        <section className={styles.auditModalPanel}>
-                            <h3>{auditUi.adminAction}</h3>
-                            <dl className={styles.auditModalFacts}>
-                                <div><dt>{t.person}</dt><dd>{selectedAudit.actorName}</dd></div>
-                                <div><dt>{auditUi.identifier}</dt><dd>{selectedAudit.actorUserId}</dd></div>
-                                <div><dt>{auditUi.dateTime}</dt><dd>{dateTime(selectedAudit.createdAt,locale)}</dd></div>
-                                <div><dt>{auditUi.category}</dt><dd>{auditCategoryLabel(selectedAudit.action,locale)}</dd></div>
-                                <div><dt>{auditUi.technicalAction}</dt><dd><code>{selectedAudit.action}</code></dd></div>
-                                <div><dt>{t.result}</dt><dd>{resultPill(selectedAudit.result)}</dd></div>
-                            </dl>
-                        </section>
-                        <section className={styles.auditModalPanel}>
-                            <h3>{auditUi.affected}</h3>
-                            <dl className={styles.auditModalFacts}>
-                                <div><dt>{auditUi.entityType}</dt><dd>{selectedAudit.targetType}</dd></div>
-                                <div><dt>{auditUi.identifier}</dt><dd>{selectedAudit.targetId}</dd></div>
-                                <div className={styles.auditModalReason}><dt>{t.reason}</dt><dd>{selectedAudit.reason||"—"}</dd></div>
-                                {selectedAudit.correlationId&&<div><dt>{auditUi.correlationId}</dt><dd><code>{selectedAudit.correlationId}</code></dd></div>}
-                            </dl>
-                        </section>
-                    </div>
-                    <footer className={styles.auditModalFooter}>
-                        <p><Lock size={15} aria-hidden="true"/>{auditUi.immutableNotice}<small>{auditUi.eventId}: {selectedAudit.id}</small></p>
-                        <button type="button" className={styles.primary} onClick={()=>setAuditModalOpen(false)}>{auditUi.close}</button>
-                    </footer>
-                </section>
-            </div>}
+                    <section className={styles.auditRecordSection}>
+                        <h3>{auditUi.adminAction}</h3>
+                        <dl className={styles.auditRecordFacts}>
+                            <div><dt>{t.person}</dt><dd>{selectedAudit.actorName}</dd></div>
+                            <div><dt>{auditUi.identifier}</dt><dd>{selectedAudit.actorUserId}</dd></div>
+                            <div><dt>{auditUi.dateTime}</dt><dd>{dateTime(selectedAudit.createdAt,locale)}</dd></div>
+                            <div><dt>{auditUi.category}</dt><dd>{auditCategoryLabel(selectedAudit.action,locale)}</dd></div>
+                            <div><dt>{t.result}</dt><dd>{resultPill(selectedAudit.result)}</dd></div>
+                        </dl>
+                    </section>
+                    <section className={styles.auditRecordSection}>
+                        <h3>{auditUi.affected}</h3>
+                        <dl className={styles.auditRecordFacts}>
+                            <div><dt>{auditUi.entityType}</dt><dd>{selectedAudit.targetType}</dd></div>
+                            <div><dt>{auditUi.identifier}</dt><dd>{selectedAudit.targetId}</dd></div>
+                            <div><dt>{t.reason}</dt><dd>{selectedAudit.reason||"—"}</dd></div>
+                            {selectedAudit.correlationId&&<div><dt>{auditUi.correlationId}</dt><dd><code>{selectedAudit.correlationId}</code></dd></div>}
+                            <div><dt>{auditUi.eventId}</dt><dd><code>{selectedAudit.id}</code></dd></div>
+                        </dl>
+                    </section>
+                    <p className={styles.auditRecordNotice}><Lock size={14} aria-hidden="true"/>{auditUi.immutableNotice}</p>
+                </>}
+            </section>}
         </>}
 
     </>);
