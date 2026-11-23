@@ -844,7 +844,7 @@ try {
     const page = await context.newPage();
     await page.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
     await page.getByRole("tab", { name: /Rejected/ }).click();
-    await page.locator('[data-testid="merchant-review-queue"] .merchantListItem').count().then(count => { if(count!==0) throw new Error(`Merchant empty-state queue had ${count} records.`); });
+    if(await page.getByTestId("merchant-review-row").count()!==0) throw new Error("Merchant empty-state queue was not empty.");
     await page.locator('[data-testid="merchant-review-detail"]').getByText("Nothing to show yet.").waitFor();
     await page.screenshot({ path: join("artifacts/browser-screenshots", "en-admin-merchant-review-empty-1366x768.png"), animations: "disabled" });
     offerStatus = "PUBLISHED";
@@ -857,7 +857,7 @@ try {
     await page.goto(origin + "/en/admin/support-cases", { waitUntil: "networkidle" });
     await page.getByRole("tab", { name: /Resolved/ }).click();
     await page.locator('[data-testid="support-case-queue"]').getByText("Nothing to show yet.").waitFor();
-    if(await page.locator('[data-testid="support-case-queue"] button').count()!==0) throw new Error("Support empty-state queue was not empty.");
+    if(await page.getByTestId("support-case-row").count()!==0) throw new Error("Support empty-state queue was not empty.");
     await page.screenshot({ path: join("artifacts/browser-screenshots", "en-admin-support-cases-empty-1366x768.png"), animations: "disabled" });
     await page.goto(origin + "/en/admin/audit-log", { waitUntil: "networkidle" });
     await page.getByLabel(/Search people, actions, records, reasons/).fill("no matching audit record");
