@@ -8,6 +8,14 @@ import { reservationCopy, reservationLocaleTag } from "@/lib/i18n/reservation-co
 import { localePath } from "@/lib/navigation";
 import { api } from "@/lib/api/client";
 import { clearReservationAttempt, getOrCreateReservationAttempt, type ReservationAttempt } from "@/lib/reservations/idempotency";
+
+function getSessionStorageOrNull(): Storage | null {
+  try {
+    return window.sessionStorage;
+  } catch {
+    return null;
+  }
+}
 import { useSession } from "@/components/session/SessionProvider";
 import { formatPickupDate, formatPickupWindow } from "@/lib/offers/format";
 import type { Reservation, ReservationAvailability } from "@/lib/reservations/types";
@@ -85,7 +93,7 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
       const payload = { offerId, quantity, pickupStart: slot.start, pickupEnd: slot.end };
       const fingerprint = JSON.stringify(payload);
       const attempt = getOrCreateReservationAttempt(
-        window.sessionStorage, offerId, fingerprint, undefined, reservationAttemptRef.current,
+        getSessionStorageOrNull(), offerId, fingerprint, undefined, reservationAttemptRef.current,
       );
       reservationAttemptRef.current = attempt;
       const created = await api.post<Reservation>("/reservations", payload, {
@@ -97,7 +105,8 @@ export function ReservationCheckout({ offerId, locale }: { offerId: string; loca
       router.replace(localePath(locale, "/reservations/confirmed/" + encodeURIComponent(created.reference)));
       reservationAttemptRef.current = null;
       try {
-        clearReservationAttempt(window.sessionStorage, offerId);
+        const storage = getSessionStorageOrNull();
+        if (storage) clearReservationAttempt(storage, offerId);
       } catch {
         // A completed reservation must not fail because browser storage is unavailable.
       }
