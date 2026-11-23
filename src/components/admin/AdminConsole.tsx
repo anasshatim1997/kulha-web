@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode, type RefObject, type Synth
 import { api } from "@/lib/api/client";
 import { canRevealSupportCustomerDetails, SUPPORT_DISCLOSURE_REASON_MAX_LENGTH } from "@/lib/auth/admin-access";
 import { useSession } from "@/components/session/SessionProvider";
-import { AlertTriangle, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, ClipboardCheck, Eye, FileText, Filter, Image as ImageIcon, Lock, Search, ShieldCheck, Tag, X } from "lucide-react";
+import { AlertTriangle, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, Filter, Image as ImageIcon, Lock, Search, ShieldCheck, Tag, X } from "lucide-react";
 import styles from "./AdminConsole.module.css";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 
@@ -195,17 +195,17 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const t={...words[locale],...more[locale]};const {state}=useSession();const actorId=state.status==="authenticated"?state.user.id:"";const roles=state.status==="authenticated"?state.user.roles:[];const isSupportOnly=roles.includes("SUPPORT")&&!roles.includes("ADMIN")&&!roles.includes("SUPER_ADMIN");
     const [loading,setLoading]=useState(true);const [failed,setFailed]=useState(false);const [reload,setReload]=useState(0);const [message,setMessage]=useState("");const [query,setQuery]=useState("");
     const [merchants,setMerchants]=useState<Page<Merchant>|null>(null);const [merchantStatus,setMerchantStatus]=useState("PENDING");const [merchantPage,setMerchantPage]=useState(0);const [selectedMerchant,setSelectedMerchant]=useState<Merchant|null>(null);const [merchantAction,setMerchantAction]=useState<MerchantAction|null>(null);const [checks,setChecks]=useState([false,false,false]);const [tabCounts,setTabCounts]=useState<{pending:number|null;info:number|null}>({pending:null,info:null});
-    const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useState("");const [offerPage,setOfferPage]=useState(0);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");const [offerReviewOpen,setOfferReviewOpen]=useState(false);
+    const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useState("");const [offerPage,setOfferPage]=useState(0);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");
     const [cases,setCases]=useState<Page<CaseItem>|null>(null);const [caseStatus,setCaseStatus]=useState("OPEN");const [casePage,setCasePage]=useState(0);const [selectedCase,setSelectedCase]=useState<{summary:CaseItem;timeline:Timeline[]}|null>(null);const [caseCounts,setCaseCounts]=useState<{open:number|null;escalated:number|null;waiting:number|null;resolved:number|null}>({open:null,escalated:null,waiting:null,resolved:null});
     const [audit,setAudit]=useState<AuditPage|null>(null);const [auditPage,setAuditPage]=useState(0);const [auditPageSize,setAuditPageSize]=useState(AUDIT_PAGE_SIZE);const [selectedAuditId,setSelectedAuditId]=useState<string|null>(null);const [auditModalOpen,setAuditModalOpen]=useState(false);const [auditSearch,setAuditSearch]=useState("");const [auditFrom,setAuditFrom]=useState("");const [auditTo,setAuditTo]=useState("");const [auditAction,setAuditAction]=useState("");const [auditResult,setAuditResult]=useState("");
     const [reason,setReason]=useState("");const [disclosureReason,setDisclosureReason]=useState("");const [internalNote,setInternalNote]=useState("");const [draftMessage,setDraftMessage]=useState("");const [sendToCustomer,setSendToCustomer]=useState(true);const [revealed,setRevealed]=useState<{fullName:string;email:string;phone:string|null}|null>(null);const [working,setWorking]=useState(false);
 
-    useEffect(()=>{if(!offerReviewOpen&&!auditModalOpen)return;const previousOverflow=document.body.style.overflow;document.body.style.overflow="hidden";const onKeyDown=(event:KeyboardEvent)=>{if(event.key==="Escape"){setOfferReviewOpen(false);setAuditModalOpen(false);}};window.addEventListener("keydown",onKeyDown);return()=>{document.body.style.overflow=previousOverflow;window.removeEventListener("keydown",onKeyDown);};},[offerReviewOpen,auditModalOpen]);
+    useEffect(()=>{if(!auditModalOpen)return;const previousOverflow=document.body.style.overflow;document.body.style.overflow="hidden";const onKeyDown=(event:KeyboardEvent)=>{if(event.key==="Escape"){setAuditModalOpen(false);}};window.addEventListener("keydown",onKeyDown);return()=>{document.body.style.overflow=previousOverflow;window.removeEventListener("keydown",onKeyDown);};},[auditModalOpen]);
     useEffect(()=>{if(page!=="audit-log")return;const timeout=window.setTimeout(()=>setAuditSearch(query.trim()),280);return()=>window.clearTimeout(timeout);},[page,query]);
 
     useEffect(()=>{let active=true;
         const load=async()=>{try{
-            if(page==="merchant-review"){const data=await api.get<Page<Merchant>>("/admin/merchants?status="+merchantStatus+"&page="+merchantPage+"&size="+MERCHANT_PAGE_SIZE);if(active){setMerchants(data);setFailed(false);setSelectedMerchant(data.items[0]??null);setMerchantReviewOpen(false);setMerchantAction(null);setChecks([false,false,false]);setReason("");setInternalNote("");}
+            if(page==="merchant-review"){const data=await api.get<Page<Merchant>>("/admin/merchants?status="+merchantStatus+"&page="+merchantPage+"&size="+MERCHANT_PAGE_SIZE);if(active){setMerchants(data);setFailed(false);setSelectedMerchant(data.items[0]??null);setMerchantAction(null);setChecks([false,false,false]);setReason("");setInternalNote("");}
                 const [p,i]=await Promise.allSettled([api.get<Page<Merchant>>("/admin/merchants?status=PENDING&page=0&size=1"),api.get<Page<Merchant>>("/admin/merchants?status=INFO_REQUIRED&page=0&size=1")]);
                 if(active)setTabCounts({pending:p.status==="fulfilled"?p.value.total:null,info:i.status==="fulfilled"?i.value.total:null});}
             if(page==="offer-moderation"){const data=await api.get<Page<Offer>>(`/admin/offers?page=${offerPage}&size=${OFFER_PAGE_SIZE}`);if(active){const lastPage=Math.max(0,Math.ceil(data.total/Math.max(1,data.size))-1);if(offerPage>lastPage){setOfferPage(lastPage);return;}setOffers(data);setFailed(false);setSelectedOffer(data.items[0]??null);setOfferAction(data.items[0]?.status==="SUSPENDED"?"reinstate":"suspend");}}
@@ -406,61 +406,39 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             <div><dt>{t.reportsTitle}</dt><dd>{selectedOffer.reportedCount}</dd></div>
                         </dl>
                         {selectedOffer.allergensStatus==="UNKNOWN"&&<div className={styles.offerPreviewAlert}><AlertTriangle size={17} aria-hidden="true"/><span><strong>{t.foodSafetyTitle}</strong><small>{t.foodSafetyBody}</small></span></div>}
-                        <div className={styles.offerReviewCallout}>
-                            <div><strong>{t.decision}</strong><p>{t.offerReviewHint}</p></div>
-                            <button type="button" className={styles.merchantOpenButton} disabled={working} onClick={()=>setOfferReviewOpen(true)}><ClipboardCheck size={17} aria-hidden="true"/>{t.openOfferReview}</button>
+                        <div className={styles.offerInlineBody}>
+                            <div className={styles.merchantModalColumn}>
+                                <section className={styles.merchantModalSection}>
+                                    <h3>{t.reportsTitle} · {selectedOffer.reportedCount}</h3>
+                                    {selectedOffer.reportedCount>0?<div className={styles.offerModalReport}><strong>{selectedOffer.reportedCount} {t.reportReceived}</strong><span>{t.status}: {offerLabel(selectedOffer.status)}</span></div>:<p className={styles.offerModalNoReports}>{t.noReports}</p>}
+                                    {selectedOffer.foodNotes&&<div className={styles.offerModalFoodNotes}><strong>{t.foodInfo}</strong><p>{selectedOffer.foodNotes}</p></div>}
+                                </section>
+                            </div>
+                            <div className={styles.merchantModalColumn}>
+                                {selectedOffer.allergensStatus==="UNKNOWN"&&<div className={styles.foodSafetyAlert}><AlertTriangle size={18} aria-hidden="true"/><span><strong>{t.foodSafetyTitle}</strong><small>{t.foodSafetyBody}</small></span></div>}
+                                <section className={styles.merchantDecision+" "+styles.offerModalDecision}>
+                                    <h3>{t.decision}</h3>
+                                    <p className={styles.offerModalDecisionHint}>{t.reinstateOnlyHidden}</p>
+                                    <div className={styles.offerActionRow}>
+                                        <button type="button" data-action="reinstate" aria-pressed={offerAction==="reinstate"} className={offerAction==="reinstate"?styles.offerActionActive:styles.offerAction} disabled={selectedOffer.status!=="SUSPENDED"} onClick={()=>setOfferAction("reinstate")}>{t.putLive}</button>
+                                        <button type="button" data-action="request-edit" aria-pressed={offerAction==="request-edit"} className={offerAction==="request-edit"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("request-edit")}>{t.askEdit}</button>
+                                        <button type="button" data-action="suspend" aria-pressed={offerAction==="suspend"} className={offerAction==="suspend"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("suspend")}>{selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
+                                    </div>
+                                    <div className={styles.reasonChips}>
+                                        {[t.reasonMisleading,t.reasonAllergens,t.reasonPhoto,t.reasonOther].map(label=><button key={label} type="button" className={reason.startsWith(label)?styles.reasonChipActive:styles.reasonChip} onClick={()=>setReason(label+": ")}>{label}</button>)}
+                                    </div>
+                                    <label className={styles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
+                                </section>
+                            </div>
                         </div>
+                        <footer className={styles.offerInlineFooter}>
+                            <p><ShieldCheck size={15} aria-hidden="true"/>{t.auditRecorded}</p>
+                            <button className={styles.primary} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{working?t.loading:offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
+                        </footer>
                     </>}
                 </section>
             </div>
-            {selectedOffer&&offerReviewOpen&&<div className={styles.merchantModalBackdrop} role="presentation" onClick={()=>setOfferReviewOpen(false)}>
-                <section className={styles.merchantModal+" "+styles.offerModal} role="dialog" aria-modal="true" aria-labelledby="offer-review-dialog-title" onClick={event=>event.stopPropagation()}>
-                    <header className={styles.merchantModalHeader}>
-                        <div className={styles.merchantModalTitle}><small>{t.offerDetails} · {selectedOffer.shopName} · {selectedOffer.city}</small><h2 id="offer-review-dialog-title">{selectedOffer.title}</h2><p>{t.offerReviewHint}</p></div>
-                        <div className={styles.merchantModalHeaderActions}><span className={styles.pill+" "+offerTone(selectedOffer.status)}>{offerLabel(selectedOffer.status)}</span><button type="button" className={styles.merchantModalClose} aria-label={t.closeReview} onClick={()=>setOfferReviewOpen(false)}><X size={20} aria-hidden="true"/></button></div>
-                    </header>
-                    <div className={styles.merchantModalBody+" "+styles.offerModalBody}>
-                        <div className={styles.merchantModalColumn}>
-                            <section className={styles.merchantModalSection}>
-                                <h3>{t.offerDetails}</h3>
-                                <div className={styles.offerModalVisual}>{selectedOffer.imageUrl?<OfferImage src={selectedOffer.imageUrl} alt={selectedOffer.title}/>:<div className={styles.offerVisualFallback}><ImageIcon size={22} aria-hidden="true"/><span>{t.offer} photo</span></div>}</div>
-                                <dl className={styles.offerModalFacts}>
-                                    <div><dt>{t.price}</dt><dd>{amount(selectedOffer.priceMinor,locale)} MAD</dd></div>
-                                    <div><dt>{t.originalPrice}</dt><dd>{selectedOffer.originalPriceMinor?amount(selectedOffer.originalPriceMinor,locale)+" MAD · "+t.notVerified:"—"}</dd></div>
-                                    <div><dt>{t.stock}</dt><dd>{selectedOffer.quantityReserved} / {selectedOffer.quantityTotal} {t.reserved}</dd></div>
-                                    <div><dt>{t.pickup}</dt><dd>{selectedOffer.pickupStart&&selectedOffer.pickupEnd?shortDateTime(selectedOffer.pickupStart,locale)+" – "+shortDateTime(selectedOffer.pickupEnd,locale):t.pickupUnavailable}</dd></div>
-                                    <div><dt>{t.foodInfo}</dt><dd>{selectedOffer.allergensStatus==="UNKNOWN"?t.hiddenAllergens:(selectedOffer.allergens||t.complete)}</dd></div>
-                                </dl>
-                            </section>
-                            <section className={styles.merchantModalSection}>
-                                <h3>{t.reportsTitle} · {selectedOffer.reportedCount}</h3>
-                                {selectedOffer.reportedCount>0?<div className={styles.offerModalReport}><strong>{selectedOffer.reportedCount} {t.reportReceived}</strong><span>{t.status}: {offerLabel(selectedOffer.status)}</span></div>:<p className={styles.offerModalNoReports}>{t.noReports}</p>}
-                                {selectedOffer.foodNotes&&<div className={styles.offerModalFoodNotes}><strong>{t.foodInfo}</strong><p>{selectedOffer.foodNotes}</p></div>}
-                            </section>
-                        </div>
-                        <div className={styles.merchantModalColumn}>
-                            {selectedOffer.allergensStatus==="UNKNOWN"&&<div className={styles.foodSafetyAlert}><AlertTriangle size={18} aria-hidden="true"/><span><strong>{t.foodSafetyTitle}</strong><small>{t.foodSafetyBody}</small></span></div>}
-                            <section className={styles.merchantDecision+" "+styles.offerModalDecision}>
-                                <h3>{t.decision}</h3>
-                                <p className={styles.offerModalDecisionHint}>{t.reinstateOnlyHidden}</p>
-                                <div className={styles.offerActionRow}>
-                                    <button type="button" data-action="reinstate" aria-pressed={offerAction==="reinstate"} className={offerAction==="reinstate"?styles.offerActionActive:styles.offerAction} disabled={selectedOffer.status!=="SUSPENDED"} onClick={()=>setOfferAction("reinstate")}>{t.putLive}</button>
-                                    <button type="button" data-action="request-edit" aria-pressed={offerAction==="request-edit"} className={offerAction==="request-edit"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("request-edit")}>{t.askEdit}</button>
-                                    <button type="button" data-action="suspend" aria-pressed={offerAction==="suspend"} className={offerAction==="suspend"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("suspend")}>{selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
-                                </div>
-                                <div className={styles.reasonChips}>
-                                    {[t.reasonMisleading,t.reasonAllergens,t.reasonPhoto,t.reasonOther].map(label=><button key={label} type="button" className={reason.startsWith(label)?styles.reasonChipActive:styles.reasonChip} onClick={()=>setReason(label+": ")}>{label}</button>)}
-                                </div>
-                                <label className={styles.field}><span>{t.reason}</span><textarea rows={4} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
-                            </section>
-                        </div>
-                    </div>
-                    <footer className={styles.merchantModalFooter}>
-                        <p><ShieldCheck size={15} aria-hidden="true"/>{t.auditRecorded}</p>
-                        <button className={styles.primary} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{working?t.loading:offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
-                    </footer>
-                </section>
-            </div>}
+            
         </>}
 
         {page==="support-cases"&&cases&&<>
