@@ -478,6 +478,126 @@ async function assertMerchantReviewLayout(page, width, height) {
   }
 }
 
+
+async function assertOfferDecisionAccessible(page, width, height) {
+  const metrics = await page.evaluate(() => {
+    const workspace = document.querySelector('[data-testid="offer-workspace"]');
+    const picker = document.querySelector('[data-testid="offer-picker"]');
+    const queue = document.querySelector('[data-testid="offer-queue"]');
+    const pagination = document.querySelector('[data-testid="offer-pagination"]');
+    const preview = document.querySelector('[data-testid="offer-detail-panel"]');
+    const workflow = document.querySelector('[data-testid="offer-moderation-workflow"]');
+    const footer = document.querySelector('[data-testid="offer-moderation-footer"]');
+    const box = element => {
+      if (!element) return null;
+      const rect = element.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height: rect.height };
+    };
+    const action = footer?.querySelector("button");
+    return {
+      workspace: box(workspace), picker: box(picker), queue: box(queue), pagination: box(pagination),
+      preview: box(preview), workflow: box(workflow), footer: box(footer), action: box(action),
+      queueClient: queue?.clientHeight ?? 0, queueScroll: queue?.scrollHeight ?? 0,
+      queueOverflow: queue ? getComputedStyle(queue).overflowY : "missing",
+      previewClient: preview?.clientHeight ?? 0, previewScroll: preview?.scrollHeight ?? 0,
+      previewOverflow: preview ? getComputedStyle(preview).overflowY : "missing",
+      documentWidth: document.documentElement.scrollWidth,
+      safetyWarningsInsideDecision: workflow?.querySelectorAll(".foodSafetyAlert").length ?? -1
+    };
+  });
+  if (!metrics.workspace || !metrics.picker || !metrics.queue || !metrics.pagination
+      || !metrics.preview || !metrics.workflow || !metrics.footer || !metrics.action) {
+    throw new Error("Offer queue pagination or selected-offer decision is missing at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (metrics.documentWidth > width + 1 || metrics.pagination.top < metrics.picker.top - 1
+      || metrics.pagination.bottom > metrics.picker.bottom + 1) {
+    throw new Error("Offer pagination is clipped or displaced at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (metrics.safetyWarningsInsideDecision !== 0) {
+    throw new Error("Offer detail repeats the food-safety warning inside the decision area at " + width + "x" + height + ".");
+  }
+  if (width >= 1100 && height <= 820) {
+    if (metrics.queueClient < 40 || metrics.queueScroll <= metrics.queueClient + 2
+        || metrics.queueOverflow !== "auto" || metrics.previewOverflow !== "auto"
+        || metrics.previewClient < 100 || metrics.footer.bottom > metrics.preview.bottom + 2
+        || metrics.action.bottom > height + 2) {
+      throw new Error("Offer moderation must keep a scrollable queue, pinned pagination and accessible decision action at "
+        + width + "x" + height + ": " + JSON.stringify(metrics));
+    }
+  }
+}
+
+async function assertSupportTimelineVisible(page, width, height) {
+  const history = page.getByTestId("support-case-history");
+  const timeline = page.getByTestId("support-case-timeline");
+  const firstMessage = timeline.locator("article").first();
+  await firstMessage.waitFor({ state: "visible" });
+  const firstBox = await firstMessage.boundingBox();
+  const historyBox = await history.boundingBox();
+  const actionBar = page.getByTestId("support-case-actions");
+  const composer = page.getByTestId("support-message-composer");
+  const composerBox = await composer.boundingBox();
+  if (!firstBox || !historyBox || !composerBox) {
+    throw new Error("Support timeline or reply composer is missing at " + width + "x" + height + ".");
+  }
+  if (width >= 900 && (firstBox.y + firstBox.height <= historyBox.y
+      || firstBox.y >= historyBox.y + historyBox.height)) {
+    throw new Error("The first support conversation message is not visible in the initial timeline viewport at "
+      + width + "x" + height + ": " + JSON.stringify({ firstBox, historyBox }));
+  }
+  await history.evaluate(element => { element.scrollTop = element.scrollHeight; });
+  const actionsBox = await actionBar.boundingBox();
+  const historyAfterScroll = await history.boundingBox();
+  if (!actionsBox || !historyAfterScroll || actionsBox.y < historyAfterScroll.y - 1
+      || actionsBox.y + actionsBox.height > historyAfterScroll.y + historyAfterScroll.height + 1) {
+    throw new Error("Support case actions are not reachable inside the independent history scroller at "
+      + width + "x" + height + ": " + JSON.stringify({ actionsBox, historyAfterScroll }));
+  }
+  const composerAfterScroll = await composer.boundingBox();
+  if (!composerAfterScroll || Math.abs(composerAfterScroll.y - composerBox.y) > 1) {
+    throw new Error("Support reply composer moved while the conversation timeline scrolled at " + width + "x" + height + ".");
+  }
+  await history.evaluate(element => { element.scrollTop = 0; });
+}
+
+async function assertAuditExplorerLayout(page, width, height) {
+  const metrics = await page.evaluate(() => {
+    const explorer = document.querySelector('[data-testid="audit-explorer"]');
+    const table = document.querySelector('[data-testid="audit-table-card"]');
+    const detail = document.querySelector('[data-testid="audit-record-detail"]');
+    const header = document.querySelector('[data-testid="audit-record-header"]');
+    const box = element => {
+      if (!element) return null;
+      const rect = element.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, width: rect.width, height: rect.height };
+    };
+    return {
+      explorer: box(explorer), table: box(table), detail: box(detail), header: box(header),
+      direction: explorer ? getComputedStyle(explorer).direction : "missing",
+      scrollWidth: document.documentElement.scrollWidth,
+      detailText: detail?.textContent ?? ""
+    };
+  });
+  if (!metrics.explorer || !metrics.table || !metrics.detail || !metrics.header
+      || metrics.detail.width < 220 || metrics.detailText.length < 180) {
+    throw new Error("Audit ledger and selected-record details are not both rendered at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (metrics.scrollWidth > width + 1) {
+    throw new Error("Audit explorer introduces horizontal page overflow at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (width >= 900) {
+    const separated = metrics.direction === "rtl"
+      ? metrics.detail.right <= metrics.table.left + 2
+      : metrics.table.right <= metrics.detail.left + 2;
+    if (!separated) {
+      throw new Error("Audit selected-record panel must sit beside the ledger in " + metrics.direction + " layout at "
+        + width + "x" + height + ": " + JSON.stringify(metrics));
+    }
+  } else if (metrics.detail.top < metrics.table.bottom - 1) {
+    throw new Error("Audit selected-record panel must stack below the ledger on mobile at " + width + "px: " + JSON.stringify(metrics));
+  }
+}
+
 let browser;
 try {
   await new Promise(resolve => backend.listen(apiPort, "127.0.0.1", resolve));
@@ -599,6 +719,7 @@ try {
       if (route.path.endsWith("/admin/offer-moderation")) {
         await assertOfferModerationLayout(page, size.width, size.height);
         await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
+        if (size.width >= 1100) await assertOfferDecisionAccessible(page, size.width, size.height);
       }
       if (route.path.endsWith("/admin/support-cases")) {
         const supportLayout = await page.evaluate(() => {
@@ -627,6 +748,7 @@ try {
         if (supportLayout.missingRegion || supportLayout.composerBottom > supportLayout.panelBottom + 1) {
           throw new Error(`Support composer escaped its detail panel at ${size.width}x${size.height}: ${JSON.stringify(supportLayout)}`);
         }
+        if (size.width >= 900) await assertSupportTimelineVisible(page, size.width, size.height);
         if (size.width < 900 && supportLayout.pickerBottom !== null
           && supportLayout.detailTop < supportLayout.pickerBottom - 1) {
           throw new Error(`Support detail must stack below the case picker at ${size.width}px: ${JSON.stringify(supportLayout)}`);
@@ -654,6 +776,7 @@ try {
         await page.getByTestId("audit-record-header").waitFor({ state: "visible" });
         const detailText = await page.getByTestId("audit-record-detail").innerText();
         if (detailText.length < 180) throw new Error(route.path + " selected audit detail did not render the long record fields.");
+        if (size.width >= 900) await assertAuditExplorerLayout(page, size.width, size.height);
       }
       await page.evaluate(() => window.scrollTo(0, 0));
       await page.screenshot({ path: join("artifacts/browser-screenshots", screenshotName), animations: "disabled" });
