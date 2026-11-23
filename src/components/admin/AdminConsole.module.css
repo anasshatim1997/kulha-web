@@ -3696,7 +3696,7 @@
     grid-template-columns: minmax(255px, .72fr) minmax(0, 1.28fr);
     align-items: stretch;
     gap: 18px;
-    height: clamp(420px, calc(100dvh - 228px), 900px);
+    height: clamp(420px, calc(100dvh - 300px), 900px);
     min-height: 0;
 }
 .page[data-admin-page="support-cases"] .casePicker {
