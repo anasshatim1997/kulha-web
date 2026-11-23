@@ -731,14 +731,14 @@ try {
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
-    const inlineReview = page.locator(".merchantInlineBody");
+    const inlineReview = page.getByTestId("merchant-review-workflow");
     await inlineReview.waitFor({ state: "visible" });
     await inlineReview.getByLabel("Address and location checked").check();
     await inlineReview.getByLabel("Phone number reachable").check();
     await inlineReview.getByLabel("Documents readable and valid").check();
     await inlineReview.getByRole("button", { name: "Approve" }).click();
     await inlineReview.getByLabel("Reason (required)").fill("Verified during browser workflow test.");
-    await page.locator(".merchantInlineFooter").getByRole("button", { name: "Submit decision" }).click();
+    await page.getByTestId("merchant-review-footer").getByRole("button", { name: "Submit decision" }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/approve"), "Merchant approval");
     await context.close();
   }
@@ -750,11 +750,11 @@ try {
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(origin + "/en/admin/offer-moderation", { waitUntil: "networkidle" });
-    const inlineOffer = page.locator(".offerInlineBody");
+    const inlineOffer = page.getByTestId("offer-moderation-workflow");
     await inlineOffer.waitFor({ state: "visible" });
     await inlineOffer.locator('[data-action="suspend"]').click();
     await inlineOffer.getByLabel("Reason (required)").fill("Allergen information needs verification.");
-    await page.locator(".offerInlineFooter").getByRole("button", { name: "Hide offer" }).click();
+    await page.getByTestId("offer-moderation-footer").getByRole("button", { name: "Hide offer" }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/suspend"), "Offer moderation action");
     await context.close();
   }
