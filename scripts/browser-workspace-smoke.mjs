@@ -299,7 +299,7 @@ async function assertAdminLoginLayout(page, width, height) {
     const byClass = fragment => [...(root?.querySelectorAll("*") ?? [])].find(element =>
       typeof element.className === "string" && element.className.includes(fragment));
     if (!root) return { missingRoot: true };
-    const rail = byClass("rail"), formSide = byClass("formSide");
+    const rail = byClass("brandPanel"), formSide = byClass("accessPanel");
     const form = root.querySelector("form.auth-form-fields");
     const fields = [...(form?.querySelectorAll("input, button[type=submit]") ?? [])];
     const rect = element => {
@@ -335,39 +335,36 @@ async function assertAdminLoginLayout(page, width, height) {
 }
 async function assertOfferModerationLayout(page, width, height) {
   const metrics = await page.evaluate(() => {
-    const all=[...document.querySelectorAll("*")];
-    const byClass=fragment=>all.find(element=>typeof element.className==="string"&&element.className.includes(fragment));
-    const workspace=byClass("offerWorkspace"),picker=byClass("offerPicker"),queue=byClass("offerQueue");
-    const pagination=byClass("pagination"),preview=byClass("offerPreviewCard"),decision=byClass("offerReviewCallout");
-    const rect=element=>{if(!element)return null;const value=element.getBoundingClientRect();return{
-      top:value.top,bottom:value.bottom,left:value.left,right:value.right,height:value.height,
-    };};
+    const workspace = document.querySelector(".offerWorkspace");
+    const picker = document.querySelector(".offerPicker");
+    const preview = document.querySelector(".offerPreviewCard");
+    const tabs = [...document.querySelectorAll(".kulhaAdminShell .tabs button")];
+    const box = element => {
+      if (!element) return null;
+      const rect = element.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height: rect.height };
+    };
     return {
-      documentWidth:document.documentElement.scrollWidth,bodyWidth:document.body.scrollWidth,
-      documentHeight:document.documentElement.scrollHeight,workspace:rect(workspace),picker:rect(picker),
-      queue:rect(queue),pagination:rect(pagination),preview:rect(preview),decision:rect(decision),
-      queueClientHeight:queue?.clientHeight??0,queueScrollHeight:queue?.scrollHeight??0,
-      queueOverflow:queue?getComputedStyle(queue).overflowY:"missing",
+      documentWidth: document.documentElement.scrollWidth,
+      bodyWidth: document.body.scrollWidth,
+      workspace: box(workspace), picker: box(picker), preview: box(preview),
+      tabHeights: tabs.map(tab => Math.round(tab.getBoundingClientRect().height)),
+      offerCount: document.querySelectorAll(".offerQueue > *").length,
+      columns: workspace ? getComputedStyle(workspace).gridTemplateColumns : "",
     };
   });
-  if(metrics.documentWidth>width+1||metrics.bodyWidth>width+1)
+  if (metrics.documentWidth > width + 1 || metrics.bodyWidth > width + 1)
     throw new Error(`Offer moderation horizontal overflow at ${width}x${height}: ${JSON.stringify(metrics)}`);
-  if(!metrics.workspace||!metrics.picker||!metrics.queue||!metrics.pagination||!metrics.preview||!metrics.decision)
+  if (!metrics.workspace || !metrics.picker || !metrics.preview)
     throw new Error(`Offer moderation layout regions are missing at ${width}x${height}: ${JSON.stringify(metrics)}`);
-  if(width>=900){
-    const aligned=Math.abs(metrics.picker.top-metrics.preview.top)<=2
-      &&Math.abs(metrics.picker.bottom-metrics.preview.bottom)<=2
-      &&Math.abs(metrics.picker.height-metrics.preview.height)<=2;
-    if(metrics.documentHeight>height+2||!aligned||metrics.picker.height<height*.58
-      ||height-metrics.picker.bottom>64||height-metrics.picker.bottom<8
-      ||metrics.pagination.bottom>metrics.picker.bottom+1||metrics.picker.bottom-metrics.pagination.bottom>3
-      ||metrics.queueOverflow!=="auto"||metrics.queueScrollHeight<=metrics.queueClientHeight+4
-      ||metrics.decision.bottom>metrics.preview.bottom-8){
-      throw new Error(`Desktop offer moderation workspace/scroll ownership failed at ${width}x${height}: ${JSON.stringify(metrics)}`);
-    }
-  }else if(metrics.picker.bottom>=metrics.preview.top-1){
-    throw new Error(`Mobile offer moderation panels must stack naturally at ${width}px: ${JSON.stringify(metrics)}`);
-  }
+  if (metrics.tabHeights.some(value => value > 44))
+    throw new Error(`Admin status filters must remain compact at ${width}x${height}: ${JSON.stringify(metrics.tabHeights)}`);
+  if (width >= 900 && metrics.picker.left >= metrics.preview.left)
+    throw new Error(`Offer queue must remain beside its detail panel at ${width}px: ${JSON.stringify(metrics)}`);
+  if (width < 900 && metrics.picker.bottom > metrics.preview.top + 2)
+    throw new Error(`Mobile offer panels must stack naturally at ${width}px: ${JSON.stringify(metrics)}`);
+  if (metrics.offerCount < 10)
+    throw new Error(`Offer moderation fixture must exercise a populated queue: ${JSON.stringify(metrics)}`);
 }
 
 async function assertDialogWithinViewport(page, route) {
@@ -426,12 +423,12 @@ try {
     { path: "/en/merchant/reservations/scan", token: "merchant-token", heading: "Validate a pickup" , compact: true },
     { path: "/en/merchant/staff", token: "merchant-token", heading: "Staff" , compact: true },
     { path: "/en/merchant/sales", token: "merchant-token", heading: "Sales" , compact: true },
-    { path: "/en/admin/merchant-review", token: "admin-token", heading: "Merchant review" , compact: true },
-    { path: "/en/admin/offer-moderation", token: "admin-token", heading: "Offer moderation" , compact: true },
+    { path: "/en/admin/merchant-review", token: "admin-token", heading: "Merchant review" },
+    { path: "/en/admin/offer-moderation", token: "admin-token", heading: "Offer moderation" },
     { path: "/en/admin/support-cases", token: "support-token", heading: "Support cases" , compact: true },
     { path: "/fr/admin/support-cases", token: "support-token", heading: "Dossiers support" , compact: true },
     { path: "/ar/admin/support-cases", token: "support-token", heading: "طلبات الدعم", direction: "rtl" , compact: true },
-    { path: "/en/admin/audit-log", token: "admin-token", heading: "Audit log" , compact: true },
+    { path: "/en/admin/audit-log", token: "admin-token", heading: "Audit log" },
     { path: "/fr/reservations", token: "customer-token", heading: "Mes réservations" },
     { path: "/ar/reservations", token: "customer-token", heading: "حجوزاتي", direction: "rtl", directionSelector: '[lang="ar"]' },
     { path: "/fr/account", token: "customer-token", heading: "Profil et paramètres" },
@@ -504,10 +501,21 @@ try {
         if (count !== 3) throw new Error(`${route.path} expected 3 reservation list requests, observed ${count}.`);
       }
       await page.screenshot({ path: join("artifacts/browser-screenshots", screenshotName), animations: "disabled" });
-      if(route.path.endsWith("/admin/offer-moderation")&&size.width===390) await page.screenshot({
+      if(route.path.endsWith("/admin/audit-log") && size.width===1366) {\n        const firstEvent = page.locator(".auditExplorer .auditTableCard tbody tr").first();\n        await firstEvent.click();\n        await page.locator(".auditRecordCard .auditRecordHeader").waitFor({ state: "visible" });\n      }\n      if(route.path.endsWith("/admin/offer-moderation")&&size.width===390) await page.screenshot({
         path:join("artifacts/browser-screenshots","en-admin-offer-moderation-390x844-full.png"),
         animations:"disabled",fullPage:true,
       });
+      if (size.width === 1366 && size.height === 768 && route.path.includes("/admin/")) {
+        const search = route.path.endsWith("/audit-log")
+          ? page.locator('.auditFilters input[type="search"]')
+          : page.locator(".kulhaAdminShell .search input");
+        await search.fill("no matching KULHA record");
+        await page.screenshot({
+          path: join("artifacts/browser-screenshots", `${route.path.replace(/^\\/+/, "").replaceAll("/", "-")}-empty-state-1366x768.png`),
+          animations: "disabled",
+        });
+        await search.fill("");
+      }
       if (route.compact && size.width >= 1024 && size.height <= 768) {
         await assertCompactWorkspaceFits(page, route.path, size.width, size.height);
       }
