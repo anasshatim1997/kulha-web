@@ -405,7 +405,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     </button>)}</div>{!caseItems.length&&<p className={styles.empty}>{t.empty}</p>}
                     <AdminPagination page={casePage} pageCount={casePageCount} total={cases.total} size={cases.size||CASE_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setCasePage(next);setSelectedCase(null);}} />
                 </section>
-                <section className={styles.caseDetail} data-testid="support-case-detail">
+                <section className={styles.caseDetail+(selectedCase?"":" "+styles.caseDetailEmpty)} data-testid="support-case-detail">
                     {!selectedCase?<p className={styles.empty}>{t.empty}</p>:<>
                         <div className={styles.detailHead}><div><small>{t.record} {selectedCase.summary.reference} · {selectedCase.summary.category}</small><h2>{selectedCase.summary.subject}</h2></div><span className={styles.pill+" "+priorityTone(selectedCase.summary.priority)}>{priorityLabel(selectedCase.summary.priority)}</span></div>
                         <div className={styles.caseHistory} data-testid="support-case-history">
@@ -471,7 +471,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                 </div>
             </section>
             <section className={styles.auditExplorer} aria-label={auditUi.history}>
-                <div className={styles.auditExplorerHeading}><div><h2>{auditUi.history}</h2><p>{auditUi.latest}</p></div><span>{audit.total.toLocaleString(loc(locale))} · {t.audit}</span></div>
+                <div className={styles.auditExplorerHeading}><div><h2>{auditUi.history}</h2><p>{auditUi.latest}</p></div><span data-testid="audit-total-count">{audit.total.toLocaleString(loc(locale))} · {t.audit}</span></div>
                 <div className={styles.auditExplorerBody}>
                     <section className={styles.auditTableCard}>
                         <div className={styles.table}><table><thead><tr><th>{t.when.toUpperCase()}</th><th>{t.person.toUpperCase()}</th><th>{t.action.toUpperCase()}</th><th>{t.record.toUpperCase()}</th><th>{t.reason.toUpperCase()}</th><th>{t.result.toUpperCase()}</th></tr></thead>
