@@ -4901,3 +4901,51 @@
         align-content: center;
     }
 }
+
+
+/* Offer reason is part of the evidence column, leaving the decision column
+   focused on the action choice while keeping the required reason editable. */
+@media (min-width: 1100px) and (max-height: 820px) {
+    .shell[data-page="offer-moderation"] .offerModalReason {
+        margin-top: 0;
+        padding: 8px 9px;
+        border-radius: 10px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerModalReason > h3 {
+        margin: 0 0 5px;
+        font-size: 9px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerModalReason .reasonChips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin: 4px 0 6px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerModalReason .reasonChip,
+    .shell[data-page="offer-moderation"] .offerModalReason .reasonChipActive {
+        min-height: 22px;
+        padding: 3px 6px;
+        border-radius: 6px;
+        font-size: 8px;
+        line-height: 1.15;
+    }
+
+    .shell[data-page="offer-moderation"] .offerModalReason .field {
+        gap: 3px;
+        margin-top: 0;
+        font-size: 9px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerModalReason .field textarea {
+        height: 48px;
+        min-height: 48px;
+        max-height: 48px;
+        padding: 6px 7px;
+        border-radius: 7px;
+        font-size: 9px;
+        line-height: 1.2;
+    }
+}
