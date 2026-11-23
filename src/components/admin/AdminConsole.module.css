@@ -3601,7 +3601,20 @@
     box-shadow: none;
     overflow: hidden;
 }
-.page[data-admin-page="offer-moderation"] .offerPicker .tabs { flex-wrap: wrap; overflow: visible; padding-bottom: 10px; }
+.page[data-admin-page="offer-moderation"] .offerPicker .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 7px;
+    gap: 5px;
+}
+.page[data-admin-page="offer-moderation"] .offerPicker .tab,
+.page[data-admin-page="offer-moderation"] .offerPicker .activeTab {
+    height: 32px;
+    min-height: 32px;
+    padding-inline: 8px;
+    font-size: 10px;
+}
 .page[data-admin-page="offer-moderation"] .offerQueue {
     display: grid;
     align-content: start;
