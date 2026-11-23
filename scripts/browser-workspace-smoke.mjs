@@ -530,7 +530,7 @@ try {
         animations:"disabled",fullPage:true,
       });
       if (size.width === 1366 && size.height === 768 && route.path.includes("/admin/")) {
-        const fullName = route.path.replace(/^\\/+/, "").replaceAll("/", "-");
+        const fullName = route.path.replace(/^\/+/, "").replaceAll("/", "-");
         await page.screenshot({
           path: join("artifacts/browser-screenshots", `${fullName}-full-1366x768.png`),
           animations: "disabled",
