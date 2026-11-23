@@ -302,7 +302,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
             <div className={styles.tabs} role="tablist" aria-label={t.merchantTitle}>{merchantStatuses.map(value=>{const n=tabCount(value);return <button key={value} role="tab" aria-selected={merchantStatus===value} className={merchantStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setMerchantStatus(value);setMerchantPage(0);setSelectedMerchant(null);setReason("");setInternalNote("");})}>{merchantLabel(value)}{typeof n==="number"?" · "+n:""}</button>;})}</div>
             <div className={styles.merchantReviewWorkspace}>
                 <section className={styles.merchantPicker} aria-label={t.merchantTitle}>
-                    <div className={styles.list}>{merchantItems.map(item=><button key={item.id} className={selectedMerchant?.id===item.id?styles.merchantSelected:styles.merchantListItem} onClick={()=>void loadMerchant(item.id)}>
+                    <div className={styles.list} data-testid="merchant-review-list">{merchantItems.map(item=><button key={item.id} className={selectedMerchant?.id===item.id?styles.merchantSelected:styles.merchantListItem} onClick={()=>void loadMerchant(item.id)}>
                         <span className={styles.merchantListTop}><strong>{item.name}</strong><em className={styles.pill+" "+merchantTone(item.status)}>{merchantLabel(item.status)}</em></span>
                         <small>{item.businessType} · {item.city}</small><small>{item.ownerEmail}</small>
                     </button>)}</div>{!merchantItems.length&&<p className={styles.empty}>{t.empty}</p>}
@@ -446,7 +446,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
             </div>
             <div className={styles.supportWorkspace} data-testid="support-workspace">
                 <section className={styles.casePicker} aria-label={t.casesTitle} data-testid="support-case-queue">
-                    <div className={styles.caseList}>{caseItems.map(item=><button key={item.reference} data-testid="support-case-row" className={selectedCase?.summary.reference===item.reference?styles.caseSelected:styles.caseItem} onClick={()=>void loadCase(item.reference)}>
+                    <div className={styles.caseList} data-testid="support-case-list">{caseItems.map(item=><button key={item.reference} data-testid="support-case-row" className={selectedCase?.summary.reference===item.reference?styles.caseSelected:styles.caseItem} onClick={()=>void loadCase(item.reference)}>
                         <span className={styles.caseListTop}><small>{item.reference} · {item.category}</small><em className={styles.pill+" "+priorityTone(item.priority)}>{priorityLabel(item.priority)}</em></span>
                         <strong>{item.subject}</strong><small>{item.reservationReference?item.reservationReference+" · ":""}{item.merchantName||t.shop}</small>
                     </button>)}</div>{!caseItems.length&&<p className={styles.empty}>{t.empty}</p>}
