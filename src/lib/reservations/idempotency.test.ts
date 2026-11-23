@@ -66,6 +66,19 @@ describe("reservation idempotency attempt", () => {
     expect(generated).toBe(1);
   });
 
+  it("reuses the same key after an ambiguous network failure when storage is unavailable", async () => {
+    let generated = 0;
+    const createKey = () => "ambiguous-key-" + ++generated;
+    const first = getOrCreateReservationAttempt(null, "offer-4", "same-payload", createKey);
+
+    // The server may have committed the reservation even though the client saw a network error.
+    await expect(Promise.reject(new Error("connection reset"))).rejects.toThrow("connection reset");
+
+    const retry = getOrCreateReservationAttempt(null, "offer-4", "same-payload", createKey, first);
+    expect(retry.key).toBe(first.key);
+    expect(generated).toBe(1);
+  });
+
   it("reuses an in-memory attempt when accessing session storage itself is unavailable", () => {
     let generated = 0;
     const createKey = () => "no-storage-key-" + ++generated;
