@@ -495,6 +495,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     </aside>:<aside className={styles.auditRecordCard+" "+styles.auditRecordEmpty} data-testid="audit-record-detail"><FileText size={22} aria-hidden="true"/><h3>{auditUi.eventDetails}</h3><p>{t.empty}</p></aside>}
                 </div>
             </section>
+        </>}
 
     </>);
 }
