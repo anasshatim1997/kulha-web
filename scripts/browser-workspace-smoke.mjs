@@ -564,6 +564,8 @@ async function assertAuditExplorerLayout(page, width, height) {
   const metrics = await page.evaluate(() => {
     const explorer = document.querySelector('[data-testid="audit-explorer"]');
     const table = document.querySelector('[data-testid="audit-table-card"]');
+    const tableViewport = table?.querySelector(".table");
+    const firstRow = table?.querySelector("tbody tr");
     const detail = document.querySelector('[data-testid="audit-record-detail"]');
     const header = document.querySelector('[data-testid="audit-record-header"]');
     const box = element => {
@@ -575,6 +577,10 @@ async function assertAuditExplorerLayout(page, width, height) {
       explorer: box(explorer), table: box(table), detail: box(detail), header: box(header),
       direction: explorer ? getComputedStyle(explorer).direction : "missing",
       scrollWidth: document.documentElement.scrollWidth,
+      tableViewportWidth: tableViewport?.clientWidth ?? 0,
+      tableViewportScrollWidth: tableViewport?.scrollWidth ?? 0,
+      mobileRowDisplay: firstRow ? getComputedStyle(firstRow).display : "missing",
+      mobileCells: firstRow?.querySelectorAll("td[data-label]").length ?? 0,
       detailText: detail?.textContent ?? ""
     };
   });
@@ -593,8 +599,14 @@ async function assertAuditExplorerLayout(page, width, height) {
       throw new Error("Audit selected-record panel must sit beside the ledger in " + metrics.direction + " layout at "
         + width + "x" + height + ": " + JSON.stringify(metrics));
     }
-  } else if (metrics.detail.top < metrics.table.bottom - 1) {
-    throw new Error("Audit selected-record panel must stack below the ledger on mobile at " + width + "px: " + JSON.stringify(metrics));
+  } else {
+    if (metrics.detail.top < metrics.table.bottom - 1) {
+      throw new Error("Audit selected-record panel must stack below the ledger on mobile at " + width + "px: " + JSON.stringify(metrics));
+    }
+    if (metrics.tableViewportScrollWidth > metrics.tableViewportWidth + 1
+        || metrics.mobileRowDisplay !== "grid" || metrics.mobileCells !== 6) {
+      throw new Error("Audit mobile events must use labeled stacked cells without horizontal scrolling at " + width + "x" + height + ": " + JSON.stringify(metrics));
+    }
   }
 }
 
