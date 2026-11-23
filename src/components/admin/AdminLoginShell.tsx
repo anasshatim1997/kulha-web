@@ -68,6 +68,7 @@ export function AdminLoginShell({ locale = "fr", title, lead, children }: AdminL
                         <h1 id="admin-login-title">{title}</h1>
                         <p className={styles.lead}>{lead}</p>
                         <div className={styles.form}>{children}</div>
+                        <p className={styles.restricted}>{t.restricted}</p>
                         <p className={styles.note}>
                             <ShieldCheck size={15} aria-hidden="true" />
                             {t.audit}
