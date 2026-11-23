@@ -382,9 +382,10 @@ async function assertAdminLoginLayout(page, width, height) {
       bodyWidth:document.body.scrollWidth,documentHeight:document.documentElement.scrollHeight,
       bodyHeight:document.body.scrollHeight,fields:fields.map(rect),
       oldSplitPresent:!!root?.querySelector('[class*="rail"],[class*="formSide"]'),
+      globalHeaderPresent:!!document.querySelector(".site-header"),
     };
   });
-  if (!metrics.root || !metrics.portal || metrics.oldSplitPresent
+  if (!metrics.root || !metrics.portal || metrics.oldSplitPresent || metrics.globalHeaderPresent
     || metrics.documentWidth > width+1 || metrics.bodyWidth > width+1) {
     throw new Error(`Admin login composition is missing, split or overflowing at ${width}x${height}: ${JSON.stringify(metrics)}`);
   }
