@@ -54,7 +54,7 @@ const supportCase = {
 const merchantRows = [
   merchant,
   { ...merchant, id: "00000000-0000-4000-8000-000000000111", name: "Épicerie Atlas", businessType: "GROCERY", ownerEmail: "atlas@kulha.test", city: "Rabat", status: "PENDING" },
-  { ...merchant, id: "00000000-0000-4000-8000-000000000112", name: "Pâtisserie Zayna", businessType: "PASTRY", ownerEmail: "zayna@kulha.test", city: "Marrakech", status: "INFO_REQUIRED" },
+  { ...merchant, id: "00000000-0000-4000-8000-000000000112", name: "Pâtisserie Zayna", businessType: "PASTRY", ownerEmail: "zayna@kulha.test", city: "Marrakech", status: "PENDING" },
 ];
 const supportCases = [
   supportCase,
@@ -541,6 +541,7 @@ try {
           ? page.locator('.auditFilters input[type="search"]')
           : page.locator(".kulhaAdminShell .search input");
         await search.fill("no matching KULHA record");
+        await page.waitForTimeout(450);
         await page.screenshot({
           path: join("artifacts/browser-screenshots", `${route.path.replace(/^\\/+/, "").replaceAll("/", "-")}-empty-state-1366x768.png`),
           animations: "disabled",
