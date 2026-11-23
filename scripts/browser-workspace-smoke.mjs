@@ -24,6 +24,18 @@ const merchant = {
   address: "12 Avenue Hassan II", city: "Casablanca", phone: "+212600000001",
   openingHours: "08:00–18:00", status: merchantStatus, decisionReason: null, createdAt: now.toISOString(),
 };
+const merchantRows = [
+  merchant,
+  ...[
+    ["00000000-0000-4000-8000-000000000111", "Épicerie de la Place", "GROCERY", "Rabat", "owner2@kulha.test", "14 Rue des Consuls"],
+    ["00000000-0000-4000-8000-000000000112", "Pâtisserie Nour", "BAKERY", "Marrakech", "owner3@kulha.test", "8 Avenue Mohammed V"],
+    ["00000000-0000-4000-8000-000000000113", "Primeur Atlas", "GROCERY", "Agadir", "owner4@kulha.test", "22 Boulevard Hassan II"],
+  ].map(([id,name,businessType,city,ownerEmail,address], index) => ({
+    ...merchant, id, name, businessType, city, ownerEmail, address,
+    phone: `+21260000000${index + 2}`, status: "PENDING",
+    createdAt: new Date(now.getTime() - (index + 1) * 86400000).toISOString(),
+  })),
+];
 const offer = {
   id: "00000000-0000-4000-8000-000000000102", title: "Panier du fournil",
   shopName: "Boulangerie Test", city: "Casablanca", priceMinor: 4000, originalPriceMinor: 8000,
@@ -51,6 +63,46 @@ const supportCase = {
   assigneeName: "Support Agent", hiddenOffer: false, createdAt: now.toISOString(),
   updatedAt: now.toISOString(), resolvedAt: null,
 };
+const supportCaseRows = [
+  supportCase,
+  ...[
+    ["SUP-2026-0002", "Reservation pickup time clarification", "RESERVATION", "MEDIUM", "OPEN"],
+    ["SUP-2026-0003", "Incorrect basket contents reported", "OFFER_QUALITY", "MEDIUM", "OPEN"],
+    ["SUP-2026-0004", "Shop cannot update opening hours", "MERCHANT_ACCOUNT", "LOW", "OPEN"],
+    ["SUP-2026-0005", "Possible cold-chain concern", "FOOD_SAFETY", "HIGH", "ESCALATED"],
+  ].map(([reference,subject,category,priority,status], index) => ({
+    ...supportCase,
+    id: `00000000-0000-4000-8000-${String(130 + index).padStart(12, "0")}`,
+    reference, subject, category, priority, status,
+    description: `Case details for ${subject.toLowerCase()}.`,
+    createdAt: new Date(now.getTime() - (index + 1) * 3600000).toISOString(),
+    updatedAt: new Date(now.getTime() - index * 1800000).toISOString(),
+  })),
+];
+const auditRows = Array.from({ length: 14 }, (_, index) => {
+  const actions = ["MERCHANT_APPROVED", "OFFER_SUSPENDED", "SUPPORT_CASE_RESOLVED", "SUPPORT_CUSTOMER_DETAILS_REVEALED", "AUDIT_LOG_EXPORTED"];
+  const targets = ["MERCHANT", "OFFER", "SUPPORT_CASE", "CUSTOMER", "AUDIT_LOG"];
+  const actors = ["Nadia El Amrani", "Youssef Benali", "Salma Idrissi", "KULHA System"];
+  const reasons = [
+    "Business registration details and the owner contact information were checked against the submitted application.",
+    "Customer reports indicate that allergen details need confirmation before this offer can remain visible.",
+    "The customer received a response and the merchant confirmed the corrective action was completed.",
+    "A support agent disclosed customer contact details to coordinate an active food-safety investigation.",
+    "A compliance review requested an export of the immutable administrative activity record.",
+  ];
+  return {
+    id: `00000000-0000-4000-8000-${String(600 + index).padStart(12, "0")}`,
+    actorUserId: index % 2 ? actorId : customerId,
+    actorName: actors[index % actors.length],
+    action: actions[index % actions.length],
+    targetType: targets[index % targets.length],
+    targetId: `KULHA-${String(1200 + index).padStart(5, "0")}`,
+    reason: reasons[index % reasons.length] + (index > 4 ? ` Review reference ${index + 1} retained for traceability.` : ""),
+    result: ["SUCCESS", "SUCCESS", "DENIED", "FAILED"][index % 4],
+    correlationId: `corr-kulha-admin-${String(9000 + index)}`,
+    createdAt: new Date(now.getTime() - index * 3600000).toISOString(),
+  };
+});
 let timeline = [{
   id: "00000000-0000-4000-8000-000000000104", authorType: "CUSTOMER",
   authorUserId: customerId, authorLabel: "Customer", visibility: "CUSTOMER",
@@ -146,10 +198,16 @@ const backend = createServer(async (request, response) => {
   if (path === "/merchants/me/sales/export") return csv(response, "kulha-sales.csv");
 
   if (path === "/admin/merchants" && method === "GET") {
-    const rows = url.searchParams.get("status") === "PENDING" && merchantStatus === "PENDING" ? [merchant] : [];
+    const status = url.searchParams.get("status");
+    const rows = status === "PENDING" && merchantStatus === "PENDING"
+      ? merchantRows.filter(item => item.status === "PENDING") : [];
     return json(response, page(rows));
   }
-  if (path === `/admin/merchants/${merchant.id}` && method === "GET") return json(response, merchant);
+  if (path.startsWith("/admin/merchants/") && method === "GET") {
+    const id = path.split("/").at(-1);
+    const selected = merchantRows.find(item => item.id === id);
+    if (selected) return json(response, selected);
+  }
   if (path === `/admin/merchants/${merchant.id}/approve` && method === "POST") {
     await bodyOf(request);
     merchantStatus = "APPROVED";
@@ -165,11 +223,15 @@ const backend = createServer(async (request, response) => {
     return json(response, {});
   }
   if (path === "/admin/support-cases" && method === "GET") {
-    const rows = url.searchParams.get("status") === caseStatus ? [supportCase] : [];
+    const status = url.searchParams.get("status");
+    const rows = supportCaseRows.filter(item => item.reference === supportCase.reference
+      ? item.status === caseStatus : item.status === status);
     return json(response, page(rows));
   }
-  if (path === `/admin/support-cases/${supportCase.reference}` && method === "GET") {
-    return json(response, { summary: { ...supportCase, status: caseStatus }, timeline });
+  if (path.startsWith("/admin/support-cases/") && method === "GET") {
+    const reference = path.split("/").at(-1);
+    const selected = supportCaseRows.find(item => item.reference === reference);
+    if (selected) return json(response, { summary: { ...selected, status: selected.reference === supportCase.reference ? caseStatus : selected.status }, timeline });
   }
   if (path === `/admin/support-cases/${supportCase.reference}/messages` && method === "POST") {
     const payload = await bodyOf(request);
@@ -191,7 +253,18 @@ const backend = createServer(async (request, response) => {
     supportCase.status = caseStatus;
     return json(response, {});
   }
-  if (path === "/admin/audit-log" && method === "GET") return json(response, page([]));
+  if (path === "/admin/audit-log" && method === "GET") {
+    const query = (url.searchParams.get("q") ?? "").toLocaleLowerCase("en");
+    const action = url.searchParams.get("action") ?? "";
+    const result = url.searchParams.get("result") ?? "";
+    const matches = auditRows.filter(item =>
+      (!action || item.action === action) && (!result || item.result === result)
+      && (!query || [item.actorName,item.action,item.targetType,item.targetId,item.reason,item.correlationId]
+        .some(value => String(value ?? "").toLocaleLowerCase("en").includes(query))));
+    const pageNumber = Math.max(0, Number(url.searchParams.get("page") ?? 0));
+    const size = Math.max(1, Math.min(50, Number(url.searchParams.get("size") ?? 20)));
+    return json(response, { items: matches.slice(pageNumber * size, (pageNumber + 1) * size), page: pageNumber, size, total: matches.length });
+  }
   if (path === "/admin/audit-log/export") return csv(response, "kulha-audit-log.csv");
 
   if (path === "/reservations" && method === "GET") return json(response, page([]));
@@ -295,92 +368,79 @@ async function assertCompactWorkspaceFits(page, route, width, height) {
 }
 async function assertAdminLoginLayout(page, width, height) {
   const metrics = await page.evaluate(() => {
-    const root = document.querySelector("main.admin-login-shell");
-    const byClass = fragment => [...(root?.querySelectorAll("*") ?? [])].find(element =>
-      typeof element.className === "string" && element.className.includes(fragment));
-    if (!root) return { missingRoot: true };
-    const rail = byClass("rail"), formSide = byClass("formSide");
-    const form = root.querySelector("form.auth-form-fields");
+    const root = document.querySelector("main");
+    const portal = root?.querySelector('[class*="portal"]');
+    const form = root?.querySelector("form.auth-form-fields");
     const fields = [...(form?.querySelectorAll("input, button[type=submit]") ?? [])];
     const rect = element => {
       if (!element) return null;
-      const value = element.getBoundingClientRect();
-      return { top:value.top,bottom:value.bottom,left:value.left,right:value.right,height:value.height };
+      const r = element.getBoundingClientRect();
+      return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,width:r.width,height:r.height};
     };
     return {
-      missingRoot:false, documentWidth:document.documentElement.scrollWidth, bodyWidth:document.body.scrollWidth,
-      documentHeight:document.documentElement.scrollHeight, bodyHeight:document.body.scrollHeight,
-      root:rect(root), rail:rect(rail), formSide:rect(formSide),
-      railClientHeight:rail?.clientHeight ?? 0, railScrollHeight:rail?.scrollHeight ?? 0,
-      formClientHeight:formSide?.clientHeight ?? 0, formScrollHeight:formSide?.scrollHeight ?? 0,
-      fields:fields.map(element=>{const value=element.getBoundingClientRect();return{
-        type:element.getAttribute("type"),top:value.top,bottom:value.bottom,left:value.left,right:value.right,
-        visible:!!(element.offsetWidth||element.offsetHeight),
-      };}),
+      root:rect(root),portal:rect(portal),documentWidth:document.documentElement.scrollWidth,
+      bodyWidth:document.body.scrollWidth,documentHeight:document.documentElement.scrollHeight,
+      bodyHeight:document.body.scrollHeight,fields:fields.map(rect),
+      oldSplitPresent:!!root?.querySelector('[class*="rail"],[class*="formSide"]'),
     };
   });
-  if (metrics.missingRoot || metrics.documentWidth > width+1 || metrics.bodyWidth > width+1) {
-    throw new Error(`Admin login horizontal overflow or missing layout at ${width}x${height}: ${JSON.stringify(metrics)}`);
+  if (!metrics.root || !metrics.portal || metrics.oldSplitPresent
+    || metrics.documentWidth > width+1 || metrics.bodyWidth > width+1) {
+    throw new Error(`Admin login composition is missing, split or overflowing at ${width}x${height}: ${JSON.stringify(metrics)}`);
   }
-  if (metrics.fields.length < 3 || metrics.fields.some(field=>!field.visible||field.left < -1
-    ||field.right > width+1||field.top < -1||field.bottom > height+1)) {
-    throw new Error(`Admin login form controls are missing or clipped at ${width}x${height}: ${JSON.stringify(metrics)}`);
+  if (metrics.fields.length < 3 || metrics.fields.some(field => !field || field.left < -1
+    || field.right > width+1 || field.top < -1 || field.bottom > height+1)) {
+    throw new Error(`Admin login controls are missing or clipped at ${width}x${height}: ${JSON.stringify(metrics)}`);
   }
   if (width >= 761 && (metrics.documentHeight > height+1 || metrics.bodyHeight > height+1
     || metrics.root.top < -1 || metrics.root.bottom > height+1
-    || metrics.railScrollHeight > metrics.railClientHeight+2
-    || metrics.formScrollHeight > metrics.formClientHeight+2)) {
-    throw new Error(`Admin login must fit without page or inner-panel scrolling at ${width}x${height}: ${JSON.stringify(metrics)}`);
+    || metrics.portal.left < 0 || metrics.portal.right > width)) {
+    throw new Error(`Admin login portal does not fit the viewport at ${width}x${height}: ${JSON.stringify(metrics)}`);
   }
+}
+async function assertCompactAdminFilters(page, route, width) {
+  const filters = await page.locator('.kulhaAdminShell [role="tablist"] button').evaluateAll(buttons => buttons.map(button => {
+    const rect = button.getBoundingClientRect();
+    const style = getComputedStyle(button);
+    return {height:rect.height,radius:style.borderRadius,display:style.display,flexGrow:style.flexGrow};
+  }));
+  const invalid = filters.filter(item => item.height > 40 || parseFloat(item.radius) > 12 || item.flexGrow !== "0");
+  if (invalid.length) throw new Error(`Admin status filters are oversized at ${width}px on ${route}: ${JSON.stringify(invalid)}`);
 }
 async function assertOfferModerationLayout(page, width, height) {
   const metrics = await page.evaluate(() => {
-    const all=[...document.querySelectorAll("*")];
-    const byClass=fragment=>all.find(element=>typeof element.className==="string"&&element.className.includes(fragment));
-    const workspace=byClass("offerWorkspace"),picker=byClass("offerPicker"),queue=byClass("offerQueue");
-    const pagination=byClass("pagination"),preview=byClass("offerPreviewCard"),decision=byClass("offerReviewCallout");
-    const rect=element=>{if(!element)return null;const value=element.getBoundingClientRect();return{
-      top:value.top,bottom:value.bottom,left:value.left,right:value.right,height:value.height,
-    };};
+    const root = document.querySelector('[data-admin-page="offer-moderation"]');
+    const workspace = root?.querySelector('[class*="offerWorkspace"]');
+    const picker = root?.querySelector('[class*="offerPicker"]');
+    const queue = root?.querySelector('[class*="offerQueue"]');
+    const preview = root?.querySelector('[data-testid="offer-moderation-detail"]');
+    const action = preview?.querySelector('[data-action="suspend"]');
+    const tabs = [...(picker?.querySelectorAll('[role="tab"]') ?? [])];
+    const rect = element => { if (!element) return null; const r=element.getBoundingClientRect(); return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,width:r.width,height:r.height}; };
     return {
       documentWidth:document.documentElement.scrollWidth,bodyWidth:document.body.scrollWidth,
-      documentHeight:document.documentElement.scrollHeight,workspace:rect(workspace),picker:rect(picker),
-      queue:rect(queue),pagination:rect(pagination),preview:rect(preview),decision:rect(decision),
+      workspace:rect(workspace),picker:rect(picker),queue:rect(queue),preview:rect(preview),action:rect(action),
       queueClientHeight:queue?.clientHeight??0,queueScrollHeight:queue?.scrollHeight??0,
-      queueOverflow:queue?getComputedStyle(queue).overflowY:"missing",
+      queueOverflow:queue?getComputedStyle(queue).overflowY:"missing",tabs:tabs.length,
+      selectedText:preview?.textContent?.slice(0,240)??"",
     };
   });
-  if(metrics.documentWidth>width+1||metrics.bodyWidth>width+1)
+  if (metrics.documentWidth>width+1||metrics.bodyWidth>width+1) {
     throw new Error(`Offer moderation horizontal overflow at ${width}x${height}: ${JSON.stringify(metrics)}`);
-  if(!metrics.workspace||!metrics.picker||!metrics.queue||!metrics.pagination||!metrics.preview||!metrics.decision)
-    throw new Error(`Offer moderation layout regions are missing at ${width}x${height}: ${JSON.stringify(metrics)}`);
+  }
+  if(!metrics.workspace||!metrics.picker||!metrics.queue||!metrics.preview||!metrics.action||metrics.tabs<3) {
+    throw new Error(`Offer moderation master/detail regions are incomplete at ${width}x${height}: ${JSON.stringify(metrics)}`);
+  }
   if(width>=900){
-    const aligned=Math.abs(metrics.picker.top-metrics.preview.top)<=2
-      &&Math.abs(metrics.picker.bottom-metrics.preview.bottom)<=2
-      &&Math.abs(metrics.picker.height-metrics.preview.height)<=2;
-    if(metrics.documentHeight>height+2||!aligned||metrics.picker.height<height*.58
-      ||height-metrics.picker.bottom>64||height-metrics.picker.bottom<8
-      ||metrics.pagination.bottom>metrics.picker.bottom+1||metrics.picker.bottom-metrics.pagination.bottom>3
-      ||metrics.queueOverflow!=="auto"||metrics.queueScrollHeight<=metrics.queueClientHeight+4
-      ||metrics.decision.bottom>metrics.preview.bottom-8){
-      throw new Error(`Desktop offer moderation workspace/scroll ownership failed at ${width}x${height}: ${JSON.stringify(metrics)}`);
+    if(metrics.picker.right>metrics.preview.left+1 || metrics.picker.top>metrics.preview.top+2
+      || metrics.queueOverflow!=="auto" || metrics.queueScrollHeight<=metrics.queueClientHeight+3
+      || metrics.selectedText.length<80) {
+      throw new Error(`Desktop offer queue/detail columns are not balanced at ${width}x${height}: ${JSON.stringify(metrics)}`);
     }
-  }else if(metrics.picker.bottom>=metrics.preview.top-1){
-    throw new Error(`Mobile offer moderation panels must stack naturally at ${width}px: ${JSON.stringify(metrics)}`);
+  } else if(metrics.picker.bottom>=metrics.preview.top-1) {
+    throw new Error(`Mobile offer moderation panels must stack at ${width}px: ${JSON.stringify(metrics)}`);
   }
 }
-
-async function assertDialogWithinViewport(page, route) {
-  const rect = await page.getByRole("dialog").evaluate(element => {
-    const value = element.getBoundingClientRect();
-    return { left: value.left, top: value.top, right: value.right, bottom: value.bottom, width: value.width, height: value.height };
-  });
-  const viewport = page.viewportSize();
-  if (!viewport || rect.left < -1 || rect.top < -1 || rect.right > viewport.width + 1 || rect.bottom > viewport.height + 1) {
-    throw new Error(`Dialog exceeds viewport on ${route}: ${JSON.stringify({ rect, viewport })}`);
-  }
-}
-
 let browser;
 try {
   await new Promise(resolve => backend.listen(apiPort, "127.0.0.1", resolve));
@@ -426,12 +486,12 @@ try {
     { path: "/en/merchant/reservations/scan", token: "merchant-token", heading: "Validate a pickup" , compact: true },
     { path: "/en/merchant/staff", token: "merchant-token", heading: "Staff" , compact: true },
     { path: "/en/merchant/sales", token: "merchant-token", heading: "Sales" , compact: true },
-    { path: "/en/admin/merchant-review", token: "admin-token", heading: "Merchant review" , compact: true },
-    { path: "/en/admin/offer-moderation", token: "admin-token", heading: "Offer moderation" , compact: true },
+    { path: "/en/admin/merchant-review", token: "admin-token", heading: "Merchant review" },
+    { path: "/en/admin/offer-moderation", token: "admin-token", heading: "Offer moderation" },
     { path: "/en/admin/support-cases", token: "support-token", heading: "Support cases" , compact: true },
     { path: "/fr/admin/support-cases", token: "support-token", heading: "Dossiers support" , compact: true },
     { path: "/ar/admin/support-cases", token: "support-token", heading: "طلبات الدعم", direction: "rtl" , compact: true },
-    { path: "/en/admin/audit-log", token: "admin-token", heading: "Audit log" , compact: true },
+    { path: "/en/admin/audit-log", token: "admin-token", heading: "Audit log" },
     { path: "/fr/reservations", token: "customer-token", heading: "Mes réservations" },
     { path: "/ar/reservations", token: "customer-token", heading: "حجوزاتي", direction: "rtl", directionSelector: '[lang="ar"]' },
     { path: "/fr/account", token: "customer-token", heading: "Profil et paramètres" },
@@ -455,7 +515,12 @@ try {
         throw new Error(`Workspace did not render ${route.path}; current URL=${page.url()}; body=${bodyText}; backend requests=${JSON.stringify(requests.slice(-12))}`);
       }
       await assertNoHorizontalOverflow(page, route.path, size.width);
+      if(route.path.includes("/admin/")) await assertCompactAdminFilters(page,route.path,size.width);
       if(route.path.endsWith("/admin/offer-moderation")) await assertOfferModerationLayout(page,size.width,size.height);
+      if(route.path.endsWith("/admin/audit-log") && size.width===1366) {
+        await page.locator('[data-testid="audit-record-detail"]').waitFor({state:"visible"});
+        if(await page.locator('[data-testid="audit-record-detail"]').innerText()==="") throw new Error("Audit selected-event detail was empty.");
+      }
       if (route.path.endsWith("/admin/support-cases")) {
         const supportLayout = await page.evaluate(() => {
           const detail = document.querySelector('[data-testid="support-case-detail"]');
@@ -581,15 +646,13 @@ try {
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
-    await page.getByRole("button", { name: "Review application" }).click();
-    await assertDialogWithinViewport(page, "/en/admin/merchant-review");
-    const dialog = page.getByRole("dialog");
-    await dialog.getByLabel("Address and location checked").check();
-    await dialog.getByLabel("Phone number reachable").check();
-    await dialog.getByLabel("Documents readable and valid").check();
-    await dialog.getByRole("button", { name: "Approve" }).click();
-    await dialog.getByLabel("Reason (required)").fill("Verified during browser workflow test.");
-    await dialog.getByRole("button", { name: "Submit decision" }).click();
+    const detail = page.locator('[data-testid="merchant-review-detail"]');
+    await detail.getByLabel("Address and location checked").check();
+    await detail.getByLabel("Phone number reachable").check();
+    await detail.getByLabel("Documents readable and valid").check();
+    await detail.getByRole("button", { name: "Approve", exact: true }).click();
+    await detail.getByLabel("Reason (required)").fill("Verified during browser workflow test.");
+    await detail.getByRole("button", { name: "Submit decision" }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/approve"), "Merchant approval");
     await context.close();
   }
@@ -601,12 +664,10 @@ try {
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(origin + "/en/admin/offer-moderation", { waitUntil: "networkidle" });
-    await page.getByRole("button", { name: "Open moderation" }).click();
-    await assertDialogWithinViewport(page, "/en/admin/offer-moderation");
-    const dialog = page.getByRole("dialog");
-    await dialog.locator('[data-action="suspend"]').click();
-    await dialog.getByLabel("Reason (required)").fill("Allergen information needs verification.");
-    await dialog.getByRole("button", { name: "Hide offer" }).last().click();
+    const detail = page.locator('[data-testid="offer-moderation-detail"]');
+    await detail.locator('[data-action="suspend"]').click();
+    await detail.getByLabel("Reason (required)").fill("Allergen information needs verification.");
+    await detail.getByRole("button", { name: "Hide offer", exact: true }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/suspend"), "Offer moderation action");
     await context.close();
   }
@@ -757,6 +818,31 @@ try {
     await page.getByRole("button", { name: "Resolve case" }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/reveal-customer"), "Support customer disclosure");
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/actions"), "Support case resolution");
+    await context.close();
+  }
+
+  // Empty states stay composed and useful; these are captured separately from the populated route matrix.
+  {
+    const context = await loginContext(browser, "admin-token");
+    const page = await context.newPage({ viewport: { width: 1366, height: 768 } });
+    await page.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
+    await page.getByRole("tab", { name: /Rejected/ }).click();
+    await page.locator('[data-testid="merchant-review-detail"]').getByText("Nothing to show yet.").waitFor();
+    await page.screenshot({ path: join("artifacts/browser-screenshots", "en-admin-merchant-review-empty-1366x768.png"), animations: "disabled" });
+    await page.goto(origin + "/en/admin/offer-moderation", { waitUntil: "networkidle" });
+    await page.getByRole("tab", { name: /Hidden/ }).click();
+    await page.locator('[data-testid="offer-moderation-detail"]').getByText("Nothing to show yet.").waitFor();
+    await page.screenshot({ path: join("artifacts/browser-screenshots", "en-admin-offer-moderation-empty-1366x768.png"), animations: "disabled" });
+    await page.goto(origin + "/en/admin/support-cases", { waitUntil: "networkidle" });
+    await page.getByRole("tab", { name: /Resolved/ }).click();
+    await page.locator(".casePicker").getByText("Nothing to show yet.").waitFor();
+    await page.screenshot({ path: join("artifacts/browser-screenshots", "en-admin-support-cases-empty-1366x768.png"), animations: "disabled" });
+    await page.goto(origin + "/en/admin/audit-log", { waitUntil: "networkidle" });
+    await page.getByLabel(/Search people, actions, records, reasons/).fill("no matching audit record");
+    await page.getByText("No matching audit events.").waitFor({ timeout: 5000 }).catch(async () => {
+      await page.locator('[data-testid="audit-record-detail"]').getByText("Nothing to show yet.").waitFor();
+    });
+    await page.screenshot({ path: join("artifacts/browser-screenshots", "en-admin-audit-log-empty-1366x768.png"), animations: "disabled" });
     await context.close();
   }
 
