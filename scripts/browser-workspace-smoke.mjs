@@ -416,6 +416,9 @@ async function assertAdminStatusControls(page, route, width, height) {
 async function assertMerchantReviewLayout(page, width, height) {
   const metrics = await page.evaluate(() => {
     const detail = document.querySelector('[data-testid="merchant-review-detail-panel"]');
+    const heading = document.querySelector('[data-testid="admin-page-heading"]');
+    const topbar = document.querySelector('[data-testid="admin-console-topbar"]');
+    const tabs = document.querySelector('.kulhaAdminShell[data-page="merchant-review"] [role="tablist"]');
     const workflow = document.querySelector('[data-testid="merchant-review-workflow"]');
     const decision = document.querySelector('[data-testid="merchant-review-decision"]');
     const footer = document.querySelector('[data-testid="merchant-review-footer"]');
@@ -437,20 +440,26 @@ async function assertMerchantReviewLayout(page, width, height) {
     const actionRect = footerButton?.getBoundingClientRect();
     const noteRect = footerText?.getBoundingClientRect();
     return {
-      detail: box(detail), workflow: box(workflow), decision: box(decision), footer: box(footer),
-      documentWidth: document.documentElement.scrollWidth,
+      detail: box(detail), heading: box(heading), topbar: box(topbar), tabs: box(tabs),
+      workflow: box(workflow), decision: box(decision), footer: box(footer),
+      documentWidth: document.documentElement.scrollWidth, scrollY: window.scrollY,
       buttons, textareas,
       footerAction: actionRect ? { top: actionRect.top, bottom: actionRect.bottom, left: actionRect.left, right: actionRect.right } : null,
       footerNote: noteRect ? { top: noteRect.top, bottom: noteRect.bottom, left: noteRect.left, right: noteRect.right } : null,
       selectedMerchant: detail?.textContent?.includes('Boulangerie Test') ?? false
     };
   });
-  if (!metrics.detail || !metrics.workflow || !metrics.decision || !metrics.footer
+  if (!metrics.detail || !metrics.heading || !metrics.topbar || !metrics.tabs
+      || !metrics.workflow || !metrics.decision || !metrics.footer
       || !metrics.footerAction || !metrics.footerNote || !metrics.selectedMerchant) {
     throw new Error("Merchant review decision workspace is incomplete at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
   if (metrics.documentWidth > width + 1 || metrics.detail.left < -1 || metrics.detail.right > width + 1) {
     throw new Error("Merchant review horizontal clipping at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (metrics.scrollY > 1 || metrics.heading.top < metrics.topbar.bottom - 1
+      || metrics.tabs.top < metrics.heading.bottom - 1) {
+    throw new Error("Merchant review heading, filters and topbar overlap or start scrolled at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
   if (metrics.buttons.length !== 3 || metrics.textareas.length !== 2 || metrics.textareas.some(field => !field.visible)) {
     throw new Error("Merchant review decision controls are missing at " + width + "x" + height + ": " + JSON.stringify(metrics));
@@ -576,6 +585,7 @@ try {
         const bodyText = (await page.locator("body").innerText()).slice(0, 1200);
         throw new Error(`Workspace did not render ${route.path}; current URL=${page.url()}; body=${bodyText}; backend requests=${JSON.stringify(requests.slice(-12))}`);
       }
+      await page.evaluate(() => window.scrollTo(0, 0));
       await assertNoHorizontalOverflow(page, route.path, size.width);
       if (size.width === 1366 && route.path.endsWith("/admin/merchant-review")) {
         await page.getByTestId("merchant-review-workflow").waitFor({ state: "visible" });
@@ -645,6 +655,7 @@ try {
         const detailText = await page.getByTestId("audit-record-detail").innerText();
         if (detailText.length < 180) throw new Error(route.path + " selected audit detail did not render the long record fields.");
       }
+      await page.evaluate(() => window.scrollTo(0, 0));
       await page.screenshot({ path: join("artifacts/browser-screenshots", screenshotName), animations: "disabled" });
       if (route.adminPage && size.width === 390) {
         await page.screenshot({
