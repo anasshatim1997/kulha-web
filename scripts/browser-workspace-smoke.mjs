@@ -548,7 +548,7 @@ try {
         await search.fill("no matching KULHA record");
         await page.waitForTimeout(450);
         await page.screenshot({
-          path: join("artifacts/browser-screenshots", `${route.path.replace(/^\\/+/, "").replaceAll("/", "-")}-empty-state-1366x768.png`),
+          path: join("artifacts/browser-screenshots", `${route.path.replace(/^\/+/, "").replaceAll("/", "-")}-empty-state-1366x768.png`),
           animations: "disabled",
         });
         await search.fill("");
