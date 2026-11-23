@@ -327,65 +327,41 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                 <div><dt>{t.submitted}</dt><dd>{dateTime(selectedMerchant.createdAt,locale)}</dd></div>
                             </dl>
                         </section>
-                        <div className={styles.merchantReviewCallout}>
-                            <div><strong>{t.stageChecks} · {t.stageDecision}</strong><p>{t.reviewHint}</p></div>
-                            <button type="button" className={styles.merchantOpenButton} disabled={working} onClick={()=>setMerchantReviewOpen(true)}><ClipboardCheck size={17} aria-hidden="true"/>{t.openReview}</button>
+                        <div className={styles.merchantInlineBody}>
+                            <div className={styles.merchantModalColumn}>
+                                <section className={styles.merchantModalSection}>
+                                    <h3>{t.documents}</h3>
+                                    <div className={styles.missingDocs}><FileText size={18} aria-hidden="true"/><span><strong>{t.noDocumentsTitle}</strong><small>{t.noDocumentsBody}</small></span></div>
+                                </section>
+                            </div>
+                            <div className={styles.merchantModalColumn}>
+                                <section className={styles.merchantModalSection}>
+                                    <h3>{t.checklist}</h3>
+                                    <div className={styles.checkList}>{[t.locationChecked,t.phoneChecked,t.docsChecked].map((label,i)=><label key={label}><input type="checkbox" checked={checks[i]} onChange={e=>setChecks(current=>current.map((value,index)=>index===i?e.target.checked:value))}/>{label}</label>)}</div>
+                                    <p className={styles.approveNote}>{t.approveUnlocks}</p>
+                                </section>
+                                <section className={styles.merchantDecision+" "+styles.merchantModalDecision}>
+                                    <h3>{t.decision}</h3>
+                                    <div className={styles.segment} role="group" aria-label={t.decision}>
+                                        <button type="button" aria-pressed={merchantAction==="approve"} className={styles.segApprove+" "+(merchantAction==="approve"?styles.segOn:"")} disabled={working||checks.some(value=>!value)} onClick={()=>setMerchantAction("approve")}>{t.approve}</button>
+                                        <button type="button" aria-pressed={merchantAction==="request-information"} className={styles.segInfo+" "+(merchantAction==="request-information"?styles.segOn:"")} onClick={()=>setMerchantAction("request-information")}>{t.requestInfo}</button>
+                                        <button type="button" aria-pressed={merchantAction==="reject"} className={styles.segReject+" "+(merchantAction==="reject"?styles.segOn:"")} onClick={()=>setMerchantAction("reject")}>{t.reject}</button>
+                                    </div>
+                                    <div className={styles.merchantDecisionFields}>
+                                        <label className={styles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
+                                        <label className={styles.field}><span>{t.internalNote} · {t.optional}</span><textarea rows={3} value={internalNote} onChange={e=>setInternalNote(e.target.value)} placeholder={t.optional}/></label>
+                                    </div>
+                                </section>
+                            </div>
                         </div>
+                        <footer className={styles.merchantInlineFooter}>
+                            <p><ShieldCheck size={15} aria-hidden="true"/>{t.decisionNote}</p>
+                            <button className={styles.primary} disabled={working||!merchantAction||!reason.trim()||(merchantAction==="approve"&&checks.some(value=>!value))} onClick={()=>void submitMerchant()}>{working?t.loading:t.save}</button>
+                        </footer>
                     </>}
                 </section>
             </div>
-            {selectedMerchant&&merchantReviewOpen&&<div className={styles.merchantModalBackdrop} role="presentation" onClick={()=>setMerchantReviewOpen(false)}>
-                <section className={styles.merchantModal} role="dialog" aria-modal="true" aria-labelledby="merchant-review-dialog-title" onClick={event=>event.stopPropagation()}>
-                    <header className={styles.merchantModalHeader}>
-                        <div className={styles.merchantModalTitle}><small>{t.application} KLH-M-{selectedMerchant.id.slice(0,4).toUpperCase()}</small><h2 id="merchant-review-dialog-title">{selectedMerchant.name}</h2><p>{t.reviewHint}</p></div>
-                        <div className={styles.merchantModalHeaderActions}><span className={styles.pill+" "+merchantTone(selectedMerchant.status)}>{merchantLabel(selectedMerchant.status)}</span><button type="button" className={styles.merchantModalClose} aria-label={t.closeReview} onClick={()=>setMerchantReviewOpen(false)}><X size={20} aria-hidden="true"/></button></div>
-                    </header>
-                    <div className={styles.merchantModalStepper+" "+styles.merchantStepper} aria-label={t.application}>
-                        <div className={styles.stepDone}><span>✓</span><strong>{t.stageApplication}</strong></div><i aria-hidden="true"/><div className={styles.stepCurrent}><span>2</span><strong>{t.stageChecks}</strong></div><i aria-hidden="true"/><div className={styles.stepPending}><span>3</span><strong>{t.stageDecision}</strong></div>
-                    </div>
-                    <div className={styles.merchantModalBody}>
-                        <div className={styles.merchantModalColumn}>
-                            <section className={styles.merchantModalSection}>
-                                <h3>{t.businessDetails}</h3>
-                                <dl className={styles.merchantFacts}>
-                                    <div><dt>{t.business}</dt><dd>{selectedMerchant.businessType}</dd></div>
-                                    <div><dt>{t.address}</dt><dd>{selectedMerchant.city} · {selectedMerchant.address}</dd></div>
-                                    <div><dt>{t.phone}</dt><dd>{selectedMerchant.phone}</dd></div>
-                                    <div><dt>{t.email}</dt><dd>{selectedMerchant.ownerEmail}</dd></div>
-                                    <div><dt>{t.submitted}</dt><dd>{dateTime(selectedMerchant.createdAt,locale)}</dd></div>
-                                </dl>
-                            </section>
-                            <section className={styles.merchantModalSection}>
-                                <h3>{t.documents}</h3>
-                                <div className={styles.missingDocs}><FileText size={18} aria-hidden="true"/><span><strong>{t.noDocumentsTitle}</strong><small>{t.noDocumentsBody}</small></span></div>
-                            </section>
-                        </div>
-                        <div className={styles.merchantModalColumn}>
-                            <section className={styles.merchantModalSection}>
-                                <h3>{t.checklist}</h3>
-                                <div className={styles.checkList}>{[t.locationChecked,t.phoneChecked,t.docsChecked].map((label,i)=><label key={label}><input type="checkbox" checked={checks[i]} onChange={e=>setChecks(current=>current.map((value,index)=>index===i?e.target.checked:value))}/>{label}</label>)}</div>
-                                <p className={styles.approveNote}>{t.approveUnlocks}</p>
-                            </section>
-                            <section className={styles.merchantDecision+" "+styles.merchantModalDecision}>
-                                <h3>{t.decision}</h3>
-                                <div className={styles.segment} role="group" aria-label={t.decision}>
-                                    <button type="button" aria-pressed={merchantAction==="approve"} className={styles.segApprove+" "+(merchantAction==="approve"?styles.segOn:"")} disabled={working||checks.some(value=>!value)} onClick={()=>setMerchantAction("approve")}>{t.approve}</button>
-                                    <button type="button" aria-pressed={merchantAction==="request-information"} className={styles.segInfo+" "+(merchantAction==="request-information"?styles.segOn:"")} onClick={()=>setMerchantAction("request-information")}>{t.requestInfo}</button>
-                                    <button type="button" aria-pressed={merchantAction==="reject"} className={styles.segReject+" "+(merchantAction==="reject"?styles.segOn:"")} onClick={()=>setMerchantAction("reject")}>{t.reject}</button>
-                                </div>
-                                <div className={styles.merchantDecisionFields}>
-                                    <label className={styles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
-                                    <label className={styles.field}><span>{t.internalNote} · {t.optional}</span><textarea rows={3} value={internalNote} onChange={e=>setInternalNote(e.target.value)} placeholder={t.optional}/></label>
-                                </div>
-                            </section>
-                        </div>
-                    </div>
-                    <footer className={styles.merchantModalFooter}>
-                        <p><ShieldCheck size={15} aria-hidden="true"/>{t.decisionNote}</p>
-                        <button className={styles.primary} disabled={working||!merchantAction||!reason.trim()||(merchantAction==="approve"&&checks.some(value=>!value))} onClick={()=>void submitMerchant()}>{working?t.loading:t.save}</button>
-                    </footer>
-                </section>
-            </div>}
+            
         </>}
         {page==="offer-moderation"&&offers&&<>
             <div className={styles.offerWorkspace}>
