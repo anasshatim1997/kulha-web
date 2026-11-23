@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode, type RefObject, type Synth
 import { api } from "@/lib/api/client";
 import { canRevealSupportCustomerDetails, SUPPORT_DISCLOSURE_REASON_MAX_LENGTH } from "@/lib/auth/admin-access";
 import { useSession } from "@/components/session/SessionProvider";
-import { AlertTriangle, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, ClipboardCheck, Eye, FileText, Filter, Image as ImageIcon, Lock, Search, ShieldCheck, Tag, X } from "lucide-react";
+import { AlertTriangle, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, Filter, Image as ImageIcon, Lock, Search, ShieldCheck, Tag, X } from "lucide-react";
 import styles from "./AdminConsole.module.css";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 
@@ -194,18 +194,17 @@ type OfferAction="suspend"|"request-edit"|"reinstate";
 export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const t={...words[locale],...more[locale]};const {state}=useSession();const actorId=state.status==="authenticated"?state.user.id:"";const roles=state.status==="authenticated"?state.user.roles:[];const isSupportOnly=roles.includes("SUPPORT")&&!roles.includes("ADMIN")&&!roles.includes("SUPER_ADMIN");
     const [loading,setLoading]=useState(true);const [failed,setFailed]=useState(false);const [reload,setReload]=useState(0);const [message,setMessage]=useState("");const [query,setQuery]=useState("");
-    const [merchants,setMerchants]=useState<Page<Merchant>|null>(null);const [merchantStatus,setMerchantStatus]=useState("PENDING");const [merchantPage,setMerchantPage]=useState(0);const [selectedMerchant,setSelectedMerchant]=useState<Merchant|null>(null);const [merchantReviewOpen,setMerchantReviewOpen]=useState(false);const [merchantAction,setMerchantAction]=useState<MerchantAction|null>(null);const [checks,setChecks]=useState([false,false,false]);const [tabCounts,setTabCounts]=useState<{pending:number|null;info:number|null}>({pending:null,info:null});
-    const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useState("");const [offerPage,setOfferPage]=useState(0);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");const [offerReviewOpen,setOfferReviewOpen]=useState(false);
+    const [merchants,setMerchants]=useState<Page<Merchant>|null>(null);const [merchantStatus,setMerchantStatus]=useState("PENDING");const [merchantPage,setMerchantPage]=useState(0);const [selectedMerchant,setSelectedMerchant]=useState<Merchant|null>(null);const [merchantAction,setMerchantAction]=useState<MerchantAction|null>(null);const [checks,setChecks]=useState([false,false,false]);const [tabCounts,setTabCounts]=useState<{pending:number|null;info:number|null}>({pending:null,info:null});
+    const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useState("");const [offerPage,setOfferPage]=useState(0);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");
     const [cases,setCases]=useState<Page<CaseItem>|null>(null);const [caseStatus,setCaseStatus]=useState("OPEN");const [casePage,setCasePage]=useState(0);const [selectedCase,setSelectedCase]=useState<{summary:CaseItem;timeline:Timeline[]}|null>(null);const [caseCounts,setCaseCounts]=useState<{open:number|null;escalated:number|null;waiting:number|null;resolved:number|null}>({open:null,escalated:null,waiting:null,resolved:null});
     const [audit,setAudit]=useState<AuditPage|null>(null);const [auditPage,setAuditPage]=useState(0);const [auditPageSize,setAuditPageSize]=useState(AUDIT_PAGE_SIZE);const [selectedAuditId,setSelectedAuditId]=useState<string|null>(null);const [auditModalOpen,setAuditModalOpen]=useState(false);const [auditSearch,setAuditSearch]=useState("");const [auditFrom,setAuditFrom]=useState("");const [auditTo,setAuditTo]=useState("");const [auditAction,setAuditAction]=useState("");const [auditResult,setAuditResult]=useState("");
     const [reason,setReason]=useState("");const [disclosureReason,setDisclosureReason]=useState("");const [internalNote,setInternalNote]=useState("");const [draftMessage,setDraftMessage]=useState("");const [sendToCustomer,setSendToCustomer]=useState(true);const [revealed,setRevealed]=useState<{fullName:string;email:string;phone:string|null}|null>(null);const [working,setWorking]=useState(false);
 
-    useEffect(()=>{if(!merchantReviewOpen&&!offerReviewOpen&&!auditModalOpen)return;const previousOverflow=document.body.style.overflow;document.body.style.overflow="hidden";const onKeyDown=(event:KeyboardEvent)=>{if(event.key==="Escape"){setMerchantReviewOpen(false);setOfferReviewOpen(false);setAuditModalOpen(false);}};window.addEventListener("keydown",onKeyDown);return()=>{document.body.style.overflow=previousOverflow;window.removeEventListener("keydown",onKeyDown);};},[merchantReviewOpen,offerReviewOpen,auditModalOpen]);
     useEffect(()=>{if(page!=="audit-log")return;const timeout=window.setTimeout(()=>setAuditSearch(query.trim()),280);return()=>window.clearTimeout(timeout);},[page,query]);
 
     useEffect(()=>{let active=true;
         const load=async()=>{try{
-            if(page==="merchant-review"){const data=await api.get<Page<Merchant>>("/admin/merchants?status="+merchantStatus+"&page="+merchantPage+"&size="+MERCHANT_PAGE_SIZE);if(active){setMerchants(data);setFailed(false);setSelectedMerchant(data.items[0]??null);setMerchantReviewOpen(false);setMerchantAction(null);setChecks([false,false,false]);setReason("");setInternalNote("");}
+            if(page==="merchant-review"){const data=await api.get<Page<Merchant>>("/admin/merchants?status="+merchantStatus+"&page="+merchantPage+"&size="+MERCHANT_PAGE_SIZE);if(active){setMerchants(data);setFailed(false);setSelectedMerchant(data.items[0]??null);setMerchantAction(null);setChecks([false,false,false]);setReason("");setInternalNote("");}
                 const [p,i]=await Promise.allSettled([api.get<Page<Merchant>>("/admin/merchants?status=PENDING&page=0&size=1"),api.get<Page<Merchant>>("/admin/merchants?status=INFO_REQUIRED&page=0&size=1")]);
                 if(active)setTabCounts({pending:p.status==="fulfilled"?p.value.total:null,info:i.status==="fulfilled"?i.value.total:null});}
             if(page==="offer-moderation"){const data=await api.get<Page<Offer>>(`/admin/offers?page=${offerPage}&size=${OFFER_PAGE_SIZE}`);if(active){const lastPage=Math.max(0,Math.ceil(data.total/Math.max(1,data.size))-1);if(offerPage>lastPage){setOfferPage(lastPage);return;}setOffers(data);setFailed(false);setSelectedOffer(data.items[0]??null);setOfferAction(data.items[0]?.status==="SUSPENDED"?"reinstate":"suspend");}}
@@ -234,15 +233,15 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const priorityTone=(p:string)=>p==="HIGH"?styles.toneBad:p==="MEDIUM"?styles.toneWarn:p==="LOW"?styles.toneMuted:styles.toneInfo;
     const discount=(o:Offer)=>o.originalPriceMinor&&o.originalPriceMinor>o.priceMinor?Math.round((1-o.priceMinor/o.originalPriceMinor)*100):null;
 
-    async function loadMerchant(id:string){setWorking(true);try{const data=await api.get<Merchant>("/admin/merchants/"+id);setSelectedMerchant(data);setMerchantReviewOpen(false);setReason("");setInternalNote("");setMerchantAction(null);setChecks([false,false,false]);}catch{setMessage(t.error);}finally{setWorking(false);}}
+    async function loadMerchant(id:string){setWorking(true);try{const data=await api.get<Merchant>("/admin/merchants/"+id);setSelectedMerchant(data);setReason("");setInternalNote("");setMerchantAction(null);setChecks([false,false,false]);}catch{setMessage(t.error);}finally{setWorking(false);}}
     async function submitMerchant(){
         if(!selectedMerchant)return;if(!merchantAction||!reason.trim()){setMessage(t.needsReason);return;}if(merchantAction==="approve"&&checks.some(value=>!value)){setMessage(t.approveUnlocks);return;}setWorking(true);setMessage("");
-        try{await api.post("/admin/merchants/"+selectedMerchant.id+"/"+merchantAction,{reason:reason.trim(),internalNote:internalNote.trim()});setMessage(t.save);setReload(v=>v+1);setSelectedMerchant(null);setMerchantReviewOpen(false);setReason("");setInternalNote("");setMerchantAction(null);}
+        try{await api.post("/admin/merchants/"+selectedMerchant.id+"/"+merchantAction,{reason:reason.trim(),internalNote:internalNote.trim()});setMessage(t.save);setReload(v=>v+1);setSelectedMerchant(null);setReason("");setInternalNote("");setMerchantAction(null);}
         catch{setMessage(t.error);}finally{setWorking(false);}
     }
     async function submitOffer(){
         if(!selectedOffer)return;if(!reason.trim()){setMessage(t.saveReason);return;}setWorking(true);setMessage("");
-        try{await api.post("/admin/offers/"+selectedOffer.id+"/"+offerAction,{reason:reason.trim()});setMessage(t.save);setReload(v=>v+1);setSelectedOffer(null);setOfferReviewOpen(false);setReason("");}
+        try{await api.post("/admin/offers/"+selectedOffer.id+"/"+offerAction,{reason:reason.trim()});setMessage(t.save);setReload(v=>v+1);setSelectedOffer(null);setReason("");}
         catch{setMessage(t.error);}finally{setWorking(false);}
     }
     async function loadCase(reference:string){setWorking(true);setRevealed(null);setDisclosureReason("");try{const d=await api.get<{summary:CaseItem;timeline:Timeline[]}>("/admin/support-cases/"+reference);setSelectedCase(d);setReason("");}catch{setMessage(t.error);}finally{setWorking(false);}}
@@ -254,8 +253,8 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const switchTab=(apply:()=>void)=>{setLoading(true);setFailed(false);apply();};
 
     const searchPlaceholder=page==="merchant-review"?t.searchMerchant:page==="offer-moderation"?t.searchOffers:page==="support-cases"?t.searchCases:t.searchAudit;
-    const topbar=<div className={styles.topbar}>{page!=="audit-log"&&<label className={styles.search}><Search size={17} aria-hidden="true"/><span className="sr-only">{searchPlaceholder}</span><input type="search" value={query} onChange={e=>{setQuery(e.target.value);}} placeholder={searchPlaceholder}/></label>}</div>;
-    const frame=(content:ReactNode)=><div className={`${styles.shell} kulhaAdminShell`} dir={locale==="ar"?"rtl":"ltr"}>{topbar}<main className={styles.page}>{content}</main></div>;
+    const topbar=<div className={styles.topbar} data-testid="admin-console-topbar">{page!=="audit-log"&&<label className={styles.search} data-testid="admin-console-search"><Search size={17} aria-hidden="true"/><span className="sr-only">{searchPlaceholder}</span><input type="search" data-testid="admin-global-search" value={query} onChange={e=>{setQuery(e.target.value);}} placeholder={searchPlaceholder}/></label>}</div>;
+    const frame=(content:ReactNode)=><div className={`${styles.shell} kulhaAdminShell`} data-page={page} dir={locale==="ar"?"rtl":"ltr"}>{topbar}<main className={styles.page}>{content}</main></div>;
 
     if(loading)return frame(<><div className={styles.header}><div><div className={styles.skeleton}/><div className={styles.skeletonWide}/></div></div><div className={styles.skeletonPanel}/></>);
     if(failed)return frame(<div className={styles.alert} role="alert">{t.error}<button onClick={()=>{setLoading(true);setFailed(false);setReload(v=>v+1);}}>{t.retry}</button></div>);
@@ -287,7 +286,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const tabCount=(value:string)=>value==="PENDING"?(merchantStatus==="PENDING"?merchants?.total:tabCounts.pending):value==="INFO_REQUIRED"?(merchantStatus==="INFO_REQUIRED"?merchants?.total:tabCounts.info):merchantStatus===value?merchants?.total:null;
 
     return frame(<>
-        <header className={`${styles.header} ${page==="offer-moderation"?styles.offerHeader:""}`}>
+        <header className={`${styles.header} ${page==="offer-moderation"?styles.offerHeader:""}`} data-testid="admin-page-heading">
             <div className={styles.headerCopy}><h1>{title}</h1><p>{lead}</p></div>
             {page==="offer-moderation"&&offers&&<div className={styles.offerMetrics}>
                 <article><strong>{needsReviewCount}</strong><span>{t.needsReview}</span></article>
@@ -300,16 +299,16 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
         {message&&<div className={styles.notice} role="status">{message}</div>}
 
         {page==="merchant-review"&&merchants&&<>
-            <div className={styles.tabs} role="tablist" aria-label={t.merchantTitle}>{merchantStatuses.map(value=>{const n=tabCount(value);return <button key={value} role="tab" aria-selected={merchantStatus===value} className={merchantStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setMerchantStatus(value);setMerchantPage(0);setSelectedMerchant(null);setMerchantReviewOpen(false);setReason("");setInternalNote("");})}>{merchantLabel(value)}{typeof n==="number"?" · "+n:""}</button>;})}</div>
+            <div className={styles.tabs} role="tablist" aria-label={t.merchantTitle}>{merchantStatuses.map(value=>{const n=tabCount(value);return <button key={value} role="tab" aria-selected={merchantStatus===value} className={merchantStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setMerchantStatus(value);setMerchantPage(0);setSelectedMerchant(null);setReason("");setInternalNote("");})}>{merchantLabel(value)}{typeof n==="number"?" · "+n:""}</button>;})}</div>
             <div className={styles.merchantReviewWorkspace}>
                 <section className={styles.merchantPicker} aria-label={t.merchantTitle}>
-                    <div className={styles.list}>{merchantItems.map(item=><button key={item.id} className={selectedMerchant?.id===item.id?styles.merchantSelected:styles.merchantListItem} onClick={()=>void loadMerchant(item.id)}>
+                    <div className={styles.list} data-testid="merchant-review-list">{merchantItems.map(item=><button key={item.id} className={selectedMerchant?.id===item.id?styles.merchantSelected:styles.merchantListItem} onClick={()=>void loadMerchant(item.id)}>
                         <span className={styles.merchantListTop}><strong>{item.name}</strong><em className={styles.pill+" "+merchantTone(item.status)}>{merchantLabel(item.status)}</em></span>
                         <small>{item.businessType} · {item.city}</small><small>{item.ownerEmail}</small>
                     </button>)}</div>{!merchantItems.length&&<p className={styles.empty}>{t.empty}</p>}
-                    <AdminPagination page={merchantPage} pageCount={merchantPageCount} total={merchants.total} size={merchants.size||MERCHANT_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setMerchantPage(next);setSelectedMerchant(null);setMerchantReviewOpen(false);}} />
+                    <AdminPagination page={merchantPage} pageCount={merchantPageCount} total={merchants.total} size={merchants.size||MERCHANT_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setMerchantPage(next);setSelectedMerchant(null);}} />
                 </section>
-                <section className={styles.card+" "+styles.merchantDetails}>
+                <section className={styles.card+" "+styles.merchantDetails} data-testid="merchant-review-detail-panel">
                     {!selectedMerchant?<p className={styles.empty}>{t.empty}</p>:<>
                         <div className={styles.detailHead}><div><small>{t.application} KLH-M-{selectedMerchant.id.slice(0,4).toUpperCase()}</small><h2>{selectedMerchant.name}</h2></div><span className={styles.pill+" "+merchantTone(selectedMerchant.status)}>{merchantLabel(selectedMerchant.status)}</span></div>
                         <div className={styles.merchantStepper} aria-label={t.application}>
@@ -327,79 +326,55 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                 <div><dt>{t.submitted}</dt><dd>{dateTime(selectedMerchant.createdAt,locale)}</dd></div>
                             </dl>
                         </section>
-                        <div className={styles.merchantReviewCallout}>
-                            <div><strong>{t.stageChecks} · {t.stageDecision}</strong><p>{t.reviewHint}</p></div>
-                            <button type="button" className={styles.merchantOpenButton} disabled={working} onClick={()=>setMerchantReviewOpen(true)}><ClipboardCheck size={17} aria-hidden="true"/>{t.openReview}</button>
+                        <div className={styles.merchantInlineBody} data-testid="merchant-review-workflow">
+                            <div className={styles.merchantModalColumn}>
+                                <section className={styles.merchantModalSection}>
+                                    <h3>{t.documents}</h3>
+                                    <div className={styles.missingDocs}><FileText size={18} aria-hidden="true"/><span><strong>{t.noDocumentsTitle}</strong><small>{t.noDocumentsBody}</small></span></div>
+                                </section>
+                            </div>
+                            <div className={styles.merchantModalColumn}>
+                                <section className={styles.merchantModalSection}>
+                                    <h3>{t.checklist}</h3>
+                                    <div className={styles.checkList}>{[t.locationChecked,t.phoneChecked,t.docsChecked].map((label,i)=><label key={label}><input type="checkbox" checked={checks[i]} onChange={e=>setChecks(current=>current.map((value,index)=>index===i?e.target.checked:value))}/>{label}</label>)}</div>
+                                    <p className={styles.approveNote}>{t.approveUnlocks}</p>
+                                </section>
+                                <section className={styles.merchantDecision+" "+styles.merchantModalDecision} data-testid="merchant-review-decision">
+                                    <h3>{t.decision}</h3>
+                                    <div className={styles.segment} role="group" aria-label={t.decision}>
+                                        <button type="button" aria-pressed={merchantAction==="approve"} className={styles.segApprove+" "+(merchantAction==="approve"?styles.segOn:"")} disabled={working||checks.some(value=>!value)} onClick={()=>setMerchantAction("approve")}>{t.approve}</button>
+                                        <button type="button" aria-pressed={merchantAction==="request-information"} className={styles.segInfo+" "+(merchantAction==="request-information"?styles.segOn:"")} onClick={()=>setMerchantAction("request-information")}>{t.requestInfo}</button>
+                                        <button type="button" aria-pressed={merchantAction==="reject"} className={styles.segReject+" "+(merchantAction==="reject"?styles.segOn:"")} onClick={()=>setMerchantAction("reject")}>{t.reject}</button>
+                                    </div>
+                                    <div className={styles.merchantDecisionFields}>
+                                        <label className={styles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
+                                        <label className={styles.field}><span>{t.internalNote} · {t.optional}</span><textarea rows={3} value={internalNote} onChange={e=>setInternalNote(e.target.value)} placeholder={t.optional}/></label>
+                                    </div>
+                                </section>
+                            </div>
                         </div>
+                        <footer className={styles.merchantInlineFooter} data-testid="merchant-review-footer">
+                            <p><ShieldCheck size={15} aria-hidden="true"/>{t.decisionNote}</p>
+                            <button className={styles.primary} disabled={working||!merchantAction||!reason.trim()||(merchantAction==="approve"&&checks.some(value=>!value))} onClick={()=>void submitMerchant()}>{working?t.loading:t.save}</button>
+                        </footer>
                     </>}
                 </section>
             </div>
-            {selectedMerchant&&merchantReviewOpen&&<div className={styles.merchantModalBackdrop} role="presentation" onClick={()=>setMerchantReviewOpen(false)}>
-                <section className={styles.merchantModal} role="dialog" aria-modal="true" aria-labelledby="merchant-review-dialog-title" onClick={event=>event.stopPropagation()}>
-                    <header className={styles.merchantModalHeader}>
-                        <div className={styles.merchantModalTitle}><small>{t.application} KLH-M-{selectedMerchant.id.slice(0,4).toUpperCase()}</small><h2 id="merchant-review-dialog-title">{selectedMerchant.name}</h2><p>{t.reviewHint}</p></div>
-                        <div className={styles.merchantModalHeaderActions}><span className={styles.pill+" "+merchantTone(selectedMerchant.status)}>{merchantLabel(selectedMerchant.status)}</span><button type="button" className={styles.merchantModalClose} aria-label={t.closeReview} onClick={()=>setMerchantReviewOpen(false)}><X size={20} aria-hidden="true"/></button></div>
-                    </header>
-                    <div className={styles.merchantModalStepper+" "+styles.merchantStepper} aria-label={t.application}>
-                        <div className={styles.stepDone}><span>✓</span><strong>{t.stageApplication}</strong></div><i aria-hidden="true"/><div className={styles.stepCurrent}><span>2</span><strong>{t.stageChecks}</strong></div><i aria-hidden="true"/><div className={styles.stepPending}><span>3</span><strong>{t.stageDecision}</strong></div>
-                    </div>
-                    <div className={styles.merchantModalBody}>
-                        <div className={styles.merchantModalColumn}>
-                            <section className={styles.merchantModalSection}>
-                                <h3>{t.businessDetails}</h3>
-                                <dl className={styles.merchantFacts}>
-                                    <div><dt>{t.business}</dt><dd>{selectedMerchant.businessType}</dd></div>
-                                    <div><dt>{t.address}</dt><dd>{selectedMerchant.city} · {selectedMerchant.address}</dd></div>
-                                    <div><dt>{t.phone}</dt><dd>{selectedMerchant.phone}</dd></div>
-                                    <div><dt>{t.email}</dt><dd>{selectedMerchant.ownerEmail}</dd></div>
-                                    <div><dt>{t.submitted}</dt><dd>{dateTime(selectedMerchant.createdAt,locale)}</dd></div>
-                                </dl>
-                            </section>
-                            <section className={styles.merchantModalSection}>
-                                <h3>{t.documents}</h3>
-                                <div className={styles.missingDocs}><FileText size={18} aria-hidden="true"/><span><strong>{t.noDocumentsTitle}</strong><small>{t.noDocumentsBody}</small></span></div>
-                            </section>
-                        </div>
-                        <div className={styles.merchantModalColumn}>
-                            <section className={styles.merchantModalSection}>
-                                <h3>{t.checklist}</h3>
-                                <div className={styles.checkList}>{[t.locationChecked,t.phoneChecked,t.docsChecked].map((label,i)=><label key={label}><input type="checkbox" checked={checks[i]} onChange={e=>setChecks(current=>current.map((value,index)=>index===i?e.target.checked:value))}/>{label}</label>)}</div>
-                                <p className={styles.approveNote}>{t.approveUnlocks}</p>
-                            </section>
-                            <section className={styles.merchantDecision+" "+styles.merchantModalDecision}>
-                                <h3>{t.decision}</h3>
-                                <div className={styles.segment} role="group" aria-label={t.decision}>
-                                    <button type="button" aria-pressed={merchantAction==="approve"} className={styles.segApprove+" "+(merchantAction==="approve"?styles.segOn:"")} disabled={working||checks.some(value=>!value)} onClick={()=>setMerchantAction("approve")}>{t.approve}</button>
-                                    <button type="button" aria-pressed={merchantAction==="request-information"} className={styles.segInfo+" "+(merchantAction==="request-information"?styles.segOn:"")} onClick={()=>setMerchantAction("request-information")}>{t.requestInfo}</button>
-                                    <button type="button" aria-pressed={merchantAction==="reject"} className={styles.segReject+" "+(merchantAction==="reject"?styles.segOn:"")} onClick={()=>setMerchantAction("reject")}>{t.reject}</button>
-                                </div>
-                                <div className={styles.merchantDecisionFields}>
-                                    <label className={styles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
-                                    <label className={styles.field}><span>{t.internalNote} · {t.optional}</span><textarea rows={3} value={internalNote} onChange={e=>setInternalNote(e.target.value)} placeholder={t.optional}/></label>
-                                </div>
-                            </section>
-                        </div>
-                    </div>
-                    <footer className={styles.merchantModalFooter}>
-                        <p><ShieldCheck size={15} aria-hidden="true"/>{t.decisionNote}</p>
-                        <button className={styles.primary} disabled={working||!merchantAction||!reason.trim()||(merchantAction==="approve"&&checks.some(value=>!value))} onClick={()=>void submitMerchant()}>{working?t.loading:t.save}</button>
-                    </footer>
-                </section>
-            </div>}
+            
         </>}
         {page==="offer-moderation"&&offers&&<>
-            <div className={styles.offerWorkspace}>
-                <section className={styles.offerPicker} aria-label={t.offersTitle}>
+            <div className={styles.offerWorkspace} data-testid="offer-workspace">
+                <section className={styles.offerPicker} aria-label={t.offersTitle} data-testid="offer-picker">
                     <div className={styles.tabs} role="tablist" aria-label={t.filter}>
                         {[
                             {value:"",label:t.all,count:offers.total},
                             {value:"REPORTED",label:t.reportedFilter,count:reportedOfferCount},
                             {value:"ALLERGENS_UNKNOWN",label:t.allergensUnknown,count:unknownAllergenCount},
                             {value:"SUSPENDED",label:t.hiddenFilter,count:hiddenOfferCount}
-                        ].map(tab=><button key={tab.value||"all"} type="button" role="tab" aria-selected={offerStatus===tab.value} className={offerStatus===tab.value?styles.activeTab:styles.tab} onClick={()=>{setOfferStatus(tab.value);setOfferPage(0);setSelectedOffer(null);setOfferReviewOpen(false);setReason("");}}>{tab.label} · {tab.count}</button>)}
+                        ].map(tab=><button key={tab.value||"all"} type="button" role="tab" aria-selected={offerStatus===tab.value} className={offerStatus===tab.value?styles.activeTab:styles.tab} onClick={()=>{setOfferStatus(tab.value);setOfferPage(0);setSelectedOffer(null);setReason("");}}>{tab.label} · {tab.count}</button>)}
                     </div>
-                    <div className={styles.offerQueue}>
-                        {offerItems.map(item=>{const d=discount(item);return <button type="button" key={item.id} aria-pressed={selectedOffer?.id===item.id} className={selectedOffer?.id===item.id?styles.offerItemSelected:styles.offerItem} onClick={()=>{setSelectedOffer(item);setOfferReviewOpen(false);setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");}}>
+                    <div className={styles.offerQueue} data-testid="offer-queue">
+                        {offerItems.map(item=>{const d=discount(item);return <button type="button" key={item.id} aria-pressed={selectedOffer?.id===item.id} className={selectedOffer?.id===item.id?styles.offerItemSelected:styles.offerItem} onClick={()=>{setSelectedOffer(item);setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");}}>
                             <span className={styles.offerThumb}>{item.imageUrl?<OfferImage src={item.imageUrl} alt="" lazy/>:<ImageIcon size={20} aria-hidden="true"/>}</span>
                             <span className={styles.offerCopy}><strong>{item.title}</strong><small>{item.shopName} · {item.city}</small><span className={styles.offerTags}>
                                 {item.reportedCount>0&&<em className={styles.reportTag}>{item.reportedCount} {item.reportedCount===1?t.report:t.reportsN}</em>}
@@ -410,9 +385,9 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         </button>;})}
                     </div>
                     {!offerItems.length&&<p className={styles.empty}>{t.empty}</p>}
-                    <AdminPagination page={offerPage} pageCount={offerPageCount} total={offers.total} size={offers.size||OFFER_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setOfferPage(next);setSelectedOffer(null);setOfferReviewOpen(false);}} />
+                    <div className={styles.offerPagination} data-testid="offer-pagination"><AdminPagination page={offerPage} pageCount={offerPageCount} total={offers.total} size={offers.size||OFFER_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setOfferPage(next);setSelectedOffer(null);}} /></div>
                 </section>
-                <section className={styles.offerPreviewCard} aria-label={t.selectedOffer}>
+                <section className={styles.offerPreviewCard} aria-label={t.selectedOffer} data-testid="offer-detail-panel">
                     {!selectedOffer?<div className={styles.offerEmpty}><Tag size={28} aria-hidden="true"/><strong>{t.selectedOffer}</strong><span>{t.empty}</span></div>:<>
                         <div className={styles.offerPreviewHeading}>
                             <div className={styles.offerPreviewThumb}>{selectedOffer.imageUrl?<OfferImage src={selectedOffer.imageUrl} alt={selectedOffer.title}/>:<ImageIcon size={24} aria-hidden="true"/>}</div>
@@ -429,71 +404,53 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             <div><dt>{t.stock}</dt><dd>{selectedOffer.quantityReserved} / {selectedOffer.quantityTotal} {t.reserved}</dd></div>
                             <div><dt>{t.reportsTitle}</dt><dd>{selectedOffer.reportedCount}</dd></div>
                         </dl>
-                        {selectedOffer.allergensStatus==="UNKNOWN"&&<div className={styles.offerPreviewAlert}><AlertTriangle size={17} aria-hidden="true"/><span><strong>{t.foodSafetyTitle}</strong><small>{t.foodSafetyBody}</small></span></div>}
-                        <div className={styles.offerReviewCallout}>
-                            <div><strong>{t.decision}</strong><p>{t.offerReviewHint}</p></div>
-                            <button type="button" className={styles.merchantOpenButton} disabled={working} onClick={()=>setOfferReviewOpen(true)}><ClipboardCheck size={17} aria-hidden="true"/>{t.openOfferReview}</button>
+                        {selectedOffer.allergensStatus==="UNKNOWN"&&<div className={styles.offerPreviewAlert} data-testid="offer-food-safety-alert"><AlertTriangle size={17} aria-hidden="true"/><span><strong>{t.foodSafetyTitle}</strong><small>{t.foodSafetyBody}</small></span></div>}
+                        <div className={styles.offerInlineBody} data-testid="offer-moderation-workflow">
+                            <div className={styles.merchantModalColumn}>
+                                <section className={styles.merchantModalSection}>
+                                    <h3>{t.reportsTitle} · {selectedOffer.reportedCount}</h3>
+                                    {selectedOffer.reportedCount>0?<div className={styles.offerModalReport}><strong>{selectedOffer.reportedCount} {t.reportReceived}</strong><span>{t.status}: {offerLabel(selectedOffer.status)}</span></div>:<p className={styles.offerModalNoReports}>{t.noReports}</p>}
+                                    {selectedOffer.foodNotes&&<div className={styles.offerModalFoodNotes}><strong>{t.foodInfo}</strong><p>{selectedOffer.foodNotes}</p></div>}
+                                </section>
+                            </div>
+                            <div className={styles.merchantModalColumn}>
+                                <section className={styles.merchantModalSection+" "+styles.offerModalReason} data-testid="offer-decision-reason">
+                                    <h3>{t.reason}</h3>
+                                    <div className={styles.reasonChips}>
+                                        {[t.reasonMisleading,t.reasonAllergens,t.reasonPhoto,t.reasonOther].map(label=><button key={label} type="button" className={reason.startsWith(label)?styles.reasonChipActive:styles.reasonChip} onClick={()=>setReason(label+": ")}>{label}</button>)}
+                                    </div>
+                                    <label className={styles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
+                                </section>
+                            </div>
+                            <div className={styles.merchantModalColumn}>
+                                <section className={styles.merchantDecision+" "+styles.offerModalDecision}>
+                                    <h3>{t.decision}</h3>
+                                    <p className={styles.offerModalDecisionHint}>{t.reinstateOnlyHidden}</p>
+                                    <div className={styles.offerActionRow}>
+                                        <button type="button" data-action="reinstate" aria-pressed={offerAction==="reinstate"} className={offerAction==="reinstate"?styles.offerActionActive:styles.offerAction} disabled={selectedOffer.status!=="SUSPENDED"} onClick={()=>setOfferAction("reinstate")}>{t.putLive}</button>
+                                        <button type="button" data-action="request-edit" aria-pressed={offerAction==="request-edit"} className={offerAction==="request-edit"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("request-edit")}>{t.askEdit}</button>
+                                        <button type="button" data-action="suspend" aria-pressed={offerAction==="suspend"} className={offerAction==="suspend"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("suspend")}>{selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
+                                    </div>
+                                </section>
+                            </div>
                         </div>
+                        <footer className={styles.offerInlineFooter} data-testid="offer-moderation-footer">
+                            <p><ShieldCheck size={15} aria-hidden="true"/>{t.auditRecorded}</p>
+                            <button className={styles.primary} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{working?t.loading:offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
+                        </footer>
                     </>}
                 </section>
             </div>
-            {selectedOffer&&offerReviewOpen&&<div className={styles.merchantModalBackdrop} role="presentation" onClick={()=>setOfferReviewOpen(false)}>
-                <section className={styles.merchantModal+" "+styles.offerModal} role="dialog" aria-modal="true" aria-labelledby="offer-review-dialog-title" onClick={event=>event.stopPropagation()}>
-                    <header className={styles.merchantModalHeader}>
-                        <div className={styles.merchantModalTitle}><small>{t.offerDetails} · {selectedOffer.shopName} · {selectedOffer.city}</small><h2 id="offer-review-dialog-title">{selectedOffer.title}</h2><p>{t.offerReviewHint}</p></div>
-                        <div className={styles.merchantModalHeaderActions}><span className={styles.pill+" "+offerTone(selectedOffer.status)}>{offerLabel(selectedOffer.status)}</span><button type="button" className={styles.merchantModalClose} aria-label={t.closeReview} onClick={()=>setOfferReviewOpen(false)}><X size={20} aria-hidden="true"/></button></div>
-                    </header>
-                    <div className={styles.merchantModalBody+" "+styles.offerModalBody}>
-                        <div className={styles.merchantModalColumn}>
-                            <section className={styles.merchantModalSection}>
-                                <h3>{t.offerDetails}</h3>
-                                <div className={styles.offerModalVisual}>{selectedOffer.imageUrl?<OfferImage src={selectedOffer.imageUrl} alt={selectedOffer.title}/>:<div className={styles.offerVisualFallback}><ImageIcon size={22} aria-hidden="true"/><span>{t.offer} photo</span></div>}</div>
-                                <dl className={styles.offerModalFacts}>
-                                    <div><dt>{t.price}</dt><dd>{amount(selectedOffer.priceMinor,locale)} MAD</dd></div>
-                                    <div><dt>{t.originalPrice}</dt><dd>{selectedOffer.originalPriceMinor?amount(selectedOffer.originalPriceMinor,locale)+" MAD · "+t.notVerified:"—"}</dd></div>
-                                    <div><dt>{t.stock}</dt><dd>{selectedOffer.quantityReserved} / {selectedOffer.quantityTotal} {t.reserved}</dd></div>
-                                    <div><dt>{t.pickup}</dt><dd>{selectedOffer.pickupStart&&selectedOffer.pickupEnd?shortDateTime(selectedOffer.pickupStart,locale)+" – "+shortDateTime(selectedOffer.pickupEnd,locale):t.pickupUnavailable}</dd></div>
-                                    <div><dt>{t.foodInfo}</dt><dd>{selectedOffer.allergensStatus==="UNKNOWN"?t.hiddenAllergens:(selectedOffer.allergens||t.complete)}</dd></div>
-                                </dl>
-                            </section>
-                            <section className={styles.merchantModalSection}>
-                                <h3>{t.reportsTitle} · {selectedOffer.reportedCount}</h3>
-                                {selectedOffer.reportedCount>0?<div className={styles.offerModalReport}><strong>{selectedOffer.reportedCount} {t.reportReceived}</strong><span>{t.status}: {offerLabel(selectedOffer.status)}</span></div>:<p className={styles.offerModalNoReports}>{t.noReports}</p>}
-                                {selectedOffer.foodNotes&&<div className={styles.offerModalFoodNotes}><strong>{t.foodInfo}</strong><p>{selectedOffer.foodNotes}</p></div>}
-                            </section>
-                        </div>
-                        <div className={styles.merchantModalColumn}>
-                            {selectedOffer.allergensStatus==="UNKNOWN"&&<div className={styles.foodSafetyAlert}><AlertTriangle size={18} aria-hidden="true"/><span><strong>{t.foodSafetyTitle}</strong><small>{t.foodSafetyBody}</small></span></div>}
-                            <section className={styles.merchantDecision+" "+styles.offerModalDecision}>
-                                <h3>{t.decision}</h3>
-                                <p className={styles.offerModalDecisionHint}>{t.reinstateOnlyHidden}</p>
-                                <div className={styles.offerActionRow}>
-                                    <button type="button" data-action="reinstate" aria-pressed={offerAction==="reinstate"} className={offerAction==="reinstate"?styles.offerActionActive:styles.offerAction} disabled={selectedOffer.status!=="SUSPENDED"} onClick={()=>setOfferAction("reinstate")}>{t.putLive}</button>
-                                    <button type="button" data-action="request-edit" aria-pressed={offerAction==="request-edit"} className={offerAction==="request-edit"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("request-edit")}>{t.askEdit}</button>
-                                    <button type="button" data-action="suspend" aria-pressed={offerAction==="suspend"} className={offerAction==="suspend"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("suspend")}>{selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
-                                </div>
-                                <div className={styles.reasonChips}>
-                                    {[t.reasonMisleading,t.reasonAllergens,t.reasonPhoto,t.reasonOther].map(label=><button key={label} type="button" className={reason.startsWith(label)?styles.reasonChipActive:styles.reasonChip} onClick={()=>setReason(label+": ")}>{label}</button>)}
-                                </div>
-                                <label className={styles.field}><span>{t.reason}</span><textarea rows={4} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
-                            </section>
-                        </div>
-                    </div>
-                    <footer className={styles.merchantModalFooter}>
-                        <p><ShieldCheck size={15} aria-hidden="true"/>{t.auditRecorded}</p>
-                        <button className={styles.primary} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{working?t.loading:offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
-                    </footer>
-                </section>
-            </div>}
+            
         </>}
 
         {page==="support-cases"&&cases&&<>
             <div className={styles.tabs} role="tablist" aria-label={t.casesTitle}>
                 {([["OPEN",t.open,caseCounts.open],["ESCALATED",t.escalated,caseCounts.escalated],["WAITING_REPLY",t.waiting,caseCounts.waiting],["RESOLVED",t.resolved,caseCounts.resolved]] as const).map(([value,label,count])=><button key={value} role="tab" aria-selected={caseStatus===value} className={caseStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setCaseStatus(value);setCasePage(0);setSelectedCase(null);setReason("");})}>{label}{typeof count==="number"?" · "+count:""}</button>)}
             </div>
-            <div className={styles.supportWorkspace}>
-                <section className={styles.casePicker} aria-label={t.casesTitle}>
-                    <div className={styles.caseList}>{caseItems.map(item=><button key={item.reference} className={selectedCase?.summary.reference===item.reference?styles.caseSelected:styles.caseItem} onClick={()=>void loadCase(item.reference)}>
+            <div className={styles.supportWorkspace} data-testid="support-workspace">
+                <section className={styles.casePicker} aria-label={t.casesTitle} data-testid="support-case-queue">
+                    <div className={styles.caseList} data-testid="support-case-list">{caseItems.map(item=><button key={item.reference} data-testid="support-case-row" className={selectedCase?.summary.reference===item.reference?styles.caseSelected:styles.caseItem} onClick={()=>void loadCase(item.reference)}>
                         <span className={styles.caseListTop}><small>{item.reference} · {item.category}</small><em className={styles.pill+" "+priorityTone(item.priority)}>{priorityLabel(item.priority)}</em></span>
                         <strong>{item.subject}</strong><small>{item.reservationReference?item.reservationReference+" · ":""}{item.merchantName||t.shop}</small>
                     </button>)}</div>{!caseItems.length&&<p className={styles.empty}>{t.empty}</p>}
@@ -508,6 +465,11 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             <article><small>{t.caseOffer}</small><strong>{selectedCase.summary.offerTitle||"—"}</strong></article>
                             <article><small>{t.caseShop}</small><strong>{selectedCase.summary.merchantName||"—"}</strong></article>
                         </div>
+                        <h3 className={styles.sectionLabel}>{t.timeline}</h3>
+                        <div className={styles.caseTimeline} data-testid="support-case-timeline">{selectedCase.timeline.map(item=><article key={item.id} className={item.visibility==="INTERNAL"?styles.timelineInternal:item.authorType==="CUSTOMER"?styles.timelineCustomer:styles.timelineAgent}>
+                            <strong>{item.visibility==="INTERNAL"?t.internal:item.authorType==="CUSTOMER"?t.customer:t.reply} · {new Intl.DateTimeFormat(loc(locale),{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(new Date(item.createdAt))}</strong>
+                            <p>{item.message}</p>
+                        </article>)}</div>
                         <div className={styles.caseAssignment}>
                             <p>{t.assignedTo}: <strong>{selectedCase.summary.assigneeName||"Unassigned"}</strong></p>
                             <div><button className={styles.ghostBtn} type="button" disabled={working} onClick={()=>void caseAction("CONTACT_SHOP")}>{t.contactShop}</button>{!isSupportOnly&&<button className={styles.ghostBtn} type="button" disabled={working} onClick={()=>void assignToMe()}>{t.assign}</button>}</div>
@@ -523,12 +485,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             </div>
                         }
                         <p className={styles.hint}><Lock size={13} aria-hidden="true"/>{t.masked}</p>
-                        <h3 className={styles.sectionLabel}>{t.timeline}</h3>
-                        <div className={styles.caseTimeline}>{selectedCase.timeline.map(item=><article key={item.id} className={item.visibility==="INTERNAL"?styles.timelineInternal:item.authorType==="CUSTOMER"?styles.timelineCustomer:styles.timelineAgent}>
-                            <strong>{item.visibility==="INTERNAL"?t.internal:item.authorType==="CUSTOMER"?t.customer:t.reply} · {new Intl.DateTimeFormat(loc(locale),{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(new Date(item.createdAt))}</strong>
-                            <p>{item.message}</p>
-                        </article>)}</div>
-                        <section className={styles.caseActions}>
+                        <section className={styles.caseActions} data-testid="support-case-actions">
                             <label className={styles.caseActionReason}><span>{t.actionReason}</span><input value={reason} onChange={e=>setReason(e.target.value)} placeholder={t.needsReason}/></label>
                             <button type="button" className={styles.ghostBtn} disabled={working||!reason.trim()} onClick={()=>void caseAction("ESCALATE")}>{t.escalate}</button>
                             <button type="button" className={styles.primary} disabled={working||!reason.trim()} onClick={()=>void caseAction("RESOLVE")}>{t.resolve}</button>
@@ -557,7 +514,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         <span>{auditUi.searchLabel}</span>
                         <div className={styles.auditSearchControl}>
                             <Search size={19} aria-hidden="true"/>
-                            <input type="search" aria-label={more[locale].searchAudit} value={query} onChange={e=>{setQuery(e.target.value);setAuditPage(0);setAuditModalOpen(false);}} placeholder={more[locale].searchAudit}/>
+                            <input type="search" data-testid="audit-search-input" aria-label={more[locale].searchAudit} value={query} onChange={e=>{setQuery(e.target.value);setAuditPage(0);setAuditModalOpen(false);}} placeholder={more[locale].searchAudit}/>
                             {query&&<button type="button" aria-label={locale==="fr"?"Effacer la recherche":locale==="ar"?"مسح البحث":"Clear search"} onClick={()=>{setQuery("");setAuditSearch("");setAuditPage(0);}}><X size={15}/></button>}
                         </div>
                     </label>
@@ -579,21 +536,21 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     ]} onChange={value=>{setAuditResult(value);setAuditPage(0);setAuditModalOpen(false);}}/>
                 </div>
             </section>
-            <section className={styles.auditExplorer} aria-label={auditUi.history}>
+            <section className={styles.auditExplorer} aria-label={auditUi.history} data-testid="audit-explorer">
                 <div className={styles.auditExplorerHeading}>
                     <div><h2>{auditUi.history}</h2><p>{auditUi.latest}</p></div>
                     <span>{audit.total.toLocaleString(loc(locale))} · {t.audit}</span>
                 </div>
-                <section className={styles.auditTableCard}>
+                <section className={styles.auditTableCard} data-testid="audit-table-card">
                     <div className={styles.table}>
                         <table><thead><tr><th>{t.when.toUpperCase()}</th><th>{t.person.toUpperCase()}</th><th>{t.action.toUpperCase()}</th><th>{t.record.toUpperCase()}</th><th>{t.reason.toUpperCase()}</th><th>{t.result.toUpperCase()}</th></tr></thead>
-                            <tbody>{auditItems.map(item=><tr key={item.id} tabIndex={0} aria-haspopup="dialog" aria-label={`${auditActionLabel(item.action,locale)} · ${item.actorName}`} aria-selected={auditModalOpen&&selectedAuditId===item.id} className={auditModalOpen&&selectedAuditId===item.id?styles.auditSelectedRow:""} onClick={()=>{setSelectedAuditId(item.id);setAuditModalOpen(true);}} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();setSelectedAuditId(item.id);setAuditModalOpen(true);}}}>
-                                <td>{shortDateTime(item.createdAt,locale)}</td>
-                                <td><strong>{item.actorName}</strong></td>
-                                <td><strong>{auditActionLabel(item.action,locale)}</strong><small>{item.action}</small></td>
-                                <td><strong>{item.targetType}</strong><small>{item.targetId}</small></td>
-                                <td><span className={styles.auditTableReason}>{item.reason||"—"}</span></td>
-                                <td>{resultPill(item.result)}</td>
+                            <tbody>{auditItems.map(item=><tr key={item.id} data-testid="audit-record-row" tabIndex={0} aria-label={`${auditActionLabel(item.action,locale)} · ${item.actorName}`} aria-pressed={selectedAuditId===item.id} className={selectedAuditId===item.id?styles.auditSelectedRow:""} onClick={()=>{setSelectedAuditId(item.id);setAuditModalOpen(true);}} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();setSelectedAuditId(item.id);setAuditModalOpen(true);}}}>
+                                <td data-label={t.when}>{shortDateTime(item.createdAt,locale)}</td>
+                                <td data-label={t.person}><strong>{item.actorName}</strong></td>
+                                <td data-label={t.action}><strong>{auditActionLabel(item.action,locale)}</strong><small>{item.action}</small></td>
+                                <td data-label={t.record}><strong>{item.targetType}</strong><small>{item.targetId}</small></td>
+                                <td data-label={t.reason}><span className={styles.auditTableReason}>{item.reason||"—"}</span></td>
+                                <td data-label={t.result}>{resultPill(item.result)}</td>
                             </tr>)}</tbody>
                         </table>
                     </div>
@@ -603,48 +560,36 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         <AdminPagination page={auditPage} pageCount={auditPageCount} total={audit.total} size={audit.size||auditPageSize} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setAuditPage(next);setAuditModalOpen(false);setSelectedAuditId(null);}} />
                     </div>
                 </section>
-            </section>
-            {auditModalOpen&&selectedAudit&&<div className={styles.auditModalBackdrop} role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setAuditModalOpen(false);}}>
-                <section className={styles.auditModal} role="dialog" aria-modal="true" aria-labelledby="audit-modal-title" onMouseDown={event=>event.stopPropagation()}>
-                    <header className={styles.auditModalHeader}>
-                        <div className={styles.auditModalTitle}>
-                            <small>{auditUi.eventDetails}</small>
-                            <h2 id="audit-modal-title">{auditActionLabel(selectedAudit.action,locale)}</h2>
-                            <p>{selectedAudit.action}</p>
-                        </div>
-                        <div className={styles.auditModalHeaderActions}>
-                            {resultPill(selectedAudit.result)}
-                            <button type="button" className={styles.auditModalClose} aria-label={auditUi.close} autoFocus onClick={()=>setAuditModalOpen(false)}><X size={20} aria-hidden="true"/></button>
-                        </div>
+            {audit&&<section className={styles.auditRecordCard} aria-label={auditUi.eventDetails} data-testid="audit-record-detail">
+                {!selectedAudit?<div className={styles.auditRecordEmpty}><ShieldCheck size={22} aria-hidden="true"/><strong>{auditUi.eventDetails}</strong><p>{locale==="fr"?"Sélectionnez une ligne du journal pour consulter les détails.":locale==="ar"?"اختر سجلاً من الجدول لعرض التفاصيل.":"Select an audit row to inspect its details."}</p></div>:<>
+                    <header className={styles.auditRecordHeader} data-testid="audit-record-header">
+                        <div><small>{auditUi.eventDetails}</small><h2>{auditActionLabel(selectedAudit.action,locale)}</h2><code>{selectedAudit.action}</code></div>
+                        {resultPill(selectedAudit.result)}
                     </header>
-                    <div className={styles.auditModalBody}>
-                        <section className={styles.auditModalPanel}>
-                            <h3>{auditUi.adminAction}</h3>
-                            <dl className={styles.auditModalFacts}>
-                                <div><dt>{t.person}</dt><dd>{selectedAudit.actorName}</dd></div>
-                                <div><dt>{auditUi.identifier}</dt><dd>{selectedAudit.actorUserId}</dd></div>
-                                <div><dt>{auditUi.dateTime}</dt><dd>{dateTime(selectedAudit.createdAt,locale)}</dd></div>
-                                <div><dt>{auditUi.category}</dt><dd>{auditCategoryLabel(selectedAudit.action,locale)}</dd></div>
-                                <div><dt>{auditUi.technicalAction}</dt><dd><code>{selectedAudit.action}</code></dd></div>
-                                <div><dt>{t.result}</dt><dd>{resultPill(selectedAudit.result)}</dd></div>
-                            </dl>
-                        </section>
-                        <section className={styles.auditModalPanel}>
-                            <h3>{auditUi.affected}</h3>
-                            <dl className={styles.auditModalFacts}>
-                                <div><dt>{auditUi.entityType}</dt><dd>{selectedAudit.targetType}</dd></div>
-                                <div><dt>{auditUi.identifier}</dt><dd>{selectedAudit.targetId}</dd></div>
-                                <div className={styles.auditModalReason}><dt>{t.reason}</dt><dd>{selectedAudit.reason||"—"}</dd></div>
-                                {selectedAudit.correlationId&&<div><dt>{auditUi.correlationId}</dt><dd><code>{selectedAudit.correlationId}</code></dd></div>}
-                            </dl>
-                        </section>
-                    </div>
-                    <footer className={styles.auditModalFooter}>
-                        <p><Lock size={15} aria-hidden="true"/>{auditUi.immutableNotice}<small>{auditUi.eventId}: {selectedAudit.id}</small></p>
-                        <button type="button" className={styles.primary} onClick={()=>setAuditModalOpen(false)}>{auditUi.close}</button>
-                    </footer>
-                </section>
-            </div>}
+                    <section className={styles.auditRecordSection}>
+                        <h3>{auditUi.adminAction}</h3>
+                        <dl className={styles.auditRecordFacts}>
+                            <div><dt>{t.person}</dt><dd>{selectedAudit.actorName}</dd></div>
+                            <div><dt>{auditUi.identifier}</dt><dd>{selectedAudit.actorUserId}</dd></div>
+                            <div><dt>{auditUi.dateTime}</dt><dd>{dateTime(selectedAudit.createdAt,locale)}</dd></div>
+                            <div><dt>{auditUi.category}</dt><dd>{auditCategoryLabel(selectedAudit.action,locale)}</dd></div>
+                            <div><dt>{t.result}</dt><dd>{resultPill(selectedAudit.result)}</dd></div>
+                        </dl>
+                    </section>
+                    <section className={styles.auditRecordSection}>
+                        <h3>{auditUi.affected}</h3>
+                        <dl className={styles.auditRecordFacts}>
+                            <div><dt>{auditUi.entityType}</dt><dd>{selectedAudit.targetType}</dd></div>
+                            <div><dt>{auditUi.identifier}</dt><dd>{selectedAudit.targetId}</dd></div>
+                            <div><dt>{t.reason}</dt><dd>{selectedAudit.reason||"—"}</dd></div>
+                            {selectedAudit.correlationId&&<div><dt>{auditUi.correlationId}</dt><dd><code>{selectedAudit.correlationId}</code></dd></div>}
+                            <div><dt>{auditUi.eventId}</dt><dd><code>{selectedAudit.id}</code></dd></div>
+                        </dl>
+                    </section>
+                    <p className={styles.auditRecordNotice}><Lock size={14} aria-hidden="true"/>{auditUi.immutableNotice}</p>
+                </>}
+            </section>}
+            </section>
         </>}
 
     </>);
