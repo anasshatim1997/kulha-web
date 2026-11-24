@@ -863,20 +863,47 @@ try {
           throw new Error(`Admin search must remain visible and full-width at ${size.width}px on ${route.path}: ${JSON.stringify(searchBounds)}`);
         }
       }
-      if (size.width === 1366 && route.path.endsWith("/admin/merchant-review")) {
+      if (route.path.endsWith("/admin/merchant-review")) {
+        const rows = page.getByTestId("merchant-review-list").getByRole("button");
+        await rows.first().click();
+        const drawer = page.getByTestId("workspace-drawer");
+        await drawer.waitFor({ state: "visible" });
         await page.getByTestId("merchant-review-workflow").waitFor({ state: "visible" });
+        await page.keyboard.press("Escape");
+        await drawer.waitFor({ state: "hidden" });
+        if (!(await rows.first().evaluate(node => node === document.activeElement))) throw new Error("Merchant drawer did not restore focus to the selected row.");
+        await rows.first().click();
+        await drawer.waitFor({ state: "visible" });
+        await page.getByLabel("Address and location checked").check();
+        page.evaluate(() => { window.confirm = () => false; });
+        await page.getByTestId("workspace-drawer-backdrop").click({ position: { x: 8, y: 8 } });
+        if (!(await drawer.isVisible())) throw new Error("Merchant drawer ignored unsaved-change protection.");
+        page.evaluate(() => { window.confirm = () => true; });
+        await page.keyboard.press("Escape");
+        await drawer.waitFor({ state: "hidden" });
+        await rows.nth(1).click();
+        await drawer.waitFor({ state: "visible" });
       }
-      if (size.width === 1366 && route.path.endsWith("/admin/support-cases")) {
+      if (route.path.endsWith("/admin/offer-moderation")) {
+        const rows = page.getByTestId("offer-queue").getByRole("button");
+        await rows.first().click();
+        const drawer = page.getByTestId("workspace-drawer");
+        await drawer.waitFor({ state: "visible" });
+        await rows.nth(1).click();
+        await drawer.waitFor({ state: "visible" });
+      }
+      if (route.path.endsWith("/admin/support-cases")) {
         await page.getByTestId("support-case-row").first().click();
+        await page.getByTestId("workspace-drawer").waitFor({ state: "visible" });
         await page.locator('[data-testid="support-case-detail"] h2').waitFor({ state: "visible" });
       }
       if (route.adminPage) await assertAdminStatusControls(page, route.path, size.width, size.height);
       if (route.path.endsWith("/admin/merchant-review")) await assertMerchantReviewLayout(page, size.width, size.height);
       if (route.path.endsWith("/admin/offer-moderation")) {
         await assertOfferModerationLayout(page, size.width, size.height);
-        await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
         const longTitle = "Family breakfast basket with assorted bakery items, fresh fruit and detailed allergen information";
         await page.getByTestId("offer-queue").getByRole("button").filter({ hasText: longTitle }).click();
+        await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
         await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
         const selectedTitle = page.getByTestId("offer-detail-panel").locator("h2").first();
         await selectedTitle.waitFor({ state: "visible" });
