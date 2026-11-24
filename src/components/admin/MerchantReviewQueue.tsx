@@ -39,20 +39,22 @@ export function MerchantReviewQueue({locale,initialStatus,initialPage,initialQue
   const [status,setStatus]=useState<Status>(initialStatus), [page,setPage]=useState(initialPage);
   const [query,setQuery]=useState(initialQuery), [data,setData]=useState<Page<Merchant>|null>(null);
   const [counts,setCounts]=useState<Partial<Record<Status,number>>>({});
-  const [loading,setLoading]=useState(true), [failed,setFailed]=useState(false), [reload,setReload]=useState(0);
+  const [settledKey,setSettledKey]=useState(""), [failedKey,setFailedKey]=useState(""), [reload,setReload]=useState(0);
+  const requestUrl="/admin/merchants?status="+encodeURIComponent(status)+"&page="+page+"&size="+PAGE_SIZE;
+  const requestKey=requestUrl+"|retry="+reload;
+  const loading=settledKey!==requestKey, failed=failedKey===requestKey;
   useEffect(()=>{
     const onSearch=(event:Event)=>{setQuery((event as CustomEvent<string>).detail??"");setPage(0);};
     window.addEventListener("kulha:admin-search",onSearch);
     return()=>window.removeEventListener("kulha:admin-search",onSearch);
   },[]);
   useEffect(()=>{
-    let active=true;setLoading(true);setFailed(false);
-    api.get<Page<Merchant>>("/admin/merchants?status="+encodeURIComponent(status)+"&page="+page+"&size="+PAGE_SIZE)
-      .then(result=>{if(active)setData(result);})
-      .catch(()=>{if(active)setFailed(true);})
-      .finally(()=>{if(active)setLoading(false);});
+    let active=true;
+    api.get<Page<Merchant>>(requestUrl)
+      .then(result=>{if(active){setData(result);setFailedKey("");setSettledKey(requestKey);}})
+      .catch(()=>{if(active){setFailedKey(requestKey);setSettledKey(requestKey);}});
     return()=>{active=false;};
-  },[status,page,reload]);
+  },[requestUrl,requestKey]);
   useEffect(()=>{
     let active=true;
     Promise.allSettled(statuses.map(s=>api.get<Page<Merchant>>("/admin/merchants?status="+s+"&page=0&size=1")))

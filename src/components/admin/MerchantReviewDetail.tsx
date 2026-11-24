@@ -22,13 +22,15 @@ type Props={id:string;locale:SiteLocale;backStatus:string;backPage:number;backQu
 
 export function MerchantReviewDetail({id,locale,backStatus,backPage,backQuery}:Props){
  const t=words[locale],router=useRouter();
- const [merchant,setMerchant]=useState<Merchant|null>(null),[loading,setLoading]=useState(true),[failed,setFailed]=useState(false);
+ const [merchant,setMerchant]=useState<Merchant|null>(null),[settledRequest,setSettledRequest]=useState(""),[failedRequest,setFailedRequest]=useState(""),[retryVersion,setRetryVersion]=useState(0);
+ const requestKey=id+"|retry="+retryVersion;
+ const loading=settledRequest!==requestKey,failed=failedRequest===requestKey;
  const [checks,setChecks]=useState([false,false,false]),[action,setAction]=useState<Action|null>(null);
  const [reason,setReason]=useState(""),[internalNote,setInternalNote]=useState(""),[confirmation,setConfirmation]=useState(false);
  const [working,setWorking]=useState(false),[message,setMessage]=useState("");
  const base=localePath(locale,"/admin/merchant-review");
  const backHref=useMemo(()=>{const p=new URLSearchParams({status:backStatus,page:String(backPage)});if(backQuery.trim())p.set("q",backQuery.trim());return base+"?"+p.toString();},[backPage,backQuery,backStatus,base]);
- useEffect(()=>{let active=true;setLoading(true);setFailed(false);api.get<Merchant>("/admin/merchants/"+encodeURIComponent(id)).then(m=>{if(active)setMerchant(m);}).catch(()=>{if(active)setFailed(true);}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[id]);
+ useEffect(()=>{let active=true;api.get<Merchant>("/admin/merchants/"+encodeURIComponent(id)).then(m=>{if(active){setMerchant(m);setFailedRequest("");setSettledRequest(requestKey);}}).catch(()=>{if(active){setFailedRequest(requestKey);setSettledRequest(requestKey);}});return()=>{active=false;};},[id,requestKey]);
  const status=merchant?.status??"PENDING";
  const statusLabel=status==="APPROVED"?t.approved:status==="REJECTED"?t.rejected:status==="INFO_REQUIRED"?t.infoRequired:t.pending;
  const statusTone=status==="APPROVED"?styles.status_approved:status==="REJECTED"?styles.status_rejected:status==="INFO_REQUIRED"?styles.status_info_required:styles.status_pending;
@@ -45,7 +47,7 @@ export function MerchantReviewDetail({id,locale,backStatus,backPage,backQuery}:P
   <div className={styles.detailPage} data-testid="merchant-review-detail-page">
    <div className={styles.detailBreadcrumb}><Link href={backHref} className={styles.backLink} data-testid="merchant-review-back">{locale==="ar"?<ArrowRight size={17}/>:<ArrowLeft size={17}/>} {t.back}</Link><span>{t.title}</span></div>
    {loading?<div className={styles.detailState} aria-live="polite">{t.title}…</div>:failed||!merchant?
-    <div className={styles.detailState} role="alert"><AlertCircle size={22}/><p>{failed?t.loadError:t.notFound}</p><button type="button" onClick={()=>router.refresh()}>{t.retry}</button></div>:
+    <div className={styles.detailState} role="alert"><AlertCircle size={22}/><p>{failed?t.loadError:t.notFound}</p><button type="button" onClick={()=>setRetryVersion(v=>v+1)}>{t.retry}</button></div>:
     <>
      <header className={styles.detailHeader} data-testid="admin-page-heading">
       <div className={styles.detailTitleGroup}><span className={styles.eyebrow}><Store size={15}/> KULHA! / {t.business} / {t.title}</span>
