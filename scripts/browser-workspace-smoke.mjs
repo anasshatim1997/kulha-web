@@ -645,7 +645,7 @@ async function assertReadable(page, route, width, height) {
 
 async function assertAdminCardClipping(page, route, width, height) {
   const metrics = await page.evaluate(() => {
-    const root = document.querySelector(".kulhaAdminShell");
+    const root = document;
     const candidates = [...root.querySelectorAll("[data-testid]")].filter(element => {
       const id = element.getAttribute("data-testid") ?? "";
       return /detail|workspace|picker|table|queue|workflow|footer|composer|history|drawer/.test(id)
@@ -705,7 +705,6 @@ async function assertScrollOwner(page, route, width, height) {
       markers: [...root.querySelectorAll("[data-scroll-region]")].map(element => element.getAttribute("data-testid")),
     };
   });
-  const support = route.endsWith("/admin/support-cases");
   if (metrics.invalid.length || metrics.markers.length !== 0) {
     throw new Error("Admin scroll ownership failed on " + route + " at " + width + "x" + height
       + ": " + JSON.stringify(metrics));
