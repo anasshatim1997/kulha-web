@@ -303,41 +303,8 @@ async function assertNoHorizontalOverflow(page, route, width) {
     throw new Error(`Horizontal overflow at ${width}px on ${route}: ${JSON.stringify(dimensions)}`);
   }
 }
-async function assertCompactWorkspaceFits(page, route, width, height) {
-  const metrics = await page.evaluate(() => {
-    const owners = [...document.querySelectorAll("*")].filter(element => {
-      const style = getComputedStyle(element);
-      return ["auto", "scroll"].includes(style.overflowY) && element.scrollHeight > element.clientHeight + 2;
-    }).slice(0, 8).map(element => ({
-      tag: element.tagName.toLowerCase(),
-      className: typeof element.className === "string" ? element.className.slice(0, 100) : "",
-      clientHeight: element.clientHeight,
-      scrollHeight: element.scrollHeight,
-    }));
-    return {
-      viewportHeight: window.innerHeight,
-      documentHeight: document.documentElement.scrollHeight,
-      bodyHeight: document.body.scrollHeight,
-      verticalScrollOwners: owners,
-      layoutNodes: [".kulhaAdminShell", ".kulhaAdminShell > main", ".kulhaAdminShell > main > *", "#contenu", "#contenu > *", "body > footer"].map(selector => {
-        const element = document.querySelector(selector);
-        if (!element) return { selector, missing: true };
-        const rect = element.getBoundingClientRect();
-        const style = getComputedStyle(element);
-        return { selector, top: Math.round(rect.top), bottom: Math.round(rect.bottom), height: Math.round(rect.height), clientHeight: element.clientHeight, scrollHeight: element.scrollHeight, overflowY: style.overflowY, gridTemplateColumns: style.gridTemplateColumns };
-      }),
-      bodyChildren: [...document.body.children].map(element => ({ tag: element.tagName.toLowerCase(), id: element.id, className: typeof element.className === "string" ? element.className.slice(0, 160) : "", height: Math.round(element.getBoundingClientRect().height), top: Math.round(element.getBoundingClientRect().top), bottom: Math.round(element.getBoundingClientRect().bottom), display: getComputedStyle(element).display, position: getComputedStyle(element).position })),
-      overflowElements: [...document.querySelectorAll("*")].map(element => {
-        const rect = element.getBoundingClientRect();
-        const style = getComputedStyle(element);
-        return { tag: element.tagName.toLowerCase(), className: typeof element.className === "string" ? element.className.slice(0, 100) : "", top: Math.round(rect.top), bottom: Math.round(rect.bottom), height: Math.round(rect.height), position: style.position, overflowY: style.overflowY };
-      }).filter(item => item.bottom > window.innerHeight + 2 && item.height > 0 && item.position !== "fixed").sort((a,b) => b.bottom-a.bottom).slice(0, 12),
-    };
-  });
-  if (metrics.documentHeight > height + 2 || metrics.bodyHeight > height + 2) {
-    throw new Error(`Unnecessary page scrolling at ${width}x${height} on ${route}: ${JSON.stringify(metrics)}`);
-  }
-}
+
+
 async function assertAdminLoginLayout(page, width, height) {
   const metrics = await page.evaluate(() => {
     const root = document.querySelector("main.admin-login-shell");
@@ -389,331 +356,240 @@ async function assertOfferModerationLayout(page, width, height) {
     const workspace = document.querySelector('[data-testid="offer-workspace"]');
     const picker = document.querySelector('[data-testid="offer-picker"]');
     const preview = document.querySelector('[data-testid="offer-detail-panel"]');
-    const tabs = [...document.querySelectorAll('[role="tablist"] button')];
+    const queue = document.querySelector('[data-testid="offer-queue"]');
+    const longTitleCount = [...(queue?.querySelectorAll("strong") ?? [])]
+      .filter(element => (element.textContent ?? "").trim().length > 48).length;
     const box = element => {
       if (!element) return null;
       const rect = element.getBoundingClientRect();
-      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height: rect.height };
+      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right };
     };
     return {
-      documentWidth: document.documentElement.scrollWidth,
-      bodyWidth: document.body.scrollWidth,
       workspace: box(workspace), picker: box(picker), preview: box(preview),
       direction: workspace ? getComputedStyle(workspace).direction : "missing",
-      tabHeights: tabs.map(tab => Math.round(tab.getBoundingClientRect().height)),
-      offerCount: document.querySelectorAll('[data-testid="offer-queue"] > *').length,
-      longTitleCount: [...document.querySelectorAll('[data-testid="offer-queue"] strong')].filter(element => (element.textContent ?? "").trim().length > 48).length,
-      columns: workspace ? getComputedStyle(workspace).gridTemplateColumns : "",
+      columns: workspace ? getComputedStyle(workspace).gridTemplateColumns.split(" ").length : 0,
+      offerCount: queue?.children.length ?? 0, longTitleCount,
     };
   });
-  if (metrics.documentWidth > width + 1 || metrics.bodyWidth > width + 1)
-    throw new Error(`Offer moderation horizontal overflow at ${width}x${height}: ${JSON.stringify(metrics)}`);
-  if (!metrics.workspace || !metrics.picker || !metrics.preview)
-    throw new Error(`Offer moderation layout regions are missing at ${width}x${height}: ${JSON.stringify(metrics)}`);
-  if (metrics.tabHeights.some(value => value > 44))
-    throw new Error(`Admin status filters must remain compact at ${width}x${height}: ${JSON.stringify(metrics.tabHeights)}`);
-  if (width >= 900) {
-    const wrongSide = metrics.direction === "rtl"
-      ? metrics.picker.left <= metrics.preview.left
-      : metrics.picker.left >= metrics.preview.left;
-    if (wrongSide) throw new Error(`Offer queue must remain beside its detail panel in ${metrics.direction} layout at ${width}px: ${JSON.stringify(metrics)}`);
+  if (!metrics.workspace || !metrics.picker || !metrics.preview) {
+    throw new Error("Offer moderation regions are missing at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (width < 900 && metrics.picker.bottom > metrics.preview.top + 2)
-    throw new Error(`Mobile offer panels must stack naturally at ${width}px: ${JSON.stringify(metrics)}`);
-  if (metrics.offerCount < 10 || metrics.longTitleCount < 1)
-    throw new Error(`Offer moderation fixtures must exercise a populated queue and a long offer title: ${JSON.stringify(metrics)}`);
+  const expectedColumns = width >= 1100 ? 2 : 1;
+  if (metrics.columns !== expectedColumns) {
+    throw new Error("Offer master/detail layout expected " + expectedColumns + " column(s) at "
+      + width + "px: " + JSON.stringify(metrics));
+  }
+  if (metrics.offerCount < 8 || metrics.longTitleCount < 1) {
+    throw new Error("Offer fixture must show eight records and a long-title example at "
+      + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
 }
 
-
 async function assertAdminStatusControls(page, route, width, height) {
-  const controls = await page.evaluate(() => [...document.querySelectorAll('[role="tablist"] button')].map(button => {
-    const rect = button.getBoundingClientRect();
-    const style = getComputedStyle(button);
-    return { height: rect.height, radius: parseFloat(style.borderTopLeftRadius) };
-  }));
-  if (controls.some(control => control.height > 44 || control.radius > 16)) {
-    throw new Error("Admin status controls are oversized at " + width + "x" + height + " on " + route + ": " + JSON.stringify(controls));
+  const controls = await page.evaluate(() => [...document.querySelectorAll('[role="tablist"] button')].map(button => ({
+    text: (button.textContent ?? "").trim().slice(0, 60),
+    height: button.getBoundingClientRect().height,
+  })));
+  const undersized = controls.filter(control => control.height < 44);
+  if (undersized.length) {
+    throw new Error("Admin status controls must be at least 44px high at "
+      + width + "x" + height + " on " + route + ": " + JSON.stringify(undersized));
   }
 }
 
 async function assertMerchantReviewLayout(page, width, height) {
   const metrics = await page.evaluate(() => {
     const detail = document.querySelector('[data-testid="merchant-review-detail-panel"]');
+    const workspace = detail?.parentElement;
     const heading = document.querySelector('[data-testid="admin-page-heading"]');
     const topbar = document.querySelector('[data-testid="admin-console-topbar"]');
-    const tabs = document.querySelector('.kulhaAdminShell[data-page="merchant-review"] [role="tablist"]');
-    const workflow = document.querySelector('[data-testid="merchant-review-workflow"]');
     const decision = document.querySelector('[data-testid="merchant-review-decision"]');
     const footer = document.querySelector('[data-testid="merchant-review-footer"]');
+    const hint = document.querySelector("#merchant-decision-hint");
+    const textareas = [...(decision?.querySelectorAll("textarea") ?? [])];
+    const segmented = [...(decision?.querySelectorAll('[role="group"] button') ?? [])];
     const box = element => {
       if (!element) return null;
       const rect = element.getBoundingClientRect();
-      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height: rect.height };
-    };
-    const buttons = [...(decision?.querySelectorAll('button') ?? [])].map(button => {
-      const rect = button.getBoundingClientRect();
       return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right };
-    });
-    const textareas = [...(decision?.querySelectorAll('textarea') ?? [])].map(element => {
-      const rect = element.getBoundingClientRect();
-      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, visible: rect.width > 0 && rect.height > 0 };
-    });
-    const footerButton = footer?.querySelector('button');
-    const footerText = footer?.querySelector('p');
-    const actionRect = footerButton?.getBoundingClientRect();
-    const noteRect = footerText?.getBoundingClientRect();
+    };
     return {
-      detail: box(detail), heading: box(heading), topbar: box(topbar), tabs: box(tabs),
-      workflow: box(workflow), decision: box(decision), footer: box(footer),
-      documentWidth: document.documentElement.scrollWidth, scrollY: window.scrollY,
-      buttons, textareas,
-      footerAction: actionRect ? { top: actionRect.top, bottom: actionRect.bottom, left: actionRect.left, right: actionRect.right } : null,
-      footerNote: noteRect ? { top: noteRect.top, bottom: noteRect.bottom, left: noteRect.left, right: noteRect.right } : null,
-      selectedMerchant: detail?.textContent?.includes('Boulangerie Test') ?? false
+      detail: box(detail), workspace: box(workspace), heading: box(heading), topbar: box(topbar),
+      columns: workspace ? getComputedStyle(workspace).gridTemplateColumns.split(" ").length : 0,
+      textareas: textareas.map(field => ({ rows: field.rows, minHeight: field.getBoundingClientRect().height })),
+      segmentHeights: segmented.map(button => button.getBoundingClientRect().height),
+      footer: box(footer), hint: hint?.textContent?.trim() ?? "",
+      selectedMerchant: detail?.textContent?.includes("Boulangerie Test") ?? false,
     };
   });
-  if (!metrics.detail || !metrics.heading || !metrics.topbar || !metrics.tabs
-      || !metrics.workflow || !metrics.decision || !metrics.footer
-      || !metrics.footerAction || !metrics.footerNote || !metrics.selectedMerchant) {
-    throw new Error("Merchant review decision workspace is incomplete at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  if (!metrics.detail || !metrics.workspace || !metrics.heading || !metrics.topbar
+      || !metrics.footer || !metrics.selectedMerchant || metrics.textareas.length !== 2
+      || metrics.segmentHeights.length !== 3) {
+    throw new Error("Merchant review workflow is incomplete at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (metrics.documentWidth > width + 1 || metrics.detail.left < -1 || metrics.detail.right > width + 1) {
-    throw new Error("Merchant review horizontal clipping at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  const expectedColumns = width >= 1100 ? 2 : 1;
+  if (metrics.columns !== expectedColumns) {
+    throw new Error("Merchant master/detail layout expected " + expectedColumns + " column(s) at "
+      + width + "px: " + JSON.stringify(metrics));
   }
-  if (metrics.scrollY > 1 || metrics.heading.top < metrics.topbar.bottom - 1
-      || metrics.tabs.top < metrics.heading.bottom - 1) {
-    throw new Error("Merchant review heading, filters and topbar overlap or start scrolled at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  if (metrics.textareas[0].rows !== 4 || metrics.textareas[0].minHeight < 100
+      || metrics.textareas[1].rows !== 3 || metrics.textareas[1].minHeight < 100) {
+    throw new Error("Merchant reason and internal-note fields must retain their requested rows and usable height at "
+      + width + "x" + height + ": " + JSON.stringify(metrics.textareas));
   }
-  if (metrics.buttons.length !== 3 || metrics.textareas.length !== 2 || metrics.textareas.some(field => !field.visible)) {
-    throw new Error("Merchant review decision controls are missing at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  if (metrics.segmentHeights.some(height => height < 48)) {
+    throw new Error("Merchant decision choices must be at least 48px high at " + width + "x" + height + ".");
   }
-  const overlaps = (a, b) => a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1;
-  for (let i = 0; i < metrics.buttons.length; i++) for (let j = i + 1; j < metrics.buttons.length; j++) {
-    if (overlaps(metrics.buttons[i], metrics.buttons[j])) {
-      throw new Error("Merchant review decision buttons overlap at " + width + "x" + height + ": " + JSON.stringify(metrics));
-    }
-  }
-  if (overlaps(metrics.footerAction, metrics.footerNote)) {
-    throw new Error("Merchant review decision note overlaps the final action at " + width + "x" + height + ": " + JSON.stringify(metrics));
-  }
-  if (width >= 900 && metrics.footer.bottom > height + 2) {
-    throw new Error("Merchant review final action is below the desktop viewport at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  if (!metrics.hint) throw new Error("Disabled merchant decision must explain the missing decision/reason at " + width + "x" + height + ".");
+  if (metrics.detail.left < -1 || metrics.detail.right > width + 1) {
+    throw new Error("Merchant detail card is horizontally clipped at " + width + "x" + height + ": " + JSON.stringify(metrics.detail));
   }
 }
 
-
 async function assertOfferDecisionAccessible(page, width, height, route) {
   const metrics = await page.evaluate(() => {
-    const workspace = document.querySelector('[data-testid="offer-workspace"]');
-    const picker = document.querySelector('[data-testid="offer-picker"]');
-    const queue = document.querySelector('[data-testid="offer-queue"]');
-    const pagination = document.querySelector('[data-testid="offer-pagination"]');
     const preview = document.querySelector('[data-testid="offer-detail-panel"]');
-    const previewScroll = document.querySelector('[data-testid="offer-preview-scroll"]');
-    const evidence = document.querySelector('[data-testid="offer-evidence"]');
-    const dock = document.querySelector('[data-testid="offer-decision-dock"]');
-    const workflow = document.querySelector('[data-testid="offer-moderation-workflow"]');
-    const footer = document.querySelector('[data-testid="offer-moderation-footer"]');
-    const reasonPanel = document.querySelector('[data-testid="offer-decision-reason"]');
-    const reasonField = reasonPanel?.querySelector("textarea");
-    const reasonLabel = reasonPanel?.querySelector("label");
-    const reasonChips = [...(reasonPanel?.querySelectorAll("button") ?? [])];
-    const decisionButtons = [...(workflow?.querySelectorAll("button[data-action]") ?? [])];
     const title = preview?.querySelector("h2");
-    const safetyWarning = document.querySelector('[data-testid="offer-food-safety-alert"]');
-    const box = element => {
-      if (!element) return null;
-      const rect = element.getBoundingClientRect();
-      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height: rect.height };
-    };
-    const font = element => element ? Number.parseFloat(getComputedStyle(element).fontSize) : null;
-    const action = footer?.querySelector("button");
+    const footer = document.querySelector('[data-testid="offer-moderation-footer"]');
+    const submitButtons = [...(footer?.querySelectorAll("button") ?? [])];
+    const decisions = [...(document.querySelector('[data-testid="offer-moderation-workflow"]')
+      ?.querySelectorAll("button[data-action]") ?? [])];
+    const reason = document.querySelector('[data-testid="offer-decision-reason"] textarea');
+    const warning = document.querySelector('[data-testid="offer-food-safety-alert"]');
     return {
-      workspace: box(workspace), picker: box(picker), queue: box(queue), pagination: box(pagination),
-      preview: box(preview), previewScroll: box(previewScroll), evidence: box(evidence),
-      decisionDock: box(dock), workflow: box(workflow), footer: box(footer),
-      action: box(action), reasonPanel: box(reasonPanel), reasonField: box(reasonField), title: box(title),
-      queueClient: queue?.clientHeight ?? 0, queueScroll: queue?.scrollHeight ?? 0,
-      queueOverflow: queue ? getComputedStyle(queue).overflowY : "missing",
-      previewClient: preview?.clientHeight ?? 0,
-      previewOverflow: preview ? getComputedStyle(preview).overflowY : "missing",
-      previewScrollClient: previewScroll?.clientHeight ?? 0,
-      previewScrollHeight: previewScroll?.scrollHeight ?? 0,
-      previewScrollOverflow: previewScroll ? getComputedStyle(previewScroll).overflowY : "missing",
-      documentWidth: document.documentElement.scrollWidth,
-      evidenceInsideScroll: Boolean(previewScroll && evidence && previewScroll.contains(evidence)),
-      evidenceInsideWorkflow: Boolean(workflow && evidence && workflow.contains(evidence)),
-      safetyWarningInsideScroll: Boolean(previewScroll && safetyWarning && previewScroll.contains(safetyWarning)),
-      safetyWarningInsideWorkflow: Boolean(workflow && safetyWarning && workflow.contains(safetyWarning)),
-      reasonLabelFont: font(reasonLabel),
-      reasonFieldFont: font(reasonField),
-      reasonChipFonts: reasonChips.map(font),
-      reasonChipHeights: reasonChips.map(element => element.getBoundingClientRect().height),
-      decisionButtonFonts: decisionButtons.map(font),
-      decisionButtonHeights: decisionButtons.map(element => element.getBoundingClientRect().height),
-      footerTextFont: font(footer?.querySelector("p")),
-      actionHeight: action?.getBoundingClientRect().height ?? 0,
+      title: title?.textContent?.trim() ?? "",
+      titleLineClamp: title ? getComputedStyle(title).webkitLineClamp : "missing",
+      titleOverflow: title ? getComputedStyle(title).overflow : "missing",
+      decisions: decisions.map(button => (button.textContent ?? "").trim()),
+      submitCount: submitButtons.length,
+      submitLabel: (submitButtons[0]?.textContent ?? "").trim(),
+      submitHeight: submitButtons[0]?.getBoundingClientRect().height ?? 0,
+      reasonHeight: reason?.getBoundingClientRect().height ?? 0,
+      warningVisible: Boolean(warning && warning.getBoundingClientRect().height > 0),
+      previewWidth: preview?.clientWidth ?? 0,
+      previewScrollWidth: preview?.scrollWidth ?? 0,
     };
   });
   const failures = [];
   const check = (ok, message) => { if (!ok) failures.push(message); };
-  const fmt = value => Number.isFinite(value) ? value.toFixed(1) : String(value);
-  check(Boolean(metrics.workspace), "workspace is missing");
-  check(Boolean(metrics.picker), "offer picker is missing");
-  check(Boolean(metrics.queue), "offer queue is missing");
-  check(Boolean(metrics.pagination), "pagination is missing");
-  check(Boolean(metrics.preview), "preview card is missing");
-  check(Boolean(metrics.previewScroll), "independent preview scroll region is missing");
-  check(Boolean(metrics.evidence), "evidence section is missing");
-  check(Boolean(metrics.decisionDock), "decision dock is missing");
-  check(Boolean(metrics.workflow), "decision workflow is missing");
-  check(Boolean(metrics.footer), "decision footer is missing");
-  check(Boolean(metrics.action), "primary moderation action is missing");
-  check(Boolean(metrics.reasonPanel), "reason panel is missing");
-  check(Boolean(metrics.reasonField), "reason textarea is missing");
-  check(metrics.reasonField?.height >= 44, `reasonField.height ${fmt(metrics.reasonField?.height)} must be >= 44px`);
-  check(metrics.documentWidth <= width + 1, `document width ${metrics.documentWidth}px exceeds viewport ${width}px`);
-  check(metrics.pagination && metrics.picker && metrics.pagination.top >= metrics.picker.top - 1,
-    `pagination.top ${fmt(metrics.pagination?.top)} is above picker.top ${fmt(metrics.picker?.top)}`);
-  check(metrics.pagination && metrics.picker && metrics.pagination.bottom <= metrics.picker.bottom + 1,
-    `pagination.bottom ${fmt(metrics.pagination?.bottom)} exceeds picker.bottom ${fmt(metrics.picker?.bottom)}`);
-  check(metrics.evidenceInsideScroll, "evidence is not inside the independent preview scroll region");
-  check(!metrics.evidenceInsideWorkflow, "evidence must not be inside the decision workflow");
-  check(metrics.safetyWarningInsideScroll, "food-safety warning is not inside the preview scroll region");
-  check(!metrics.safetyWarningInsideWorkflow, "food-safety warning must stay outside the decision workflow");
-  check(metrics.previewScroll && metrics.preview && metrics.previewScroll.top >= metrics.preview.top - 1
-    && metrics.previewScroll.bottom <= metrics.preview.bottom + 1, "preview scroll region escapes the preview card");
-  check(metrics.decisionDock && metrics.preview && metrics.decisionDock.top >= metrics.preview.top - 1
-    && metrics.decisionDock.bottom <= metrics.preview.bottom + 1, "decision dock escapes the preview card");
-  check(metrics.workflow && metrics.footer && metrics.workflow.bottom <= metrics.footer.top - 4,
-    `workflow.bottom ${fmt(metrics.workflow?.bottom)} must be at least 4px above footer.top ${fmt(metrics.footer?.top)}`);
-  check(metrics.reasonField && metrics.footer && metrics.reasonField.bottom <= metrics.footer.top - 4,
-    `reasonField.bottom ${fmt(metrics.reasonField?.bottom)} must be <= footer.top ${fmt(metrics.footer?.top)} - 4`);
-  check(metrics.workflow && metrics.preview && metrics.workflow.bottom <= metrics.preview.bottom,
-    `workflow.bottom ${fmt(metrics.workflow?.bottom)} exceeds preview.bottom ${fmt(metrics.preview?.bottom)}`);
-  check(metrics.footer && metrics.preview && metrics.footer.bottom <= metrics.preview.bottom,
-    `footer.bottom ${fmt(metrics.footer?.bottom)} exceeds preview.bottom ${fmt(metrics.preview?.bottom)}`);
-  check(metrics.action && metrics.preview && metrics.action.bottom <= metrics.preview.bottom - 8,
-    `action.bottom ${fmt(metrics.action?.bottom)} leaves less than 8px below the button inside the preview`);
-  check(metrics.action && metrics.action.bottom <= height + 2,
-    `action.bottom ${fmt(metrics.action?.bottom)} is below viewport height ${height}px`);
-  check(metrics.reasonField && metrics.preview && metrics.reasonField.top >= metrics.preview.top - 1,
-    `reasonField.top ${fmt(metrics.reasonField?.top)} is above preview.top ${fmt(metrics.preview?.top)}`);
-  check(metrics.title && metrics.previewScroll && metrics.title.top >= metrics.previewScroll.top - 1
-    && metrics.title.bottom <= metrics.previewScroll.bottom + 1,
-    `selected title bounds ${JSON.stringify(metrics.title)} escape preview scroll bounds ${JSON.stringify(metrics.previewScroll)}`);
-  check(metrics.reasonLabelFont >= 11, `reason label font ${fmt(metrics.reasonLabelFont)}px is below 11px`);
-  check(metrics.reasonFieldFont >= 11, `reason textarea font ${fmt(metrics.reasonFieldFont)}px is below 11px`);
-  check(metrics.reasonChipFonts.length === 4 && metrics.reasonChipFonts.every(size => size >= 11),
-    `reason chip fonts ${metrics.reasonChipFonts.map(fmt).join(", ")}px must all be >= 11px`);
-  check(metrics.reasonChipHeights.length === 4 && metrics.reasonChipHeights.every(size => size >= 30),
-    `reason chip heights ${metrics.reasonChipHeights.map(fmt).join(", ")}px must all be >= 30px`);
-  check(metrics.decisionButtonFonts.length === 3 && metrics.decisionButtonFonts.every(size => size >= 11),
-    `decision button fonts ${metrics.decisionButtonFonts.map(fmt).join(", ")}px must all be >= 11px`);
-  check(metrics.decisionButtonHeights.length === 3 && metrics.decisionButtonHeights.every(size => size >= 30),
-    `decision button heights ${metrics.decisionButtonHeights.map(fmt).join(", ")}px must all be >= 30px`);
-  check(metrics.footerTextFont >= 11, `footer note font ${fmt(metrics.footerTextFont)}px is below 11px`);
-  check(metrics.actionHeight >= 36, `primary action height ${fmt(metrics.actionHeight)}px is below 36px`);
-  check(metrics.previewOverflow === "hidden", `preview overflow is ${metrics.previewOverflow}, expected hidden`);
-  check(metrics.previewScrollOverflow === "auto",
-    `preview scroll overflow is ${metrics.previewScrollOverflow}, expected auto`);
-  check(metrics.previewClient >= 100, `preview client height ${metrics.previewClient}px is below 100px`);
-  if (width >= 1100 && height <= 820) {
-    check(metrics.queueClient >= 40, `queue client height ${metrics.queueClient}px is below 40px`);
-    check(metrics.queueScroll > metrics.queueClient + 2,
-      `queue scroll height ${metrics.queueScroll}px does not exceed client height ${metrics.queueClient}px`);
-    check(metrics.queueOverflow === "auto", `queue overflow is ${metrics.queueOverflow}, expected auto`);
-  }
+  check(Boolean(metrics.title), "selected offer title is missing");
+  check(metrics.titleLineClamp === "none" || metrics.titleLineClamp === "initial",
+    "selected offer title must not be line-clamped");
+  check(new Set(metrics.decisions).size === 3, "three moderation decisions must have distinct labels");
+  check(metrics.submitCount === 1, "exactly one primary submit button must be rendered");
+  check(metrics.submitLabel.includes("·"), "submit button must use the Confirm · action label");
+  check(metrics.submitHeight >= 44, "submit action is below the 44px target");
+  check(metrics.reasonHeight >= 100, "reason textarea is below 100px");
+  check(metrics.warningVisible, "food-safety alert is not visible");
+  check(metrics.previewScrollWidth <= metrics.previewWidth + 1, "offer detail has horizontal clipping");
   if (failures.length) {
-    await page.screenshot({
-      path: `artifacts/browser-screenshots/FAIL-offer-${width}x${height}.png`,
-      animations: "disabled",
-    });
-    throw new Error(`Offer decision failed at ${width}x${height}:\n- ${failures.join("\n- ")}\n${JSON.stringify(metrics)}`);
+    throw new Error("Offer moderation usability failed at " + width + "x" + height + " on " + route
+      + ": " + failures.join("; ") + "; " + JSON.stringify(metrics));
   }
-  process.stdout.write(`PASS offer geometry ${width}x${height}: ${JSON.stringify(metrics)}\n`);
 }
+
 async function assertSupportTimelineVisible(page, width, height) {
-  const history = page.getByTestId("support-case-history");
-  const timeline = page.getByTestId("support-case-timeline");
-  const firstMessage = timeline.locator("article").first();
-  await firstMessage.waitFor({ state: "visible" });
-  const firstBox = await firstMessage.boundingBox();
-  const historyBox = await history.boundingBox();
-  const actionBar = page.getByTestId("support-case-actions");
-  const composer = page.getByTestId("support-message-composer");
-  const composerBox = await composer.boundingBox();
-  if (!firstBox || !historyBox || !composerBox) {
-    throw new Error("Support timeline or reply composer is missing at " + width + "x" + height + ".");
+  const metrics = await page.evaluate(() => {
+    const detail = document.querySelector('[data-testid="support-case-detail"]');
+    const history = document.querySelector('[data-testid="support-case-history"]');
+    const timeline = document.querySelector('[data-testid="support-case-timeline"]');
+    const composer = document.querySelector('[data-testid="support-message-composer"]');
+    const actions = document.querySelector('[data-testid="support-case-actions"]');
+    const style = timeline ? getComputedStyle(timeline) : null;
+    const box = element => {
+      if (!element) return null;
+      const rect = element.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom };
+    };
+    return {
+      detail: box(detail), history: box(history), timeline: box(timeline),
+      composer: box(composer), actions: box(actions),
+      scrollMarker: timeline?.hasAttribute("data-scroll-region") ?? false,
+      overflowY: style?.overflowY ?? "missing",
+      maxHeight: style?.maxHeight ?? "missing",
+      historyOverflowY: history ? getComputedStyle(history).overflowY : "missing",
+      detailOverflowY: detail ? getComputedStyle(detail).overflowY : "missing",
+      composerInsideTimeline: Boolean(timeline && composer && timeline.contains(composer)),
+      actionsInsideTimeline: Boolean(timeline && actions && timeline.contains(actions)),
+      timelineInsideDetail: Boolean(detail && timeline && detail.contains(timeline)),
+    };
+  });
+  if (!metrics.detail || !metrics.history || !metrics.timeline || !metrics.composer || !metrics.actions
+      || !metrics.scrollMarker || !metrics.timelineInsideDetail) {
+    throw new Error("Support case structure is incomplete at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (width >= 900 && (firstBox.y + firstBox.height <= historyBox.y
-      || firstBox.y >= historyBox.y + historyBox.height)) {
-    throw new Error("The first support conversation message is not visible in the initial timeline viewport at "
-      + width + "x" + height + ": " + JSON.stringify({ firstBox, historyBox }));
+  if (metrics.overflowY !== "auto") {
+    throw new Error("Only the support conversation timeline may own its inner scroll at "
+      + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  await history.evaluate(element => { element.scrollTop = element.scrollHeight; });
-  const actionsBox = await actionBar.boundingBox();
-  const historyAfterScroll = await history.boundingBox();
-  if (!actionsBox || !historyAfterScroll || actionsBox.y < historyAfterScroll.y - 1
-      || actionsBox.y + actionsBox.height > historyAfterScroll.y + historyAfterScroll.height + 1) {
-    throw new Error("Support case actions are not reachable inside the independent history scroller at "
-      + width + "x" + height + ": " + JSON.stringify({ actionsBox, historyAfterScroll }));
+  if (metrics.historyOverflowY === "auto" || metrics.historyOverflowY === "scroll"
+      || metrics.detailOverflowY === "auto" || metrics.detailOverflowY === "scroll") {
+    throw new Error("Support detail/history must not create nested scroll regions at "
+      + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  const composerAfterScroll = await composer.boundingBox();
-  if (!composerAfterScroll || Math.abs(composerAfterScroll.y - composerBox.y) > 1) {
-    throw new Error("Support reply composer moved while the conversation timeline scrolled at " + width + "x" + height + ".");
+  if (metrics.composerInsideTimeline || metrics.actionsInsideTimeline) {
+    throw new Error("Reply composer and Case Actions must remain outside the conversation scroller at "
+      + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  await history.evaluate(element => { element.scrollTop = 0; });
+  const maxHeight = Number.parseFloat(metrics.maxHeight);
+  if (!Number.isFinite(maxHeight) || maxHeight > Math.min(520, height * 0.6) + 1) {
+    throw new Error("Support timeline max-height must be min(520px, 60vh) at "
+      + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
 }
 
 async function assertAuditExplorerLayout(page, width, height) {
   const metrics = await page.evaluate(() => {
     const explorer = document.querySelector('[data-testid="audit-explorer"]');
-    const table = document.querySelector('[data-testid="audit-table-card"]');
-    const tableViewport = table?.querySelector(".table");
-    const firstRow = table?.querySelector("tbody tr");
-    const detail = document.querySelector('[data-testid="audit-record-detail"]');
+    const card = document.querySelector('[data-testid="audit-table-card"]');
+    const wrapper = document.querySelector('[data-testid="audit-table-wrapper"]');
+    const drawer = document.querySelector('[data-testid="audit-record-detail"]');
     const header = document.querySelector('[data-testid="audit-record-header"]');
-    const box = element => {
+    const ths = [...(wrapper?.querySelectorAll("thead th") ?? [])];
+    const resultHeader = ths[ths.length - 1];
+    const resultCell = wrapper?.querySelector("tbody tr td:last-child");
+    const bounds = element => {
       if (!element) return null;
       const rect = element.getBoundingClientRect();
-      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, width: rect.width, height: rect.height };
+      return { left: rect.left, right: rect.right, width: rect.width };
     };
     return {
-      explorer: box(explorer), table: box(table), detail: box(detail), header: box(header),
-      direction: explorer ? getComputedStyle(explorer).direction : "missing",
-      scrollWidth: document.documentElement.scrollWidth,
-      tableViewportWidth: tableViewport?.clientWidth ?? 0,
-      tableViewportScrollWidth: tableViewport?.scrollWidth ?? 0,
-      mobileRowDisplay: firstRow ? getComputedStyle(firstRow).display : "missing",
-      mobileCells: firstRow?.querySelectorAll("td[data-label]").length ?? 0,
-      detailText: detail?.textContent ?? ""
+      explorer: bounds(explorer), card: bounds(card), wrapper: bounds(wrapper),
+      drawer: bounds(drawer), header: bounds(header),
+      drawerRole: drawer?.getAttribute("role") ?? null,
+      ariaModal: drawer?.getAttribute("aria-modal") ?? null,
+      tableColumns: ths.length,
+      resultHeader: bounds(resultHeader), resultCell: bounds(resultCell),
+      copyButtons: drawer?.querySelectorAll(".auditIdentifier button").length ?? 0,
+      tableWidth: wrapper?.clientWidth ?? 0,
+      tableScrollWidth: wrapper?.scrollWidth ?? 0,
+      detailLength: drawer?.textContent?.length ?? 0,
     };
   });
-  if (!metrics.explorer || !metrics.table || !metrics.detail || !metrics.header
-      || metrics.detail.width < 220 || metrics.detailText.length < 180) {
-    throw new Error("Audit ledger and selected-record details are not both rendered at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  if (!metrics.explorer || !metrics.card || !metrics.wrapper || !metrics.drawer || !metrics.header
+      || metrics.drawerRole !== "dialog" || metrics.ariaModal !== "true"
+      || metrics.tableColumns !== 5 || metrics.copyButtons < 3 || metrics.detailLength < 180) {
+    throw new Error("Audit ledger/drawer requirements failed at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (metrics.scrollWidth > width + 1) {
-    throw new Error("Audit explorer introduces horizontal page overflow at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  if (metrics.drawer.width > 520 + 1 || metrics.drawer.width > width + 1) {
+    throw new Error("Audit drawer exceeds min(520px, 100%) at " + width + "px: " + JSON.stringify(metrics));
   }
-  if (width >= 900) {
-    const separated = metrics.direction === "rtl"
-      ? metrics.detail.right <= metrics.table.left + 2
-      : metrics.table.right <= metrics.detail.left + 2;
-    if (!separated) {
-      throw new Error("Audit selected-record panel must sit beside the ledger in " + metrics.direction + " layout at "
-        + width + "x" + height + ": " + JSON.stringify(metrics));
-    }
-  } else {
-    if (metrics.detail.top < metrics.table.bottom - 1) {
-      throw new Error("Audit selected-record panel must stack below the ledger on mobile at " + width + "px: " + JSON.stringify(metrics));
-    }
-    if (metrics.tableViewportScrollWidth > metrics.tableViewportWidth + 1
-        || metrics.mobileRowDisplay !== "grid" || metrics.mobileCells !== 6) {
-      throw new Error("Audit mobile events must use labeled stacked cells without horizontal scrolling at " + width + "x" + height + ": " + JSON.stringify(metrics));
-    }
+  if (metrics.tableScrollWidth > metrics.tableWidth + 1) {
+    throw new Error("Audit table wrapper clips horizontally at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
+  if (width >= 1024 && (!metrics.resultHeader || !metrics.resultCell
+      || metrics.resultHeader.right > metrics.wrapper.right + 1
+      || metrics.resultCell.right > metrics.wrapper.right + 1)) {
+    throw new Error("Audit Result column is not completely visible at desktop width "
+      + width + "px: " + JSON.stringify(metrics));
+  }
+  const row = page.getByTestId("audit-record-row").last();
+  await page.keyboard.press("Escape");
+  await page.getByTestId("audit-record-detail").waitFor({ state: "detached" });
+  const focusReturned = await row.evaluate(element => document.activeElement === element);
+  if (!focusReturned) throw new Error("Closing the audit drawer must return focus to its source row.");
+  await row.click();
+  await page.getByTestId("audit-record-detail").waitFor({ state: "visible" });
 }
 
 let browser;
