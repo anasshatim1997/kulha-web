@@ -1050,7 +1050,7 @@ try {
         const activeTabAfter = await page.locator('[data-testid="offer-picker"] [role="tab"][aria-selected="true"]').innerText();
         const pageScrollAfter = await page.evaluate(() => window.scrollY);
         if (activeTabAfter !== activeTabBefore || pageScrollAfter !== pageScrollBefore) {
-          throw new Error("Closing the offer modal must preserve the active filter and queue scroll position.");
+          throw new Error("Closing the offer modal must preserve the active filter and queue scroll position: " + JSON.stringify({ activeTabBefore, activeTabAfter, pageScrollBefore, pageScrollAfter }));
         }
         await rows.nth(1).click();
         await modal.waitFor({ state: "visible" });
