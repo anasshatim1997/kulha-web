@@ -23,6 +23,12 @@ const styles = {
     tabs: shellStyles.tabs,
     tab: shellStyles.tab,
     activeTab: shellStyles.activeTab,
+    headerCopy: shellStyles.headerCopy,
+    pill: shellStyles.pill,
+    primary: shellStyles.primary,
+    field: shellStyles.field,
+    linkBtn: shellStyles.linkBtn,
+    list: shellStyles.list,
 };
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 
@@ -312,7 +318,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
 
     return frame(<>
         <header className={`${styles.header} ${page==="offer-moderation"?styles.offerHeader:""}`} data-testid="admin-page-heading">
-            <div className={styles.headerCopy}><h1>{title}</h1><p>{lead}</p></div>
+            <div className={page==="offer-moderation"?styles.headerCopy+" "+offerStyles.headerCopy:styles.headerCopy}><h1>{title}</h1><p>{lead}</p></div>
             {page==="offer-moderation"&&offers&&<div className={styles.offerMetrics}>
                 <article><strong>{needsReviewCount}</strong><span>{t.needsReview}</span></article>
                 <article><strong>{reportedOfferCount}</strong><span>{t.reportedMetric}</span></article>
@@ -327,7 +333,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
             <div className={styles.tabs} role="tablist" aria-label={t.merchantTitle}>{merchantStatuses.map(value=>{const n=tabCount(value);return <button key={value} role="tab" aria-selected={merchantStatus===value} className={merchantStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setMerchantStatus(value);setMerchantPage(0);setSelectedMerchant(null);setReason("");setInternalNote("");})}>{merchantLabel(value)}{typeof n==="number"?" · "+n:""}</button>;})}</div>
             <div className={styles.merchantReviewWorkspace}>
                 <section className={styles.merchantPicker} aria-label={t.merchantTitle}>
-                    <div className={styles.list} data-testid="merchant-review-list">{merchantItems.map(item=><button key={item.id} className={selectedMerchant?.id===item.id?styles.merchantSelected:styles.merchantListItem} onClick={()=>void loadMerchant(item.id)}>
+                    <div className={styles.list+" "+merchantStyles.list} data-testid="merchant-review-list">{merchantItems.map(item=><button key={item.id} className={selectedMerchant?.id===item.id?styles.merchantSelected:styles.merchantListItem} onClick={()=>void loadMerchant(item.id)}>
                         <span className={styles.merchantListTop}><strong>{item.name}</strong><em className={styles.pill+" "+merchantTone(item.status)}>{merchantLabel(item.status)}</em></span>
                         <small>{item.businessType} · {item.city}</small><small>{item.ownerEmail}</small>
                     </button>)}</div>{!merchantItems.length&&<p className={styles.empty}>{t.empty}</p>}
@@ -335,7 +341,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                 </section>
                 <section className={styles.card+" "+styles.merchantDetails} data-testid="merchant-review-detail-panel">
                     {!selectedMerchant?<p className={styles.empty}>{t.empty}</p>:<>
-                        <div className={styles.detailHead}><div><small>{t.application} KLH-M-{selectedMerchant.id.slice(0,4).toUpperCase()}</small><h2>{selectedMerchant.name}</h2></div><span className={styles.pill+" "+merchantTone(selectedMerchant.status)}>{merchantLabel(selectedMerchant.status)}</span></div>
+                        <div className={merchantStyles.detailHead}><div><small>{t.application} KLH-M-{selectedMerchant.id.slice(0,4).toUpperCase()}</small><h2>{selectedMerchant.name}</h2></div><span className={styles.pill+" "+merchantTone(selectedMerchant.status)}>{merchantLabel(selectedMerchant.status)}</span></div>
                         <div className={styles.merchantStepper} aria-label={t.application}>
                             <div className={styles.stepDone}><span>✓</span><strong>{t.stageApplication}</strong></div><i aria-hidden="true"/>
                             <div className={styles.stepCurrent}><span>2</span><strong>{t.stageChecks}</strong></div><i aria-hidden="true"/>
@@ -368,15 +374,15 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                     <button type="button" aria-pressed={merchantAction==="reject"} className={styles.segReject+" "+(merchantAction==="reject"?styles.segOn:"")} onClick={()=>setMerchantAction("reject")}>{t.reject}</button>
                                 </div>
                                 <div className={styles.merchantDecisionFields}>
-                                    <label className={styles.field}><span>{t.reason}</span><textarea rows={4} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
-                                    <label className={styles.field}><span>{t.internalNote} · {t.optional}</span><textarea rows={3} value={internalNote} onChange={e=>setInternalNote(e.target.value)} placeholder={t.optional}/></label>
+                                    <label className={styles.field+" "+merchantStyles.field}><span>{t.reason}</span><textarea rows={4} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
+                                    <label className={styles.field+" "+merchantStyles.field}><span>{t.internalNote} · {t.optional}</span><textarea rows={3} value={internalNote} onChange={e=>setInternalNote(e.target.value)} placeholder={t.optional}/></label>
                                 </div>
                             </section>
                         </div>
                         <footer className={styles.merchantInlineFooter} data-testid="merchant-review-footer">
                             <p><ShieldCheck size={15} aria-hidden="true"/>{t.decisionNote}</p>
                             <p className={styles.merchantActionHint} id="merchant-decision-hint">{merchantAction==="approve"&&checks.some(value=>!value)?t.approveDisabledHint:!merchantAction||!reason.trim()?t.decisionDisabledHint:""}</p>
-                            <button className={styles.primary} aria-describedby="merchant-decision-hint" disabled={working||!merchantAction||!reason.trim()||(merchantAction==="approve"&&checks.some(value=>!value))} onClick={()=>void submitMerchant()}>{working?t.loading:t.save}</button>
+                            <button className={styles.primary+" "+merchantStyles.primary} aria-describedby="merchant-decision-hint" disabled={working||!merchantAction||!reason.trim()||(merchantAction==="approve"&&checks.some(value=>!value))} onClick={()=>void submitMerchant()}>{working?t.loading:t.save}</button>
                         </footer>
                     </>}
                 </section>
@@ -386,13 +392,13 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
         {page==="offer-moderation"&&offers&&<>
             <div className={styles.offerWorkspace} data-testid="offer-workspace">
                 <section className={styles.offerPicker} aria-label={t.offersTitle} data-testid="offer-picker">
-                    <div className={styles.tabs} role="tablist" aria-label={t.filter}>
+                    <div className={styles.tabs+" "+offerStyles.tabs} role="tablist" aria-label={t.filter}>
                         {[
                             {value:"",label:t.all,count:offers.total},
                             {value:"REPORTED",label:t.reportedFilter,count:reportedOfferCount},
                             {value:"ALLERGENS_UNKNOWN",label:t.allergensUnknown,count:unknownAllergenCount},
                             {value:"SUSPENDED",label:t.hiddenFilter,count:hiddenOfferCount}
-                        ].map(tab=><button key={tab.value||"all"} type="button" role="tab" aria-selected={offerStatus===tab.value} className={offerStatus===tab.value?styles.activeTab:styles.tab} onClick={()=>{setOfferStatus(tab.value);setOfferPage(0);setSelectedOffer(null);setReason("");}}>{tab.label} · {tab.count}</button>)}
+                        ].map(tab=><button key={tab.value||"all"} type="button" role="tab" aria-selected={offerStatus===tab.value} className={offerStatus===tab.value?styles.activeTab+" "+offerStyles.activeTab:styles.tab+" "+offerStyles.tab} onClick={()=>{setOfferStatus(tab.value);setOfferPage(0);setSelectedOffer(null);setReason("");}}>{tab.label} · {tab.count}</button>)}
                     </div>
                     <div className={styles.offerQueue} data-testid="offer-queue">
                         {offerItems.map(item=>{const d=discount(item);return <button type="button" key={item.id} aria-pressed={selectedOffer?.id===item.id} className={selectedOffer?.id===item.id?styles.offerItemSelected:styles.offerItem} onClick={()=>{setSelectedOffer(item);setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");}}>
@@ -418,7 +424,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                     <h2>{selectedOffer.title}</h2>
                                     <p>{selectedOffer.shopName} · {selectedOffer.city}</p>
                                 </div>
-                                <span className={styles.pill+" "+offerTone(selectedOffer.status)}>{offerLabel(selectedOffer.status)}</span>
+                                <span className={styles.pill+" "+offerStyles.pill+" "+offerTone(selectedOffer.status)}>{offerLabel(selectedOffer.status)}</span>
                             </div>
                             <dl className={styles.offerPreviewFacts}>
                                 <div><dt>{t.price}</dt><dd>{amount(selectedOffer.priceMinor,locale)} MAD</dd></div>
@@ -441,7 +447,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                         <div className={styles.reasonChips}>
                                             {[t.reasonMisleading,t.reasonAllergens,t.reasonPhoto,t.reasonOther].map(label=><button key={label} type="button" className={reason.startsWith(label)?styles.reasonChipActive:styles.reasonChip} onClick={()=>setReason(label+": ")}>{label}</button>)}
                                         </div>
-                                        <label className={styles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
+                                        <label className={styles.field+" "+offerStyles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
                                     </section>
                                 </div>
                                 <div className={styles.merchantModalColumn}>
@@ -458,7 +464,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             </div>
                             <footer className={styles.offerInlineFooter} data-testid="offer-moderation-footer">
                                 <p><ShieldCheck size={15} aria-hidden="true"/>{t.auditRecorded}</p>
-                                <button className={styles.primary} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{working?t.loading:(locale==="fr"?"Confirmer":locale==="ar"?"تأكيد":"Confirm")+" · "+(offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide)}</button>
+                                <button className={styles.primary+" "+offerStyles.primary} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{working?t.loading:(locale==="fr"?"Confirmer":locale==="ar"?"تأكيد":"Confirm")+" · "+(offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide)}</button>
                             </footer>
                         </div>
                     </>}
@@ -481,7 +487,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                 </section>
                 <section className={styles.caseDetail} data-testid="support-case-detail">
                     {!selectedCase?<p className={styles.empty}>{t.empty}</p>:<>
-                        <div className={styles.detailHead}><div><small>{t.record} {selectedCase.summary.reference} · {selectedCase.summary.category}</small><h2>{selectedCase.summary.subject}</h2></div><span className={styles.pill+" "+priorityTone(selectedCase.summary.priority)}>{priorityLabel(selectedCase.summary.priority)}</span></div>
+                        <div className={supportStyles.detailHead}><div><small>{t.record} {selectedCase.summary.reference} · {selectedCase.summary.category}</small><h2>{selectedCase.summary.subject}</h2></div><span className={styles.pill+" "+priorityTone(selectedCase.summary.priority)}>{priorityLabel(selectedCase.summary.priority)}</span></div>
                         <div className={styles.caseHistory} data-testid="support-case-history">
                             <div className={styles.caseReferenceCards}>
                                 <article><small>{t.caseReservation}</small><strong>{selectedCase.summary.reservationReference||"—"}</strong></article>
@@ -494,8 +500,8 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             </div>
                             {!revealed&&canRevealSupportCustomerDetails(roles,actorId,selectedCase.summary.assignedTo)&&
                                 <div className={styles.caseCustomerDisclosure}>
-                                    <label className={styles.field}><span>{t.disclosureReason}</span><input value={disclosureReason} maxLength={SUPPORT_DISCLOSURE_REASON_MAX_LENGTH} onChange={event=>setDisclosureReason(event.target.value)} required /></label>
-                                    <button className={styles.linkBtn} type="button" disabled={working||!disclosureReason.trim()} onClick={()=>void revealCustomer()}><Eye size={13} aria-hidden="true"/>{t.reveal}</button>
+                                    <label className={styles.field+" "+supportStyles.field}><span>{t.disclosureReason}</span><input value={disclosureReason} maxLength={SUPPORT_DISCLOSURE_REASON_MAX_LENGTH} onChange={event=>setDisclosureReason(event.target.value)} required /></label>
+                                    <button className={styles.linkBtn+" "+supportStyles.linkBtn} type="button" disabled={working||!disclosureReason.trim()} onClick={()=>void revealCustomer()}><Eye size={13} aria-hidden="true"/>{t.reveal}</button>
                                 </div>
                             }
                             <p className={styles.hint}><Lock size={13} aria-hidden="true"/>{t.masked}</p>
@@ -511,8 +517,8 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                 <button type="button" aria-pressed={!sendToCustomer} className={!sendToCustomer?styles.modeActive:styles.modeButton} onClick={()=>setSendToCustomer(false)}>{t.internalNoteTab}</button>
                             </div>
                             <form onSubmit={sendMessage}>
-                                <label className={styles.field}><span className="sr-only">{t.replyNote}</span><textarea rows={3} value={draftMessage} onChange={e=>setDraftMessage(e.target.value)} placeholder={t.writeMessage} required/></label>
-                                <div className={styles.composerFoot}><p>{sendToCustomer?t.replyVisibleHint:t.internalVisibleHint}</p><button className={styles.primary} disabled={working||!draftMessage.trim()}>{sendToCustomer?t.sendCustomer:t.saveNote}</button></div>
+                                <label className={styles.field+" "+supportStyles.field}><span className="sr-only">{t.replyNote}</span><textarea rows={3} value={draftMessage} onChange={e=>setDraftMessage(e.target.value)} placeholder={t.writeMessage} required/></label>
+                                <div className={styles.composerFoot}><p>{sendToCustomer?t.replyVisibleHint:t.internalVisibleHint}</p><button className={styles.primary+" "+supportStyles.primary} disabled={working||!draftMessage.trim()}>{sendToCustomer?t.sendCustomer:t.saveNote}</button></div>
                             </form>
                         </section>
                         <section className={styles.caseActions} data-testid="support-case-actions">
@@ -524,7 +530,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             <label className={styles.caseActionReason}><span>{t.actionReason}</span><input value={reason} onChange={e=>setReason(e.target.value)} placeholder={t.needsReason}/></label>
                             <div className={styles.caseActionButtons}>
                                 <button type="button" className={styles.ghostBtn} disabled={working||!reason.trim()} onClick={()=>void caseAction("ESCALATE")}>{t.escalate}</button>
-                                <button type="button" className={styles.primary} disabled={working||!reason.trim()} onClick={()=>void caseAction("RESOLVE")}>{t.resolve}</button>
+                                <button type="button" className={styles.primary+" "+supportStyles.primary} disabled={working||!reason.trim()} onClick={()=>void caseAction("RESOLVE")}>{t.resolve}</button>
                                 {!isSupportOnly&&selectedCase.summary.offerId&&<button type="button" className={styles.dangerOutline} disabled={working||!reason.trim()} onClick={()=>void caseAction("KEEP_OFFER_HIDDEN")}>{t.keepOffer}</button>}
                             </div>
                             <p className={styles.hint}><ShieldCheck size={13} aria-hidden="true"/>{t.actionNote}</p>
