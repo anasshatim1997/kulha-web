@@ -892,10 +892,10 @@ try {
           throw new Error("Selecting another merchant did not update the open drawer.");
         }
         await page.getByTestId("merchant-review-workflow").locator('input[type="checkbox"]').first().check();
-        page.evaluate(() => { window.confirm = () => false; });
+        await page.evaluate(() => { window.confirm = () => false; });
         await page.getByTestId("workspace-drawer-backdrop").click({ position: { x: 8, y: 8 } });
         if (!(await drawer.isVisible())) throw new Error("Merchant drawer ignored unsaved-change protection.");
-        page.evaluate(() => { window.confirm = () => true; });
+        await page.evaluate(() => { window.confirm = () => true; });
         await page.keyboard.press("Escape");
         await drawer.waitFor({ state: "hidden" });
         await rows.nth(1).click();
