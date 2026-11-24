@@ -14,7 +14,7 @@ type Props = {
   children: ReactNode;
 };
 
-export function AdminWorkspaceDrawer({ open, title, closeLabel, dirty = false, confirmDiscard, returnFocusRef, onClose, children }: Props) {
+export function AdminWorkspaceDrawer({ open, title, closeLabel, dirty = false, confirmDiscard, onClose, children }: Props) {
   const panelRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const onCloseRef = useRef(onClose);
