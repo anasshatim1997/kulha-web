@@ -560,7 +560,7 @@ async function assertAuditExplorerLayout(page, width, height) {
       ariaModal: drawer?.getAttribute("aria-modal") ?? null,
       tableColumns: ths.length,
       resultHeader: bounds(resultHeader), resultCell: bounds(resultCell),
-      copyButtons: drawer?.querySelectorAll(".auditIdentifier button").length ?? 0,
+      copyButtons: [...(drawer?.querySelectorAll("button") ?? [])].filter(button => !button.hasAttribute("aria-label")).length,
       tableWidth: wrapper?.clientWidth ?? 0,
       tableScrollWidth: wrapper?.scrollWidth ?? 0,
       detailLength: drawer?.textContent?.length ?? 0,
