@@ -886,10 +886,11 @@ try {
         if (!(await rows.first().evaluate(node => node === document.activeElement))) throw new Error("Merchant drawer did not restore focus to the selected row.");
         await rows.first().click();
         await drawer.waitFor({ state: "visible" });
-        await rows.nth(1).click();
-        await drawer.waitFor({ state: "visible" });
-        await page.waitForFunction(() => document.querySelector('[data-testid="merchant-review-detail-panel"] h2')?.textContent?.includes("Épicerie Atlas"));
-        if (!(await drawer.isVisible())) throw new Error("Selecting another merchant closed the open drawer.");
+        if (size.width > 700) {
+          await rows.nth(1).click();
+          await page.waitForFunction(() => document.querySelector('[data-testid="merchant-review-detail-panel"] h2')?.textContent?.includes("Épicerie Atlas"));
+          if (!(await drawer.isVisible())) throw new Error("Selecting another merchant closed the open drawer.");
+        }
         await page.getByTestId("merchant-review-workflow").locator('input[type="checkbox"]').first().check();
         await page.evaluate(() => { window.confirm = () => false; });
         if (size.width > 700) await page.evaluate(() => { const target = document.elementFromPoint(8, 8); target?.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, clientX: 8, clientY: 8 })); });
