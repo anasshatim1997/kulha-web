@@ -358,6 +358,7 @@ async function assertOfferModerationLayout(page, width, height) {
     const workspace = document.querySelector('[data-testid="offer-workspace"]');
     const picker = document.querySelector('[data-testid="offer-picker"]');
     const preview = document.querySelector('[data-testid="offer-detail-panel"]');
+    const modal = document.querySelector('[data-testid="workspace-modal"]');
     const queue = document.querySelector('[data-testid="offer-queue"]');
     const rows = [...(queue?.querySelectorAll(":scope > button") ?? [])];
     const longTitleCount = [...(queue?.querySelectorAll("strong") ?? [])]
@@ -365,7 +366,7 @@ async function assertOfferModerationLayout(page, width, height) {
     const box = element => {
       if (!element) return null;
       const rect = element.getBoundingClientRect();
-      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, width: rect.width };
+      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, width: rect.width, height: rect.height };
     };
     const rowLayout = rows.map(row => {
       const copy = row.children[1];
@@ -378,43 +379,49 @@ async function assertOfferModerationLayout(page, width, height) {
         copyWidth: copy?.clientWidth ?? 0,
         copyScrollWidth: copy?.scrollWidth ?? 0,
         priceWidth: price?.clientWidth ?? 0,
+        hasStatus: Boolean(row.querySelector(".pill")),
+        hasStockAndPickup: Boolean(row.querySelector("[class*=offerMeta]")),
         copyPriceOverlap: Boolean(copyBox && priceBox && copyBox.left < priceBox.right - 1 && copyBox.right > priceBox.left + 1 && copyBox.top < priceBox.bottom - 1 && copyBox.bottom > priceBox.top + 1),
       };
     });
+    const modalBox = box(modal);
     return {
-      workspace: box(workspace), picker: box(picker), preview: box(preview),
+      workspace: box(workspace), picker: box(picker), preview: box(preview), modal: modalBox,
+      modalRole: modal?.getAttribute("role") ?? null,
+      ariaModal: modal?.getAttribute("aria-modal") ?? null,
       pickerClientWidth: picker?.clientWidth ?? 0,
       pickerScrollWidth: picker?.scrollWidth ?? 0,
-      direction: workspace ? getComputedStyle(workspace).direction : "missing",
       columns: workspace ? getComputedStyle(workspace).gridTemplateColumns.split(" ").length : 0,
       offerCount: queue?.children.length ?? 0, longTitleCount,
       rowOverflowCount: rowLayout.filter(row => row.scrollWidth > row.width + 1).length,
       copyOverflowCount: rowLayout.filter(row => row.copyScrollWidth > row.copyWidth + 1).length,
       copyPriceOverlapCount: rowLayout.filter(row => row.copyPriceOverlap).length,
-      drawerOverlapsPicker: Boolean(preview && picker && picker.left < preview.right - 1 && picker.right > preview.left + 1),
+      rowsMissingDetails: rowLayout.filter(row => !row.hasStatus || !row.hasStockAndPickup).length,
+      centered: Boolean(modalBox && Math.abs((modalBox.left + modalBox.right) / 2 - innerWidth / 2) <= 2
+        && Math.abs((modalBox.top + modalBox.bottom) / 2 - innerHeight / 2) <= 2),
     };
   });
-  if (!metrics.workspace || !metrics.picker || !metrics.preview) {
-    throw new Error("Offer moderation regions are missing at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  if (!metrics.workspace || !metrics.picker || !metrics.preview || !metrics.modal) {
+    throw new Error("Offer moderation regions/modal are missing at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (metrics.columns !== 1) {
-    throw new Error("Offer queue must remain full width at " + width + "px: " + JSON.stringify(metrics));
+  if (metrics.columns !== 1 || Math.abs(metrics.picker.width - metrics.workspace.width) > 1) {
+    throw new Error("Offer queue must use the full workspace width at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
   if (metrics.offerCount < 8 || metrics.longTitleCount < 1) {
     throw new Error("Offer fixture must show eight records and a long-title example at "
       + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (width <= 1399 && Math.abs(metrics.picker.width - metrics.workspace.width) > 1) {
-    throw new Error("Offer picker should retain the full single-column workspace width at "
-      + width + "x" + height + ": " + JSON.stringify(metrics));
+  if (metrics.modalRole !== "dialog" || metrics.ariaModal !== "true" || !metrics.centered
+      || metrics.modal.width > 1050 + 1 || metrics.modal.height > height * .9 + 2) {
+    throw new Error("Offer detail must use a large centered modal at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (width > 600 && metrics.modal.width > width - 24 + 1) {
+    throw new Error("Offer modal exceeds viewport width at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
   if (metrics.pickerScrollWidth > metrics.pickerClientWidth + 1
-      || metrics.rowOverflowCount > 0 || metrics.copyOverflowCount > 0 || metrics.copyPriceOverlapCount > 0) {
-    throw new Error("Offer cards or picker content overflow at " + width + "x" + height
-      + ": " + JSON.stringify(metrics));
-  }
-  if (width > 1399 && metrics.direction === "rtl" && metrics.drawerOverlapsPicker) {
-    throw new Error("RTL desktop offer drawer overlaps the queue at " + width + "x" + height
+      || metrics.rowOverflowCount > 0 || metrics.copyOverflowCount > 0 || metrics.copyPriceOverlapCount > 0
+      || metrics.rowsMissingDetails > 0) {
+    throw new Error("Offer queue rows or picker content overflow or omit essential metadata at " + width + "x" + height
       + ": " + JSON.stringify(metrics));
   }
 }
@@ -1004,24 +1011,33 @@ try {
           animations: "disabled", fullPage: true,
         });
         const rows = page.getByTestId("offer-queue").getByRole("button");
-        const drawer = page.getByTestId("workspace-drawer");
-        await rows.first().click();
-        await drawer.waitFor({ state: "visible" });
-        const isModal = await drawer.getAttribute("aria-modal");
-        if (size.width <= 1399) {
-          if (isModal !== "true") {
-            throw new Error("Offer detail must become a modal when the full-width queue sits beneath it at " + size.width + "px.");
-          }
-          await drawer.locator("header button").click();
-          await drawer.waitFor({ state: "hidden" });
-          await rows.nth(1).click();
-          await drawer.waitFor({ state: "visible" });
-        } else {
-          if (isModal === "true") {
-            throw new Error("Desktop offer detail should remain a non-modal side overlay at " + size.width + "px.");
-          }
-          await rows.nth(1).click();
-          await drawer.waitFor({ state: "visible" });
+        const modal = page.getByTestId("workspace-modal");
+        const activeTabBefore = await page.locator('[data-testid="offer-picker"] [role="tab"][aria-selected="true"]').innerText();
+        const pageScrollBefore = await page.evaluate(() => window.scrollY);
+        const firstRow = rows.first();
+        await firstRow.click();
+        await modal.waitFor({ state: "visible" });
+        if (await modal.getAttribute("aria-modal") !== "true") {
+          throw new Error("Offer detail must always open as a modal at " + size.width + "px.");
+        }
+        if (await modal.getAttribute("role") !== "dialog") throw new Error("Offer modal is missing dialog semantics.");
+        await page.keyboard.press("Escape");
+        await modal.waitFor({ state: "detached" });
+        if (!(await firstRow.evaluate(element => document.activeElement === element))) {
+          throw new Error("Closing the offer modal must restore focus to its originating queue row.");
+        }
+        const activeTabAfter = await page.locator('[data-testid="offer-picker"] [role="tab"][aria-selected="true"]').innerText();
+        const pageScrollAfter = await page.evaluate(() => window.scrollY);
+        if (activeTabAfter !== activeTabBefore || pageScrollAfter !== pageScrollBefore) {
+          throw new Error("Closing the offer modal must preserve the active filter and queue scroll position.");
+        }
+        await rows.nth(1).click();
+        await modal.waitFor({ state: "visible" });
+        if (size.width >= 1024) {
+          await page.getByTestId("workspace-modal-backdrop").click({ position: { x: 2, y: 2 } });
+          await modal.waitFor({ state: "detached" });
+          await rows.first().click();
+          await modal.waitFor({ state: "visible" });
         }
       }
       if (route.path.endsWith("/admin/support-cases")) {
@@ -1056,10 +1072,8 @@ try {
       if (route.path.endsWith("/admin/offer-moderation")) {
         await assertOfferModerationLayout(page, size.width, size.height);
         const longTitle = "Family breakfast basket with assorted bakery items, fresh fruit and detailed allergen information";
-        if (size.width <= 1399) {
-          await page.getByTestId("workspace-drawer").locator("header button").click();
-          await page.getByTestId("workspace-drawer").waitFor({ state: "hidden" });
-        }
+        await page.getByTestId("workspace-modal").locator("header button").click();
+        await page.getByTestId("workspace-modal").waitFor({ state: "detached" });
         await page.getByTestId("offer-queue").getByRole("button").filter({ hasText: longTitle }).click();
         await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
         await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
