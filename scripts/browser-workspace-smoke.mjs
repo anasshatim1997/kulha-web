@@ -194,7 +194,8 @@ const backend = createServer(async (request, response) => {
     const rows = url.searchParams.get("status") === "PENDING" && merchantStatus === "PENDING" ? merchantRows.filter(item => item.status === "PENDING") : merchantRows.filter(item => item.status === url.searchParams.get("status"));
     return json(response, page(rows));
   }
-  if (path === `/admin/merchants/${merchant.id}` && method === "GET") return json(response, merchant);
+  const selectedMerchant = merchantRows.find(item => path === `/admin/merchants/${item.id}`);
+  if (selectedMerchant && method === "GET") return json(response, selectedMerchant);
   if (path === `/admin/merchants/${merchant.id}/approve` && method === "POST") {
     await bodyOf(request);
     merchantStatus = "APPROVED";
