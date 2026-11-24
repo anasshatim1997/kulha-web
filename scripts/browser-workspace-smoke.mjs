@@ -863,8 +863,9 @@ try {
         const search = page.getByTestId("admin-console-search");
         await search.getByTestId("admin-global-search").waitFor({ state: "visible" });
         const searchBounds = await search.boundingBox();
-        if (!searchBounds || (size.width < 900 && searchBounds.width < size.width - 64)) {
-          throw new Error(`Admin search must remain visible and full-width at ${size.width}px on ${route.path}: ${JSON.stringify(searchBounds)}`);
+        if (!searchBounds) throw new Error("Admin search is missing at " + size.width + "px on " + route.path + ".");
+        if (size.width < 900 && (searchBounds.width < Math.min(320, size.width - 64) || searchBounds.width > 522)) {
+          throw new Error("Admin search must use a readable, capped responsive row at " + size.width + "px on " + route.path + ": " + JSON.stringify(searchBounds));
         }
         const navMetrics = await page.evaluate(() => {
           const bounds = selector => {
