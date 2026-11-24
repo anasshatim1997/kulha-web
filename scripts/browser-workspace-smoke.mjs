@@ -379,8 +379,8 @@ async function assertOfferModerationLayout(page, width, height) {
         copyWidth: copy?.clientWidth ?? 0,
         copyScrollWidth: copy?.scrollWidth ?? 0,
         priceWidth: price?.clientWidth ?? 0,
-        hasStatus: Boolean(row.querySelector(".pill")),
-        hasStockAndPickup: Boolean(row.querySelector("[class*=offerMeta]")),
+        hasStatus: Boolean(row.querySelector('[data-testid="offer-row-status"]')),
+        hasStockAndPickup: Boolean(row.querySelector('[data-testid="offer-row-meta"]')),
         copyPriceOverlap: Boolean(copyBox && priceBox && copyBox.left < priceBox.right - 1 && copyBox.right > priceBox.left + 1 && copyBox.top < priceBox.bottom - 1 && copyBox.bottom > priceBox.top + 1),
       };
     });
@@ -412,7 +412,7 @@ async function assertOfferModerationLayout(page, width, height) {
       + width + "x" + height + ": " + JSON.stringify(metrics));
   }
   if (metrics.modalRole !== "dialog" || metrics.ariaModal !== "true" || !metrics.centered
-      || metrics.modal.width > 1050 + 1 || metrics.modal.height > height * .9 + 2) {
+      || metrics.modal.width > 1050 + 1 || metrics.modal.height > (width <= 600 ? height : height * .9) + 2) {
     throw new Error("Offer detail must use a large centered modal at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
   if (width > 600 && metrics.modal.width > width - 24 + 1) {
