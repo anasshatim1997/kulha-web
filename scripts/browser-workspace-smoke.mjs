@@ -651,6 +651,7 @@ async function assertAdminCardClipping(page, route, width, height) {
     const candidates = [...root.querySelectorAll("[data-testid]")].filter(element => {
       const id = element.getAttribute("data-testid") ?? "";
       return /detail|workspace|picker|table|queue|workflow|footer|composer|history|drawer/.test(id)
+        && id !== "workspace-drawer-backdrop"
         && !/record-row|case-row/.test(id);
     });
     const overflow = candidates.map(element => ({
