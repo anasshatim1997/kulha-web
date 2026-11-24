@@ -888,9 +888,8 @@ try {
         await drawer.waitFor({ state: "visible" });
         await rows.nth(1).click();
         await drawer.waitFor({ state: "visible" });
-        if (!(await page.locator('[data-testid="merchant-review-detail-panel"] h2').innerText()).includes("Épicerie Atlas")) {
-          throw new Error("Selecting another merchant did not update the open drawer.");
-        }
+        await page.waitForFunction(() => document.querySelector('[data-testid="merchant-review-detail-panel"] h2')?.textContent?.includes("Épicerie Atlas"));
+        if (!(await drawer.isVisible())) throw new Error("Selecting another merchant closed the open drawer.");
         await page.getByTestId("merchant-review-workflow").locator('input[type="checkbox"]').first().check();
         await page.evaluate(() => { window.confirm = () => false; });
         if (size.width > 700) await page.getByTestId("admin-page-heading").click();
