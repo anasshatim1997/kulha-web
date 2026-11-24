@@ -519,11 +519,17 @@ async function assertOfferDecisionAccessible(page, width, height, route) {
       warningVisible: Boolean(warning && warning.getBoundingClientRect().height > 0),
       previewWidth: preview?.clientWidth ?? 0,
       previewScrollWidth: preview?.scrollWidth ?? 0,
+      modalRole: document.querySelector('[data-testid="workspace-modal"]')?.getAttribute("role") ?? null,
+      modalAria: document.querySelector('[data-testid="workspace-modal"]')?.getAttribute("aria-modal") ?? null,
+      modalInitialFocus: Boolean(document.querySelector('[data-testid="workspace-modal"] header button')
+        && document.activeElement === document.querySelector('[data-testid="workspace-modal"] header button')),
     };
   });
   const failures = [];
   const check = (ok, message) => { if (!ok) failures.push(message); };
   check(Boolean(metrics.title), "selected offer title is missing");
+  check(metrics.modalRole === "dialog" && metrics.modalAria === "true", "offer detail is not exposed as a modal dialog");
+  check(metrics.modalInitialFocus, "focus did not move to the modal close control");
   check(metrics.titleLineClamp === "none" || metrics.titleLineClamp === "initial",
     "selected offer title must not be line-clamped");
   check(new Set(metrics.decisions).size === 3, "three moderation decisions must have distinct labels");
@@ -1261,7 +1267,14 @@ try {
     const inlineOffer = page.getByTestId("offer-moderation-workflow");
     await inlineOffer.waitFor({ state: "visible" });
     await inlineOffer.locator('[data-action="suspend"]').click();
-    await inlineOffer.getByLabel("Reason (required)").fill("Allergen information needs verification.");
+    const reasonField = inlineOffer.getByLabel("Reason (required)");
+    await reasonField.fill("Allergen information needs verification.");
+    page.once("dialog", dialog => dialog.dismiss());
+    await page.keyboard.press("Escape");
+    await inlineOffer.waitFor({ state: "visible" });
+    if (await reasonField.inputValue() !== "Allergen information needs verification.") {
+      throw new Error("Unsaved offer moderation reason was lost after cancelling the discard confirmation.");
+    }
     await page.getByTestId("offer-moderation-footer").getByRole("button", { name: "Hide offer" }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/suspend"), "Offer moderation action");
     await context.close();
