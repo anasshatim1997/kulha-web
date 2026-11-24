@@ -699,8 +699,15 @@ async function assertAdminCardClipping(page, route, width, height) {
     const ancestors = [];
     for (let node = picker; node && ancestors.length < 5; node = node.parentElement) ancestors.push(box(node));
     const directChildren = picker ? [...picker.children].map(box) : [];
-    const descendants = picker ? [...picker.querySelectorAll(".tabs, .tabs > *, .offerQueue, .offerItem, .offerItemSelected, .offerThumb, .offerCopy, .offerPrice, .offerCopy > *, .offerTags")]
-      .map(box) : [];
+    const tabContainer = picker ? [...picker.children].find(element => String(element.className).includes("_tabs_")) : null;
+    const queue = picker?.querySelector('[data-testid="offer-queue"]') ?? null;
+    const tabButtons = tabContainer ? [...tabContainer.querySelectorAll("button")].map(box) : [];
+    const offerRows = queue ? [...queue.children].slice(0, 3).map(row => ({
+      row: box(row),
+      children: [...row.children].map(box),
+      descendants: [...row.querySelectorAll("*")].map(box),
+    })) : [];
+    const descendants = picker ? [...picker.querySelectorAll("*")].slice(0, 80).map(box) : [];
     const card = root.querySelector('[data-testid="audit-table-card"]');
     const wrapper = root.querySelector('[data-testid="audit-table-wrapper"]');
     const header = wrapper?.querySelector("thead th:last-child");
@@ -708,7 +715,7 @@ async function assertAdminCardClipping(page, route, width, height) {
     const right = element => element ? element.getBoundingClientRect().right : null;
     return {
       overflow, offerPicker: box(picker), offerWorkspace: box(workspace),
-      ancestors, directChildren, descendants,
+      ancestors, directChildren, descendants, tabButtons, offerRows,
       cardRight: right(card), headerRight: right(header), cellRight: right(cell),
     };
   });
