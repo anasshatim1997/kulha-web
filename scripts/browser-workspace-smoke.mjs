@@ -539,7 +539,8 @@ async function assertSupportTimelineVisible(page, width, height) {
     const timeline = document.querySelector('[data-testid="support-case-timeline"]');
     const composer = document.querySelector('[data-testid="support-message-composer"]');
     const actions = document.querySelector('[data-testid="support-case-actions"]');
-    const drawerContent = document.querySelector('[data-testid="workspace-drawer"] .content');
+    const drawer = document.querySelector('[data-testid="workspace-drawer"]');
+    const drawerContent = drawer?.querySelector(":scope > div");
     const drawerStyle = drawerContent ? getComputedStyle(drawerContent) : null;
     const style = timeline ? getComputedStyle(timeline) : null;
     const box = element => {
