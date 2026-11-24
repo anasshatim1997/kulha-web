@@ -504,8 +504,10 @@ async function assertSupportTimelineVisible(page, width, height) {
     return {
       detail: box(detail), history: box(history), timeline: box(timeline),
       composer: box(composer), actions: box(actions),
-      scrollMarker: timeline?.hasAttribute("data-scroll-region") ?? false,
       overflowY: style?.overflowY ?? "missing",
+      drawerOverflowY: drawerStyle?.overflowY ?? "missing",
+      drawerScrollHeight: drawerContent?.scrollHeight ?? 0,
+      drawerClientHeight: drawerContent?.clientHeight ?? 0,
       maxHeight: style?.maxHeight ?? "missing",
       historyOverflowY: history ? getComputedStyle(history).overflowY : "missing",
       detailOverflowY: detail ? getComputedStyle(detail).overflowY : "missing",
@@ -515,11 +517,11 @@ async function assertSupportTimelineVisible(page, width, height) {
     };
   });
   if (!metrics.detail || !metrics.history || !metrics.timeline || !metrics.composer || !metrics.actions
-      || !metrics.scrollMarker || !metrics.timelineInsideDetail) {
+      || !metrics.timelineInsideDetail) {
     throw new Error("Support case structure is incomplete at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (metrics.overflowY !== "auto") {
-    throw new Error("Only the support conversation timeline may own its inner scroll at "
+  if (metrics.overflowY !== "visible" || metrics.drawerOverflowY !== "auto") {
+    throw new Error("The drawer document must own support-case scrolling at "
       + width + "x" + height + ": " + JSON.stringify(metrics));
   }
   if (metrics.historyOverflowY === "auto" || metrics.historyOverflowY === "scroll"
@@ -1114,30 +1116,21 @@ try {
     for (const size of sizes) {
       await page.setViewportSize(size);
       await page.reload({ waitUntil: "networkidle" });
+      await page.getByTestId("support-case-row").first().click();
       await timelinePanel.waitFor({ state: "visible" });
       await assertSupportTimelineVisible(page, size.width, size.height);
       const before = await page.evaluate(() => {
+        const content = document.querySelector('[data-testid="workspace-drawer"] .content');
         const timelineNode = document.querySelector('[data-testid="support-case-timeline"]');
-        return {
-          clientHeight: timelineNode.clientHeight,
-          scrollHeight: timelineNode.scrollHeight,
-          overflow: getComputedStyle(timelineNode).overflowY,
-          composerTop: document.querySelector('[data-testid="support-message-composer"]').getBoundingClientRect().top,
-          actionsTop: document.querySelector('[data-testid="support-case-actions"]').getBoundingClientRect().top,
-          documentHeight: document.documentElement.scrollHeight,
-          viewportHeight: innerHeight,
-        };
+        return { clientHeight: content.clientHeight, scrollHeight: content.scrollHeight,
+          overflow: getComputedStyle(content).overflowY, timelineOverflow: getComputedStyle(timelineNode).overflowY };
       });
-      if (before.scrollHeight <= before.clientHeight + 2 || before.overflow !== "auto") {
-        throw new Error(`Long conversation is not scrollable in the timeline at ${size.width}x${size.height}: ${JSON.stringify(before)}`);
+      if (before.scrollHeight <= before.clientHeight + 2 || before.overflow !== "auto" || before.timelineOverflow !== "visible") {
+        throw new Error("Support drawer does not own the long-conversation scroll at " + size.width + "px: " + JSON.stringify(before));
       }
-      await timelinePanel.evaluate(element => { element.scrollTop = element.scrollHeight; });
-      const after = await page.evaluate(() => ({
-        composerTop: document.querySelector('[data-testid="support-message-composer"]').getBoundingClientRect().top,
-        actionsTop: document.querySelector('[data-testid="support-case-actions"]').getBoundingClientRect().top,
-      }));
-      if (Math.abs(after.composerTop - before.composerTop) > 1 || Math.abs(after.actionsTop - before.actionsTop) > 1) {
-        throw new Error(`Scrolling the timeline moved the composer or Case Actions at ${size.width}px: ${JSON.stringify({ before, after })}`);
+      await page.locator('[data-testid="workspace-drawer"] .content').evaluate(element => { element.scrollTop = element.scrollHeight; });
+      if (size.width < 600 && before.scrollHeight <= before.clientHeight) {
+        throw new Error("Mobile Support Cases must retain drawer document scrolling at " + size.width + "px.");
       }
       if (size.width < 600 && before.documentHeight <= before.viewportHeight) {
         throw new Error(`Mobile Support Cases must retain ordinary document scrolling at ${size.width}px.`);
