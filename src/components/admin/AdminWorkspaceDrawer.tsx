@@ -13,17 +13,19 @@ type Props = {
   confirmDiscard: string;
   modalBreakpoint?: number;
   rtlSide?: "left" | "right";
+  presentation?: "responsive" | "drawer" | "modal";
   onClose: () => void;
   children: ReactNode;
 };
 
-export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr", dirty = false, confirmDiscard, modalBreakpoint = 700, rtlSide = "right", onClose, children }: Props) {
+export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr", dirty = false, confirmDiscard, modalBreakpoint = 700, rtlSide = "right", presentation = "responsive", onClose, children }: Props) {
   const panelRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const onCloseRef = useRef(onClose);
   const dirtyRef = useRef(dirty);
   const confirmRef = useRef(confirmDiscard);
-  const [modalPresentation, setMobileModal] = useState(false);
+  const [viewportModal, setViewportModal] = useState(false);
+  const modalPresentation = presentation === "modal" || (presentation === "responsive" && viewportModal);
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -32,12 +34,13 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr
   }, [onClose, dirty, confirmDiscard]);
 
   useEffect(() => {
+    if (presentation !== "responsive") return;
     const media = window.matchMedia("(max-width: " + modalBreakpoint + "px)");
-    const update = () => setMobileModal(media.matches);
+    const update = () => setViewportModal(media.matches);
     update();
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
-  }, [modalBreakpoint]);
+  }, [modalBreakpoint, presentation]);
 
   useEffect(() => {
     if (!open) return;
@@ -85,8 +88,8 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr
   if (!open || typeof document === "undefined") return null;
   return createPortal(
     <div
-      className={(modalPresentation ? styles.backdrop + " " + styles.mobile : styles.backdrop + " " + styles.desktop) + (direction === "rtl" && rtlSide === "left" ? " " + styles.rtlLeft : "")}
-      data-testid="workspace-drawer-backdrop"
+      className={modalPresentation ? styles.modalBackdrop : styles.backdrop + " " + styles.desktop + (direction === "rtl" && rtlSide === "left" ? " " + styles.rtlLeft : "")}
+      data-testid={modalPresentation ? "workspace-modal-backdrop" : "workspace-drawer-backdrop"}
       onClick={event => { if (modalPresentation && event.target === event.currentTarget) requestClose(); }}
     >
       <aside
@@ -95,13 +98,13 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr
         tabIndex={-1}
         role="dialog"
         aria-modal={modalPresentation ? true : undefined}
-        aria-label={title}
-        className={styles.drawer}
-        data-testid="workspace-drawer"
+        aria-labelledby="admin-workspace-dialog-title"
+        className={modalPresentation ? styles.drawer + " " + styles.modalPanel : styles.drawer}
+        data-testid={modalPresentation ? "workspace-modal" : "workspace-drawer"}
         onClick={event => event.stopPropagation()}
       >
         <header className={styles.header}>
-          <h2>{title}</h2>
+          <h2 id="admin-workspace-dialog-title">{title}</h2>
           <button ref={closeRef} type="button" className={styles.close} aria-label={closeLabel} onClick={requestClose}>×</button>
         </header>
         <div className={styles.content}>{children}</div>
