@@ -886,6 +886,11 @@ try {
         if (!(await rows.first().evaluate(node => node === document.activeElement))) throw new Error("Merchant drawer did not restore focus to the selected row.");
         await rows.first().click();
         await drawer.waitFor({ state: "visible" });
+        await rows.nth(1).click();
+        await drawer.waitFor({ state: "visible" });
+        if (!(await page.locator('[data-testid="merchant-review-detail-panel"] h2').innerText()).includes("Épicerie Atlas")) {
+          throw new Error("Selecting another merchant did not update the open drawer.");
+        }
         await page.getByTestId("merchant-review-workflow").locator('input[type="checkbox"]').first().check();
         page.evaluate(() => { window.confirm = () => false; });
         await page.getByTestId("workspace-drawer-backdrop").click({ position: { x: 8, y: 8 } });
