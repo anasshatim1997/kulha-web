@@ -1841,19 +1841,6 @@
 .offerPreviewAlert > svg { flex: 0 0 auto; margin-top: 1px; }
 .offerPreviewAlert strong { display: block; font-size: 13px; line-height: 1.4; }
 .offerPreviewAlert small { display: block; margin-top: 3px; color: #806a42; font-size: 12px; line-height: 1.45; }
-.offerReviewCallout {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 18px;
-    padding: 16px 17px;
-    border: 1px solid #e9dfca;
-    border-radius: 16px;
-    background: #f5f0e4;
-}
-.offerReviewCallout > div { min-width: 0; }
-.offerReviewCallout strong { display: block; color: #123c2b; font-size: 14px; font-weight: 950; }
-.offerReviewCallout p { margin: 5px 0 0; color: #657469; font-size: 12px; line-height: 1.45; }
 .offerEmpty { min-height: 230px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: #718075; text-align: center; }
 .offerEmpty svg { color: #9aab9d; }
 .offerEmpty strong { color: #073324; font-size: 18px; }
@@ -1942,8 +1929,6 @@
     .offerPreviewTitle h2 { font-size: 21px; }
     .offerPreviewHeading > .pill { grid-column: 2; }
     .offerPreviewFacts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
-    .offerReviewCallout { align-items: stretch; flex-direction: column; }
-    .offerReviewCallout .merchantOpenButton { width: 100%; }
     .offerModal { width: 100%; }
     .offerModalFacts { grid-template-columns: minmax(0, 1fr); }
     .offerModalDecision .offerActionRow { grid-template-columns: minmax(0, 1fr); }
@@ -3249,15 +3234,7 @@
     .offerPreviewThumb { width: 72px; height: 72px; }
     .offerPreviewFacts { gap: 8px 12px; }
     .offerPreviewAlert { margin: 0; padding: 10px 12px; }
-    .offerReviewCallout {
-        position: sticky;
-        bottom: 0;
-        margin-top: 0;
-        padding: 12px;
-        background: #f3efe2;
-        box-shadow: 0 -8px 12px #f3efe2;
     }
-}
 
 /* Support is a dense operational queue: keep the case list and case record
    independently scrollable on compact desktop windows. */
@@ -4294,23 +4271,6 @@
         font-size: 10px;
     }
 
-    .shell[data-page="offer-moderation"] .offerPreviewCard {
-        display: flex;
-        flex-direction: column;
-        align-self: stretch;
-        box-sizing: border-box;
-        width: 100%;
-        height: 100%;
-        min-height: 0;
-        max-height: 100%;
-        overflow-x: hidden;
-        overflow-y: auto;
-        overscroll-behavior: contain;
-        gap: 9px;
-        padding: 13px;
-        border-radius: 16px;
-    }
-
     .shell[data-page="offer-moderation"] .offerPreviewHeading {
         grid-template-columns: 50px minmax(0, 1fr) auto;
         gap: 9px;
@@ -4361,121 +4321,7 @@
         line-height: 1.3;
     }
 
-    .shell[data-page="offer-moderation"] .offerInlineBody {
-        display: grid;
-        grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr);
-        align-items: start;
-        gap: 8px;
-        min-width: 0;
-        margin-top: 0;
-    }
 
-    .shell[data-page="offer-moderation"] .offerInlineBody .merchantModalSection,
-    .shell[data-page="offer-moderation"] .offerInlineBody .merchantDecision {
-        min-width: 0;
-        padding: 9px;
-        border-radius: 10px;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody .merchantModalSection > h3,
-    .shell[data-page="offer-moderation"] .offerInlineBody .merchantDecision > h3 {
-        margin: 0 0 6px;
-        font-size: 9px;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody .offerModalReport,
-    .shell[data-page="offer-moderation"] .offerInlineBody .offerModalNoReports,
-    .shell[data-page="offer-moderation"] .offerInlineBody .offerModalFoodNotes {
-        padding: 8px;
-        font-size: 9px;
-        line-height: 1.3;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody .offerModalReport strong,
-    .shell[data-page="offer-moderation"] .offerInlineBody .offerModalFoodNotes strong {
-        font-size: 10px;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody .offerModalFoodNotes p {
-        margin: 4px 0 0;
-        font-size: 9px;
-        line-height: 1.3;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody .offerModalDecisionHint {
-        margin: 0 0 6px;
-        font-size: 9px;
-        line-height: 1.25;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody .offerActionRow {
-        gap: 5px;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody .offerAction,
-    .shell[data-page="offer-moderation"] .offerInlineBody .offerActionActive {
-        min-height: 30px;
-        padding: 5px 7px;
-        border-radius: 7px;
-        font-size: 9px;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody .reasonChips {
-        gap: 5px;
-        margin: 7px 0;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody .reasonChip,
-    .shell[data-page="offer-moderation"] .offerInlineBody .reasonChipActive {
-        min-height: 25px;
-        padding: 4px 7px;
-        border-radius: 7px;
-        font-size: 8px;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody .field {
-        gap: 4px;
-        margin-top: 7px;
-        font-size: 9px;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody .field textarea {
-        min-height: 46px;
-        padding: 7px 8px;
-        border-radius: 8px;
-        font-size: 10px;
-        line-height: 1.25;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineFooter {
-        position: sticky;
-        bottom: -13px;
-        z-index: 4;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 9px;
-        flex: 0 0 auto;
-        margin: auto 0 -13px;
-        padding: 9px 2px 5px;
-        background: #fffdf8;
-        box-shadow: 0 -8px 12px #fffdf8;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineFooter p {
-        max-width: 65%;
-        margin: 0;
-        font-size: 9px;
-        line-height: 1.25;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineFooter .primary {
-        min-width: 118px;
-        min-height: 34px;
-        padding-inline: 10px;
-        border-radius: 8px;
-        font-size: 10px;
-    }
 }
 
 /* Support: reserve enough of the detail column for the conversation itself.
@@ -4907,180 +4753,239 @@
     }
 }
 
+ 
+/* Offer moderation detail pane: evidence scrolls independently; decisions stay in flow. */
+.offerPreviewScroll {
+    display: grid;
+    align-content: start;
+    gap: 20px;
+    min-width: 0;
+}
+.offerDecisionDock {
+    display: grid;
+    gap: 0;
+    min-width: 0;
+}
+.offerEvidence {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 10px;
+    padding: 12px 14px;
+}
+.offerEvidence > h3 {
+    grid-column: 1 / -1;
+    margin: 0;
+}
+.offerEvidence > .offerModalFoodNotes { margin-top: 0; }
 
-/* Offer reason is part of the evidence column, leaving the decision column
-   focused on the action choice while keeping the required reason editable. */
-@media (min-width: 1100px) and (max-height: 820px) {
-    .shell[data-page="offer-moderation"] .offerModalReason {
-        margin-top: 0;
-        padding: 6px 7px;
-        border-radius: 9px;
+@media (min-width: 1100px) {
+    .shell[data-page="offer-moderation"] .offerWorkspace {
+        height: clamp(520px, calc(100dvh - 176px), 640px);
+        min-height: 0;
+        align-items: stretch;
     }
-
-    .shell[data-page="offer-moderation"] .offerModalReason > h3 {
-        margin: 0 0 2px;
-        font-size: 8px;
-    }
-
-    .shell[data-page="offer-moderation"] .offerModalReason .reasonChips {
+    .shell[data-page="offer-moderation"] .offerPreviewCard {
+        align-self: stretch;
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 3px;
-        margin: 1px 0 2px;
+        grid-template-rows: minmax(0, 1fr) auto;
+        gap: 20px;
+        height: 100%;
+        min-height: 0;
+        max-height: 100%;
+        overflow: hidden;
+    }
+    .shell[data-page="offer-moderation"] .offerPreviewScroll {
+        min-height: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+    .shell[data-page="offer-moderation"] .offerPreviewTitle h2 {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        max-height: calc(2 * 1.12em);
+        font-size: 19px;
+        line-height: 1.12;
+    }
+    .shell[data-page="offer-moderation"] .offerInlineBody {
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, .6fr);
+    }
+    .shell[data-page="offer-moderation"] .offerInlineBody .reasonChip,
+    .shell[data-page="offer-moderation"] .offerInlineBody .reasonChipActive {
+        min-height: 30px;
+        font-size: 11px;
+    }
+    .shell[data-page="offer-moderation"] .offerInlineBody .offerAction,
+    .shell[data-page="offer-moderation"] .offerInlineBody .offerActionActive {
+        min-height: 34px;
+        font-size: 11px;
+    }
+    .shell[data-page="offer-moderation"] .offerModalReason .field {
+        font-size: 11px;
+    }
+    .shell[data-page="offer-moderation"] .offerInlineFooter p {
+        font-size: 11px;
+    }
+}
+
+@media (min-width: 1100px) and (max-height: 820px) {
+    .shell[data-page="offer-moderation"] .offerPreviewCard {
+        display: grid;
+        grid-template-rows: minmax(0, 1fr) auto;
+        gap: 9px;
+        height: 100%;
+        min-height: 0;
+        max-height: 100%;
+        padding: 13px;
+        overflow: hidden;
+    }
+    .shell[data-page="offer-moderation"] .offerPreviewScroll {
+        min-height: 0;
+        gap: 9px;
+        padding-inline-end: 6px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: #9b8b69 #f3ecdf;
+    }
+    .shell[data-page="offer-moderation"] .offerDecisionDock {
+        gap: 8px;
+        padding-top: 9px;
+        border-top: 1px solid #eee8dd;
     }
 
+    .shell[data-page="offer-moderation"] .offerPreviewFacts {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0 10px;
+        padding: 0;
+    }
+    .shell[data-page="offer-moderation"] .offerPreviewFacts > div {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+        padding: 6px 0 0;
+    }
+    .shell[data-page="offer-moderation"] .offerPreviewFacts dt,
+    .shell[data-page="offer-moderation"] .offerPreviewFacts dd {
+        font-size: 11px;
+        text-align: start;
+    }
+    .shell[data-page="offer-moderation"] .offerPreviewTitle p { font-size: 11px; }
+    .shell[data-page="offer-moderation"] .offerPreviewAlert { margin: 0; padding: 9px 11px; }
+    .shell[data-page="offer-moderation"] .offerPreviewAlert strong,
+    .shell[data-page="offer-moderation"] .offerPreviewAlert small {
+        font-size: 11px;
+        line-height: 1.35;
+    }
+    .shell[data-page="offer-moderation"] .offerEvidence {
+        padding: 9px 11px;
+        gap: 6px 8px;
+    }
+    .shell[data-page="offer-moderation"] .offerEvidence > h3 { font-size: 11px; }
+    .shell[data-page="offer-moderation"] .offerModalReport,
+    .shell[data-page="offer-moderation"] .offerModalNoReports,
+    .shell[data-page="offer-moderation"] .offerModalFoodNotes {
+        padding: 8px 10px;
+        font-size: 11px;
+        line-height: 1.35;
+    }
+    .shell[data-page="offer-moderation"] .offerModalFoodNotes p { font-size: 11px; line-height: 1.35; }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody {
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, .6fr);
+        align-items: stretch;
+        gap: 8px;
+        margin: 0;
+    }
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn {
+        grid-template-rows: minmax(0, 1fr);
+    }
+    .shell[data-page="offer-moderation"] .offerInlineBody .merchantModalSection,
+    .shell[data-page="offer-moderation"] .offerInlineBody .merchantDecision {
+        box-sizing: border-box;
+        padding: 8px 10px;
+        border-radius: 10px;
+    }
+    .shell[data-page="offer-moderation"] .offerInlineBody h3 {
+        margin: 0 0 6px;
+        font-size: 11px;
+    }
+    .shell[data-page="offer-moderation"] .offerModalReason .reasonChips {
+        gap: 5px;
+        margin: 0 0 6px;
+    }
     .shell[data-page="offer-moderation"] .offerModalReason .reasonChip,
     .shell[data-page="offer-moderation"] .offerModalReason .reasonChipActive {
-        min-width: 0;
-        min-height: 18px;
-        padding: 2px 4px;
-        border-radius: 5px;
-        font-size: 7px;
-        line-height: 1.1;
-        white-space: normal;
+        min-height: 30px;
+        padding: 0 9px;
+        font-size: 11px;
     }
-
     .shell[data-page="offer-moderation"] .offerModalReason .field {
-        gap: 2px;
-        margin-top: 0;
-        font-size: 8px;
-        transform: translateY(-5px);
+        gap: 3px;
+        margin: 0;
+        font-size: 11px;
+        transform: none;
     }
-
     .shell[data-page="offer-moderation"] .offerModalReason .field textarea {
-        height: 34px;
-        min-height: 34px;
-        max-height: 34px;
-        padding: 4px 6px;
-        border-radius: 6px;
-        font-size: 8px;
-        line-height: 1.2;
+        height: 44px;
+        min-height: 44px;
+        max-height: 44px;
+        padding: 6px 9px;
+        font-size: 12px;
+        line-height: 1.3;
+    }
+    .shell[data-page="offer-moderation"] .offerModalDecision .offerModalDecisionHint {
+        margin: 0 0 6px;
+        font-size: 11px;
+        line-height: 1.3;
+    }
+    .shell[data-page="offer-moderation"] .offerModalDecision .offerActionRow {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 5px;
+    }
+    .shell[data-page="offer-moderation"] .offerModalDecision .offerAction,
+    .shell[data-page="offer-moderation"] .offerModalDecision .offerActionActive {
+        min-height: 30px;
+        padding: 0 9px;
+        font-size: 11px;
+    }
+    .shell[data-page="offer-moderation"] .offerInlineFooter {
+        position: static;
+        margin: 0;
+        padding: 0;
+        border-top: 0;
+        background: none;
+        box-shadow: none;
+        gap: 10px;
+    }
+    .shell[data-page="offer-moderation"] .offerInlineFooter p {
+        max-width: 62%;
+        font-size: 11px;
+        line-height: 1.3;
+    }
+    .shell[data-page="offer-moderation"] .offerInlineFooter .primary {
+        min-width: 130px;
+        min-height: 36px;
+        padding-inline: 12px;
+        font-size: 11px;
     }
 }
-
-
-/* Three-level offer review hierarchy: evidence spans the top row; the reason
-   editor and action decision sit beside each other beneath it. */
-@media (min-width: 1100px) and (max-height: 820px) {
-    .shell[data-page="offer-moderation"] .offerInlineBody {
-        grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
-        grid-template-rows: auto auto;
-        align-items: start;
-        row-gap: 7px;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child {
-        grid-column: 1 / -1;
-        grid-row: 1;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:nth-child(2) {
-        grid-column: 1;
-        grid-row: 2;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:nth-child(3) {
-        grid-column: 2;
-        grid-row: 2;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn {
-        min-width: 0;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child .merchantModalSection {
-        padding: 7px 9px;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child .offerModalReport,
-    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child .offerModalNoReports {
-        display: inline-flex;
-        align-items: center;
+@media (min-width: 1100px) and (max-width: 1199px) {
+    .shell[data-page="offer-moderation"] .offerMetrics {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        flex-basis: 420px;
+        max-width: 420px;
         gap: 8px;
-        width: calc(50% - 5px);
-        height: 40px;
-        max-height: 40px;
-        margin-inline-end: 6px;
-        padding: 5px 7px;
-        overflow: hidden;
-        vertical-align: top;
     }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child .offerModalReport strong,
-    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child .offerModalReport span {
-        display: -webkit-box;
-        min-width: 0;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-        overflow: hidden;
+    .shell[data-page="offer-moderation"] .offerMetrics article {
+        min-height: 58px;
+        padding: 8px 9px;
     }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child .offerModalFoodNotes {
-        display: inline-block;
-        width: calc(50% - 5px);
-        max-width: none;
-        height: 40px;
-        max-height: 40px;
-        margin: 0;
-        padding: 5px 7px;
-        vertical-align: top;
-        overflow: hidden;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child .offerModalFoodNotes strong {
-        display: block;
-        margin-bottom: 2px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child .offerModalFoodNotes p {
-        display: -webkit-box;
-        margin: 0;
-        line-height: 1.2;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-        overflow: hidden;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:nth-child(2) .offerModalReason {
-        height: 100%;
-        box-sizing: border-box;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:nth-child(3) .offerModalDecision {
-        height: 100%;
-        box-sizing: border-box;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody .offerModalDecisionHint {
-        max-width: 280px;
-    }
-}
-
-
-/* Offer detail hierarchy also applies to full-height desktop viewports. */
-@media (min-width: 1100px) and (min-height: 821px) {
-    .shell[data-page="offer-moderation"] .offerInlineBody {
-        grid-template-columns: minmax(0, .94fr) minmax(0, 1.06fr);
-        grid-template-rows: auto auto;
-        align-items: start;
-        row-gap: 10px;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child {
-        grid-column: 1 / -1;
-        grid-row: 1;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:nth-child(2) {
-        grid-column: 1;
-        grid-row: 2;
-    }
-
-    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:nth-child(3) {
-        grid-column: 2;
-        grid-row: 2;
+    .shell[data-page="offer-moderation"] .offerMetrics strong {
+        font-size: 21px;
     }
 }
