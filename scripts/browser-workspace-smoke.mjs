@@ -592,6 +592,156 @@ async function assertAuditExplorerLayout(page, width, height) {
   await page.getByTestId("audit-record-detail").waitFor({ state: "visible" });
 }
 
+
+async function assertReadable(page, route, width, height) {
+  const report = await page.evaluate(() => {
+    const root = document.querySelector(".kulhaAdminShell");
+    if (!root) return { missingRoot: true };
+    const visible = element => {
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return style.display !== "none" && style.visibility !== "hidden"
+        && Number(style.opacity) > 0 && rect.width > 1 && rect.height > 1;
+    };
+    const text = [];
+    for (const element of root.querySelectorAll("*")) {
+      if (!visible(element)) continue;
+      const directText = [...element.childNodes].some(node =>
+        node.nodeType === Node.TEXT_NODE && (node.textContent ?? "").trim().length > 0);
+      if (!directText) continue;
+      const fontSize = Number.parseFloat(getComputedStyle(element).fontSize);
+      if (fontSize < 13) text.push({
+        element: element.tagName.toLowerCase(),
+        className: typeof element.className === "string" ? element.className.slice(0, 100) : "",
+        text: (element.textContent ?? "").trim().slice(0, 70),
+        measuredFontSize: fontSize,
+      });
+    }
+    const controls = [];
+    for (const element of root.querySelectorAll("button,input,select,textarea,[role=tab],[role=button]")) {
+      if (!visible(element)) continue;
+      const rect = element.getBoundingClientRect();
+      const type = element.getAttribute("type") ?? "";
+      const classes = typeof element.className === "string" ? element.className : "";
+      const minimum = type === "checkbox" || type === "radio" ? 24
+        : /pageButton|pageNumber|pageCurrent/.test(classes) ? 40
+        : /reasonChip|auditCalendarDay/.test(classes) ? 36 : 44;
+      if (rect.height + .5 < minimum) controls.push({
+        element: element.tagName.toLowerCase(), className: classes.slice(0, 100),
+        label: (element.getAttribute("aria-label") || element.textContent || element.getAttribute("placeholder") || "").trim().slice(0, 70),
+        measuredHeight: rect.height, minimumHeight: minimum,
+      });
+      const fontSize = Number.parseFloat(getComputedStyle(element).fontSize);
+      if (fontSize < 13) controls.push({
+        element: element.tagName.toLowerCase(), className: classes.slice(0, 100),
+        label: "control font", measuredFontSize: fontSize, minimumFontSize: 13,
+      });
+    }
+    return { missingRoot: false, text, controls };
+  });
+  if (report.missingRoot || report.text.length || report.controls.length) {
+    throw new Error("Admin readability failed on " + route + " at " + width + "x" + height
+      + ": " + JSON.stringify(report));
+  }
+}
+
+async function assertAdminCardClipping(page, route, width, height) {
+  const metrics = await page.evaluate(() => {
+    const root = document.querySelector(".kulhaAdminShell");
+    const candidates = [...root.querySelectorAll("[data-testid]")].filter(element => {
+      const id = element.getAttribute("data-testid") ?? "";
+      return /detail|workspace|picker|table|queue|workflow|footer|composer|history|drawer/.test(id)
+        && !/record-row|case-row/.test(id);
+    });
+    const overflow = candidates.map(element => ({
+      id: element.getAttribute("data-testid"),
+      clientWidth: element.clientWidth,
+      scrollWidth: element.scrollWidth,
+    })).filter(item => item.clientWidth > 0 && item.scrollWidth > item.clientWidth + 1);
+    const card = root.querySelector('[data-testid="audit-table-card"]');
+    const wrapper = root.querySelector('[data-testid="audit-table-wrapper"]');
+    const header = wrapper?.querySelector("thead th:last-child");
+    const cell = wrapper?.querySelector("tbody tr td:last-child");
+    const right = element => element ? element.getBoundingClientRect().right : null;
+    return {
+      overflow,
+      cardRight: right(card),
+      headerRight: right(header),
+      cellRight: right(cell),
+    };
+  });
+  if (metrics.overflow.length) {
+    throw new Error("Admin card clipping on " + route + " at " + width + "x" + height
+      + ": " + JSON.stringify(metrics.overflow));
+  }
+  if (route.endsWith("/admin/audit-log") && width >= 1024
+      && (metrics.headerRight === null || metrics.cellRight === null
+        || metrics.headerRight > metrics.cardRight + 1 || metrics.cellRight > metrics.cardRight + 1)) {
+    throw new Error("Audit Result column is clipped at " + width + "px: " + JSON.stringify(metrics));
+  }
+}
+
+async function assertScrollOwner(page, route, width, height) {
+  const metrics = await page.evaluate(() => {
+    const root = document.querySelector(".kulhaAdminShell");
+    const ids = ["merchant-review-detail-panel", "offer-detail-panel", "support-case-detail", "audit-table-card"];
+    const invalid = [];
+    for (const id of ids) {
+      const detail = root.querySelector('[data-testid="' + id + '"]');
+      if (!detail) continue;
+      for (const element of detail.querySelectorAll("*")) {
+        const style = getComputedStyle(element);
+        if (["auto", "scroll"].includes(style.overflowY)
+            && element.scrollHeight > element.clientHeight + 2
+            && !element.hasAttribute("data-scroll-region")) {
+          invalid.push({
+            detail: id, element: element.tagName.toLowerCase(),
+            className: typeof element.className === "string" ? element.className.slice(0, 100) : "",
+            clientHeight: element.clientHeight, scrollHeight: element.scrollHeight,
+          });
+        }
+      }
+    }
+    return {
+      invalid,
+      markers: [...root.querySelectorAll("[data-scroll-region]")].map(element => element.getAttribute("data-testid")),
+    };
+  });
+  const support = route.endsWith("/admin/support-cases");
+  if (metrics.invalid.length || (support && (metrics.markers.length !== 1 || metrics.markers[0] !== "support-case-timeline"))
+      || (!support && metrics.markers.length !== 0)) {
+    throw new Error("Admin scroll ownership failed on " + route + " at " + width + "x" + height
+      + ": " + JSON.stringify(metrics));
+  }
+}
+
+async function assertPrimaryActionUncovered(page, route, width, height) {
+  let action;
+  if (route.endsWith("/admin/merchant-review")) action = page.getByTestId("merchant-review-footer").locator("button").first();
+  else if (route.endsWith("/admin/offer-moderation")) action = page.getByTestId("offer-moderation-footer").locator("button").first();
+  else if (route.endsWith("/admin/support-cases")) action = page.getByTestId("support-case-actions").locator("button").last();
+  else return;
+  await action.scrollIntoViewIfNeeded();
+  const hit = await action.evaluate(button => {
+    const rect = button.getBoundingClientRect();
+    const x = Math.min(innerWidth - 1, Math.max(0, rect.left + rect.width / 2));
+    const y = Math.min(innerHeight - 1, Math.max(0, rect.top + rect.height / 2));
+    const top = document.elementFromPoint(x, y);
+    return {
+      visible: rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < innerHeight,
+      unobscured: Boolean(top && (top === button || button.contains(top))),
+      center: { x, y },
+      topElement: top?.tagName.toLowerCase() ?? null,
+      label: (button.textContent ?? "").trim(),
+    };
+  });
+  if (!hit.visible || !hit.unobscured) {
+    throw new Error("Primary action is covered or not visible on " + route + " at "
+      + width + "x" + height + ": " + JSON.stringify(hit));
+  }
+  await page.evaluate(() => window.scrollTo(0, 0));
+}
+
 let browser;
 try {
   await new Promise(resolve => backend.listen(apiPort, "127.0.0.1", resolve));
@@ -665,19 +815,19 @@ try {
   }
 
   const routes = [
-    { path: "/en/merchant/orders", token: "merchant-token", heading: "Orders" , compact: true },
-    { path: "/en/merchant/reservations/scan", token: "merchant-token", heading: "Validate a pickup" , compact: true },
-    { path: "/en/merchant/staff", token: "merchant-token", heading: "Staff" , compact: true },
-    { path: "/en/merchant/sales", token: "merchant-token", heading: "Sales" , compact: true },
+    { path: "/en/merchant/orders", token: "merchant-token", heading: "Orders"  },
+    { path: "/en/merchant/reservations/scan", token: "merchant-token", heading: "Validate a pickup"  },
+    { path: "/en/merchant/staff", token: "merchant-token", heading: "Staff"  },
+    { path: "/en/merchant/sales", token: "merchant-token", heading: "Sales"  },
     { path: "/en/admin/merchant-review", token: "admin-token", heading: "Merchant review", adminPage: true },
     { path: "/fr/admin/merchant-review", token: "admin-token", heading: "Revue des commerces", adminPage: true },
     { path: "/ar/admin/merchant-review", token: "admin-token", heading: "مراجعة المتاجر", direction: "rtl", adminPage: true },
     { path: "/en/admin/offer-moderation", token: "admin-token", heading: "Offer moderation", adminPage: true },
     { path: "/fr/admin/offer-moderation", token: "admin-token", heading: "Modération des offres", adminPage: true },
     { path: "/ar/admin/offer-moderation", token: "admin-token", heading: "مراجعة العروض", direction: "rtl", adminPage: true },
-    { path: "/en/admin/support-cases", token: "support-token", heading: "Support cases", compact: true, adminPage: true },
-    { path: "/fr/admin/support-cases", token: "support-token", heading: "Dossiers support", compact: true, adminPage: true },
-    { path: "/ar/admin/support-cases", token: "support-token", heading: "طلبات الدعم", direction: "rtl", compact: true, adminPage: true },
+    { path: "/en/admin/support-cases", token: "support-token", heading: "Support cases", adminPage: true },
+    { path: "/fr/admin/support-cases", token: "support-token", heading: "Dossiers support", adminPage: true },
+    { path: "/ar/admin/support-cases", token: "support-token", heading: "طلبات الدعم", direction: "rtl", adminPage: true },
     { path: "/en/admin/audit-log", token: "admin-token", heading: "Audit log", adminPage: true },
     { path: "/fr/admin/audit-log", token: "admin-token", heading: "Journal d’audit", adminPage: true },
     { path: "/ar/admin/audit-log", token: "admin-token", heading: "سجل التدقيق", direction: "rtl", adminPage: true },
@@ -721,7 +871,7 @@ try {
         await page.locator('[data-testid="support-case-detail"] h2').waitFor({ state: "visible" });
       }
       if (route.adminPage) await assertAdminStatusControls(page, route.path, size.width, size.height);
-      if (route.path.endsWith("/admin/merchant-review") && size.width >= 1280) await assertMerchantReviewLayout(page, size.width, size.height);
+      if (route.path.endsWith("/admin/merchant-review")) await assertMerchantReviewLayout(page, size.width, size.height);
       if (route.path.endsWith("/admin/offer-moderation")) {
         await assertOfferModerationLayout(page, size.width, size.height);
         await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
@@ -735,7 +885,7 @@ try {
           throw new Error(`Long offer title was not selected at ${size.width}x${size.height}: ${renderedTitle}`);
         }
         await assertNoHorizontalOverflow(page, route.path, size.width);
-        if (size.width >= 1100) await assertOfferDecisionAccessible(page, size.width, size.height, route.path);
+        await assertOfferDecisionAccessible(page, size.width, size.height, route.path);
         const locale = route.path.split("/")[1];
         await page.screenshot({
           path: join("artifacts/browser-screenshots", `offer-moderation-long-title-${locale}-${size.width}x${size.height}.png`),
@@ -743,46 +893,17 @@ try {
         });
       }
       if (route.path.endsWith("/admin/support-cases")) {
-        const supportLayout = await page.evaluate(() => {
-          const detail = document.querySelector('[data-testid="support-case-detail"]');
-          const history = document.querySelector('[data-testid="support-case-history"]');
-          const composer = document.querySelector('[data-testid="support-message-composer"]');
-          if (!detail || !history || !composer) return { missingRegion: true };
-          const panel = detail.getBoundingClientRect();
-          const reply = composer.getBoundingClientRect();
-          const picker = detail.parentElement?.children[0];
-          const pickerBottom = picker?.getBoundingClientRect().bottom ?? null;
-          const style = getComputedStyle(detail);
-          const historyStyle = getComputedStyle(history);
-          return {
-            missingRegion: false,
-            panelBottom: panel.bottom,
-            composerBottom: reply.bottom,
-            detailTop: panel.top,
-            pickerBottom,
-            documentHeight: document.documentElement.scrollHeight,
-            viewportHeight: innerHeight,
-            detailOverflow: style.overflowY,
-            historyOverflow: historyStyle.overflowY,
-          };
-        });
-        if (supportLayout.missingRegion || supportLayout.composerBottom > supportLayout.panelBottom + 1) {
-          throw new Error(`Support composer escaped its detail panel at ${size.width}x${size.height}: ${JSON.stringify(supportLayout)}`);
-        }
-        if (size.width >= 900) await assertSupportTimelineVisible(page, size.width, size.height);
-        if (size.width < 900 && supportLayout.pickerBottom !== null
-          && supportLayout.detailTop < supportLayout.pickerBottom - 1) {
-          throw new Error(`Support detail must stack below the case picker at ${size.width}px: ${JSON.stringify(supportLayout)}`);
-        }
-        if (size.width >= 900 && (supportLayout.documentHeight > size.height + 1
-          || supportLayout.detailOverflow !== "hidden" || supportLayout.historyOverflow !== "auto"
-          || supportLayout.panelBottom > size.height + 1)) {
-          throw new Error(`Desktop support layout/scroll ownership failed at ${size.width}x${size.height}: ${JSON.stringify(supportLayout)}`);
-        }
+        await assertSupportTimelineVisible(page, size.width, size.height);
       }
       if (route.direction) {
         const direction = await page.locator(route.directionSelector ?? ".kulhaAdminShell").getAttribute("dir");
         if (direction !== route.direction) throw new Error(`${route.path} expected dir=${route.direction}, received ${direction}.`);
+      }
+      if (route.adminPage) {
+        await assertReadable(page, route.path, size.width, size.height);
+        await assertAdminCardClipping(page, route.path, size.width, size.height);
+        await assertScrollOwner(page, route.path, size.width, size.height);
+        await assertPrimaryActionUncovered(page, route.path, size.width, size.height);
       }
       const screenshotName = `${route.path.replace(/^\/+/, "").replaceAll("/", "-")}-${size.width}x${size.height}.png`;
       if (route.token === "customer-token" && route.path.endsWith("/reservations")) {
@@ -797,7 +918,7 @@ try {
         await page.getByTestId("audit-record-header").waitFor({ state: "visible" });
         const detailText = await page.getByTestId("audit-record-detail").innerText();
         if (detailText.length < 180) throw new Error(route.path + " selected audit detail did not render the long record fields.");
-        if (size.width >= 900) await assertAuditExplorerLayout(page, size.width, size.height);
+        await assertAuditExplorerLayout(page, size.width, size.height);
       }
       await page.evaluate(() => window.scrollTo(0, 0));
       await page.screenshot({ path: join("artifacts/browser-screenshots", screenshotName), animations: "disabled" });
@@ -838,9 +959,6 @@ try {
           animations: "disabled",
         });
         await search.fill("");
-      }
-      if (route.compact && size.width >= 1024 && size.height <= 768) {
-        await assertCompactWorkspaceFits(page, route.path, size.width, size.height);
       }
     }
     if (errors.length) throw new Error(`Browser errors on ${route.path}: ${errors.join("; ")}`);
@@ -946,37 +1064,14 @@ try {
     supportCase.status = caseStatus;
     const context = await loginContext(browser, "support-token");
     const page = await context.newPage();
-    await page.goto(origin + "/en/admin/support-cases", { waitUntil: "networkidle" });
     await page.setViewportSize({ width: 1366, height: 768 });
-    const detail = page.locator('[data-testid="support-case-detail"]');
-    const history = page.locator('[data-testid="support-case-history"]');
-    const composer = page.locator('[data-testid="support-message-composer"]');
-    await history.waitFor({ state: "visible" });
-    const shortLayout = await page.evaluate(() => {
-      const detailNode = document.querySelector('[data-testid="support-case-detail"]');
-      const historyNode = document.querySelector('[data-testid="support-case-history"]');
-      const composerNode = document.querySelector('[data-testid="support-message-composer"]');
-      const panel = detailNode.getBoundingClientRect();
-      const reply = composerNode.getBoundingClientRect();
-      return {
-        documentHeight: document.documentElement.scrollHeight,
-        viewportHeight: window.innerHeight,
-        detailOverflow: getComputedStyle(detailNode).overflowY,
-        historyOverflow: getComputedStyle(historyNode).overflowY,
-        composerBottom: reply.bottom,
-        detailBottom: panel.bottom,
-        textareaHeight: composerNode.querySelector("textarea").getBoundingClientRect().height,
-      };
-    });
-    if (shortLayout.documentHeight > shortLayout.viewportHeight + 1
-      || shortLayout.detailOverflow !== "hidden"
-      || shortLayout.historyOverflow !== "auto"
-      || shortLayout.composerBottom > shortLayout.detailBottom + 1
-      || shortLayout.textareaHeight > 140) {
-      throw new Error(`Short support conversation layout failed: ${JSON.stringify(shortLayout)}`);
-    }
+    await page.goto(origin + "/en/admin/support-cases", { waitUntil: "networkidle" });
+    const timelinePanel = page.getByTestId("support-case-timeline");
+    const composer = page.getByTestId("support-message-composer");
+    await timelinePanel.waitFor({ state: "visible" });
+    await assertSupportTimelineVisible(page, 1366, 768);
 
-    // Long history must scroll inside .caseHistory; the detail panel and composer stay fixed.
+    // Long conversations scroll only in the timeline; the document and adjacent actions remain usable.
     timeline = Array.from({ length: 48 }, (_, index) => ({
       id: `00000000-0000-4000-8000-${String(300 + index).padStart(12, "0")}`,
       authorType: index % 2 ? "AGENT" : "CUSTOMER",
@@ -986,99 +1081,45 @@ try {
       message: `Conversation history entry ${index + 1}: ${"The complete case discussion remains available to the support team. ".repeat(3)}`,
       createdAt: new Date(Date.now() - (48 - index) * 60000).toISOString(),
     }));
+    for (const size of sizes) {
+      await page.setViewportSize(size);
+      await page.reload({ waitUntil: "networkidle" });
+      await timelinePanel.waitFor({ state: "visible" });
+      await assertSupportTimelineVisible(page, size.width, size.height);
+      const before = await page.evaluate(() => {
+        const timelineNode = document.querySelector('[data-testid="support-case-timeline"]');
+        return {
+          clientHeight: timelineNode.clientHeight,
+          scrollHeight: timelineNode.scrollHeight,
+          overflow: getComputedStyle(timelineNode).overflowY,
+          composerTop: document.querySelector('[data-testid="support-message-composer"]').getBoundingClientRect().top,
+          actionsTop: document.querySelector('[data-testid="support-case-actions"]').getBoundingClientRect().top,
+          documentHeight: document.documentElement.scrollHeight,
+          viewportHeight: innerHeight,
+        };
+      });
+      if (before.scrollHeight <= before.clientHeight + 2 || before.overflow !== "auto") {
+        throw new Error(`Long conversation is not scrollable in the timeline at ${size.width}x${size.height}: ${JSON.stringify(before)}`);
+      }
+      await timelinePanel.evaluate(element => { element.scrollTop = element.scrollHeight; });
+      const after = await page.evaluate(() => ({
+        composerTop: document.querySelector('[data-testid="support-message-composer"]').getBoundingClientRect().top,
+        actionsTop: document.querySelector('[data-testid="support-case-actions"]').getBoundingClientRect().top,
+      }));
+      if (Math.abs(after.composerTop - before.composerTop) > 1 || Math.abs(after.actionsTop - before.actionsTop) > 1) {
+        throw new Error(`Scrolling the timeline moved the composer or Case Actions at ${size.width}px: ${JSON.stringify({ before, after })}`);
+      }
+      if (size.width < 600 && before.documentHeight <= before.viewportHeight) {
+        throw new Error(`Mobile Support Cases must retain ordinary document scrolling at ${size.width}px.`);
+      }
+    }
+
+    await page.setViewportSize({ width: 1366, height: 768 });
     await page.reload({ waitUntil: "networkidle" });
-    await history.waitFor({ state: "visible" });
-    const longLayout = await page.evaluate(() => {
-      const detailNode = document.querySelector('[data-testid="support-case-detail"]');
-      const historyNode = document.querySelector('[data-testid="support-case-history"]');
-      const composerNode = document.querySelector('[data-testid="support-message-composer"]');
-      const detailRect = detailNode.getBoundingClientRect();
-      const composerRect = composerNode.getBoundingClientRect();
-      return {
-        documentHeight: document.documentElement.scrollHeight,
-        viewportHeight: window.innerHeight,
-        detailClient: detailNode.clientHeight,
-        detailScroll: detailNode.scrollHeight,
-        historyClient: historyNode.clientHeight,
-        historyScroll: historyNode.scrollHeight,
-        historyOverflow: getComputedStyle(historyNode).overflowY,
-        composerTop: composerRect.top,
-        composerBottom: composerRect.bottom,
-        detailTop: detailRect.top,
-        detailBottom: detailRect.bottom,
-      };
-    });
-    if (longLayout.documentHeight > longLayout.viewportHeight + 1
-      || longLayout.detailScroll > longLayout.detailClient + 2
-      || longLayout.historyScroll <= longLayout.historyClient + 2
-      || longLayout.historyOverflow !== "auto"
-      || longLayout.composerBottom > longLayout.detailBottom + 1
-      || longLayout.composerTop < longLayout.detailTop - 1) {
-      throw new Error(`Long support conversation layout failed: ${JSON.stringify(longLayout)}`);
-    }
-    await history.evaluate(element => { element.scrollTop = element.scrollHeight; });
-    const composerAfterScroll = await composer.boundingBox();
-    if (!composerAfterScroll || composerAfterScroll.y + composerAfterScroll.height > longLayout.detailBottom + 1) {
-      throw new Error("Reply composer moved outside the detail panel while scrolling the conversation.");
-    }
     await composer.getByPlaceholder("Write a message…").fill("Reply sent from the long-conversation browser test.");
     await composer.getByRole("button", { name: "Send to customer" }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/messages"), "Support reply submission");
     await page.getByText("Reply sent from the long-conversation browser test.").waitFor({ state: "visible" });
-
-    // Repeat the long-history behavior at every required viewport. Desktop scroll
-    // stays in history; narrow layouts retain ordinary document scrolling.
-    for (const size of sizes) {
-      await page.setViewportSize(size);
-      await page.reload({ waitUntil: "networkidle" });
-      const matrixLayout = await page.evaluate(() => {
-        const detailNode = document.querySelector('[data-testid="support-case-detail"]');
-        const historyNode = document.querySelector('[data-testid="support-case-history"]');
-        const composerNode = document.querySelector('[data-testid="support-message-composer"]');
-        const detailRect = detailNode.getBoundingClientRect();
-        const composerRect = composerNode.getBoundingClientRect();
-        return {
-          viewportHeight: innerHeight,
-          documentHeight: document.documentElement.scrollHeight,
-          detailClient: detailNode.clientHeight,
-          detailScroll: detailNode.scrollHeight,
-          detailBottom: detailRect.bottom,
-          composerBottom: composerRect.bottom,
-          historyClient: historyNode.clientHeight,
-          historyScroll: historyNode.scrollHeight,
-          historyOverflow: getComputedStyle(historyNode).overflowY,
-          detailOverflow: getComputedStyle(detailNode).overflowY,
-          firstEntry: historyNode.textContent.includes("Conversation history entry 1"),
-          lastEntry: historyNode.textContent.includes("Conversation history entry 48"),
-        };
-      });
-      if (matrixLayout.composerBottom > matrixLayout.detailBottom + 1
-        || !matrixLayout.firstEntry || !matrixLayout.lastEntry) {
-        throw new Error(`Long support conversation content/composer failed at ${size.width}x${size.height}: ${JSON.stringify(matrixLayout)}`);
-      }
-      if (size.width >= 900) {
-        if (matrixLayout.documentHeight > size.height + 1
-          || matrixLayout.detailScroll > matrixLayout.detailClient + 2
-          || matrixLayout.historyScroll <= matrixLayout.historyClient + 2
-          || matrixLayout.historyOverflow !== "auto"
-          || matrixLayout.detailOverflow !== "hidden"
-          || matrixLayout.detailBottom > size.height + 1) {
-          throw new Error(`Long desktop history scroll ownership failed at ${size.width}x${size.height}: ${JSON.stringify(matrixLayout)}`);
-        }
-      } else {
-        if (matrixLayout.historyOverflow !== "visible" || matrixLayout.documentHeight <= size.height) {
-          throw new Error(`Long mobile conversation must use document scrolling at ${size.width}x${size.height}: ${JSON.stringify(matrixLayout)}`);
-        }
-        await page.locator('[data-testid="support-message-composer"]').scrollIntoViewIfNeeded();
-        const composerVisible = await page.locator('[data-testid="support-message-composer"]').evaluate(element => {
-          const rect = element.getBoundingClientRect();
-          return rect.top >= 0 && rect.bottom <= innerHeight;
-        });
-        if (!composerVisible) throw new Error(`Mobile reply composer is unreachable at ${size.width}px.`);
-      }
-    }
-    await page.setViewportSize({ width: 1366, height: 768 });
-    await page.reload({ waitUntil: "networkidle" });
     await page.getByLabel("Reason for viewing customer details (required)").fill("Confirming a food-safety complaint.");
     await page.getByRole("button", { name: "Reveal" }).click();
     await page.getByText("customer@kulha.test").waitFor({ state: "visible" });
