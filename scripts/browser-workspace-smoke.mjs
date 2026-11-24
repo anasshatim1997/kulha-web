@@ -1027,6 +1027,7 @@ try {
           throw new Error("Offer detail must always open as a modal at " + size.width + "px.");
         }
         if (await modal.getAttribute("role") !== "dialog") throw new Error("Offer modal is missing dialog semantics.");
+        await page.waitForFunction(() => document.activeElement === document.querySelector('[data-testid="workspace-modal"] header button'));
         await page.keyboard.press("Shift+Tab");
         const wrappedToLast = await modal.evaluate(element => {
           const nodes = [...element.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')]
