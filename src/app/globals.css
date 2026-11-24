@@ -16014,3 +16014,13 @@ body:has(.admin-login-shell) #contenu {
         overflow: visible;
     }
 }
+
+
+/* Admin workspace topbar: the search is flexible; identity and actions keep intrinsic width. */
+.ws-topbar{display:flex;align-items:center;justify-content:flex-end;gap:12px;min-width:0}
+.ws-top-search{display:flex;align-items:center;gap:10px;flex:1 1 320px;width:100%;min-width:0;max-width:520px;min-height:42px;padding:0 13px;border:1px solid #e3dac8;border-radius:11px;background:#fff;color:#68796d}
+.ws-top-search input{display:block;flex:1 1 auto;width:100%;min-width:0;height:40px;border:0;outline:0;background:transparent;color:#173c2c;font:inherit;font-size:14px}
+.ws-top-search:focus-within{border-color:#0b5b40;box-shadow:0 0 0 3px rgb(11 91 64 / 12%)}
+.ws-top-user,.ws-top-lang,.ws-top-signout{flex:0 0 auto;white-space:nowrap}
+@media(max-width:900px){.ws-topbar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px}.ws-top-search{grid-column:1/-1;grid-row:2;max-width:none;width:100%}.ws-top-user{grid-column:1;grid-row:1}.ws-top-lang{grid-column:2;grid-row:1}.ws-top-signout{grid-column:3;grid-row:1}}
+@media(max-width:420px){.ws-topbar{grid-template-columns:minmax(0,1fr) auto;gap:8px}.ws-top-user{grid-column:1;min-width:0}.ws-top-lang{grid-column:2}.ws-top-signout{grid-column:1/-1;grid-row:3;justify-self:end}.ws-top-identity strong{max-width:calc(100vw - 190px)}}
