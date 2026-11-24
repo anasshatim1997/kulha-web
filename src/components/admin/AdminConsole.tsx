@@ -4,7 +4,21 @@ import { api } from "@/lib/api/client";
 import { canRevealSupportCustomerDetails, SUPPORT_DISCLOSURE_REASON_MAX_LENGTH } from "@/lib/auth/admin-access";
 import { useSession } from "@/components/session/SessionProvider";
 import { AlertTriangle, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, Filter, Image as ImageIcon, Lock, Search, ShieldCheck, Tag, X } from "lucide-react";
-import styles from "./AdminConsole.module.css";
+import shellStyles from "./AdminShell.module.css";
+import merchantStyles from "./MerchantReview.module.css";
+import offerStyles from "./OfferModeration.module.css";
+import supportStyles from "./SupportCases.module.css";
+import auditStyles from "./AuditLog.module.css";
+import { AdminShell } from "./AdminShell";
+import { AdminPagination, type PaginationLabels } from "./AdminPagination";
+
+const styles = {
+    ...shellStyles,
+    ...merchantStyles,
+    ...offerStyles,
+    ...supportStyles,
+    ...auditStyles,
+};
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 
 type PageKey="merchant-review"|"offer-moderation"|"support-cases"|"audit-log";
@@ -179,23 +193,6 @@ const OFFER_PAGE_SIZE=8;
 const CASE_PAGE_SIZE=8;
 const AUDIT_PAGE_SIZE=10;
 
-type PaginationLabels={previous:string;next:string;of:string;label:string};
-function AdminPagination({page,pageCount,total,size,labels,onChange,loading}:{page:number;pageCount:number;total:number;size:number;labels:PaginationLabels;onChange:(page:number)=>void;loading:boolean}){
-    const visible=[...new Set([0,pageCount-1,...Array.from({length:3},(_,index)=>page-1+index).filter(value=>value>0&&value<pageCount-1)])].sort((a,b)=>a-b);
-    const pages:(number|null)[]=[];
-    visible.forEach((value,index)=>{if(index>0&&value-visible[index-1]>1)pages.push(null);pages.push(value);});
-    const from=total===0?0:page*size+1;
-    const to=Math.min(total,(page+1)*size);
-    return <nav className={styles.pagination} aria-label={labels.label}>
-        <span className={styles.paginationSummary}>{from}–{to} {labels.of} {total}</span>
-        <div className={styles.paginationControls}>
-            <button type="button" className={styles.pageButton} disabled={loading||page===0} onClick={()=>onChange(Math.max(0,page-1))}>{labels.previous}</button>
-            {pages.map((value,index)=>value===null?<span key={`ellipsis-${index}`} className={styles.paginationEllipsis}>…</span>:<button key={value} type="button" className={value===page?styles.pageCurrent:styles.pageNumber} aria-current={value===page?"page":undefined} disabled={loading} onClick={()=>onChange(value)}>{value+1}</button>)}
-            <button type="button" className={styles.pageButton} disabled={loading||page>=pageCount-1} onClick={()=>onChange(Math.min(pageCount-1,page+1))}>{labels.next}</button>
-        </div>
-    </nav>;
-}
-
 type MerchantAction="approve"|"request-information"|"reject";
 type OfferAction="suspend"|"request-edit"|"reinstate";
 
@@ -277,7 +274,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
 
     const searchPlaceholder=page==="merchant-review"?t.searchMerchant:page==="offer-moderation"?t.searchOffers:page==="support-cases"?t.searchCases:t.searchAudit;
     const topbar=<div className={styles.topbar} data-testid="admin-console-topbar">{page!=="audit-log"&&<label className={styles.search} data-testid="admin-console-search"><Search size={17} aria-hidden="true"/><span className="sr-only">{searchPlaceholder}</span><input type="search" data-testid="admin-global-search" value={query} onChange={e=>{setQuery(e.target.value);}} placeholder={searchPlaceholder}/></label>}</div>;
-    const frame=(content:ReactNode)=><div className={`${styles.shell} kulhaAdminShell`} data-page={page} dir={locale==="ar"?"rtl":"ltr"}>{topbar}<main className={styles.page}>{content}</main></div>;
+    const frame=(content:ReactNode)=><AdminShell page={page} locale={locale} topbar={topbar}>{content}</AdminShell>;
 
     if(loading)return frame(<><div className={styles.header}><div><div className={styles.skeleton}/><div className={styles.skeletonWide}/></div></div><div className={styles.skeletonPanel}/></>);
     if(failed)return frame(<div className={styles.alert} role="alert">{t.error}<button onClick={()=>{setLoading(true);setFailed(false);setReload(v=>v+1);}}>{t.retry}</button></div>);
