@@ -19,7 +19,11 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, dirty = false, c
   const panelRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const onCloseRef = useRef(onClose);
+  const dirtyRef = useRef(dirty);
+  const confirmRef = useRef(confirmDiscard);
   onCloseRef.current = onClose;
+  dirtyRef.current = dirty;
+  confirmRef.current = confirmDiscard;
 
   useEffect(() => {
     if (!open) return;
@@ -29,7 +33,7 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, dirty = false, c
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        if (dirty && !window.confirm(confirmDiscard)) return;
+        if (dirtyRef.current && !window.confirm(confirmRef.current)) return;
         onCloseRef.current();
       }
       if (event.key === "Tab" && panelRef.current) {
@@ -47,7 +51,7 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, dirty = false, c
       document.body.style.overflow = previousOverflow;
       window.requestAnimationFrame(() => returnFocusRef.current?.focus());
     };
-  }, [open, dirty, confirmDiscard, returnFocusRef]);
+  }, [open, returnFocusRef]);
 
   if (!open || typeof document === "undefined") return null;
   return createPortal(
@@ -60,7 +64,7 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, dirty = false, c
         <header className={styles.header}>
           <h2>{title}</h2>
           <button ref={closeRef} type="button" className={styles.close} aria-label={closeLabel} onClick={() => {
-            if (dirty && !window.confirm(confirmDiscard)) return;
+            if (dirtyRef.current && !window.confirm(confirmRef.current)) return;
             onClose();
           }}>×</button>
         </header>
