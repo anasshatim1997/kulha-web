@@ -421,7 +421,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             </span>
                             <span className={styles.offerPrice}>
                                 <strong>{amount(item.priceMinor,locale)} MAD</strong>
-                                {item.originalPriceMinor&&<del>{amount(item.originalPriceMinor,locale)} MAD</del>}
+                                {item.originalPriceMinor&&<small>{t.originalPrice}: <del>{amount(item.originalPriceMinor,locale)} MAD</del></small>}
                                 <small>{d?"−"+d+"%":""}</small>
                             </span>
                         </button>;})}
