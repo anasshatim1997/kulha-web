@@ -19,7 +19,7 @@ export function SiteHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [adminSearch, setAdminSearch] = useState("");
+
   const { state, signOut } = useSession();
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const locale = localeFromPath(pathname) as SiteLocale;
@@ -242,13 +242,11 @@ export function SiteHeader() {
         </aside>
         {(isAdminWorkspace || isWorkspace) && (
           <div className="ws-topbar" data-testid="admin-console-topbar" dir={copy.dir}>
-            {isAdminWorkspace && !pathname.includes("/admin/audit-log") && <label className="ws-top-search" data-testid="admin-console-search">
+            {isAdminWorkspace && !pathname.includes("/admin/audit-log") && <label key={pathname} className="ws-top-search" data-testid="admin-console-search">
               <Search size={18} aria-hidden="true" />
               <span className="sr-only">{l("بحث في مساحة الإدارة", "Search admin workspace", "Rechercher dans l’espace administration")}</span>
-              <input type="search" data-testid="admin-global-search" value={adminSearch} onChange={event => {
-                const value = event.target.value;
-                setAdminSearch(value);
-                window.dispatchEvent(new CustomEvent("kulha:admin-search", { detail: value }));
+              <input type="search" data-testid="admin-global-search" defaultValue="" onChange={event => {
+                window.dispatchEvent(new CustomEvent("kulha:admin-search", { detail: event.target.value }));
               }} placeholder={l("ابحث عن المتاجر والعروض والحالات…", "Search shops, offers and cases…", "Rechercher commerces, offres et dossiers…")} />
             </label>}
             {!isAdminWorkspace && <Link href={notificationsHref} className="ws-bell" aria-label={l("الإشعارات", "Notifications", "Notifications")} title={l("الإشعارات", "Notifications", "Notifications")}>
