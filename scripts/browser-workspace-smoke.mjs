@@ -487,7 +487,7 @@ async function assertMerchantReviewLayout(page, width, height) {
 }
 
 
-async function assertOfferDecisionAccessible(page, width, height) {
+async function assertOfferDecisionAccessible(page, width, height, route) {
   const metrics = await page.evaluate(() => {
     const workspace = document.querySelector('[data-testid="offer-workspace"]');
     const picker = document.querySelector('[data-testid="offer-picker"]');
@@ -508,6 +508,12 @@ async function assertOfferDecisionAccessible(page, width, height) {
       workspace: box(workspace), picker: box(picker), queue: box(queue), pagination: box(pagination),
       preview: box(preview), workflow: box(workflow), footer: box(footer), action: box(action),
       reasonPanel: box(reasonPanel), reasonField: box(reasonField),
+      offerTitle: box(preview?.querySelector(".offerPreviewTitle h2")),
+      offerTitleText: preview?.querySelector(".offerPreviewTitle h2")?.textContent ?? "",
+      offerTitleStyle: (() => { const title = preview?.querySelector(".offerPreviewTitle h2"); const style = title ? getComputedStyle(title) : null; return style ? { display: style.display, lineClamp: style.webkitLineClamp, maxHeight: style.maxHeight, overflow: style.overflow } : null; })(),
+      evidenceSection: box(workflow?.querySelector(".merchantModalColumn:first-child .merchantModalSection")),
+      reportEvidence: box(workflow?.querySelector(".offerModalReport")),
+      foodNotesEvidence: box(workflow?.querySelector(".offerModalFoodNotes")),
       queueClient: queue?.clientHeight ?? 0, queueScroll: queue?.scrollHeight ?? 0,
       queueOverflow: queue ? getComputedStyle(queue).overflowY : "missing",
       previewClient: preview?.clientHeight ?? 0, previewScroll: preview?.scrollHeight ?? 0,
@@ -535,8 +541,8 @@ async function assertOfferDecisionAccessible(page, width, height) {
         || metrics.action.bottom > height + 2
         || metrics.reasonField.top < metrics.preview.top - 1
         || metrics.reasonField.bottom > metrics.footer.top + 1) {
-      throw new Error("Offer moderation must keep a scrollable queue, pinned pagination and accessible decision action at "
-        + width + "x" + height + ": " + JSON.stringify(metrics));
+      throw new Error("Offer moderation must keep a scrollable queue, pinned pagination and accessible decision action on "
+        + route + " at " + width + "x" + height + ": " + JSON.stringify(metrics));
     }
   }
 }
@@ -756,7 +762,7 @@ try {
       if (route.path.endsWith("/admin/offer-moderation")) {
         await assertOfferModerationLayout(page, size.width, size.height);
         await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
-        if (size.width >= 1100) await assertOfferDecisionAccessible(page, size.width, size.height);
+        if (size.width >= 1100) await assertOfferDecisionAccessible(page, size.width, size.height, route.path);
       }
       if (route.path.endsWith("/admin/support-cases")) {
         const supportLayout = await page.evaluate(() => {
