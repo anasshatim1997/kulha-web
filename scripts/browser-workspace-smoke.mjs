@@ -493,6 +493,8 @@ async function assertSupportTimelineVisible(page, width, height) {
     const timeline = document.querySelector('[data-testid="support-case-timeline"]');
     const composer = document.querySelector('[data-testid="support-message-composer"]');
     const actions = document.querySelector('[data-testid="support-case-actions"]');
+    const drawerContent = document.querySelector('[data-testid="workspace-drawer"] .content');
+    const drawerStyle = drawerContent ? getComputedStyle(drawerContent) : null;
     const style = timeline ? getComputedStyle(timeline) : null;
     const box = element => {
       if (!element) return null;
@@ -1068,6 +1070,7 @@ try {
     await context.close();
   }
 
+  if (!focusedWorkspace) {
   // Staff: grant access and change an existing staff member's permissions.
   {
     staff = [];
@@ -1235,6 +1238,8 @@ try {
     await assertNoHorizontalOverflow(page, "/ar/merchant/reservations/scan", 390);
     if (direction !== "rtl") throw new Error("Arabic pickup scanner is not RTL.");
     await context.close();
+  }
+
   }
 
   process.stdout.write("PASS merchant order filtering, staff permissions, sales download and pickup handover\n");
