@@ -8,7 +8,7 @@
 .offerWorkspace { display: grid; grid-template-columns: minmax(340px, 420px) minmax(0, 1fr); align-items: start; gap: 24px; min-width: 0; }
 .offerPicker { display: grid; align-content: start; gap: 14px; min-width: 0; padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
 .offerPicker .tabs { gap: 6px; }
-.offerPicker .tab, .offerPicker .activeTab { min-height: 40px; padding: 8px 11px; font-size: 13px; }
+.offerPicker .tab, .offerPicker .activeTab { min-height: 44px; padding: 8px 11px; font-size: 13px; }
 .offerQueue { display: grid; gap: 10px; min-width: 0; }
 .offerItem, .offerItemSelected {
     display: grid;
@@ -91,7 +91,7 @@
 .offerEmpty { display: grid; place-items: center; gap: 12px; min-height: 240px; padding: 24px; color: var(--muted); text-align: center; }
 .offerEmpty strong { color: var(--ink-strong); font-size: 17px; }
 .offerEmpty span { max-width: 320px; font-size: 14px; }
-@media (max-width: 1100px) {
+@media (max-width: 1099px) {
     .offerWorkspace { grid-template-columns: minmax(0, 1fr); }
     .offerMetrics { max-width: none; flex-basis: 100%; }
 }
