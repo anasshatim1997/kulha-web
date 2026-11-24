@@ -354,6 +354,8 @@ async function assertAdminLoginLayout(page, width, height) {
   }
 }
 async function assertOfferModerationLayout(page, width, height) {
+  await page.getByTestId("workspace-modal").evaluate(element =>
+    Promise.all(element.getAnimations().map(animation => animation.finished)));
   const metrics = await page.evaluate(() => {
     const workspace = document.querySelector('[data-testid="offer-workspace"]');
     const picker = document.querySelector('[data-testid="offer-picker"]');
