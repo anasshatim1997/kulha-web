@@ -399,49 +399,41 @@ async function assertAdminStatusControls(page, route, width, height) {
 
 async function assertMerchantReviewLayout(page, width, height) {
   const metrics = await page.evaluate(() => {
-    const detail = document.querySelector('[data-testid="merchant-review-detail-panel"]');
-    const workspace = document.querySelector('[data-testid="merchant-review-list"]')?.closest("section")?.parentElement;
+    const detail = document.querySelector('[data-testid="merchant-review-detail-page"]');
+    const layout = document.querySelector('[data-testid="merchant-review-detail-layout"]');
     const heading = document.querySelector('[data-testid="admin-page-heading"]');
     const topbar = document.querySelector('[data-testid="admin-console-topbar"]');
     const decision = document.querySelector('[data-testid="merchant-review-decision"]');
     const footer = document.querySelector('[data-testid="merchant-review-footer"]');
     const hint = document.querySelector("#merchant-decision-hint");
     const textareas = [...(decision?.querySelectorAll("textarea") ?? [])];
-    const segmented = [...(decision?.querySelectorAll('[role="group"] button') ?? [])];
+    const options = [...(decision?.querySelectorAll('[role="group"] button') ?? [])];
     const box = element => {
       if (!element) return null;
       const rect = element.getBoundingClientRect();
       return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right };
     };
     return {
-      detail: box(detail), workspace: box(workspace), heading: box(heading), topbar: box(topbar),
-      columns: workspace ? getComputedStyle(workspace).gridTemplateColumns.split(" ").length : 0,
-      textareas: textareas.map(field => ({ rows: field.rows, minHeight: field.getBoundingClientRect().height })),
-      segmentHeights: segmented.map(button => button.getBoundingClientRect().height),
+      detail: box(detail), layout: box(layout), heading: box(heading), topbar: box(topbar),
+      columns: layout ? getComputedStyle(layout).gridTemplateColumns.split(" ").length : 0,
+      textareas: textareas.map(field => ({ rows: field.rows, height: field.getBoundingClientRect().height })),
+      optionHeights: options.map(button => button.getBoundingClientRect().height),
       footer: box(footer), hint: hint?.textContent?.trim() ?? "",
-      selectedMerchant: Boolean(detail?.querySelector("h2")?.textContent?.trim()),
+      selectedMerchant: Boolean(detail?.querySelector("h1")?.textContent?.trim()),
     };
   });
-  if (!metrics.detail || !metrics.workspace || !metrics.heading || !metrics.topbar
-      || !metrics.footer || !metrics.selectedMerchant || metrics.textareas.length !== 2
-      || metrics.segmentHeights.length !== 3) {
-    throw new Error("Merchant review workflow is incomplete at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  if (!metrics.detail || !metrics.layout || !metrics.heading || !metrics.topbar || !metrics.footer
+      || !metrics.selectedMerchant || metrics.textareas.length !== 2 || metrics.optionHeights.length !== 3) {
+    throw new Error("Merchant full-page review is incomplete at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (metrics.columns !== 1) {
-    throw new Error("Merchant list must remain full width at " + width + "px: " + JSON.stringify(metrics));
+  const expectedColumns = width > 1180 ? 2 : 1;
+  if (metrics.columns !== expectedColumns) throw new Error("Merchant review should use " + expectedColumns + " columns at " + width + "px: " + JSON.stringify(metrics));
+  if (metrics.textareas[0].rows !== 4 || metrics.textareas[0].height < 100 || metrics.textareas[1].rows !== 3 || metrics.textareas[1].height < 100) {
+    throw new Error("Merchant reason and internal-note fields have insufficient size at " + width + "x" + height + ": " + JSON.stringify(metrics.textareas));
   }
-  if (metrics.textareas[0].rows !== 4 || metrics.textareas[0].minHeight < 100
-      || metrics.textareas[1].rows !== 3 || metrics.textareas[1].minHeight < 100) {
-    throw new Error("Merchant reason and internal-note fields must retain their requested rows and usable height at "
-      + width + "x" + height + ": " + JSON.stringify(metrics.textareas));
-  }
-  if (metrics.segmentHeights.some(height => height < 48)) {
-    throw new Error("Merchant decision choices must be at least 48px high at " + width + "x" + height + ".");
-  }
-  if (!metrics.hint) throw new Error("Disabled merchant decision must explain the missing decision/reason at " + width + "x" + height + ".");
-  if (metrics.detail.left < -1 || metrics.detail.right > width + 1) {
-    throw new Error("Merchant detail card is horizontally clipped at " + width + "x" + height + ": " + JSON.stringify(metrics.detail));
-  }
+  if (metrics.optionHeights.some(value => value < 48)) throw new Error("Merchant decision choices are below 48px at " + width + "x" + height + ".");
+  if (!metrics.hint) throw new Error("Merchant decision guidance is missing at " + width + "x" + height + ".");
+  if (metrics.detail.left < -1 || metrics.detail.right > width + 1) throw new Error("Merchant detail is horizontally clipped at " + width + "x" + height + ": " + JSON.stringify(metrics.detail));
 }
 
 async function assertOfferDecisionAccessible(page, width, height, route) {
@@ -687,7 +679,7 @@ async function assertAdminCardClipping(page, route, width, height) {
 async function assertScrollOwner(page, route, width, height) {
   const metrics = await page.evaluate(() => {
     const root = document.querySelector(".kulhaAdminShell");
-    const ids = ["merchant-review-detail-panel", "offer-detail-panel", "support-case-detail", "audit-table-card"];
+    const ids = ["merchant-review-detail-page", "offer-detail-panel", "support-case-detail", "audit-table-card"];
     const invalid = [];
     for (const id of ids) {
       const detail = root.querySelector('[data-testid="' + id + '"]');
@@ -718,7 +710,7 @@ async function assertScrollOwner(page, route, width, height) {
 
 async function assertPrimaryActionUncovered(page, route, width, height) {
   let action;
-  if (route.endsWith("/admin/merchant-review")) action = page.getByTestId("merchant-review-footer").locator("button").first();
+  if (route.includes("/admin/merchant-review/")) action = page.getByTestId("merchant-review-footer").locator("button").first();
   else if (route.endsWith("/admin/offer-moderation")) action = page.getByTestId("offer-moderation-footer").locator("button").first();
   else if (route.endsWith("/admin/support-cases")) action = page.getByTestId("support-case-actions").locator("button").last();
   else return;
@@ -728,20 +720,15 @@ async function assertPrimaryActionUncovered(page, route, width, height) {
     const x = Math.min(innerWidth - 1, Math.max(0, rect.left + rect.width / 2));
     const y = Math.min(innerHeight - 1, Math.max(0, rect.top + rect.height / 2));
     const top = document.elementFromPoint(x, y);
-    return {
-      visible: rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < innerHeight,
-      unobscured: Boolean(top && (top === button || button.contains(top))),
-      center: { x, y },
-      topElement: top?.tagName.toLowerCase() ?? null,
-      label: (button.textContent ?? "").trim(),
-    };
+    return { visible: rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < innerHeight,
+      unobscured: Boolean(top && (top === button || button.contains(top))), center: { x, y },
+      topElement: top?.tagName.toLowerCase() ?? null, label: (button.textContent ?? "").trim() };
   });
-  if (!hit.visible || !hit.unobscured) {
-    throw new Error("Primary action is covered or not visible on " + route + " at "
-      + width + "x" + height + ": " + JSON.stringify(hit));
-  }
+  if (!hit.visible || !hit.unobscured) throw new Error("Primary action is covered or not visible on " + route + " at " + width + "x" + height + ": " + JSON.stringify(hit));
   await page.evaluate(() => window.scrollTo(0, 0));
 }
+
+
 
 let browser;
 try {
@@ -886,55 +873,24 @@ try {
       }
       if (route.path.endsWith("/admin/merchant-review")) {
         const rows = page.getByTestId("merchant-review-list").getByRole("button");
+        if (await rows.count() === 0) throw new Error("Merchant queue has no application fixture on " + route.path + ".");
         await rows.first().click();
-        const drawer = page.getByTestId("workspace-drawer");
-        await drawer.waitFor({ state: "visible" });
+        await page.getByTestId("merchant-review-detail-page").waitFor({ state: "visible" });
         await page.getByTestId("merchant-review-workflow").waitFor({ state: "visible" });
-        await page.keyboard.press("Escape");
-        await drawer.waitFor({ state: "hidden" });
-        await page.waitForFunction(() => document.activeElement === document.querySelector('[data-testid="merchant-review-list"] button'));
-        await rows.first().click();
-        await drawer.waitFor({ state: "visible" });
-        const panel = drawer;
-        const backdrop = page.getByTestId("workspace-drawer-backdrop");
-        if (size.width > 700) {
-          if (await panel.getAttribute("aria-modal")) throw new Error("Desktop workspace drawer must be non-modal.");
-          const pointerEvents = await backdrop.evaluate(node => getComputedStyle(node).pointerEvents);
-          if (pointerEvents !== "none") throw new Error("Desktop drawer backdrop must not intercept master-list pointer events.");
-          const secondRow = rows.nth(1);
-          const rowBounds = await secondRow.boundingBox();
-          const panelBounds = await panel.boundingBox();
-          if (!rowBounds || !panelBounds || rowBounds.x + rowBounds.width > panelBounds.x + 1) {
-            throw new Error("Second merchant row is not fully reachable beside the desktop drawer: " + JSON.stringify({ rowBounds, panelBounds }));
-          }
-          const previousName = await page.locator('[data-testid="merchant-review-detail-panel"] h2').innerText();
-          await secondRow.click();
-          await page.waitForFunction(previous => document.querySelector('[data-testid="merchant-review-detail-panel"] h2')?.textContent?.trim() !== previous, previousName);
-          if (!(await drawer.isVisible())) throw new Error("Selecting another merchant closed the open drawer.");
-          if ((await secondRow.getAttribute("aria-pressed")) !== "true") throw new Error("Second merchant was not marked selected.");
-          if (!(await page.locator('[data-testid="merchant-review-detail-panel"] h2').innerText()).includes("Épicerie Atlas")) throw new Error("Drawer content did not update to the second merchant.");
-        } else {
-          if (await panel.getAttribute("aria-modal") !== "true") throw new Error("Mobile workspace drawer must expose modal semantics.");
-          const bounds = await panel.boundingBox();
-          if (!bounds || bounds.x > 1 || bounds.y > 1 || Math.abs(bounds.width - size.width) > 1 || Math.abs(bounds.height - size.height) > 1) {
-            throw new Error("Mobile drawer must occupy the full viewport: " + JSON.stringify(bounds));
-          }
-          if (await backdrop.evaluate(node => getComputedStyle(node).pointerEvents) !== "auto") throw new Error("Mobile modal backdrop must block background pointer interaction.");
-          const secondBounds = await rows.nth(1).boundingBox();
-          if (!secondBounds) throw new Error("Second merchant row is unavailable behind the mobile modal.");
-          const blocked = await page.evaluate(({ x, y }) => !!document.elementFromPoint(x, y)?.closest('[data-testid="workspace-drawer"]'), { x: secondBounds.x + secondBounds.width / 2, y: secondBounds.y + secondBounds.height / 2 });
-          if (!blocked) throw new Error("Mobile modal did not block pointer interaction with the merchant list.");
-        }
-        await page.getByTestId("merchant-review-workflow").locator('input[type="checkbox"]').first().check();
-        await page.evaluate(() => { window.confirm = () => false; });
-        if (size.width > 700) await page.evaluate(() => { const target = document.elementFromPoint(8, 8); target?.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, clientX: 8, clientY: 8 })); });
-        else await drawer.locator("header button").click();
-        if (!(await drawer.isVisible())) throw new Error("Merchant drawer ignored unsaved-change protection.");
-        await page.evaluate(() => { window.confirm = () => true; });
-        await page.keyboard.press("Escape");
-        await drawer.waitFor({ state: "hidden" });
-        await rows.nth(1).click();
-        await drawer.waitFor({ state: "visible" });
+        const detailPath = new URL(page.url()).pathname;
+        if (!detailPath.includes("/admin/merchant-review/")) throw new Error("Selecting a merchant did not navigate to its dedicated route: " + page.url());
+        if (await page.getByTestId("workspace-drawer").count()) throw new Error("Merchant verification must not render the legacy workspace drawer.");
+        await assertNoHorizontalOverflow(page, page.url(), size.width);
+        await assertMerchantReviewLayout(page, size.width, size.height);
+        await assertAdminCardClipping(page, page.url(), size.width, size.height);
+        await assertScrollOwner(page, page.url(), size.width, size.height);
+        await assertPrimaryActionUncovered(page, detailPath, size.width, size.height);
+        const detailLocale = route.path.split("/")[1] || "fr";
+        await page.screenshot({ path: join("artifacts/browser-screenshots", "merchant-review-detail-" + detailLocale + "-" + size.width + "x" + size.height + ".png"), animations: "disabled", fullPage: true });
+        await page.getByTestId("merchant-review-back").click();
+        await page.getByTestId("merchant-review-list").getByRole("button").first().waitFor({ state: "visible" });
+        if (!new URL(page.url()).pathname.endsWith("/admin/merchant-review")) throw new Error("Back navigation did not return to the merchant queue: " + page.url());
+        if (new URL(page.url()).searchParams.get("status") !== "PENDING") throw new Error("Back navigation did not preserve the queue status: " + page.url());
       }
       if (route.path.endsWith("/admin/offer-moderation")) {
         const rows = page.getByTestId("offer-queue").getByRole("button");
@@ -959,7 +915,7 @@ try {
         }
       }
       if (route.adminPage) await assertAdminStatusControls(page, route.path, size.width, size.height);
-      if (route.path.endsWith("/admin/merchant-review")) await assertMerchantReviewLayout(page, size.width, size.height);
+
       if (route.path.endsWith("/admin/offer-moderation")) {
         await assertOfferModerationLayout(page, size.width, size.height);
         const longTitle = "Family breakfast basket with assorted bakery items, fresh fruit and detailed allergen information";
@@ -1115,7 +1071,7 @@ try {
     await context.close();
   }
 
-  // Merchant review: checklist gates approval; the decision is submitted with a reason.
+  // Merchant review: approval is gated by all three checks and the audited decision payload.
   {
     merchantStatus = "PENDING";
     merchant.status = merchantStatus;
@@ -1124,14 +1080,20 @@ try {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
     await page.getByTestId("merchant-review-list").getByRole("button").first().click();
-    const inlineReview = page.getByTestId("merchant-review-workflow");
-    await inlineReview.waitFor({ state: "visible" });
-    await inlineReview.getByLabel("Address and location checked").check();
-    await inlineReview.getByLabel("Phone number reachable").check();
-    await inlineReview.getByLabel("Documents readable and valid").check();
-    await inlineReview.getByRole("button", { name: "Approve" }).click();
-    await inlineReview.getByLabel("Reason (required)").fill("Verified during browser workflow test.");
-    await page.getByTestId("merchant-review-footer").getByRole("button", { name: "Submit decision" }).click();
+    const workflow = page.getByTestId("merchant-review-workflow");
+    await page.getByTestId("merchant-review-detail-page").waitFor({ state: "visible" });
+    await workflow.waitFor({ state: "visible" });
+    await workflow.getByRole("button", { name: "Approve" }).click();
+    const reviewButton = page.getByTestId("merchant-review-footer").getByRole("button", { name: "Review decision" });
+    if (await reviewButton.isEnabled()) throw new Error("Approval unlocked before all three verification checks.");
+    await workflow.getByLabel("Address and location checked").check();
+    await workflow.getByLabel("Phone number reachable").check();
+    await workflow.getByLabel("Documents readable and valid").check();
+    await page.getByLabel("Reason (required)").fill("Verified during full-page browser workflow test.");
+    await page.getByLabel(/Internal note/).fill("Internal verification note from browser workflow test.");
+    if (!(await reviewButton.isEnabled())) throw new Error("Decision did not unlock after the checks and reason were completed.");
+    await reviewButton.click();
+    await page.getByTestId("merchant-review-footer").getByRole("button", { name: "Confirm decision" }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/approve"), "Merchant approval");
     await context.close();
   }
@@ -1246,8 +1208,8 @@ try {
   process.stdout.write("PASS merchant order filtering, staff permissions, sales download and pickup handover\n");
   process.stdout.write("PASS admin merchant review, offer moderation, assigned support disclosure/resolution and audit download\n");
   process.stdout.write("PASS admin login screenshots/layout at 1366x768, 1920x1080 and 390x844\n");
-  process.stdout.write("PASS moderation panels align at 1366x768 and 1920x1080; pagination anchored; populated offer queue internally scrollable; mobile stack checked\n");
-  process.stdout.write("PASS 7 viewport sizes across 16 authenticated routes; merchant/admin modal bounds at 390px; Arabic RTL at 390px\n");
+  process.stdout.write("PASS merchant queue and full-page review layouts; offer moderation and support workflows retain their current focused checks\n");
+  process.stdout.write("PASS 7 viewport sizes across 16 authenticated routes; merchant full-page navigation at 390px; Arabic RTL at 390px\n");
 } finally {
   await browser?.close();
   app.kill("SIGTERM");

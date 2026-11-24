@@ -50,7 +50,7 @@ jobs:
           npm install --global playwright@1.65.0
           playwright install --with-deps chromium
 
-      - name: Run focused Merchant Review drawer interaction regression
+      - name: Run focused Merchant Review full-page workflow regression
         env:
           WORKSPACE_FOCUS: merchant-review
           WORKSPACE_FOCUS_WIDTH: "1920"
