@@ -30,6 +30,7 @@
 .merchantStepper > div { display: flex; align-items: center; gap: 9px; min-width: 0; color: var(--muted); }
 .merchantStepper > div > span { display: grid; flex: 0 0 28px; width: 28px; height: 28px; place-items: center; border-radius: 50%; background: #edf1eb; color: var(--ink); font-size: 13px; font-weight: 800; }
 .merchantStepper strong { font-size: 13px; font-weight: 700; }
+.stepPending { color: var(--muted); }
 .merchantStepper > i { flex: 1 1 18px; height: 1px; min-width: 18px; background: var(--line); }
 .merchantStepper > .stepDone > span, .merchantStepper > .stepCurrent > span { background: var(--ink-strong); color: #fff; }
 .merchantStepper > .stepCurrent { color: var(--ink-strong); }
