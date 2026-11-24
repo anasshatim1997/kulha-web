@@ -563,13 +563,13 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     <span>{audit.total.toLocaleString(loc(locale))} · {t.audit}</span>
                 </div>
                 <section className={styles.auditTableCard} data-testid="audit-table-card">
-                    <div className={styles.table}>
+                    <div className={styles.table} data-testid="audit-table-wrapper">
                         <table><thead><tr><th>{t.when.toUpperCase()}</th><th>{t.person.toUpperCase()}</th><th>{t.action.toUpperCase()}</th><th>{t.record.toUpperCase()}</th><th>{t.result.toUpperCase()}</th></tr></thead>
                             <tbody>{auditItems.map(item=><tr key={item.id} data-testid="audit-record-row" tabIndex={0} aria-label={`${auditActionLabel(item.action,locale)} · ${auditActorLabel(item,locale)}`} aria-pressed={selectedAuditId===item.id} className={selectedAuditId===item.id?styles.auditSelectedRow:""} onClick={event=>{auditReturnFocusRef.current=event.currentTarget;setSelectedAuditId(item.id);setAuditModalOpen(true);}} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();auditReturnFocusRef.current=event.currentTarget;setSelectedAuditId(item.id);setAuditModalOpen(true);}}}>
                                 <td data-label={t.when}>{shortDateTime(item.createdAt,locale)}</td>
                                 <td data-label={t.person}><strong>{auditActorLabel(item,locale)}</strong></td>
                                 <td data-label={t.action}><strong>{auditActionLabel(item.action,locale)}</strong><small>{item.reason||"—"}</small></td>
-                                <td data-label={t.record}><strong>{item.targetType}</strong><small title={item.targetId}>…{item.targetId.slice(-8)}</small></td>
+                                <td data-label={t.record}><strong>{item.targetType}</strong><small className={styles.auditRecordId} title={item.targetId}>…{item.targetId.slice(-8)}</small></td>
                                 <td data-label={t.result}>{resultPill(item.result)}</td>
                             </tr>)}</tbody>
                         </table>
