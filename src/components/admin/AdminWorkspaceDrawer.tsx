@@ -47,7 +47,7 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr
       }
     };
     const onDocumentPointerDown = (event: PointerEvent) => {
-      const target = event.target instanceof HTMLElement ? event.target : null;
+      const target = event.target instanceof Element ? event.target : null;
       if (!target || panelRef.current?.contains(target)) return;
       if (target.closest('[data-testid="merchant-review-list"],[data-testid="offer-queue"],[data-testid="support-case-list"]')) return;
       if (dirtyRef.current && !window.confirm(confirmRef.current)) return;
