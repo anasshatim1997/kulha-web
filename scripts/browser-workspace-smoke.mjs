@@ -398,7 +398,7 @@ async function assertAdminStatusControls(page, route, width, height) {
 async function assertMerchantReviewLayout(page, width, height) {
   const metrics = await page.evaluate(() => {
     const detail = document.querySelector('[data-testid="merchant-review-detail-panel"]');
-    const workspace = document.querySelector(".merchantReviewWorkspace");
+    const workspace = document.querySelector('[data-testid="merchant-review-list"]')?.closest("section")?.parentElement;
     const heading = document.querySelector('[data-testid="admin-page-heading"]');
     const topbar = document.querySelector('[data-testid="admin-console-topbar"]');
     const decision = document.querySelector('[data-testid="merchant-review-decision"]');
