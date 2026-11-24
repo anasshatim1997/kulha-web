@@ -3,6 +3,7 @@
 .auditFilterTopRow { display: grid; grid-template-columns: minmax(280px, 1.2fr) minmax(320px, 1fr); gap: 18px; }
 .auditFilterBottomRow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .auditFilterField { display: grid; gap: 7px; min-width: 0; color: var(--muted); font-size: 14px; font-weight: 650; }
+.auditFilterSearch { min-width: 0; }
 .auditFilterLabel { color: var(--muted); font-size: 14px; font-weight: 650; }
 .auditSearchControl { display: flex; align-items: center; gap: 10px; min-height: 44px; padding-inline: 12px; border: 1px solid #d8d9d0; border-radius: 10px; background: #fff; color: var(--muted); }
 .auditSearchControl input { width: 100%; min-width: 0; min-height: 42px; padding: 8px 0; border: 0; outline: 0; background: transparent; color: var(--ink); font: inherit; font-size: 15px; }
