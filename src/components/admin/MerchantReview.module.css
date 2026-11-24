@@ -79,4 +79,4 @@
 .merchantPicker .list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); gap: 14px; }
 .merchantListItem, .merchantSelected { min-height: 132px; align-content: start; gap: 9px; padding: 18px; }
 
-.drawerOpen .merchantPicker{width:calc(100% - min(680px,52vw));min-width:0;max-width:100%}@media(max-width:700px){.drawerOpen .merchantPicker{width:100%}}
+.drawerOpen .merchantPicker{width:calc(100% - max(480px,min(680px,52vw)));min-width:0;max-width:100%}@media(max-width:700px){.drawerOpen .merchantPicker{width:100%}}
