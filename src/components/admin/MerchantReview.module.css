@@ -31,8 +31,8 @@
 .merchantStepper > div > span { display: grid; flex: 0 0 28px; width: 28px; height: 28px; place-items: center; border-radius: 50%; background: #edf1eb; color: var(--ink); font-size: 13px; font-weight: 800; }
 .merchantStepper strong { font-size: 13px; font-weight: 700; }
 .merchantStepper > i { flex: 1 1 18px; height: 1px; min-width: 18px; background: var(--line); }
-.stepDone > span, .stepCurrent > span { background: var(--ink-strong) !important; color: #fff !important; }
-.stepCurrent { color: var(--ink-strong) !important; }
+.merchantStepper > .stepDone > span, .merchantStepper > .stepCurrent > span { background: var(--ink-strong); color: #fff; }
+.merchantStepper > .stepCurrent { color: var(--ink-strong); }
 .merchantPreviewInfo { display: grid; gap: 14px; }
 .merchantPreviewInfo h3, .merchantModalSection h3, .merchantDecision h3 { margin: 0; color: var(--ink-strong); font-size: 17px; font-weight: 750; line-height: 1.3; }
 .merchantFacts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; margin: 0; }
