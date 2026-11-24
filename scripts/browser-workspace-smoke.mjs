@@ -883,7 +883,7 @@ try {
         await page.getByTestId("merchant-review-workflow").waitFor({ state: "visible" });
         await page.keyboard.press("Escape");
         await drawer.waitFor({ state: "hidden" });
-        if (!(await rows.first().evaluate(node => node === document.activeElement))) throw new Error("Merchant drawer did not restore focus to the selected row.");
+        await page.waitForFunction(() => document.activeElement === document.querySelector('[data-testid="merchant-review-list"] button'));
         await rows.first().click();
         await drawer.waitFor({ state: "visible" });
         if (size.width > 700) {
