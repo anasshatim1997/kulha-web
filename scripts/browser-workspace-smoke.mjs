@@ -500,6 +500,8 @@ async function assertMerchantReviewLayout(page, width, height) {
 }
 
 async function assertOfferDecisionAccessible(page, width, height, route) {
+  await page.getByTestId("workspace-modal").evaluate(element =>
+    Promise.all(element.getAnimations().map(animation => animation.finished)));
   const metrics = await page.evaluate(() => {
     const preview = document.querySelector('[data-testid="offer-detail-panel"]');
     const title = preview?.querySelector("h2");
