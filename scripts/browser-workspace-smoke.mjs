@@ -403,7 +403,7 @@ async function assertOfferModerationLayout(page, width, height) {
     throw new Error("Offer fixture must show eight records and a long-title example at "
       + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (width <= 1199 && Math.abs(metrics.picker.width - metrics.workspace.width) > 1) {
+  if (width <= 1399 && Math.abs(metrics.picker.width - metrics.workspace.width) > 1) {
     throw new Error("Offer picker should retain the full single-column workspace width at "
       + width + "x" + height + ": " + JSON.stringify(metrics));
   }
@@ -992,7 +992,7 @@ try {
         await rows.first().click();
         await drawer.waitFor({ state: "visible" });
         const isModal = await drawer.getAttribute("aria-modal");
-        if (size.width <= 1199) {
+        if (size.width <= 1399) {
           if (isModal !== "true") {
             throw new Error("Offer detail must become a modal when the full-width queue sits beneath it at " + size.width + "px.");
           }
@@ -1025,7 +1025,7 @@ try {
       if (route.path.endsWith("/admin/offer-moderation")) {
         await assertOfferModerationLayout(page, size.width, size.height);
         const longTitle = "Family breakfast basket with assorted bakery items, fresh fruit and detailed allergen information";
-        if (size.width <= 1199) {
+        if (size.width <= 1399) {
           await page.getByTestId("workspace-drawer").locator("header button").click();
           await page.getByTestId("workspace-drawer").waitFor({ state: "hidden" });
         }

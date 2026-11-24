@@ -34,7 +34,7 @@
 .offerCopy > strong { color: var(--ink-strong); font-size: 15px; font-weight: 750; line-height: 1.35; overflow-wrap: anywhere; }
 .offerCopy > small { color: var(--muted); font-size: 13px; line-height: 1.35; overflow-wrap: anywhere; }
 .offerTags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 3px; }
-.offerTags em { display: inline-flex; align-items: center; min-height: 24px; padding: 3px 8px; border-radius: 999px; font-size: 13px; font-style: normal; font-weight: 650; }
+.offerTags em { display: inline-flex; align-items: center; min-width: 0; max-width: 100%; min-height: 24px; padding: 3px 8px; border-radius: 999px; font-size: 13px; font-style: normal; font-weight: 650; white-space: normal; overflow-wrap: anywhere; }
 .reportTag { background: #fbe3df; color: #8f2a1f; }
 .allergenTag { background: #fff0c8; color: #76520a; }
 .hiddenTag { background: #efede6; color: #5e625d; }
@@ -114,7 +114,7 @@
 .offerItem, .offerItemSelected { min-height: 92px; padding: 15px; }
 
 .drawerOpen .offerPicker { width: calc(100% - max(480px, min(680px, 52vw))); min-width: 0; max-width: 100%; }
-@media (max-width: 1199px) {
+@media (max-width: 1399px) {
     /* The detail drawer is portalled and overlays the single-column workspace.
        Reserving its width here leaves an unusable queue strip behind the overlay. */
     .drawerOpen .offerPicker { width: 100%; }
