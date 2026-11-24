@@ -336,7 +336,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
 
         {page==="merchant-review"&&merchants&&<>
             <div className={styles.tabs} role="tablist" aria-label={t.merchantTitle}>{merchantStatuses.map(value=>{const n=tabCount(value);return <button key={value} role="tab" aria-selected={merchantStatus===value} className={merchantStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setMerchantStatus(value);setMerchantPage(0);setSelectedMerchant(null);setReason("");setInternalNote("");})}>{merchantLabel(value)}{typeof n==="number"?" · "+n:""}</button>;})}</div>
-            <div className={styles.merchantReviewWorkspace+(selectedMerchant?" "+styles.drawerOpen:"")}>
+            <div className={merchantStyles.merchantReviewWorkspace+(selectedMerchant?" "+merchantStyles.drawerOpen:"")}>
                 <section className={styles.merchantPicker} aria-label={t.merchantTitle}>
                     <div className={styles.list+" "+merchantStyles.list} data-testid="merchant-review-list">{merchantItems.map(item=><button key={item.id} aria-pressed={selectedMerchant?.id===item.id} className={selectedMerchant?.id===item.id?styles.merchantSelected:styles.merchantListItem} onClick={event=>{merchantReturnFocusRef.current=event.currentTarget;void loadMerchant(item.id);}}>
                         <span className={styles.merchantListTop}><strong>{item.name}</strong><em className={styles.pill+" "+merchantTone(item.status)}>{merchantLabel(item.status)}</em></span>
