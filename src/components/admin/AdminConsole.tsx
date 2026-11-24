@@ -333,7 +333,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
 
         {page==="merchant-review"&&merchants&&<>
             <div className={styles.tabs} role="tablist" aria-label={t.merchantTitle}>{merchantStatuses.map(value=>{const n=tabCount(value);return <button key={value} role="tab" aria-selected={merchantStatus===value} className={merchantStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setMerchantStatus(value);setMerchantPage(0);setSelectedMerchant(null);setReason("");setInternalNote("");})}>{merchantLabel(value)}{typeof n==="number"?" · "+n:""}</button>;})}</div>
-            <div className={styles.merchantReviewWorkspace}>
+            <div className={styles.merchantReviewWorkspace+(selectedMerchant?" "+styles.drawerOpen:"")}>
                 <section className={styles.merchantPicker} aria-label={t.merchantTitle}>
                     <div className={styles.list+" "+merchantStyles.list} data-testid="merchant-review-list">{merchantItems.map(item=><button key={item.id} aria-pressed={selectedMerchant?.id===item.id} className={selectedMerchant?.id===item.id?styles.merchantSelected:styles.merchantListItem} onClick={event=>{merchantReturnFocusRef.current=event.currentTarget;void loadMerchant(item.id);}}>
                         <span className={styles.merchantListTop}><strong>{item.name}</strong><em className={styles.pill+" "+merchantTone(item.status)}>{merchantLabel(item.status)}</em></span>
@@ -390,7 +390,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
             
         </>}
         {page==="offer-moderation"&&offers&&<>
-            <div className={styles.offerWorkspace} data-testid="offer-workspace">
+            <div className={styles.offerWorkspace+(selectedOffer?" "+offerStyles.drawerOpen:"")} data-testid="offer-workspace">
                 <section className={styles.offerPicker} aria-label={t.offersTitle} data-testid="offer-picker">
                     <div className={styles.tabs+" "+offerStyles.tabs} role="tablist" aria-label={t.filter}>
                         {[
@@ -475,7 +475,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
             <div className={styles.tabs} role="tablist" aria-label={t.casesTitle}>
                 {([["OPEN",t.open,caseCounts.open],["ESCALATED",t.escalated,caseCounts.escalated],["WAITING_REPLY",t.waiting,caseCounts.waiting],["RESOLVED",t.resolved,caseCounts.resolved]] as const).map(([value,label,count])=><button key={value} role="tab" aria-selected={caseStatus===value} className={caseStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setCaseStatus(value);setCasePage(0);setSelectedCase(null);setReason("");})}>{label}{typeof count==="number"?" · "+count:""}</button>)}
             </div>
-            <div className={styles.supportWorkspace} data-testid="support-workspace">
+            <div className={styles.supportWorkspace+(selectedCase?" "+supportStyles.drawerOpen:"")} data-testid="support-workspace">
                 <section className={styles.casePicker} aria-label={t.casesTitle} data-testid="support-case-queue">
                     <div className={styles.caseList} data-testid="support-case-list">{caseItems.map(item=><button key={item.reference} data-testid="support-case-row" aria-pressed={selectedCase?.summary.reference===item.reference} className={selectedCase?.summary.reference===item.reference?styles.caseSelected:styles.caseItem} onClick={event=>{caseReturnFocusRef.current=event.currentTarget;void loadCase(item.reference);}}>
                         <span className={styles.caseListTop}><small>{item.reference} · {item.category}</small><em className={styles.pill+" "+priorityTone(item.priority)}>{priorityLabel(item.priority)}</em></span>
