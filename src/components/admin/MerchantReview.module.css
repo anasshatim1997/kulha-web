@@ -60,7 +60,7 @@
 .merchantInlineFooter > p:first-child svg { flex: 0 0 auto; }
 .merchantInlineFooter .primary { grid-column: 2; grid-row: 1 / span 2; min-width: 180px; }
 .merchantActionHint { grid-column: 1; grid-row: 2; margin: 0; color: var(--warning); font-size: 13px; }
-@media (max-width: 1100px) { .merchantReviewWorkspace { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 1099px) { .merchantReviewWorkspace { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 900px) { .merchantPicker { padding: 16px; } }
 @media (max-width: 600px) {
     .merchantDetails { gap: 20px; padding: 16px; }
