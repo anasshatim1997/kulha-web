@@ -45,6 +45,8 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr
   useEffect(() => {
     if (!open) return;
     const previousOverflow = document.body.style.overflow;
+    const previousScrollX = window.scrollX;
+    const previousScrollY = window.scrollY;
     if (modalPresentation) document.body.style.overflow = "hidden";
     const frame = window.requestAnimationFrame(() => closeRef.current?.focus());
     const onKeyDown = (event: KeyboardEvent) => {
@@ -77,6 +79,7 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr
       window.removeEventListener("keydown", onKeyDown);
       document.removeEventListener("pointerdown", onDocumentPointerDown, true);
       document.body.style.overflow = previousOverflow;
+      if (modalPresentation) window.scrollTo({ left: previousScrollX, top: previousScrollY, behavior: "instant" });
     };
   }, [open, modalPresentation]);
 
