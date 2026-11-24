@@ -12,11 +12,12 @@ type Props = {
   dirty?: boolean;
   confirmDiscard: string;
   modalBreakpoint?: number;
+  rtlSide?: "left" | "right";
   onClose: () => void;
   children: ReactNode;
 };
 
-export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr", dirty = false, confirmDiscard, modalBreakpoint = 700, onClose, children }: Props) {
+export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr", dirty = false, confirmDiscard, modalBreakpoint = 700, rtlSide = "right", onClose, children }: Props) {
   const panelRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const onCloseRef = useRef(onClose);
@@ -84,7 +85,7 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr
   if (!open || typeof document === "undefined") return null;
   return createPortal(
     <div
-      className={modalPresentation ? styles.backdrop + " " + styles.mobile : styles.backdrop + " " + styles.desktop}
+      className={(modalPresentation ? styles.backdrop + " " + styles.mobile : styles.backdrop + " " + styles.desktop) + (direction === "rtl" && rtlSide === "left" ? " " + styles.rtlLeft : "")}
       data-testid="workspace-drawer-backdrop"
       onClick={event => { if (modalPresentation && event.target === event.currentTarget) requestClose(); }}
     >

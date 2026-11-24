@@ -391,6 +391,7 @@ async function assertOfferModerationLayout(page, width, height) {
       rowOverflowCount: rowLayout.filter(row => row.scrollWidth > row.width + 1).length,
       copyOverflowCount: rowLayout.filter(row => row.copyScrollWidth > row.copyWidth + 1).length,
       copyPriceOverlapCount: rowLayout.filter(row => row.copyPriceOverlap).length,
+      drawerOverlapsPicker: Boolean(preview && picker && picker.left < preview.right - 1 && picker.right > preview.left + 1),
     };
   });
   if (!metrics.workspace || !metrics.picker || !metrics.preview) {
@@ -410,6 +411,10 @@ async function assertOfferModerationLayout(page, width, height) {
   if (metrics.pickerScrollWidth > metrics.pickerClientWidth + 1
       || metrics.rowOverflowCount > 0 || metrics.copyOverflowCount > 0 || metrics.copyPriceOverlapCount > 0) {
     throw new Error("Offer cards or picker content overflow at " + width + "x" + height
+      + ": " + JSON.stringify(metrics));
+  }
+  if (width > 1399 && metrics.direction === "rtl" && metrics.drawerOverlapsPicker) {
+    throw new Error("RTL desktop offer drawer overlaps the queue at " + width + "x" + height
       + ": " + JSON.stringify(metrics));
   }
 }

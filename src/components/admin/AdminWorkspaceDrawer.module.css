@@ -1,5 +1,6 @@
 .backdrop{overflow:hidden;direction:ltr;position:fixed;inset:0;z-index:1200;display:flex;justify-content:flex-end;animation:drawerFade .18s ease-out}
 .desktop{pointer-events:none;background:transparent}
+.rtlLeft{justify-content:flex-start}
 .mobile{pointer-events:auto;background:rgb(7 28 20 / 38%)}
 .mobile .drawer{width:100%;min-width:0;max-width:none}
 .mobile .header{padding:14px 16px}
