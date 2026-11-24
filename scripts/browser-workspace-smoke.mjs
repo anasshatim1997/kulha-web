@@ -1047,6 +1047,7 @@ try {
         if (!(await firstRow.evaluate(element => document.activeElement === element))) {
           throw new Error("Closing the offer modal must restore focus to its originating queue row.");
         }
+        await page.waitForFunction(expected => window.scrollY === expected, pageScrollBefore);
         const activeTabAfter = await page.locator('[data-testid="offer-picker"] [role="tab"][aria-selected="true"]').innerText();
         const pageScrollAfter = await page.evaluate(() => window.scrollY);
         if (activeTabAfter !== activeTabBefore || pageScrollAfter !== pageScrollBefore) {
