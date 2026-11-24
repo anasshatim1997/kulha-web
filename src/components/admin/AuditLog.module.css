@@ -1,0 +1,107 @@
+
+.auditFilters { display: grid; gap: 16px; padding: 20px; border: 1px solid var(--line); border-radius: 15px; background: var(--surface); }
+.auditFilterTopRow { display: grid; grid-template-columns: minmax(280px, 1.2fr) minmax(320px, 1fr); gap: 18px; }
+.auditFilterBottomRow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.auditFilterField { display: grid; gap: 7px; min-width: 0; color: var(--muted); font-size: 14px; font-weight: 650; }
+.auditFilterLabel { color: var(--muted); font-size: 14px; font-weight: 650; }
+.auditSearchControl { display: flex; align-items: center; gap: 10px; min-height: 44px; padding-inline: 12px; border: 1px solid #d8d9d0; border-radius: 10px; background: #fff; color: var(--muted); }
+.auditSearchControl input { width: 100%; min-width: 0; min-height: 42px; padding: 8px 0; border: 0; outline: 0; background: transparent; color: var(--ink); font: inherit; font-size: 15px; }
+.auditSearchControl button { display: grid; flex: 0 0 36px; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 8px; background: var(--surface-soft); color: var(--ink); cursor: pointer; }
+.auditDateRange { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; min-width: 0; }
+.auditDatePicker { position: relative; display: grid; gap: 7px; min-width: 0; }
+.auditDateTriggerRow { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.auditDateTrigger { display: flex; align-items: center; gap: 9px; flex: 1 1 auto; min-width: 0; min-height: 44px; padding: 9px 12px; border: 1px solid #d8d9d0; border-radius: 10px; background: #fff; color: var(--ink); text-align: start; font: inherit; cursor: pointer; }
+.auditDateTriggerOpen, .auditDateTrigger:focus-visible { border-color: var(--accent); outline: 3px solid rgb(11 91 64 / 12%); }
+.auditDateTriggerIcon, .auditDateChevron { flex: 0 0 auto; color: var(--muted); }
+.auditDateValue { min-width: 0; font-size: 14px; font-weight: 650; }
+.auditDatePlaceholder { color: #77857a; }
+.auditDateClear { display: grid; flex: 0 0 36px; place-items: center; width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--muted); cursor: pointer; }
+.auditCalendarPopover { position: absolute; inset-block-start: calc(100% + 8px); inset-inline-start: 0; z-index: 10; width: min(320px, calc(100vw - 32px)); padding: 12px; border: 1px solid var(--line); border-radius: 13px; background: #fff; box-shadow: 0 12px 32px rgb(20 40 28 / 18%); }
+.auditCalendarHeader { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-bottom: 10px; }
+.auditCalendarHeader strong { font-size: 15px; }
+.auditCalendarHeader button, .auditCalendarFooter button { min-height: 40px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
+.auditCalendarGrid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+.auditCalendarWeekday { display: grid; place-items: center; min-height: 30px; color: var(--muted); font-size: 13px; }
+.auditCalendarDay { display: grid; place-items: center; min-height: 36px; border: 0; border-radius: 7px; background: #fff; color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; }
+.auditCalendarOutside { color: #89938b; }
+.auditCalendarSelected { background: var(--ink-strong); color: #fff; }
+.auditCalendarToday { box-shadow: inset 0 0 0 1px var(--accent); }
+.auditCalendarDay:disabled { opacity: .35; cursor: not-allowed; }
+.auditCalendarFooter { display: flex; justify-content: space-between; gap: 8px; padding-top: 10px; }
+.auditSelectField { position: relative; display: grid; gap: 7px; min-width: 0; color: var(--muted); font-size: 14px; font-weight: 650; }
+.auditSelectTrigger { display: flex; align-items: center; gap: 9px; width: 100%; min-width: 0; min-height: 44px; padding: 9px 12px; border: 1px solid #d8d9d0; border-radius: 10px; background: #fff; color: var(--ink); text-align: start; font: inherit; cursor: pointer; }
+.auditSelectTriggerOpen { border-color: var(--accent); }
+.auditSelectIcon, .auditSelectChevron { flex: 0 0 auto; color: var(--muted); }
+.auditSelectSelected { flex: 1 1 auto; min-width: 0; color: var(--ink); font-size: 14px; }
+.auditSelectMenu { position: absolute; inset-block-start: calc(100% + 7px); inset-inline: 0; z-index: 12; display: grid; gap: 3px; max-height: 320px; overflow-y: auto; padding: 7px; border: 1px solid var(--line); border-radius: 11px; background: #fff; box-shadow: 0 12px 30px rgb(20 40 28 / 15%); }
+.auditSelectMenuTop { inset-block-start: auto; inset-block-end: calc(100% + 7px); }
+.auditSelectOption { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 3px 10px; min-height: 42px; padding: 7px 10px; border: 0; border-radius: 8px; background: #fff; color: var(--ink); text-align: start; font: inherit; font-size: 14px; cursor: pointer; }
+.auditSelectOption:hover, .auditSelectOptionSelected { background: var(--surface-soft); }
+.auditSelectOption small { grid-column: 1; color: var(--muted); font-size: 13px; }
+.auditSelectCheck { grid-column: 2; grid-row: 1 / span 2; color: var(--accent); font-size: 15px; font-weight: 800; }
+.auditExplorer { display: grid; gap: 16px; min-width: 0; }
+.auditExplorerHeading { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.auditExplorerHeading h2 { margin: 0; color: var(--ink-strong); font-size: 24px; line-height: 1.2; }
+.auditExplorerHeading p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+.auditExplorerHeading > span { color: var(--muted); font-size: 14px; font-weight: 650; }
+.auditTableCard { min-width: 0; padding: 20px; border: 1px solid var(--line); border-radius: 15px; background: var(--surface); }
+.table { width: 100%; min-width: 0; overflow: visible; }
+.table table { width: 100%; table-layout: fixed; border-collapse: collapse; border-spacing: 0; }
+.table th { padding: 0 12px 14px; color: var(--muted); font-size: 13px; font-weight: 750; line-height: 1.35; letter-spacing: .06em; text-align: start; }
+.table th:nth-child(1) { width: 15%; }
+.table th:nth-child(2) { width: 18%; }
+.table th:nth-child(3) { width: 28%; }
+.table th:nth-child(4) { width: 21%; }
+.table th:nth-child(5) { width: 18%; }
+.table td { min-width: 0; padding: 14px 12px; border-top: 1px solid var(--line); color: var(--ink); font-size: 14px; line-height: 1.4; vertical-align: middle; overflow-wrap: anywhere; }
+.table tbody tr { min-height: 64px; cursor: pointer; }
+.table tbody tr:hover { background: #f8f7f2; }
+.table tbody tr:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }
+.table tbody td strong { display: block; color: var(--ink-strong); font-size: 15px; font-weight: 750; line-height: 1.35; }
+.table tbody td small { display: block; margin-top: 4px; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.auditRecordId { white-space: nowrap; overflow-wrap: normal; font-variant-numeric: tabular-nums; }
+.auditPaginationBar { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.auditPageSizeCustom { width: 180px; }
+.auditDrawerBackdrop { position: fixed; inset: 0; z-index: 1000; display: flex; justify-content: flex-end; background: rgb(13 31 22 / 42%); }
+.auditDrawer { display: grid; align-content: start; gap: 24px; width: min(520px, 100%); min-height: 100%; padding: 24px; border-inline-start: 1px solid var(--line); background: var(--surface); box-shadow: -16px 0 48px rgb(16 30 22 / 18%); outline: none; overflow-y: auto; }
+.auditDrawer .auditRecordHeader { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 12px; }
+.auditRecordHeader small { color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: .06em; }
+.auditRecordHeader h2 { margin: 5px 0; color: var(--ink-strong); font-size: 24px; line-height: 1.2; overflow-wrap: anywhere; }
+.auditRecordHeader code { display: block; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.auditDrawerClose { grid-column: 1 / -1; justify-self: end; min-width: 44px; min-height: 44px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; }
+.auditRecordSection { display: grid; gap: 12px; }
+.auditRecordSection h3 { margin: 0; color: var(--ink-strong); font-size: 17px; }
+.auditRecordFacts { display: grid; gap: 0; margin: 0; }
+.auditRecordFacts > div { display: grid; grid-template-columns: minmax(110px, .7fr) minmax(0, 1.3fr); gap: 14px; padding-block: 12px; border-top: 1px solid var(--line); }
+.auditRecordFacts dt { color: var(--muted); font-size: 14px; }
+.auditRecordFacts dd { min-width: 0; margin: 0; color: var(--ink); font-size: 15px; font-weight: 650; text-align: start; overflow-wrap: anywhere; }
+.auditRecordFacts dd code { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.auditIdentifier { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 8px; min-width: 0; }
+.auditIdentifier code { min-width: 0; flex: 1 1 180px; overflow-wrap: anywhere; }
+.auditIdentifier button { flex: 0 0 auto; min-width: 60px; min-height: 40px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
+.auditRecordNotice { display: flex; gap: 8px; margin: 0; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+.auditRecordNotice svg { flex: 0 0 auto; }
+.auditSelectedRow { background: #f2f7ef; }
+@media (max-width: 1100px) {
+    .auditFilterTopRow { grid-template-columns: minmax(0, 1fr); }
+    .auditDateRange { max-width: 560px; }
+}
+@media (max-width: 900px) {
+    .auditFilterBottomRow { grid-template-columns: minmax(0, 1fr); }
+    .auditTableCard { padding: 16px; }
+}
+@media (max-width: 600px) {
+    .auditDateRange { grid-template-columns: minmax(0, 1fr); }
+    .table thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .table table, .table tbody, .table tr, .table td { display: block; width: 100%; }
+    .table tbody { display: grid; gap: 10px; }
+    .table tbody tr { padding: 12px; border: 1px solid var(--line); border-radius: 11px; background: #fff; }
+    .table tbody td { display: grid; grid-template-columns: minmax(84px, .7fr) minmax(0, 1.3fr); gap: 10px; padding: 8px 2px; border-top: 1px solid #efede6; font-size: 14px; }
+    .table tbody td::before { content: attr(data-label); color: var(--muted); font-size: 13px; font-weight: 700; }
+    .table tbody td:first-child { border-top: 0; }
+    .table tbody td strong, .table tbody td small { min-width: 0; margin: 0; }
+    .auditPaginationBar { align-items: stretch; }
+    .auditPageSizeCustom { width: 100%; }
+    .auditDrawer { padding: 16px; }
+    .auditRecordFacts > div { grid-template-columns: minmax(0, 1fr); gap: 5px; }
+}
