@@ -892,7 +892,7 @@ try {
         await page.waitForFunction(() => document.activeElement === document.querySelector('[data-testid="merchant-review-list"] button'));
         await rows.first().click();
         await drawer.waitFor({ state: "visible" });
-        const panel = drawer.locator("aside");
+        const panel = drawer;
         const backdrop = page.getByTestId("workspace-drawer-backdrop");
         if (size.width > 700) {
           if (await panel.getAttribute("aria-modal")) throw new Error("Desktop workspace drawer must be non-modal.");
