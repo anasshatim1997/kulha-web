@@ -43,8 +43,8 @@
 .caseTimeline article strong { color: var(--muted); font-size: 13px; font-weight: 700; }
 .caseTimeline article p { margin: 0; color: var(--ink); font-size: 15px; line-height: 1.5; overflow-wrap: anywhere; }
 .timelineCustomer { justify-self: start; width: min(90%, 640px); }
-.timelineAgent { justify-self: end; width: min(90%, 640px); border-color: #d3e1d5 !important; background: #f2f8f0 !important; }
-.timelineInternal { justify-self: stretch; border-style: dashed !important; background: #fff7df !important; }
+.caseTimeline article.timelineAgent { justify-self: end; width: min(90%, 640px); border-color: #d3e1d5; background: #f2f8f0; }
+.caseTimeline article.timelineInternal { justify-self: stretch; border-style: dashed; background: #fff7df; }
 .messageComposer { display: grid; gap: 14px; padding: 18px; border: 1px solid var(--line); border-radius: 13px; background: #fff; }
 .messageModes { display: flex; flex-wrap: wrap; gap: 8px; }
 .modeButton, .modeActive { min-height: 44px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); font: inherit; font-size: 14px; font-weight: 650; cursor: pointer; }
