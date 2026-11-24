@@ -1,5 +1,5 @@
-.backdrop{pointer-events:none;overflow:hidden;direction:ltr;position:fixed;inset:0;z-index:1200;display:flex;justify-content:flex-end;background:rgb(7 28 20 / 38%);animation:drawerFade .18s ease-out}
-.drawer{pointer-events:auto;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);overflow:hidden;width:min(680px,52vw);min-width:min(480px,100vw);max-width:760px;height:100%;min-height:0;background:#fffdf8;box-shadow:-18px 0 48px rgb(7 51 36 / 16%);outline:none;animation:drawerSlide .24s cubic-bezier(.2,.75,.25,1)}
+.backdrop{overflow:hidden;direction:ltr;position:fixed;inset:0;z-index:1200;display:flex;justify-content:flex-end;animation:drawerFade .18s ease-out}\n.desktop{pointer-events:none;background:transparent}\n.mobile{pointer-events:auto;background:rgb(7 28 20 / 38%)}
+.drawer{pointer-events:auto;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);overflow:hidden;width:max(480px,min(680px,52vw));min-width:min(480px,100vw);max-width:760px;height:100%;min-height:0;background:#fffdf8;box-shadow:-18px 0 48px rgb(7 51 36 / 16%);outline:none;animation:drawerSlide .24s cubic-bezier(.2,.75,.25,1)}
 .header{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0;padding:18px 24px;border-bottom:1px solid #e7e0d2;background:#fffdf8}
 .header h2{margin:0;color:#073324;font-size:18px;font-weight:800}
 .close{display:grid;place-items:center;flex:0 0 44px;width:44px;height:44px;border:1px solid #e7e0d2;border-radius:50%;background:#fff;color:#073324;font-size:27px;line-height:1;cursor:pointer}
@@ -8,5 +8,5 @@
 .content>section{box-shadow:none}
 @keyframes drawerFade{from{opacity:0}to{opacity:1}}
 @keyframes drawerSlide{from{transform:translateX(24px);opacity:.7}to{transform:translateX(0);opacity:1}}
-@media(max-width:700px){.backdrop{background:#fffdf8}.drawer{width:100%;min-width:0;max-width:none}.header{padding:14px 16px}.content{padding:14px}}
+@media(max-width:700px){.mobile{background:#fffdf8}.drawer{width:100%;min-width:0;max-width:none}.header{padding:14px 16px}.content{padding:14px}}
 @media(prefers-reduced-motion:reduce){.backdrop,.drawer{animation:none}}
