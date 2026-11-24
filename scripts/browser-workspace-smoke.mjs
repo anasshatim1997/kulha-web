@@ -757,9 +757,11 @@ try {
     { width: 390, height: 844 },
   ];
   mkdirSync("artifacts/browser-screenshots", { recursive: true });
+  const focusedWorkspace = process.env.WORKSPACE_FOCUS || "";
+  const focusedWidth = Number(process.env.WORKSPACE_FOCUS_WIDTH || 1920);
 
   // Admin login is public: cover the required viewport matrix in English and Arabic.
-  {
+  if (!focusedWorkspace) {
     const loginSizes = sizes.filter(size => [1920, 1440, 1366, 1280, 1279, 1100, 390].includes(size.width));
     for (const locale of [
       { code: "en", heading: "Administrator sign in", direction: "ltr" },
@@ -837,12 +839,13 @@ try {
     { path: "/fr/offers", token: "customer-token", heading: "Paniers près de chez vous" },
     { path: "/ar/offers", token: "customer-token", heading: "سلال بالقرب منك", direction: "rtl", directionSelector: '[lang="ar"]' },
   ];
-  for (const route of routes) {
+  const selectedRoutes = focusedWorkspace ? routes.filter(route => route.path.endsWith("/admin/" + focusedWorkspace)) : routes;
+  for (const route of selectedRoutes) {
     const context = await loginContext(browser, route.token);
     const page = await context.newPage();
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
-    for (const size of sizes) {
+    for (const size of (focusedWorkspace ? sizes.filter(item => item.width === focusedWidth) : sizes)) {
       await page.setViewportSize(size);
       const reservationRequestCount = requests.filter(item => item.path === "/reservations").length;
       await page.goto(origin + route.path, { waitUntil: "networkidle", timeout: 30000 });
@@ -889,10 +892,35 @@ try {
         await page.waitForFunction(() => document.activeElement === document.querySelector('[data-testid="merchant-review-list"] button'));
         await rows.first().click();
         await drawer.waitFor({ state: "visible" });
+        const panel = drawer.locator("aside");
+        const backdrop = page.getByTestId("workspace-drawer-backdrop");
         if (size.width > 700) {
-          await rows.nth(1).click();
-          await page.waitForFunction(() => document.querySelector('[data-testid="merchant-review-detail-panel"] h2')?.textContent?.includes("Épicerie Atlas"));
+          if (await panel.getAttribute("aria-modal")) throw new Error("Desktop workspace drawer must be non-modal.");
+          const pointerEvents = await backdrop.evaluate(node => getComputedStyle(node).pointerEvents);
+          if (pointerEvents !== "none") throw new Error("Desktop drawer backdrop must not intercept master-list pointer events.");
+          const secondRow = rows.nth(1);
+          const rowBounds = await secondRow.boundingBox();
+          const panelBounds = await panel.boundingBox();
+          if (!rowBounds || !panelBounds || rowBounds.x + rowBounds.width / 2 >= panelBounds.x) {
+            throw new Error("Second merchant row is not fully reachable beside the desktop drawer: " + JSON.stringify({ rowBounds, panelBounds }));
+          }
+          const previousName = await page.locator('[data-testid="merchant-review-detail-panel"] h2').innerText();
+          await secondRow.click();
+          await page.waitForFunction(previous => document.querySelector('[data-testid="merchant-review-detail-panel"] h2')?.textContent?.trim() !== previous, previousName);
           if (!(await drawer.isVisible())) throw new Error("Selecting another merchant closed the open drawer.");
+          if ((await secondRow.getAttribute("aria-pressed")) !== "true") throw new Error("Second merchant was not marked selected.");
+          if (!(await page.locator('[data-testid="merchant-review-detail-panel"] h2').innerText()).includes("Épicerie Atlas")) throw new Error("Drawer content did not update to the second merchant.");
+        } else {
+          if (await panel.getAttribute("aria-modal") !== "true") throw new Error("Mobile workspace drawer must expose modal semantics.");
+          const bounds = await panel.boundingBox();
+          if (!bounds || bounds.x > 1 || bounds.y > 1 || Math.abs(bounds.width - size.width) > 1 || Math.abs(bounds.height - size.height) > 1) {
+            throw new Error("Mobile drawer must occupy the full viewport: " + JSON.stringify(bounds));
+          }
+          if (await backdrop.evaluate(node => getComputedStyle(node).pointerEvents) !== "auto") throw new Error("Mobile modal backdrop must block background pointer interaction.");
+          const secondBounds = await rows.nth(1).boundingBox();
+          if (!secondBounds) throw new Error("Second merchant row is unavailable behind the mobile modal.");
+          const blocked = await page.evaluate(({ x, y }) => !!document.elementFromPoint(x, y)?.closest('[data-testid="workspace-drawer"]'), { x: secondBounds.x + secondBounds.width / 2, y: secondBounds.y + secondBounds.height / 2 });
+          if (!blocked) throw new Error("Mobile modal did not block pointer interaction with the merchant list.");
         }
         await page.getByTestId("merchant-review-workflow").locator('input[type="checkbox"]').first().check();
         await page.evaluate(() => { window.confirm = () => false; });
