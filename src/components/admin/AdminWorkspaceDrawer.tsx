@@ -8,13 +8,14 @@ type Props = {
   open: boolean;
   title: string;
   closeLabel: string;
+  direction?: "ltr" | "rtl";
   dirty?: boolean;
   confirmDiscard: string;
   onClose: () => void;
   children: ReactNode;
 };
 
-export function AdminWorkspaceDrawer({ open, title, closeLabel, dirty = false, confirmDiscard, onClose, children }: Props) {
+export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr", dirty = false, confirmDiscard, onClose, children }: Props) {
   const panelRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const onCloseRef = useRef(onClose);
@@ -60,7 +61,7 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, dirty = false, c
       if (dirty && !window.confirm(confirmDiscard)) return;
       onCloseRef.current();
     }}>
-      <aside ref={panelRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={title} className={styles.drawer} data-testid="workspace-drawer">
+      <aside dir={direction} ref={panelRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={title} className={styles.drawer} data-testid="workspace-drawer">
         <header className={styles.header}>
           <h2>{title}</h2>
           <button ref={closeRef} type="button" className={styles.close} aria-label={closeLabel} onClick={() => {
