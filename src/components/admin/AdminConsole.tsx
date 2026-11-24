@@ -217,6 +217,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const [audit,setAudit]=useState<AuditPage|null>(null);const [auditPage,setAuditPage]=useState(0);const [auditPageSize,setAuditPageSize]=useState(AUDIT_PAGE_SIZE);const [selectedAuditId,setSelectedAuditId]=useState<string|null>(null);const [auditModalOpen,setAuditModalOpen]=useState(false);const auditDrawerRef=useRef<HTMLElement|null>(null);const auditReturnFocusRef=useRef<HTMLElement|null>(null);const [auditSearch,setAuditSearch]=useState("");const [auditFrom,setAuditFrom]=useState("");const [auditTo,setAuditTo]=useState("");const [auditAction,setAuditAction]=useState("");const [auditResult,setAuditResult]=useState("");
     const [reason,setReason]=useState("");const [disclosureReason,setDisclosureReason]=useState("");const [internalNote,setInternalNote]=useState("");const [draftMessage,setDraftMessage]=useState("");const [sendToCustomer,setSendToCustomer]=useState(true);const [revealed,setRevealed]=useState<{fullName:string;email:string;phone:string|null}|null>(null);const [working,setWorking]=useState(false);
 
+    useEffect(()=>{if(page==="audit-log")return;const onSearch=(event:Event)=>setQuery((event as CustomEvent<string>).detail??"");window.addEventListener("kulha:admin-search",onSearch);return()=>window.removeEventListener("kulha:admin-search",onSearch);},[page]);
     useEffect(()=>{if(page!=="audit-log")return;const timeout=window.setTimeout(()=>setAuditSearch(query.trim()),280);return()=>window.clearTimeout(timeout);},[page,query]);
     useEffect(()=>{
         if(!auditModalOpen)return;
@@ -284,8 +285,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     function exportAudit(){const p=new URLSearchParams();if(auditFrom)p.set("from",auditFrom);if(auditTo)p.set("to",auditTo);if(auditAction)p.set("action",auditAction);if(auditResult)p.set("result",auditResult);if(auditSearch)p.set("q",auditSearch);const a=document.createElement("a");a.href="/api/bff/admin/audit-log/export?"+p.toString();a.download="kulha-audit-log.csv";a.click();}
     const switchTab=(apply:()=>void)=>{setLoading(true);setFailed(false);apply();};
 
-    const searchPlaceholder=page==="merchant-review"?t.searchMerchant:page==="offer-moderation"?t.searchOffers:page==="support-cases"?t.searchCases:t.searchAudit;
-    const topbar=<div className={styles.topbar} data-testid="admin-console-topbar">{page!=="audit-log"&&<label className={styles.search} data-testid="admin-console-search"><Search size={17} aria-hidden="true"/><span className="sr-only">{searchPlaceholder}</span><input type="search" data-testid="admin-global-search" value={query} onChange={e=>{setQuery(e.target.value);}} placeholder={searchPlaceholder}/></label>}</div>;
+    const topbar=null;
     const frame=(content:ReactNode)=><AdminShell page={page} locale={locale} topbar={topbar}>{content}</AdminShell>;
 
     if(loading)return frame(<><div className={styles.header}><div><div className={styles.skeleton}/><div className={styles.skeletonWide}/></div></div><div className={styles.skeletonPanel}/></>);
