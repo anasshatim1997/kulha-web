@@ -106,3 +106,9 @@
     .offerInlineFooter p { max-width: none; }
     .offerInlineFooter .primary { width: 100%; }
 }
+
+/* List-first workspace and responsive drawer layout */
+.offerWorkspace { grid-template-columns: minmax(0, 1fr); }
+.offerPicker { padding: 20px; }
+.offerQueue { grid-template-columns: repeat(auto-fit, minmax(min(100%, 390px), 1fr)); gap: 14px; }
+.offerItem, .offerItemSelected { min-height: 92px; padding: 15px; }
