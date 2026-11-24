@@ -15820,6 +15820,7 @@ body:has(.kulha-reservation-viewport) > main { min-height:0; overflow:visible; }
 @media (min-width: 900px) {
   body:has(> .ws-sidebar) > #contenu { box-sizing: border-box; flex: 1 0 auto; width: calc(100% - var(--ws-w)); min-width: 0; margin-inline-start: var(--ws-w); }
   body:has(> .ws-sidebar-merchant) > #contenu { padding-top: var(--ws-top); }
+  body:has(> .ws-sidebar-admin) > #contenu { padding-top: var(--ws-top); }
   body:has(> .ws-sidebar-merchant) .mw-shell { --mw-header: var(--ws-top); }
   body:has(> .ws-sidebar) > #contenu > * { max-width: none; }
 }

@@ -397,6 +397,26 @@ async function assertAdminStatusControls(page, route, width, height) {
   }
 }
 
+async function assertAdminContentClearance(page, route, width, height) {
+  const metrics = await page.evaluate(() => {
+    const topbar = document.querySelector('[data-testid="admin-console-topbar"]');
+    const heading = document.querySelector('[data-testid="admin-page-heading"]');
+    const bounds = element => {
+      if (!element) return null;
+      const rect = element.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom };
+    };
+    return { topbar: bounds(topbar), heading: bounds(heading) };
+  });
+  if (!metrics.topbar || !metrics.heading) {
+    throw new Error("Admin topbar or page heading is missing on " + route + " at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (metrics.heading.top < metrics.topbar.bottom - 1) {
+    throw new Error("Admin page content is covered by the fixed topbar on " + route + " at "
+      + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+}
+
 async function assertMerchantReviewLayout(page, width, height) {
   const metrics = await page.evaluate(() => {
     const detail = document.querySelector('[data-testid="merchant-review-detail-page"]');
@@ -845,6 +865,7 @@ try {
         throw new Error(`Workspace did not render ${route.path}; current URL=${page.url()}; body=${bodyText}; backend requests=${JSON.stringify(requests.slice(-12))}`);
       }
       await page.evaluate(() => window.scrollTo(0, 0));
+      if (route.adminPage) await assertAdminContentClearance(page, route.path, size.width, size.height);
       await assertNoHorizontalOverflow(page, route.path, size.width);
       if (route.adminPage && !route.path.endsWith("/admin/audit-log")) {
         const search = page.getByTestId("admin-console-search");
@@ -878,6 +899,7 @@ try {
         await page.getByTestId("merchant-review-detail-page").waitFor({ state: "visible" });
         await page.getByTestId("merchant-review-workflow").waitFor({ state: "visible" });
         const detailPath = new URL(page.url()).pathname;
+        await assertAdminContentClearance(page, detailPath, size.width, size.height);
         if (!detailPath.includes("/admin/merchant-review/")) throw new Error("Selecting a merchant did not navigate to its dedicated route: " + page.url());
         if (await page.getByTestId("workspace-drawer").count()) throw new Error("Merchant verification must not render the legacy workspace drawer.");
         await assertNoHorizontalOverflow(page, page.url(), size.width);
