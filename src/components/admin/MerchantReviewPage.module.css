@@ -19,14 +19,14 @@
 .srOnly{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .statusTabs{display:flex;align-items:stretch;gap:2px;min-width:0;padding:0 24px;border-bottom:1px solid #e9e3d8}
 .statusTab,.statusTabActive{display:inline-flex;align-items:center;gap:9px;min-height:48px;padding:10px 14px;border:0;border-bottom:3px solid transparent;background:transparent;color:#68766c;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
-.statusTab strong,.statusTabActive strong{min-width:23px;padding:2px 6px;text-align:center;background:#f0eee7;color:#526257;font-size:12px;font-weight:800}
+.statusTab strong,.statusTabActive strong{min-width:23px;padding:2px 6px;text-align:center;background:#f0eee7;color:#526257;font-size:13px;font-weight:800}
 .statusTab:hover{color:#073324;background:#faf8f2}
 .statusTabActive{border-bottom-color:#0b5b40;color:#073324}
 .statusTabActive strong{background:#e6eee6;color:#0b5b40}
 .statusTab:focus-visible,.statusTabActive:focus-visible,.merchantRow:focus-visible{outline:3px solid #e4b226;outline-offset:2px}
 .tableScroll{min-width:0}
 .tableHead,.merchantRow{display:grid;grid-template-columns:minmax(180px,1.45fr) minmax(90px,.7fr) minmax(155px,1.15fr) minmax(95px,.7fr) minmax(115px,.85fr) minmax(120px,.8fr) 28px;align-items:center;gap:10px;min-width:0;padding-inline:18px}
-.tableHead{min-height:43px;border-bottom:1px solid #eee8dd;background:#faf9f5;color:#758177;font-size:11px;font-weight:850;letter-spacing:.07em;text-transform:uppercase}
+.tableHead{min-height:43px;border-bottom:1px solid #eee8dd;background:#faf9f5;color:#758177;font-size:13px;font-weight:850;letter-spacing:.07em;text-transform:uppercase}
 .merchantRows{display:grid;min-width:0}
 .merchantRow{min-height:86px;width:100%;border:0;border-bottom:1px solid #eee9e0;background:transparent;color:#234333;font:inherit;text-align:start;cursor:pointer;transition:background .12s ease}
 .merchantRow:last-child{border-bottom:0}
@@ -35,14 +35,14 @@
 .merchantAvatar{display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;border:1px solid #e2e8df;background:#edf2e9;color:#0b5039;font-size:15px;font-weight:850}
 .merchantIdentityText{display:grid;gap:4px;min-width:0}
 .merchantIdentityText strong{overflow:hidden;color:#133b2b;font-size:15px;font-weight:800;text-overflow:ellipsis;white-space:nowrap}
-.merchantIdentityText small,.contactCell small{color:#7a867d;font-size:12px;line-height:1.35}
-.merchantIdentityText em{display:inline-flex;align-items:center;gap:4px;color:#9a6814;font-size:11px;font-style:normal;font-weight:700}
+.merchantIdentityText small,.contactCell small{color:#7a867d;font-size:13px;line-height:1.35}
+.merchantIdentityText em{display:inline-flex;align-items:center;gap:4px;color:#9a6814;font-size:13px;font-style:normal;font-weight:700}
 .categoryCell{color:#435c4c;font-size:13px;font-weight:650}
 .contactCell{display:grid;gap:4px;min-width:0}
 .contactCell strong{overflow:hidden;color:#294737;font-size:13px;font-weight:650;text-overflow:ellipsis;white-space:nowrap}
 .locationCell,.dateCell{display:flex;align-items:center;gap:6px;min-width:0;color:#52675a;font-size:13px}
 .locationCell svg,.dateCell svg{flex:0 0 auto;color:#88968b}
-.statusPill{display:inline-flex;align-items:center;justify-content:center;min-height:26px;padding:4px 9px;background:#f0eee7;color:#5f6a61;font-size:12px;font-style:normal;font-weight:750;white-space:nowrap}
+.statusPill{display:inline-flex;align-items:center;justify-content:center;min-height:26px;padding:4px 9px;background:#f0eee7;color:#5f6a61;font-size:13px;font-style:normal;font-weight:750;white-space:nowrap}
 .status_pending{background:#fff2d2;color:#76520a}
 .status_info_required{background:#eaf1f6;color:#315e78}
 .status_approved{background:#e8f2e8;color:#285c37}
@@ -66,7 +66,7 @@
 .detailMeta{display:flex;align-items:center;flex-wrap:wrap;gap:9px 16px;margin-top:13px;color:#758278;font-size:13px}
 .detailMeta>span{display:inline-flex;align-items:center;gap:6px}
 .queuePosition{display:grid;gap:3px;flex:0 0 auto;padding-inline-start:20px;border-inline-start:1px solid #e5dfd3;text-align:end}
-.queuePosition span{color:#879288;font-size:12px}
+.queuePosition span{color:#879288;font-size:13px}
 .queuePosition strong{color:#274938;font-size:14px;font-weight:800}
 .detailLayout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(340px,.85fr);align-items:start;gap:22px;min-width:0}
 .detailMainColumn{display:grid;gap:18px;min-width:0}
@@ -96,8 +96,8 @@
 .verificationItem input:focus-visible+.checkVisual{outline:3px solid #e4b226;outline-offset:3px}
 .verificationCopy{display:grid;gap:3px;min-width:0}
 .verificationCopy strong{color:#294737;font-size:14px;font-weight:750}
-.verificationCopy small{color:#8a958c;font-size:12px}
-.verificationItem>em{margin-inline-start:auto;color:#38704a;font-size:11px;font-style:normal;font-weight:750}
+.verificationCopy small{color:#8a958c;font-size:13px}
+.verificationItem>em{margin-inline-start:auto;color:#38704a;font-size:13px;font-style:normal;font-weight:750}
 .decisionPanel{display:grid;align-content:start;gap:17px;padding:22px}
 .decisionPanelHeader{padding-bottom:15px;border-bottom:1px solid #eee8dd}
 .decisionOptions{display:grid;gap:8px}
@@ -109,11 +109,11 @@
 .decisionRejectActive{border-color:#a54134!important;background:#fbefed!important;color:#9a281e!important;box-shadow:inset 3px 0 #a54134}
 .formField{display:grid;gap:7px;color:#40594a;font-size:13px;font-weight:750}
 .formField>span{display:flex;align-items:baseline;gap:4px}
-.formField small{color:#89948b;font-size:12px;font-weight:600}
+.formField small{color:#89948b;font-size:13px;font-weight:600}
 .formField textarea{width:100%;min-width:0;min-height:100px;padding:11px 12px;border:1px solid #d9d8ce;border-radius:2px;background:#fff;color:#203f30;font:inherit;font-size:14px;line-height:1.5;resize:vertical}
 .formField textarea:focus{border-color:#0b5b40;outline:0;box-shadow:0 0 0 3px rgb(11 91 64 / 12%)}
 .formField textarea::placeholder{color:#8a958c;font-weight:450}
-.decisionGuidance{padding:11px 12px;background:#f4f3ed;color:#68766c;font-size:12px;line-height:1.55}
+.decisionGuidance{padding:11px 12px;background:#f4f3ed;color:#68766c;font-size:13px;line-height:1.55}
 .decisionFooter{display:grid;gap:10px;padding-top:13px;border-top:1px solid #eee8dd}
 .primaryButton,.secondaryButton{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:10px 16px;border:1px solid transparent;font:inherit;font-size:14px;font-weight:800;cursor:pointer}
 .primaryButton{background:#073324;color:#fff}
