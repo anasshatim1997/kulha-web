@@ -18,6 +18,11 @@ const styles = {
     ...offerStyles,
     ...supportStyles,
     ...auditStyles,
+    // Shared tab controls must retain the shell classes; page modules may define
+    // similarly named selectors scoped to their own page.
+    tabs: shellStyles.tabs,
+    tab: shellStyles.tab,
+    activeTab: shellStyles.activeTab,
 };
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 
