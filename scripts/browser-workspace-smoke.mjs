@@ -859,6 +859,22 @@ try {
         if (!searchBounds || (size.width < 900 && searchBounds.width < size.width - 64)) {
           throw new Error(`Admin search must remain visible and full-width at ${size.width}px on ${route.path}: ${JSON.stringify(searchBounds)}`);
         }
+        const navMetrics = await page.evaluate(() => {
+          const bounds = selector => {
+            const element = document.querySelector(selector);
+            if (!element) return null;
+            const rect = element.getBoundingClientRect();
+            return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: rect.width };
+          };
+          return { search: bounds(".ws-top-search"), profile: bounds(".ws-top-user"), language: bounds(".ws-top-lang"), logout: bounds(".ws-top-signout") };
+        });
+        for (const key of ["profile", "language", "logout"]) {
+          const a = navMetrics.search, b = navMetrics[key];
+          if (!a || !b) throw new Error("Admin navbar control missing: " + key);
+          const overlap = a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+          if (overlap) throw new Error("Admin navbar search overlaps " + key + " at " + size.width + "px: " + JSON.stringify(navMetrics));
+        }
+        if (navMetrics.search.width > 522) throw new Error("Admin navbar search exceeds its max width at " + size.width + "px.");
       }
       if (route.path.endsWith("/admin/merchant-review")) {
         const rows = page.getByTestId("merchant-review-list").getByRole("button");
