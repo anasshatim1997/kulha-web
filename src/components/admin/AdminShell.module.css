@@ -217,7 +217,8 @@
 .skeletonPanel { min-height: 320px; border-radius: 16px; }
 @keyframes adminPulse { 50% { opacity: .45; } }
 @media (prefers-reduced-motion: reduce) { .skeleton, .skeletonWide, .skeletonPanel { animation: none; } }
-@media (max-width: 900px) { .headerCopy { flex-basis: 100%; } }
+@media (max-width: 900px) {
+    .topbar .search { width: 100%; } .headerCopy { flex-basis: 100%; } }
 @media (max-width: 600px) {
     .topbar { min-height: 56px; padding-inline: 16px; }
     .page { gap: 20px; padding: 24px 16px 40px; }
