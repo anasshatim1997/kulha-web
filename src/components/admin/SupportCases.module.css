@@ -84,3 +84,5 @@
 
 /* The drawer owns scrolling; keep the conversation in the same document flow as its composer and actions. */
 .caseTimeline{max-height:none;overflow:visible;overscroll-behavior:auto}
+
+.drawerOpen .casePicker{width:calc(100% - min(680px,52vw));min-width:0;max-width:100%}@media(max-width:700px){.drawerOpen .casePicker{width:100%}}
