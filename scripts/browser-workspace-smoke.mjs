@@ -359,18 +359,38 @@ async function assertOfferModerationLayout(page, width, height) {
     const picker = document.querySelector('[data-testid="offer-picker"]');
     const preview = document.querySelector('[data-testid="offer-detail-panel"]');
     const queue = document.querySelector('[data-testid="offer-queue"]');
+    const rows = [...(queue?.querySelectorAll(":scope > button") ?? [])];
     const longTitleCount = [...(queue?.querySelectorAll("strong") ?? [])]
       .filter(element => (element.textContent ?? "").trim().length > 48).length;
     const box = element => {
       if (!element) return null;
       const rect = element.getBoundingClientRect();
-      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right };
+      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, width: rect.width };
     };
+    const rowLayout = rows.map(row => {
+      const copy = row.children[1];
+      const price = row.children[2];
+      const copyBox = box(copy);
+      const priceBox = box(price);
+      return {
+        width: row.clientWidth,
+        scrollWidth: row.scrollWidth,
+        copyWidth: copy?.clientWidth ?? 0,
+        copyScrollWidth: copy?.scrollWidth ?? 0,
+        priceWidth: price?.clientWidth ?? 0,
+        copyPriceOverlap: Boolean(copyBox && priceBox && copyBox.right > priceBox.left + 1),
+      };
+    });
     return {
       workspace: box(workspace), picker: box(picker), preview: box(preview),
+      pickerClientWidth: picker?.clientWidth ?? 0,
+      pickerScrollWidth: picker?.scrollWidth ?? 0,
       direction: workspace ? getComputedStyle(workspace).direction : "missing",
       columns: workspace ? getComputedStyle(workspace).gridTemplateColumns.split(" ").length : 0,
       offerCount: queue?.children.length ?? 0, longTitleCount,
+      rowOverflowCount: rowLayout.filter(row => row.scrollWidth > row.width + 1).length,
+      copyOverflowCount: rowLayout.filter(row => row.copyScrollWidth > row.copyWidth + 1).length,
+      copyPriceOverlapCount: rowLayout.filter(row => row.copyPriceOverlap).length,
     };
   });
   if (!metrics.workspace || !metrics.picker || !metrics.preview) {
@@ -382,6 +402,15 @@ async function assertOfferModerationLayout(page, width, height) {
   if (metrics.offerCount < 8 || metrics.longTitleCount < 1) {
     throw new Error("Offer fixture must show eight records and a long-title example at "
       + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (width <= 1199 && Math.abs(metrics.picker.width - metrics.workspace.width) > 1) {
+    throw new Error("Offer picker should retain the full single-column workspace width at "
+      + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (metrics.pickerScrollWidth > metrics.pickerClientWidth + 1
+      || metrics.rowOverflowCount > 0 || metrics.copyOverflowCount > 0 || metrics.copyPriceOverlapCount > 0) {
+    throw new Error("Offer cards or picker content overflow at " + width + "x" + height
+      + ": " + JSON.stringify(metrics));
   }
 }
 
@@ -809,7 +838,8 @@ try {
   ];
   mkdirSync("artifacts/browser-screenshots", { recursive: true });
   const focusedWorkspace = process.env.WORKSPACE_FOCUS || "";
-  const focusedWidth = Number(process.env.WORKSPACE_FOCUS_WIDTH || 1920);
+  const focusedWidths = (process.env.WORKSPACE_FOCUS_WIDTHS || process.env.WORKSPACE_FOCUS_WIDTH || "1920")
+    .split(",").map(value => Number(value.trim())).filter(value => Number.isFinite(value));
 
   // Admin login is public: cover the required viewport matrix in English and Arabic.
   if (!focusedWorkspace) {
@@ -896,7 +926,7 @@ try {
     const page = await context.newPage();
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
-    for (const size of (focusedWorkspace ? sizes.filter(item => item.width === focusedWidth) : sizes)) {
+    for (const size of (focusedWorkspace ? sizes.filter(item => focusedWidths.includes(item.width)) : sizes)) {
       await page.setViewportSize(size);
       const reservationRequestCount = requests.filter(item => item.path === "/reservations").length;
       await page.goto(origin + route.path, { waitUntil: "networkidle", timeout: 30000 });

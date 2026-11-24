@@ -57,10 +57,10 @@ jobs:
         run: |
           PLAYWRIGHT_CLI="$(command -v playwright)" node scripts/browser-workspace-smoke.mjs
 
-      - name: Diagnose Offer Picker at 1024x768
+      - name: Verify Offer Picker at responsive breakpoints
         env:
           WORKSPACE_FOCUS: offer-moderation
-          WORKSPACE_FOCUS_WIDTH: "1024"
+          WORKSPACE_FOCUS_WIDTHS: "1280,1024,768,390"
         run: |
           PLAYWRIGHT_CLI="$(command -v playwright)" node scripts/browser-workspace-smoke.mjs
 
