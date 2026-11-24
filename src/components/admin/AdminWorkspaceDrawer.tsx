@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode, type RefObject } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import styles from "./AdminWorkspaceDrawer.module.css";
 
@@ -10,7 +10,6 @@ type Props = {
   closeLabel: string;
   dirty?: boolean;
   confirmDiscard: string;
-  returnFocusRef: RefObject<HTMLElement | null>;
   onClose: () => void;
   children: ReactNode;
 };
@@ -21,9 +20,11 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, dirty = false, c
   const onCloseRef = useRef(onClose);
   const dirtyRef = useRef(dirty);
   const confirmRef = useRef(confirmDiscard);
-  onCloseRef.current = onClose;
-  dirtyRef.current = dirty;
-  confirmRef.current = confirmDiscard;
+  useEffect(() => {
+    onCloseRef.current = onClose;
+    dirtyRef.current = dirty;
+    confirmRef.current = confirmDiscard;
+  }, [onClose, dirty, confirmDiscard]);
 
   useEffect(() => {
     if (!open) return;
@@ -49,9 +50,8 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, dirty = false, c
       window.cancelAnimationFrame(frame);
       window.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = previousOverflow;
-      window.requestAnimationFrame(() => returnFocusRef.current?.focus());
     };
-  }, [open, returnFocusRef]);
+  }, [open]);
 
   if (!open || typeof document === "undefined") return null;
   return createPortal(
