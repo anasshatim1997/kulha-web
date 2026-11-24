@@ -374,10 +374,8 @@ async function assertOfferModerationLayout(page, width, height) {
   if (!metrics.workspace || !metrics.picker || !metrics.preview) {
     throw new Error("Offer moderation regions are missing at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  const expectedColumns = width >= 1100 ? 2 : 1;
-  if (metrics.columns !== expectedColumns) {
-    throw new Error("Offer master/detail layout expected " + expectedColumns + " column(s) at "
-      + width + "px: " + JSON.stringify(metrics));
+  if (metrics.columns !== 1) {
+    throw new Error("Offer queue must remain full width at " + width + "px: " + JSON.stringify(metrics));
   }
   if (metrics.offerCount < 8 || metrics.longTitleCount < 1) {
     throw new Error("Offer fixture must show eight records and a long-title example at "
@@ -400,7 +398,7 @@ async function assertAdminStatusControls(page, route, width, height) {
 async function assertMerchantReviewLayout(page, width, height) {
   const metrics = await page.evaluate(() => {
     const detail = document.querySelector('[data-testid="merchant-review-detail-panel"]');
-    const workspace = detail?.parentElement;
+    const workspace = document.querySelector(".merchantReviewWorkspace");
     const heading = document.querySelector('[data-testid="admin-page-heading"]');
     const topbar = document.querySelector('[data-testid="admin-console-topbar"]');
     const decision = document.querySelector('[data-testid="merchant-review-decision"]');
@@ -427,10 +425,8 @@ async function assertMerchantReviewLayout(page, width, height) {
       || metrics.segmentHeights.length !== 3) {
     throw new Error("Merchant review workflow is incomplete at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  const expectedColumns = width >= 1100 ? 2 : 1;
-  if (metrics.columns !== expectedColumns) {
-    throw new Error("Merchant master/detail layout expected " + expectedColumns + " column(s) at "
-      + width + "px: " + JSON.stringify(metrics));
+  if (metrics.columns !== 1) {
+    throw new Error("Merchant list must remain full width at " + width + "px: " + JSON.stringify(metrics));
   }
   if (metrics.textareas[0].rows !== 4 || metrics.textareas[0].minHeight < 100
       || metrics.textareas[1].rows !== 3 || metrics.textareas[1].minHeight < 100) {
@@ -597,7 +593,7 @@ async function assertAuditExplorerLayout(page, width, height) {
 
 async function assertReadable(page, route, width, height) {
   const report = await page.evaluate(() => {
-    const root = document.querySelector(".kulhaAdminShell");
+    const root = document;
     if (!root) return { missingRoot: true };
     const visible = element => {
       const style = getComputedStyle(element);
@@ -710,8 +706,7 @@ async function assertScrollOwner(page, route, width, height) {
     };
   });
   const support = route.endsWith("/admin/support-cases");
-  if (metrics.invalid.length || (support && (metrics.markers.length !== 1 || metrics.markers[0] !== "support-case-timeline"))
-      || (!support && metrics.markers.length !== 0)) {
+  if (metrics.invalid.length || metrics.markers.length !== 0) {
     throw new Error("Admin scroll ownership failed on " + route + " at " + width + "x" + height
       + ": " + JSON.stringify(metrics));
   }
