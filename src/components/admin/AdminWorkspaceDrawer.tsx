@@ -18,6 +18,8 @@ type Props = {
 export function AdminWorkspaceDrawer({ open, title, closeLabel, dirty = false, confirmDiscard, returnFocusRef, onClose, children }: Props) {
   const panelRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (!open) return;
@@ -28,7 +30,7 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, dirty = false, c
       if (event.key === "Escape") {
         event.preventDefault();
         if (dirty && !window.confirm(confirmDiscard)) return;
-        onClose();
+        onCloseRef.current();
       }
       if (event.key === "Tab" && panelRef.current) {
         const nodes = Array.from(panelRef.current.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'));
@@ -45,14 +47,14 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, dirty = false, c
       document.body.style.overflow = previousOverflow;
       window.requestAnimationFrame(() => returnFocusRef.current?.focus());
     };
-  }, [open, dirty, confirmDiscard, onClose, returnFocusRef]);
+  }, [open, dirty, confirmDiscard, returnFocusRef]);
 
   if (!open || typeof document === "undefined") return null;
   return createPortal(
     <div className={styles.backdrop} data-testid="workspace-drawer-backdrop" onMouseDown={event => {
       if (event.target !== event.currentTarget) return;
       if (dirty && !window.confirm(confirmDiscard)) return;
-      onClose();
+      onCloseRef.current();
     }}>
       <aside ref={panelRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={title} className={styles.drawer} data-testid="workspace-drawer">
         <header className={styles.header}>
