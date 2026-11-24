@@ -385,7 +385,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             <p className={styles.merchantActionHint} id="merchant-decision-hint">{merchantAction==="approve"&&checks.some(value=>!value)?t.approveDisabledHint:!merchantAction||!reason.trim()?t.decisionDisabledHint:""}</p>
                             <button className={styles.primary+" "+merchantStyles.primary} aria-describedby="merchant-decision-hint" disabled={working||!merchantAction||!reason.trim()||(merchantAction==="approve"&&checks.some(value=>!value))} onClick={()=>void submitMerchant()}>{working?t.loading:t.save}</button>
                         </footer>
-                    </>}</section></AdminWorkspaceDrawer>
+                    </>}</section></AdminWorkspaceDrawer></div>
             
         </>}
         {page==="offer-moderation"&&offers&&<>
@@ -466,7 +466,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                 <button className={styles.primary+" "+offerStyles.primary} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{working?t.loading:(locale==="fr"?"Confirmer":locale==="ar"?"تأكيد":"Confirm")+" · "+(offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide)}</button>
                             </footer>
                         </div>
-                    </>}</section></AdminWorkspaceDrawer>
+                    </>}</section></AdminWorkspaceDrawer></div>
             
         </>}
 
@@ -532,7 +532,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             </div>
                             <p className={styles.hint}><ShieldCheck size={13} aria-hidden="true"/>{t.actionNote}</p>
                         </section>
-                    </>}</section></AdminWorkspaceDrawer>
+                    </>}</section></AdminWorkspaceDrawer></div>
         </>}
         {page==="audit-log"&&audit&&<>
             <section className={styles.auditFilters} aria-label={t.filter}>
