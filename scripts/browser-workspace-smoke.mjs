@@ -1159,6 +1159,7 @@ try {
 
     await page.setViewportSize({ width: 1366, height: 768 });
     await page.reload({ waitUntil: "networkidle" });
+    await page.getByTestId("support-case-row").first().click();
     await composer.getByPlaceholder("Write a message…").fill("Reply sent from the long-conversation browser test.");
     await composer.getByRole("button", { name: "Send to customer" }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/messages"), "Support reply submission");
