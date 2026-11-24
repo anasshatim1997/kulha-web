@@ -12,7 +12,7 @@ import auditStyles from "./AuditLog.module.css";
 import { AdminShell } from "./AdminShell";
 import { AdminPagination, type PaginationLabels } from "./AdminPagination";
 
-const styles = {
+const styles: Record<string, string> = {
     ...shellStyles,
     ...merchantStyles,
     ...offerStyles,
