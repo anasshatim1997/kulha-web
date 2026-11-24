@@ -871,7 +871,7 @@ try {
         if (!(await rows.first().evaluate(node => node === document.activeElement))) throw new Error("Merchant drawer did not restore focus to the selected row.");
         await rows.first().click();
         await drawer.waitFor({ state: "visible" });
-        await page.getByLabel("Address and location checked").check();
+        await page.getByTestId("merchant-review-workflow").locator('input[type="checkbox"]').first().check();
         page.evaluate(() => { window.confirm = () => false; });
         await page.getByTestId("workspace-drawer-backdrop").click({ position: { x: 8, y: 8 } });
         if (!(await drawer.isVisible())) throw new Error("Merchant drawer ignored unsaved-change protection.");
@@ -890,9 +890,14 @@ try {
         await drawer.waitFor({ state: "visible" });
       }
       if (route.path.endsWith("/admin/support-cases")) {
-        await page.getByTestId("support-case-row").first().click();
-        await page.getByTestId("workspace-drawer").waitFor({ state: "visible" });
-        await page.locator('[data-testid="support-case-detail"] h2').waitFor({ state: "visible" });
+        const rows = page.getByTestId("support-case-row");
+        await rows.first().click();
+        const drawer = page.getByTestId("workspace-drawer");
+        await drawer.waitFor({ state: "visible" });
+        const firstSubject = await page.locator('[data-testid="support-case-detail"] h2').innerText();
+        await rows.nth(1).click();
+        await page.waitForFunction(previous => document.querySelector('[data-testid="support-case-detail"] h2')?.textContent !== previous, firstSubject);
+        if (!(await drawer.isVisible())) throw new Error("Selecting another support case closed the detail drawer.");
       }
       if (route.adminPage) await assertAdminStatusControls(page, route.path, size.width, size.height);
       if (route.path.endsWith("/admin/merchant-review")) await assertMerchantReviewLayout(page, size.width, size.height);
