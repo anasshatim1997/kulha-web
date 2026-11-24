@@ -892,7 +892,7 @@ try {
         if (!(await drawer.isVisible())) throw new Error("Selecting another merchant closed the open drawer.");
         await page.getByTestId("merchant-review-workflow").locator('input[type="checkbox"]').first().check();
         await page.evaluate(() => { window.confirm = () => false; });
-        if (size.width > 700) await page.getByTestId("admin-page-heading").click();
+        if (size.width > 700) await page.evaluate(() => { const target = document.elementFromPoint(8, 8); target?.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, clientX: 8, clientY: 8 })); });
         else await drawer.locator("header button").click();
         if (!(await drawer.isVisible())) throw new Error("Merchant drawer ignored unsaved-change protection.");
         await page.evaluate(() => { window.confirm = () => true; });
