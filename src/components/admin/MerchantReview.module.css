@@ -72,3 +72,9 @@
     .merchantInlineFooter { grid-template-columns: 1fr; }
     .merchantInlineFooter .primary, .merchantActionHint { grid-column: 1; grid-row: auto; width: 100%; }
 }
+
+/* List-first workspace and responsive drawer layout */
+.merchantReviewWorkspace { grid-template-columns: minmax(0, 1fr); }
+.merchantPicker { padding: 20px; }
+.merchantPicker .list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); gap: 14px; }
+.merchantListItem, .merchantSelected { min-height: 132px; align-content: start; gap: 9px; padding: 18px; }
