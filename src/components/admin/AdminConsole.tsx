@@ -409,12 +409,12 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             <span className={styles.offerCopy}>
                                 <strong>{item.title}</strong>
                                 <small>{item.shopName} · {item.city}</small>
-                                <span className={offerStyles.offerMeta}>
+                                <span className={offerStyles.offerMeta} data-testid="offer-row-meta">
                                     <span>{t.stock}: {Math.max(0,item.quantityTotal-item.quantityReserved)} {t.available} · {item.quantityReserved} {t.reserved}</span>
                                     <span>{t.pickup}: {item.pickupStart&&item.pickupEnd?shortDateTime(item.pickupStart,locale)+" – "+shortDateTime(item.pickupEnd,locale):t.pickupUnavailable}</span>
                                 </span>
                                 <span className={styles.offerTags}>
-                                    <em className={styles.pill+" "+offerStyles.pill+" "+offerTone(item.status)}>{offerLabel(item.status)}</em>
+                                    <em data-testid="offer-row-status" className={styles.pill+" "+offerStyles.pill+" "+offerTone(item.status)}>{offerLabel(item.status)}</em>
                                     {item.reportedCount>0&&<em className={styles.reportTag}>{item.reportedCount} {item.reportedCount===1?t.report:t.reportsN}</em>}
                                     {item.allergensStatus==="UNKNOWN"&&<em className={styles.allergenTag}>{t.allergensUnknown}</em>}
                                 </span>
