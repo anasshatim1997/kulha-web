@@ -555,9 +555,14 @@ async function assertSupportTimelineVisible(page, width, height) {
       drawerOverflowY: drawerStyle?.overflowY ?? "missing",
       drawerScrollHeight: drawerContent?.scrollHeight ?? 0,
       drawerClientHeight: drawerContent?.clientHeight ?? 0,
-      maxHeight: style?.maxHeight ?? "missing",
       historyOverflowY: history ? getComputedStyle(history).overflowY : "missing",
       detailOverflowY: detail ? getComputedStyle(detail).overflowY : "missing",
+      timelineScrollHeight: timeline?.scrollHeight ?? 0,
+      timelineClientHeight: timeline?.clientHeight ?? 0,
+      timelineBeforeComposer: Boolean(timeline && composer
+        && timeline.getBoundingClientRect().bottom <= composer.getBoundingClientRect().top + 1),
+      composerBeforeActions: Boolean(composer && actions
+        && composer.getBoundingClientRect().bottom <= actions.getBoundingClientRect().top + 1),
       composerInsideTimeline: Boolean(timeline && composer && timeline.contains(composer)),
       actionsInsideTimeline: Boolean(timeline && actions && timeline.contains(actions)),
       timelineInsideDetail: Boolean(detail && timeline && detail.contains(timeline)),
@@ -580,9 +585,9 @@ async function assertSupportTimelineVisible(page, width, height) {
     throw new Error("Reply composer and Case Actions must remain outside the conversation scroller at "
       + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  const maxHeight = Number.parseFloat(metrics.maxHeight);
-  if (!Number.isFinite(maxHeight) || maxHeight > Math.min(520, height * 0.6) + 1) {
-    throw new Error("Support timeline max-height must be min(520px, 60vh) at "
+  if (metrics.timelineScrollHeight > metrics.timelineClientHeight + 1
+      || !metrics.timelineBeforeComposer || !metrics.composerBeforeActions) {
+    throw new Error("Support conversation must remain fully in document flow ahead of the reply composer and case actions at "
       + width + "x" + height + ": " + JSON.stringify(metrics));
   }
 }
@@ -1246,7 +1251,7 @@ try {
     await timelinePanel.waitFor({ state: "visible" });
     await assertSupportTimelineVisible(page, 1366, 768);
 
-    // Long conversations scroll only in the timeline; the document and adjacent actions remain usable.
+    // Long conversations stay in document flow; the drawer scrolls so the composer and case actions remain reachable.
     timeline = Array.from({ length: 48 }, (_, index) => ({
       id: `00000000-0000-4000-8000-${String(300 + index).padStart(12, "0")}`,
       authorType: index % 2 ? "AGENT" : "CUSTOMER",
@@ -1262,21 +1267,36 @@ try {
       await page.getByTestId("support-case-row").first().click();
       await timelinePanel.waitFor({ state: "visible" });
       await assertSupportTimelineVisible(page, size.width, size.height);
-      const before = await page.evaluate(() => {
-        const content = document.querySelector('[data-testid="workspace-drawer"] .content');
+      const drawerContent = page.locator('[data-testid="workspace-drawer"] > div');
+      const before = await drawerContent.evaluate(content => {
         const timelineNode = document.querySelector('[data-testid="support-case-timeline"]');
-        return { clientHeight: content.clientHeight, scrollHeight: content.scrollHeight,
-          overflow: getComputedStyle(content).overflowY, timelineOverflow: getComputedStyle(timelineNode).overflowY };
+        return {
+          clientHeight: content.clientHeight,
+          scrollHeight: content.scrollHeight,
+          overflow: getComputedStyle(content).overflowY,
+          timelineOverflow: timelineNode ? getComputedStyle(timelineNode).overflowY : "missing",
+        };
       });
       if (before.scrollHeight <= before.clientHeight + 2 || before.overflow !== "auto" || before.timelineOverflow !== "visible") {
         throw new Error("Support drawer does not own the long-conversation scroll at " + size.width + "px: " + JSON.stringify(before));
       }
-      await page.locator('[data-testid="workspace-drawer"] .content').evaluate(element => { element.scrollTop = element.scrollHeight; });
-      if (size.width < 600 && before.scrollHeight <= before.clientHeight) {
-        throw new Error("Mobile Support Cases must retain drawer document scrolling at " + size.width + "px.");
-      }
-      if (size.width < 600 && before.documentHeight <= before.viewportHeight) {
-        throw new Error(`Mobile Support Cases must retain ordinary document scrolling at ${size.width}px.`);
+      const after = await drawerContent.evaluate(content => {
+        content.scrollTop = content.scrollHeight;
+        const viewport = content.getBoundingClientRect();
+        const composerBounds = document.querySelector('[data-testid="support-message-composer"]')?.getBoundingClientRect();
+        const actionsBounds = document.querySelector('[data-testid="support-case-actions"]')?.getBoundingClientRect();
+        return {
+          scrollTop: content.scrollTop,
+          maxScrollTop: content.scrollHeight - content.clientHeight,
+          composerReachable: Boolean(composerBounds && composerBounds.bottom > viewport.top - 1
+            && composerBounds.top < viewport.bottom + 1),
+          actionsVisible: Boolean(actionsBounds && actionsBounds.top >= viewport.top - 1
+            && actionsBounds.bottom <= viewport.bottom + 1),
+        };
+      });
+      if (after.scrollTop <= 0 || after.maxScrollTop <= 0 || !after.composerReachable || !after.actionsVisible) {
+        throw new Error("Scrolling a long support conversation must reveal its reply composer and keep Case Actions reachable at "
+          + size.width + "px: " + JSON.stringify({ before, after }));
       }
     }
 
