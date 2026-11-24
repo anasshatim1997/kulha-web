@@ -1057,6 +1057,7 @@ try {
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
+    await page.getByTestId("merchant-review-list").getByRole("button").first().click();
     const inlineReview = page.getByTestId("merchant-review-workflow");
     await inlineReview.waitFor({ state: "visible" });
     await inlineReview.getByLabel("Address and location checked").check();
@@ -1076,6 +1077,7 @@ try {
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(origin + "/en/admin/offer-moderation", { waitUntil: "networkidle" });
+    await page.getByTestId("offer-queue").getByRole("button").first().click();
     const inlineOffer = page.getByTestId("offer-moderation-workflow");
     await inlineOffer.waitFor({ state: "visible" });
     await inlineOffer.locator('[data-action="suspend"]').click();
@@ -1093,6 +1095,7 @@ try {
     const page = await context.newPage();
     await page.setViewportSize({ width: 1366, height: 768 });
     await page.goto(origin + "/en/admin/support-cases", { waitUntil: "networkidle" });
+    await page.getByTestId("support-case-row").first().click();
     const timelinePanel = page.getByTestId("support-case-timeline");
     const composer = page.getByTestId("support-message-composer");
     await timelinePanel.waitFor({ state: "visible" });
