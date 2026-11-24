@@ -45,23 +45,31 @@ const auditText={
    `Record<A,Record<B,C>>={` is tokenised as `>>=` (right-shift-assign) and WebStorm's parser
    reports "',' expected" and then cascades into hundreds of follow-up errors. */
 const auditActionNames:Record<SiteLocale,LabelMap> = {
-    fr:{"offer.suspend":"Offre masquée","offer.reinstate":"Offre remise en ligne","offer.request-edit":"Correction demandée","support.reply":"Réponse envoyée","support.assign":"Dossier assigné","support.escalate":"Dossier escaladé","support.resolve":"Dossier résolu","merchant.request-info":"Informations demandées","merchant.approve":"Commerce approuvé","merchant.reject":"Commerce refusé"},
-    en:{"offer.suspend":"Offer hidden","offer.reinstate":"Offer restored","offer.request-edit":"Correction requested","support.reply":"Reply sent","support.assign":"Case assigned","support.escalate":"Case escalated","support.resolve":"Case resolved","merchant.request-info":"Information requested","merchant.approve":"Merchant approved","merchant.reject":"Merchant rejected"},
-    ar:{"offer.suspend":"تم إخفاء العرض","offer.reinstate":"تمت إعادة نشر العرض","offer.request-edit":"طُلب تعديل العرض","support.reply":"تم إرسال الرد","support.assign":"تم تعيين الحالة","support.escalate":"تم تصعيد الحالة","support.resolve":"تم حل الحالة","merchant.request-info":"طُلبت معلومات إضافية","merchant.approve":"تم اعتماد المتجر","merchant.reject":"تم رفض المتجر"}
+    fr:{"offer.suspend":"Offre masquée","offer.reinstate":"Offre remise en ligne","offer.request-edit":"Correction demandée","offer.expired":"Offre expirée","support.reply":"Réponse envoyée","support.assign":"Dossier assigné","support.escalate":"Dossier escaladé","support.resolve":"Dossier résolu","merchant.request-info":"Informations demandées","merchant.approve":"Commerce approuvé","merchant.reject":"Commerce refusé"},
+    en:{"offer.suspend":"Offer hidden","offer.reinstate":"Offer restored","offer.request-edit":"Correction requested","offer.expired":"Offer expired","support.reply":"Reply sent","support.assign":"Case assigned","support.escalate":"Case escalated","support.resolve":"Case resolved","merchant.request-info":"Information requested","merchant.approve":"Merchant approved","merchant.reject":"Merchant rejected"},
+    ar:{"offer.suspend":"تم إخفاء العرض","offer.reinstate":"تمت إعادة نشر العرض","offer.request-edit":"طُلب تعديل العرض","offer.expired":"انتهت صلاحية العرض","support.reply":"تم إرسال الرد","support.assign":"تم تعيين الحالة","support.escalate":"تم تصعيد الحالة","support.resolve":"تم حل الحالة","merchant.request-info":"طُلبت معلومات إضافية","merchant.approve":"تم اعتماد المتجر","merchant.reject":"تم رفض المتجر"}
 };
 const auditCategoryNames:Record<SiteLocale,LabelMap> = {
     fr:{offer:"Modération des offres",merchant:"Revue des commerces",support:"Support",security:"Sécurité",auth:"Authentification"},
     en:{offer:"Offer moderation",merchant:"Merchant review",support:"Support",security:"Security",auth:"Authentication"},
     ar:{offer:"مراجعة العروض",merchant:"مراجعة المتاجر",support:"الدعم",security:"الأمان",auth:"المصادقة"}
 };
+function normalizeAuditAction(action:string){
+    return action.toLowerCase().replace(/_/g,".");
+}
 function auditActionLabel(action:string,locale:SiteLocale){
-    const translated=auditActionNames[locale][action];
+    const normalized=normalizeAuditAction(action);
+    const translated=auditActionNames[locale][normalized];
     if(translated)return translated;
-    return action.split(/[._-]+/).filter(Boolean).map(part=>part.charAt(0).toLocaleUpperCase(locale)+part.slice(1)).join(" ");
+    return normalized.split(/[._-]+/).filter(Boolean).map(part=>part.charAt(0).toLocaleUpperCase(locale)+part.slice(1)).join(" ");
 }
 function auditCategoryLabel(action:string,locale:SiteLocale){
-    const prefix=action.split(".")[0];
+    const prefix=normalizeAuditAction(action).split(/[._]/)[0];
     return auditCategoryNames[locale][prefix]??prefix;
+}
+const SYSTEM_ACTOR_ID="00000000-0000-0000-0000-000000000001";
+function auditActorLabel(row:Pick<AuditRow,"actorUserId"|"actorName">,locale:SiteLocale){
+    return row.actorUserId===SYSTEM_ACTOR_ID||row.actorName==="Unknown actor"?more[locale].system:row.actorName;
 }
 
 /** Closes a popover when the user clicks outside `ref` or presses Escape. */
@@ -166,9 +174,9 @@ function AuditSelect({label,value,options,onChange,icon,className,menuPlacement=
 }
 
 const merchantStatuses=["PENDING","INFO_REQUIRED","APPROVED","REJECTED"] as const;
-const MERCHANT_PAGE_SIZE=3;
-const OFFER_PAGE_SIZE=5;
-const CASE_PAGE_SIZE=4;
+const MERCHANT_PAGE_SIZE=8;
+const OFFER_PAGE_SIZE=8;
+const CASE_PAGE_SIZE=8;
 const AUDIT_PAGE_SIZE=10;
 
 type PaginationLabels={previous:string;next:string;of:string;label:string};
@@ -197,10 +205,23 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const [merchants,setMerchants]=useState<Page<Merchant>|null>(null);const [merchantStatus,setMerchantStatus]=useState("PENDING");const [merchantPage,setMerchantPage]=useState(0);const [selectedMerchant,setSelectedMerchant]=useState<Merchant|null>(null);const [merchantAction,setMerchantAction]=useState<MerchantAction|null>(null);const [checks,setChecks]=useState([false,false,false]);const [tabCounts,setTabCounts]=useState<{pending:number|null;info:number|null}>({pending:null,info:null});
     const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useState("");const [offerPage,setOfferPage]=useState(0);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");
     const [cases,setCases]=useState<Page<CaseItem>|null>(null);const [caseStatus,setCaseStatus]=useState("OPEN");const [casePage,setCasePage]=useState(0);const [selectedCase,setSelectedCase]=useState<{summary:CaseItem;timeline:Timeline[]}|null>(null);const [caseCounts,setCaseCounts]=useState<{open:number|null;escalated:number|null;waiting:number|null;resolved:number|null}>({open:null,escalated:null,waiting:null,resolved:null});
-    const [audit,setAudit]=useState<AuditPage|null>(null);const [auditPage,setAuditPage]=useState(0);const [auditPageSize,setAuditPageSize]=useState(AUDIT_PAGE_SIZE);const [selectedAuditId,setSelectedAuditId]=useState<string|null>(null);const [auditModalOpen,setAuditModalOpen]=useState(false);const [auditSearch,setAuditSearch]=useState("");const [auditFrom,setAuditFrom]=useState("");const [auditTo,setAuditTo]=useState("");const [auditAction,setAuditAction]=useState("");const [auditResult,setAuditResult]=useState("");
+    const [audit,setAudit]=useState<AuditPage|null>(null);const [auditPage,setAuditPage]=useState(0);const [auditPageSize,setAuditPageSize]=useState(AUDIT_PAGE_SIZE);const [selectedAuditId,setSelectedAuditId]=useState<string|null>(null);const [auditModalOpen,setAuditModalOpen]=useState(false);const auditDrawerRef=useRef<HTMLElement|null>(null);const auditReturnFocusRef=useRef<HTMLElement|null>(null);const [auditSearch,setAuditSearch]=useState("");const [auditFrom,setAuditFrom]=useState("");const [auditTo,setAuditTo]=useState("");const [auditAction,setAuditAction]=useState("");const [auditResult,setAuditResult]=useState("");
     const [reason,setReason]=useState("");const [disclosureReason,setDisclosureReason]=useState("");const [internalNote,setInternalNote]=useState("");const [draftMessage,setDraftMessage]=useState("");const [sendToCustomer,setSendToCustomer]=useState(true);const [revealed,setRevealed]=useState<{fullName:string;email:string;phone:string|null}|null>(null);const [working,setWorking]=useState(false);
 
     useEffect(()=>{if(page!=="audit-log")return;const timeout=window.setTimeout(()=>setAuditSearch(query.trim()),280);return()=>window.clearTimeout(timeout);},[page,query]);
+    useEffect(()=>{
+        if(!auditModalOpen)return;
+        const onKeyDown=(event:KeyboardEvent)=>{
+            if(event.key==="Escape"){
+                event.preventDefault();
+                setAuditModalOpen(false);
+                window.requestAnimationFrame(()=>auditReturnFocusRef.current?.focus());
+            }
+        };
+        window.addEventListener("keydown",onKeyDown);
+        const frame=window.requestAnimationFrame(()=>auditDrawerRef.current?.focus());
+        return()=>{window.cancelAnimationFrame(frame);window.removeEventListener("keydown",onKeyDown);};
+    },[auditModalOpen]);
 
     useEffect(()=>{let active=true;
         const load=async()=>{try{
@@ -249,6 +270,8 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     async function sendMessage(event:SyntheticEvent<HTMLFormElement>){event.preventDefault();if(!selectedCase||!draftMessage.trim())return;setWorking(true);try{await api.post("/admin/support-cases/"+selectedCase.summary.reference+"/messages",{message:draftMessage.trim(),sendToCustomer});setDraftMessage("");await loadCase(selectedCase.summary.reference);setMessage(t.save);}catch{setMessage(t.error);}finally{setWorking(false);}}
     async function revealCustomer(){if(!selectedCase)return;if(!disclosureReason.trim()){setMessage(t.saveReason);return;}setWorking(true);try{const d=await api.post<{fullName:string;email:string;phone:string|null}>("/admin/support-cases/"+selectedCase.summary.reference+"/reveal-customer",{reason:disclosureReason.trim()});setRevealed(d);setDisclosureReason("");}catch{setMessage(t.error);}finally{setWorking(false);}}
     async function assignToMe(){if(!selectedCase||!actorId)return;setWorking(true);try{await api.put("/admin/support-cases/"+selectedCase.summary.reference+"/assignee",{assignedTo:actorId});await loadCase(selectedCase.summary.reference);setMessage(t.save);}catch{setMessage(t.error);}finally{setWorking(false);}}
+    function closeAuditDrawer(){setAuditModalOpen(false);window.requestAnimationFrame(()=>auditReturnFocusRef.current?.focus());}
+    async function copyAuditIdentifier(value:string){try{await navigator.clipboard.writeText(value);}catch{setMessage(locale==="fr"?"Impossible de copier l’identifiant.":locale==="ar"?"تعذر نسخ المعرّف.":"Unable to copy the identifier.");}}
     function exportAudit(){const p=new URLSearchParams();if(auditFrom)p.set("from",auditFrom);if(auditTo)p.set("to",auditTo);if(auditAction)p.set("action",auditAction);if(auditResult)p.set("result",auditResult);if(auditSearch)p.set("q",auditSearch);const a=document.createElement("a");a.href="/api/bff/admin/audit-log/export?"+p.toString();a.download="kulha-audit-log.csv";a.click();}
     const switchTab=(apply:()=>void)=>{setLoading(true);setFailed(false);apply();};
 
@@ -437,7 +460,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             </div>
                             <footer className={styles.offerInlineFooter} data-testid="offer-moderation-footer">
                                 <p><ShieldCheck size={15} aria-hidden="true"/>{t.auditRecorded}</p>
-                                <button className={styles.primary} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{working?t.loading:offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
+                                <button className={styles.primary} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{working?t.loading:(locale==="fr"?"Confirmer":locale==="ar"?"تأكيد":"Confirm")+" · "+(offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide)}</button>
                             </footer>
                         </div>
                     </>}
@@ -468,7 +491,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             <article><small>{t.caseShop}</small><strong>{selectedCase.summary.merchantName||"—"}</strong></article>
                         </div>
                         <h3 className={styles.sectionLabel}>{t.timeline}</h3>
-                        <div className={styles.caseTimeline} data-testid="support-case-timeline">{selectedCase.timeline.map(item=><article key={item.id} className={item.visibility==="INTERNAL"?styles.timelineInternal:item.authorType==="CUSTOMER"?styles.timelineCustomer:styles.timelineAgent}>
+                        <div className={styles.caseTimeline} data-testid="support-case-timeline" data-scroll-region>{selectedCase.timeline.map(item=><article key={item.id} className={item.visibility==="INTERNAL"?styles.timelineInternal:item.authorType==="CUSTOMER"?styles.timelineCustomer:styles.timelineAgent}>
                             <strong>{item.visibility==="INTERNAL"?t.internal:item.authorType==="CUSTOMER"?t.customer:t.reply} · {new Intl.DateTimeFormat(loc(locale),{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(new Date(item.createdAt))}</strong>
                             <p>{item.message}</p>
                         </article>)}</div>
@@ -521,8 +544,8 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         </div>
                     </label>
                     <div className={styles.auditDateRange} role="group" aria-label={locale==="fr"?"Période":locale==="ar"?"الفترة":"Date range"}>
-                        <AuditDatePicker label={t.from} value={auditFrom} onChange={value=>{setAuditFrom(value);setAuditPage(0);setAuditModalOpen(false);}} locale={locale} max={auditTo||undefined} placeholder={locale==="fr"?"Choisir une date":locale==="ar"?"اختر التاريخ":"Choose date"}/>
-                        <AuditDatePicker label={t.to} value={auditTo} onChange={value=>{setAuditTo(value);setAuditPage(0);setAuditModalOpen(false);}} locale={locale} min={auditFrom||undefined} placeholder={locale==="fr"?"Choisir une date":locale==="ar"?"اختر التاريخ":"Choose date"}/>
+                        <AuditDatePicker label={t.from} value={auditFrom} onChange={value=>{setAuditFrom(value);setAuditPage(0);setAuditModalOpen(false);}} locale={locale} max={auditTo||undefined} placeholder={locale==="fr"?"jj/mm/aaaa":locale==="ar"?"يوم/شهر/سنة":"dd/mm/yyyy"}/>
+                        <AuditDatePicker label={t.to} value={auditTo} onChange={value=>{setAuditTo(value);setAuditPage(0);setAuditModalOpen(false);}} locale={locale} min={auditFrom||undefined} placeholder={locale==="fr"?"jj/mm/aaaa":locale==="ar"?"يوم/شهر/سنة":"dd/mm/yyyy"}/>
                     </div>
                 </div>
                 <div className={styles.auditFilterBottomRow}>
@@ -545,13 +568,12 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                 </div>
                 <section className={styles.auditTableCard} data-testid="audit-table-card">
                     <div className={styles.table}>
-                        <table><thead><tr><th>{t.when.toUpperCase()}</th><th>{t.person.toUpperCase()}</th><th>{t.action.toUpperCase()}</th><th>{t.record.toUpperCase()}</th><th>{t.reason.toUpperCase()}</th><th>{t.result.toUpperCase()}</th></tr></thead>
-                            <tbody>{auditItems.map(item=><tr key={item.id} data-testid="audit-record-row" tabIndex={0} aria-label={`${auditActionLabel(item.action,locale)} · ${item.actorName}`} aria-pressed={selectedAuditId===item.id} className={selectedAuditId===item.id?styles.auditSelectedRow:""} onClick={()=>{setSelectedAuditId(item.id);setAuditModalOpen(true);}} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();setSelectedAuditId(item.id);setAuditModalOpen(true);}}}>
+                        <table><thead><tr><th>{t.when.toUpperCase()}</th><th>{t.person.toUpperCase()}</th><th>{t.action.toUpperCase()}</th><th>{t.record.toUpperCase()}</th><th>{t.result.toUpperCase()}</th></tr></thead>
+                            <tbody>{auditItems.map(item=><tr key={item.id} data-testid="audit-record-row" tabIndex={0} aria-label={`${auditActionLabel(item.action,locale)} · ${auditActorLabel(item,locale)}`} aria-pressed={selectedAuditId===item.id} className={selectedAuditId===item.id?styles.auditSelectedRow:""} onClick={event=>{auditReturnFocusRef.current=event.currentTarget;setSelectedAuditId(item.id);setAuditModalOpen(true);}} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();auditReturnFocusRef.current=event.currentTarget;setSelectedAuditId(item.id);setAuditModalOpen(true);}}}>
                                 <td data-label={t.when}>{shortDateTime(item.createdAt,locale)}</td>
-                                <td data-label={t.person}><strong>{item.actorName}</strong></td>
-                                <td data-label={t.action}><strong>{auditActionLabel(item.action,locale)}</strong><small>{item.action}</small></td>
-                                <td data-label={t.record}><strong>{item.targetType}</strong><small>{item.targetId}</small></td>
-                                <td data-label={t.reason}><span className={styles.auditTableReason}>{item.reason||"—"}</span></td>
+                                <td data-label={t.person}><strong>{auditActorLabel(item,locale)}</strong></td>
+                                <td data-label={t.action}><strong>{auditActionLabel(item.action,locale)}</strong><small>{item.reason||"—"}</small></td>
+                                <td data-label={t.record}><strong>{item.targetType}</strong><small title={item.targetId}>…{item.targetId.slice(-8)}</small></td>
                                 <td data-label={t.result}>{resultPill(item.result)}</td>
                             </tr>)}</tbody>
                         </table>
@@ -562,17 +584,17 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         <AdminPagination page={auditPage} pageCount={auditPageCount} total={audit.total} size={audit.size||auditPageSize} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setAuditPage(next);setAuditModalOpen(false);setSelectedAuditId(null);}} />
                     </div>
                 </section>
-            {audit&&<section className={styles.auditRecordCard} aria-label={auditUi.eventDetails} data-testid="audit-record-detail">
-                {!selectedAudit?<div className={styles.auditRecordEmpty}><ShieldCheck size={22} aria-hidden="true"/><strong>{auditUi.eventDetails}</strong><p>{locale==="fr"?"Sélectionnez une ligne du journal pour consulter les détails.":locale==="ar"?"اختر سجلاً من الجدول لعرض التفاصيل.":"Select an audit row to inspect its details."}</p></div>:<>
+            {auditModalOpen&&selectedAudit&&<div className={styles.auditDrawerBackdrop} data-testid="audit-drawer-backdrop" onMouseDown={event=>{if(event.target===event.currentTarget)closeAuditDrawer();}}>
+                <aside ref={auditDrawerRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="audit-record-title" className={styles.auditDrawer} data-testid="audit-record-detail">
                     <header className={styles.auditRecordHeader} data-testid="audit-record-header">
-                        <div><small>{auditUi.eventDetails}</small><h2>{auditActionLabel(selectedAudit.action,locale)}</h2><code>{selectedAudit.action}</code></div>
+                        <div><small>{auditUi.eventDetails}</small><h2 id="audit-record-title">{auditActionLabel(selectedAudit.action,locale)}</h2><code>{selectedAudit.action}</code></div>
                         {resultPill(selectedAudit.result)}
+                        <button type="button" className={styles.auditDrawerClose} onClick={closeAuditDrawer} aria-label={auditUi.close}>{auditUi.close}</button>
                     </header>
                     <section className={styles.auditRecordSection}>
                         <h3>{auditUi.adminAction}</h3>
                         <dl className={styles.auditRecordFacts}>
-                            <div><dt>{t.person}</dt><dd>{selectedAudit.actorName}</dd></div>
-                            <div><dt>{auditUi.identifier}</dt><dd>{selectedAudit.actorUserId}</dd></div>
+                            <div><dt>{t.person}</dt><dd>{auditActorLabel(selectedAudit,locale)}<span className={styles.auditIdentifier}><code>{selectedAudit.actorUserId}</code><button type="button" onClick={()=>void copyAuditIdentifier(selectedAudit.actorUserId)}>{locale==="fr"?"Copier":locale==="ar"?"نسخ":"Copy"}</button></span></dd></div>
                             <div><dt>{auditUi.dateTime}</dt><dd>{dateTime(selectedAudit.createdAt,locale)}</dd></div>
                             <div><dt>{auditUi.category}</dt><dd>{auditCategoryLabel(selectedAudit.action,locale)}</dd></div>
                             <div><dt>{t.result}</dt><dd>{resultPill(selectedAudit.result)}</dd></div>
@@ -582,15 +604,15 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         <h3>{auditUi.affected}</h3>
                         <dl className={styles.auditRecordFacts}>
                             <div><dt>{auditUi.entityType}</dt><dd>{selectedAudit.targetType}</dd></div>
-                            <div><dt>{auditUi.identifier}</dt><dd>{selectedAudit.targetId}</dd></div>
+                            <div><dt>{auditUi.identifier}</dt><dd><span className={styles.auditIdentifier}><code>{selectedAudit.targetId}</code><button type="button" onClick={()=>void copyAuditIdentifier(selectedAudit.targetId)}>{locale==="fr"?"Copier":locale==="ar"?"نسخ":"Copy"}</button></span></dd></div>
                             <div><dt>{t.reason}</dt><dd>{selectedAudit.reason||"—"}</dd></div>
-                            {selectedAudit.correlationId&&<div><dt>{auditUi.correlationId}</dt><dd><code>{selectedAudit.correlationId}</code></dd></div>}
-                            <div><dt>{auditUi.eventId}</dt><dd><code>{selectedAudit.id}</code></dd></div>
+                            {selectedAudit.correlationId&&<div><dt>{auditUi.correlationId}</dt><dd><span className={styles.auditIdentifier}><code>{selectedAudit.correlationId}</code><button type="button" onClick={()=>void copyAuditIdentifier(selectedAudit.correlationId!)}>{locale==="fr"?"Copier":locale==="ar"?"نسخ":"Copy"}</button></span></dd></div>}
+                            <div><dt>{auditUi.eventId}</dt><dd><span className={styles.auditIdentifier}><code>{selectedAudit.id}</code><button type="button" onClick={()=>void copyAuditIdentifier(selectedAudit.id)}>{locale==="fr"?"Copier":locale==="ar"?"نسخ":"Copy"}</button></span></dd></div>
                         </dl>
                     </section>
                     <p className={styles.auditRecordNotice}><Lock size={14} aria-hidden="true"/>{auditUi.immutableNotice}</p>
-                </>}
-            </section>}
+                </aside>
+            </div>}
             </section>
         </>}
 
