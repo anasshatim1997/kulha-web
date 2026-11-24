@@ -80,3 +80,7 @@
 .casePicker { padding: 20px; }
 .caseList { grid-template-columns: repeat(auto-fit, minmax(min(100%, 390px), 1fr)); gap: 14px; }
 .caseItem, .caseSelected { min-height: 112px; padding: 17px; }
+
+
+/* The drawer owns scrolling; keep the conversation in the same document flow as its composer and actions. */
+.caseTimeline{max-height:none;overflow:visible;overscroll-behavior:auto}
