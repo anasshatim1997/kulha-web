@@ -1029,11 +1029,26 @@ try {
         await rows.first().click();
         const drawer = page.getByTestId("workspace-drawer");
         await drawer.waitFor({ state: "visible" });
-        if (size.width > 700) {
+        const supportIsModal = await drawer.getAttribute("aria-modal") === "true";
+        if (size.width <= 1399 && !supportIsModal) {
+          throw new Error("Support detail must be modal while the full-width queue sits underneath it at " + size.width + "px.");
+        }
+        if (size.width > 1399 && supportIsModal) {
+          throw new Error("Wide desktop Support detail should remain a non-modal side overlay.");
+        }
+        if (size.width > 1399) {
           const firstSubject = await page.locator('[data-testid="support-case-detail"] h2').innerText();
           await rows.nth(1).click();
           await page.waitForFunction(previous => document.querySelector('[data-testid="support-case-detail"] h2')?.textContent !== previous, firstSubject);
           if (!(await drawer.isVisible())) throw new Error("Selecting another support case closed the detail drawer.");
+        } else if (size.width > 700) {
+          await drawer.locator("header button").click();
+          await drawer.waitFor({ state: "hidden" });
+          await rows.nth(1).click();
+          await drawer.waitFor({ state: "visible" });
+          if (await drawer.getAttribute("aria-modal") !== "true") {
+            throw new Error("Reopened Support detail lost its modal presentation at " + size.width + "px.");
+          }
         }
       }
       if (route.adminPage) await assertAdminStatusControls(page, route.path, size.width, size.height);
