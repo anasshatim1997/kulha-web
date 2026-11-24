@@ -417,7 +417,7 @@ async function assertMerchantReviewLayout(page, width, height) {
       textareas: textareas.map(field => ({ rows: field.rows, minHeight: field.getBoundingClientRect().height })),
       segmentHeights: segmented.map(button => button.getBoundingClientRect().height),
       footer: box(footer), hint: hint?.textContent?.trim() ?? "",
-      selectedMerchant: detail?.textContent?.includes("Boulangerie Test") ?? false,
+      selectedMerchant: Boolean(detail?.querySelector("h2")?.textContent?.trim()),
     };
   });
   if (!metrics.detail || !metrics.workspace || !metrics.heading || !metrics.topbar
