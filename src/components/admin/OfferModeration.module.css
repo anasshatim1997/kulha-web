@@ -127,7 +127,7 @@
 .offerPreviewCard{gap:20px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
 .offerPreviewFacts{grid-template-columns:repeat(auto-fit,minmax(165px,1fr))}
 .offerDecisionDock{gap:16px}
-.offerInlineFooter{position:sticky;bottom:-24px;z-index:3;margin:0 -24px -24px;padding:16px 24px 20px;border-top:1px solid var(--line);background:#fffdf8;box-shadow:0 -8px 20px rgb(42 56 42 / 6%)}
+.offerInlineFooter{position:sticky;bottom:0;z-index:3;margin:0;padding:16px 0 20px;border-top:1px solid var(--line);background:#fffdf8;box-shadow:0 -8px 20px rgb(42 56 42 / 6%)}
 @media(max-width:700px){
   .offerPicker{padding:14px}
   .offerItem,.offerItemSelected{grid-template-columns:48px minmax(0,1fr);gap:8px 12px;padding:12px}
