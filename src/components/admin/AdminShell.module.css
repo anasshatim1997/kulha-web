@@ -227,3 +227,8 @@
     .pagination { align-items: flex-start; }
     .paginationControls { flex-wrap: wrap; }
 }
+
+/* List-first workspace and responsive drawer layout */
+.topbar { justify-content: flex-end; gap: 16px; min-width: 0; }
+.search { flex: 1 1 320px; width: min(480px, 100%); min-width: 0; max-width: 480px; margin-inline-start: auto; }
+@media (max-width: 900px) { .topbar { flex-wrap: wrap; padding-block: 10px; } .search { flex: 1 1 100%; width: 100%; max-width: none; } }
