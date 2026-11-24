@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import styles from "./AdminWorkspaceDrawer.module.css";
 
@@ -21,6 +21,8 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr
   const onCloseRef = useRef(onClose);
   const dirtyRef = useRef(dirty);
   const confirmRef = useRef(confirmDiscard);
+  const [mobileModal, setMobileModal] = useState(false);
+
   useEffect(() => {
     onCloseRef.current = onClose;
     dirtyRef.current = dirty;
@@ -28,17 +30,26 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr
   }, [onClose, dirty, confirmDiscard]);
 
   useEffect(() => {
+    const media = window.matchMedia("(max-width: 700px)");
+    const update = () => setMobileModal(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
     if (!open) return;
     const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    if (mobileModal) document.body.style.overflow = "hidden";
     const frame = window.requestAnimationFrame(() => closeRef.current?.focus());
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
         if (dirtyRef.current && !window.confirm(confirmRef.current)) return;
         onCloseRef.current();
+        return;
       }
-      if (event.key === "Tab" && panelRef.current) {
+      if (mobileModal && event.key === "Tab" && panelRef.current) {
         const nodes = Array.from(panelRef.current.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'));
         if (!nodes.length) { event.preventDefault(); panelRef.current.focus(); return; }
         const first = nodes[0], last = nodes[nodes.length - 1];
@@ -47,6 +58,7 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr
       }
     };
     const onDocumentPointerDown = (event: PointerEvent) => {
+      if (mobileModal) return;
       const target = event.target instanceof Element ? event.target : null;
       if (!target || panelRef.current?.contains(target)) return;
       if (target.closest('[data-testid="merchant-review-list"],[data-testid="offer-queue"],[data-testid="support-case-list"]')) return;
@@ -61,18 +73,34 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr
       document.removeEventListener("pointerdown", onDocumentPointerDown, true);
       document.body.style.overflow = previousOverflow;
     };
-  }, [open]);
+  }, [open, mobileModal]);
+
+  const requestClose = () => {
+    if (dirtyRef.current && !window.confirm(confirmRef.current)) return;
+    onCloseRef.current();
+  };
 
   if (!open || typeof document === "undefined") return null;
   return createPortal(
-    <div className={styles.backdrop} data-testid="workspace-drawer-backdrop">
-      <aside dir={direction} ref={panelRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={title} className={styles.drawer} data-testid="workspace-drawer">
+    <div
+      className={mobileModal ? styles.backdrop + " " + styles.mobile : styles.backdrop + " " + styles.desktop}
+      data-testid="workspace-drawer-backdrop"
+      onClick={event => { if (mobileModal && event.target === event.currentTarget) requestClose(); }}
+    >
+      <aside
+        dir={direction}
+        ref={panelRef}
+        tabIndex={-1}
+        role="dialog"
+        aria-modal={mobileModal ? true : undefined}
+        aria-label={title}
+        className={styles.drawer}
+        data-testid="workspace-drawer"
+        onClick={event => event.stopPropagation()}
+      >
         <header className={styles.header}>
           <h2>{title}</h2>
-          <button ref={closeRef} type="button" className={styles.close} aria-label={closeLabel} onClick={() => {
-            if (dirtyRef.current && !window.confirm(confirmRef.current)) return;
-            onClose();
-          }}>×</button>
+          <button ref={closeRef} type="button" className={styles.close} aria-label={closeLabel} onClick={requestClose}>×</button>
         </header>
         <div className={styles.content}>{children}</div>
       </aside>
