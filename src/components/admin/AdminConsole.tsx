@@ -503,7 +503,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             }
                             <p className={styles.hint}><Lock size={13} aria-hidden="true"/>{t.masked}</p>
                             <h3 className={styles.sectionLabel}>{t.timeline}</h3>
-                            <div className={styles.caseTimeline} data-testid="support-case-timeline" data-scroll-region>{selectedCase.timeline.map(item=><article key={item.id} className={item.visibility==="INTERNAL"?styles.timelineInternal:item.authorType==="CUSTOMER"?styles.timelineCustomer:styles.timelineAgent}>
+                            <div className={styles.caseTimeline} data-testid="support-case-timeline">{selectedCase.timeline.map(item=><article key={item.id} className={item.visibility==="INTERNAL"?styles.timelineInternal:item.authorType==="CUSTOMER"?styles.timelineCustomer:styles.timelineAgent}>
                                 <strong>{item.visibility==="INTERNAL"?t.internal:item.authorType==="CUSTOMER"?t.customer:t.reply} · {new Intl.DateTimeFormat(loc(locale),{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(new Date(item.createdAt))}</strong>
                                 <p>{item.message}</p>
                             </article>)}</div>
