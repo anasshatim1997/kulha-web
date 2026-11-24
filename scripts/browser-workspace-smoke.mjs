@@ -893,7 +893,7 @@ try {
         }
         await page.getByTestId("merchant-review-workflow").locator('input[type="checkbox"]').first().check();
         await page.evaluate(() => { window.confirm = () => false; });
-        if (size.width > 700) await page.mouse.click(8, 8);
+        if (size.width > 700) await page.getByTestId("admin-page-heading").click();
         else await drawer.locator("header button").click();
         if (!(await drawer.isVisible())) throw new Error("Merchant drawer ignored unsaved-change protection.");
         await page.evaluate(() => { window.confirm = () => true; });
