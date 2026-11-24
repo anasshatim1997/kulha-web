@@ -210,7 +210,7 @@ type OfferAction="suspend"|"request-edit"|"reinstate";
 
 export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const t={...words[locale],...more[locale]};const {state}=useSession();const actorId=state.status==="authenticated"?state.user.id:"";const roles=state.status==="authenticated"?state.user.roles:[];const isSupportOnly=roles.includes("SUPPORT")&&!roles.includes("ADMIN")&&!roles.includes("SUPER_ADMIN");
-    const merchantReturnFocusRef=useRef<HTMLElement|null>(null);const offerReturnFocusRef=useRef<HTMLElement|null>(null);const caseReturnFocusRef=useRef<HTMLElement|null>(null);
+    const merchantReturnFocusRef=useRef<HTMLElement|null>(null);const offerReturnFocusRef=useRef<HTMLElement|null>(null);const offerReturnScrollRef=useRef({left:0,top:0});const caseReturnFocusRef=useRef<HTMLElement|null>(null);
     const [loading,setLoading]=useState(true);const [failed,setFailed]=useState(false);const [reload,setReload]=useState(0);const [message,setMessage]=useState("");const [query,setQuery]=useState("");
     const [merchants,setMerchants]=useState<Page<Merchant>|null>(null);const [merchantStatus,setMerchantStatus]=useState("PENDING");const [merchantPage,setMerchantPage]=useState(0);const [selectedMerchant,setSelectedMerchant]=useState<Merchant|null>(null);const [merchantAction,setMerchantAction]=useState<MerchantAction|null>(null);const [checks,setChecks]=useState([false,false,false]);const [tabCounts,setTabCounts]=useState<{pending:number|null;info:number|null}>({pending:null,info:null});
     const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useState("");const [offerPage,setOfferPage]=useState(0);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");
@@ -219,7 +219,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const [reason,setReason]=useState("");const [disclosureReason,setDisclosureReason]=useState("");const [internalNote,setInternalNote]=useState("");const [draftMessage,setDraftMessage]=useState("");const [sendToCustomer,setSendToCustomer]=useState(true);const [revealed,setRevealed]=useState<{fullName:string;email:string;phone:string|null}|null>(null);const [working,setWorking]=useState(false);
 
     useEffect(()=>{if(!selectedMerchant)merchantReturnFocusRef.current?.focus();},[selectedMerchant]);
-    useEffect(()=>{if(!selectedOffer)offerReturnFocusRef.current?.focus({preventScroll:true});},[selectedOffer]);
+    useEffect(()=>{if(!selectedOffer&&offerReturnFocusRef.current){offerReturnFocusRef.current.focus({preventScroll:true});window.scrollTo({...offerReturnScrollRef.current,behavior:"instant"});}},[selectedOffer]);
     useEffect(()=>{if(!selectedCase)caseReturnFocusRef.current?.focus();},[selectedCase]);
     useEffect(()=>{if(page==="audit-log")return;const onSearch=(event:Event)=>setQuery((event as CustomEvent<string>).detail??"");window.addEventListener("kulha:admin-search",onSearch);return()=>window.removeEventListener("kulha:admin-search",onSearch);},[page]);
     useEffect(()=>{if(page!=="audit-log")return;const timeout=window.setTimeout(()=>setAuditSearch(query.trim()),280);return()=>window.clearTimeout(timeout);},[page,query]);
@@ -404,7 +404,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         ].map(tab=><button key={tab.value||"all"} type="button" role="tab" aria-selected={offerStatus===tab.value} className={offerStatus===tab.value?styles.activeTab+" "+offerStyles.activeTab:styles.tab+" "+offerStyles.tab} onClick={()=>{setOfferStatus(tab.value);setOfferPage(0);setSelectedOffer(null);setReason("");}}>{tab.label} · {tab.count}</button>)}
                     </div>
                     <div className={styles.offerQueue} data-testid="offer-queue">
-                        {offerItems.map(item=>{const d=discount(item);return <button type="button" key={item.id} aria-pressed={selectedOffer?.id===item.id} className={selectedOffer?.id===item.id?styles.offerItemSelected:styles.offerItem} onClick={event=>{offerReturnFocusRef.current=event.currentTarget;setSelectedOffer(item);setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");}}>
+                        {offerItems.map(item=>{const d=discount(item);return <button type="button" key={item.id} aria-pressed={selectedOffer?.id===item.id} className={selectedOffer?.id===item.id?styles.offerItemSelected:styles.offerItem} onClick={event=>{offerReturnFocusRef.current=event.currentTarget;offerReturnScrollRef.current={left:window.scrollX,top:window.scrollY};setSelectedOffer(item);setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");}}>
                             <span className={styles.offerThumb}>{item.imageUrl?<OfferImage src={item.imageUrl} alt="" lazy/>:<ImageIcon size={20} aria-hidden="true"/>}</span>
                             <span className={styles.offerCopy}>
                                 <strong>{item.title}</strong>
