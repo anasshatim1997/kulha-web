@@ -1027,6 +1027,16 @@ try {
           throw new Error("Offer detail must always open as a modal at " + size.width + "px.");
         }
         if (await modal.getAttribute("role") !== "dialog") throw new Error("Offer modal is missing dialog semantics.");
+        await page.keyboard.press("Shift+Tab");
+        const wrappedToLast = await modal.evaluate(element => {
+          const nodes = [...element.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')]
+            .filter(node => node.getClientRects().length > 0);
+          return nodes.length > 1 && document.activeElement === nodes[nodes.length - 1];
+        });
+        if (!wrappedToLast) throw new Error("Shift+Tab did not wrap focus to the last offer modal control.");
+        await page.keyboard.press("Tab");
+        const wrappedToFirst = await modal.evaluate(element => document.activeElement === element.querySelector("header button"));
+        if (!wrappedToFirst) throw new Error("Tab did not wrap focus to the first offer modal control.");
         await page.keyboard.press("Escape");
         await modal.waitFor({ state: "detached" });
         if (!(await firstRow.evaluate(element => document.activeElement === element))) {
