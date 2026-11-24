@@ -57,6 +57,13 @@ jobs:
         run: |
           PLAYWRIGHT_CLI="$(command -v playwright)" node scripts/browser-workspace-smoke.mjs
 
+      - name: Diagnose Offer Picker at 1024x768
+        env:
+          WORKSPACE_FOCUS: offer-moderation
+          WORKSPACE_FOCUS_WIDTH: "1024"
+        run: |
+          PLAYWRIGHT_CLI="$(command -v playwright)" node scripts/browser-workspace-smoke.mjs
+
       - name: Run authenticated browser workflows and viewport checks
         run: |
           echo "PLAYWRIGHT_CLI=$(command -v playwright)" >> "$GITHUB_ENV"

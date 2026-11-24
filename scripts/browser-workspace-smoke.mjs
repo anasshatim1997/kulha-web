@@ -673,19 +673,54 @@ async function assertAdminCardClipping(page, route, width, height) {
       clientWidth: element.clientWidth,
       scrollWidth: element.scrollWidth,
     })).filter(item => item.clientWidth > 0 && item.scrollWidth > item.clientWidth + 1);
+    const box = element => {
+      if (!element) return null;
+      const rect = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      return {
+        tag: element.tagName.toLowerCase(),
+        testId: element.getAttribute("data-testid"),
+        className: typeof element.className === "string" ? element.className : "",
+        text: (element.innerText || "").trim().slice(0, 100),
+        rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height, left: rect.left, right: rect.right },
+        clientWidth: element.clientWidth,
+        scrollWidth: element.scrollWidth,
+        style: {
+          display: style.display, position: style.position, boxSizing: style.boxSizing,
+          width: style.width, minWidth: style.minWidth, maxWidth: style.maxWidth,
+          paddingInline: style.paddingInline, gap: style.gap, columnGap: style.columnGap,
+          gridTemplateColumns: style.gridTemplateColumns, flex: style.flex,
+          flexBasis: style.flexBasis, whiteSpace: style.whiteSpace, overflowX: style.overflowX
+        }
+      };
+    };
+    const picker = root.querySelector('[data-testid="offer-picker"]');
+    const workspace = root.querySelector('[data-testid="offer-workspace"]');
+    const ancestors = [];
+    for (let node = picker; node && ancestors.length < 5; node = node.parentElement) ancestors.push(box(node));
+    const directChildren = picker ? [...picker.children].map(box) : [];
+    const descendants = picker ? [...picker.querySelectorAll(".tabs, .tabs > *, .offerQueue, .offerItem, .offerItemSelected, .offerThumb, .offerCopy, .offerPrice, .offerCopy > *, .offerTags")]
+      .map(box) : [];
     const card = root.querySelector('[data-testid="audit-table-card"]');
     const wrapper = root.querySelector('[data-testid="audit-table-wrapper"]');
     const header = wrapper?.querySelector("thead th:last-child");
     const cell = wrapper?.querySelector("tbody tr td:last-child");
     const right = element => element ? element.getBoundingClientRect().right : null;
     return {
-      overflow,
-      cardRight: right(card),
-      headerRight: right(header),
-      cellRight: right(cell),
+      overflow, offerPicker: box(picker), offerWorkspace: box(workspace),
+      ancestors, directChildren, descendants,
+      cardRight: right(card), headerRight: right(header), cellRight: right(cell),
     };
   });
   if (metrics.overflow.length) {
+    if (route.endsWith("/admin/offer-moderation") && metrics.overflow.some(item => item.id === "offer-picker")) {
+      await page.screenshot({
+        path: join("artifacts/browser-screenshots", "offer-picker-diagnostic-" + width + "x" + height + ".png"),
+        animations: "disabled", fullPage: true
+      });
+      throw new Error("Offer picker layout diagnostic on " + route + " at " + width + "x" + height
+        + ": " + JSON.stringify(metrics));
+    }
     throw new Error("Admin card clipping on " + route + " at " + width + "x" + height
       + ": " + JSON.stringify(metrics.overflow));
   }
