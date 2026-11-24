@@ -214,8 +214,9 @@ const backend = createServer(async (request, response) => {
     const rows = url.searchParams.get("status") === caseStatus ? supportCases : [];
     return json(response, page(rows));
   }
-  if (path === `/admin/support-cases/${supportCase.reference}` && method === "GET") {
-    return json(response, { summary: { ...supportCase, status: caseStatus }, timeline });
+  const selectedCase = supportCases.find(item => path === `/admin/support-cases/${item.reference}`);
+  if (selectedCase && method === "GET") {
+    return json(response, { summary: { ...selectedCase, status: selectedCase.status ?? caseStatus }, timeline });
   }
   if (path === `/admin/support-cases/${supportCase.reference}/messages` && method === "POST") {
     const payload = await bodyOf(request);
