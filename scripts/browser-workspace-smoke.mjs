@@ -53,21 +53,36 @@ const supportCase = {
 };
 const merchantRows = [
   merchant,
-  { ...merchant, id: "00000000-0000-4000-8000-000000000111", name: "Épicerie Atlas", businessType: "GROCERY", ownerEmail: "atlas@kulha.test", city: "Rabat", status: "PENDING" },
-  { ...merchant, id: "00000000-0000-4000-8000-000000000112", name: "Pâtisserie Zayna", businessType: "PASTRY", ownerEmail: "zayna@kulha.test", city: "Marrakech", status: "PENDING" },
-  { ...merchant, id: "00000000-0000-4000-8000-000000000114", name: "Épicerie de la Place", businessType: "GROCERY", ownerEmail: "owner2@kulha.test", city: "Rabat", address: "14 Rue des Consuls", status: "PENDING" },
-  { ...merchant, id: "00000000-0000-4000-8000-000000000115", name: "Pâtisserie Nour", businessType: "BAKERY", ownerEmail: "owner3@kulha.test", city: "Marrakech", address: "8 Avenue Mohammed V", status: "PENDING" },
-  { ...merchant, id: "00000000-0000-4000-8000-000000000116", name: "Primeur Atlas", businessType: "GROCERY", ownerEmail: "owner4@kulha.test", city: "Agadir", address: "22 Boulevard Hassan II", status: "PENDING" },
+  { ...merchant, id: "00000000-0000-4000-8000-000000000117", name: "Épicerie Atlas", businessType: "GROCERY", ownerEmail: "atlas@kulha.test", city: "Rabat", status: "PENDING" },
+  { ...merchant, id: "00000000-0000-4000-8000-000000000118", name: "Pâtisserie Zayna", businessType: "PASTRY", ownerEmail: "zayna@kulha.test", city: "Marrakech", status: "PENDING" },
+  ...[
+    ["00000000-0000-4000-8000-000000000111", "Épicerie de la Place", "GROCERY", "Rabat", "owner2@kulha.test", "14 Rue des Consuls"],
+    ["00000000-0000-4000-8000-000000000112", "Pâtisserie Nour", "BAKERY", "Marrakech", "owner3@kulha.test", "8 Avenue Mohammed V"],
+    ["00000000-0000-4000-8000-000000000113", "Primeur Atlas", "GROCERY", "Agadir", "owner4@kulha.test", "22 Boulevard Hassan II"],
+  ].map(([id, name, businessType, city, ownerEmail, address], index) => ({
+    ...merchant, id, name, businessType, city, ownerEmail, address,
+    phone: `+21260000000${index + 2}`, status: "PENDING",
+    createdAt: new Date(now.getTime() - (index + 1) * 86400000).toISOString(),
+  })),
 ];
 const supportCases = [
   supportCase,
   { ...supportCase, id: "00000000-0000-4000-8000-000000000121", reference: "SUP-2026-0002", category: "RESERVATION", subject: "Reservation pickup window mismatch", priority: "MEDIUM" },
   { ...supportCase, id: "00000000-0000-4000-8000-000000000122", reference: "SUP-2026-0003", category: "MERCHANT", subject: "Merchant cannot update opening hours", priority: "LOW" },
   { ...supportCase, id: "00000000-0000-4000-8000-000000000123", reference: "SUP-2026-0004", category: "FOOD_SAFETY", subject: "Packaging condition reported", priority: "HIGH" },
-  { ...supportCase, id: "00000000-0000-4000-8000-000000000130", reference: "SUP-2026-0005", category: "RESERVATION", subject: "Reservation pickup time clarification", priority: "MEDIUM" },
-  { ...supportCase, id: "00000000-0000-4000-8000-000000000131", reference: "SUP-2026-0006", category: "OFFER_QUALITY", subject: "Incorrect basket contents reported", priority: "MEDIUM" },
-  { ...supportCase, id: "00000000-0000-4000-8000-000000000132", reference: "SUP-2026-0007", category: "MERCHANT_ACCOUNT", subject: "Shop cannot update opening hours", priority: "LOW" },
-  { ...supportCase, id: "00000000-0000-4000-8000-000000000133", reference: "SUP-2026-0008", category: "FOOD_SAFETY", subject: "Possible cold-chain concern", priority: "HIGH", status: "ESCALATED" },
+  ...[
+    ["SUP-2026-0005", "Reservation pickup time clarification", "RESERVATION", "MEDIUM", "OPEN"],
+    ["SUP-2026-0006", "Incorrect basket contents reported", "OFFER_QUALITY", "MEDIUM", "OPEN"],
+    ["SUP-2026-0007", "Shop cannot update opening hours", "MERCHANT_ACCOUNT", "LOW", "OPEN"],
+    ["SUP-2026-0008", "Possible cold-chain concern", "FOOD_SAFETY", "HIGH", "ESCALATED"],
+  ].map(([reference, subject, category, priority, status], index) => ({
+    ...supportCase,
+    id: `00000000-0000-4000-8000-${String(130 + index).padStart(12, "0")}`,
+    reference, subject, category, priority, status,
+    description: `Case details for ${subject.toLowerCase()}.`,
+    createdAt: new Date(now.getTime() - (index + 1) * 3600000).toISOString(),
+    updatedAt: new Date(now.getTime() - index * 1800000).toISOString(),
+  })),
 ];
 const auditRows = Array.from({ length: 14 }, (_, index) => ({
   id: `00000000-0000-4000-8000-${String(500 + index).padStart(12, "0")}`,
