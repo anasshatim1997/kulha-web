@@ -1218,9 +1218,10 @@ try {
     await page.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
     await page.getByTestId("merchant-review-list").getByRole("button").first().click();
     const workflow = page.getByTestId("merchant-review-workflow");
+    const decision = page.getByTestId("merchant-review-decision");
     await page.getByTestId("merchant-review-detail-page").waitFor({ state: "visible" });
     await workflow.waitFor({ state: "visible" });
-    await workflow.getByRole("button", { name: "Approve" }).click();
+    await decision.getByRole("button", { name: "Approve" }).click();
     const reviewButton = page.getByTestId("merchant-review-footer").getByRole("button", { name: "Review decision" });
     if (await reviewButton.isEnabled()) throw new Error("Approval unlocked before all three verification checks.");
     await workflow.getByLabel("Address and location checked").check();
