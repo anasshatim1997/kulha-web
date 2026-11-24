@@ -241,7 +241,7 @@ export function SiteHeader() {
           </div>
         </aside>
         {(isAdminWorkspace || isWorkspace) && (
-          <div className="ws-topbar" dir={copy.dir}>
+          <div className="ws-topbar" data-testid="admin-console-topbar" dir={copy.dir}>
             {isAdminWorkspace && !pathname.includes("/admin/audit-log") && <label className="ws-top-search" data-testid="admin-console-search">
               <Search size={18} aria-hidden="true" />
               <span className="sr-only">{l("بحث في مساحة الإدارة", "Search admin workspace", "Rechercher dans l’espace administration")}</span>
