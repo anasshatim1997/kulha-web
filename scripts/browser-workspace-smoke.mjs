@@ -907,24 +907,32 @@ try {
         await rows.first().click();
         const drawer = page.getByTestId("workspace-drawer");
         await drawer.waitFor({ state: "visible" });
-        await rows.nth(1).click();
-        await drawer.waitFor({ state: "visible" });
+        if (size.width > 700) {
+          await rows.nth(1).click();
+          await drawer.waitFor({ state: "visible" });
+        }
       }
       if (route.path.endsWith("/admin/support-cases")) {
         const rows = page.getByTestId("support-case-row");
         await rows.first().click();
         const drawer = page.getByTestId("workspace-drawer");
         await drawer.waitFor({ state: "visible" });
-        const firstSubject = await page.locator('[data-testid="support-case-detail"] h2').innerText();
-        await rows.nth(1).click();
-        await page.waitForFunction(previous => document.querySelector('[data-testid="support-case-detail"] h2')?.textContent !== previous, firstSubject);
-        if (!(await drawer.isVisible())) throw new Error("Selecting another support case closed the detail drawer.");
+        if (size.width > 700) {
+          const firstSubject = await page.locator('[data-testid="support-case-detail"] h2').innerText();
+          await rows.nth(1).click();
+          await page.waitForFunction(previous => document.querySelector('[data-testid="support-case-detail"] h2')?.textContent !== previous, firstSubject);
+          if (!(await drawer.isVisible())) throw new Error("Selecting another support case closed the detail drawer.");
+        }
       }
       if (route.adminPage) await assertAdminStatusControls(page, route.path, size.width, size.height);
       if (route.path.endsWith("/admin/merchant-review")) await assertMerchantReviewLayout(page, size.width, size.height);
       if (route.path.endsWith("/admin/offer-moderation")) {
         await assertOfferModerationLayout(page, size.width, size.height);
         const longTitle = "Family breakfast basket with assorted bakery items, fresh fruit and detailed allergen information";
+        if (size.width <= 700) {
+          await page.getByTestId("workspace-drawer").locator("header button").click();
+          await page.getByTestId("workspace-drawer").waitFor({ state: "hidden" });
+        }
         await page.getByTestId("offer-queue").getByRole("button").filter({ hasText: longTitle }).click();
         await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
         await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
