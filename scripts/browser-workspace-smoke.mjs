@@ -378,7 +378,7 @@ async function assertOfferModerationLayout(page, width, height) {
         copyWidth: copy?.clientWidth ?? 0,
         copyScrollWidth: copy?.scrollWidth ?? 0,
         priceWidth: price?.clientWidth ?? 0,
-        copyPriceOverlap: Boolean(copyBox && priceBox && copyBox.right > priceBox.left + 1),
+        copyPriceOverlap: Boolean(copyBox && priceBox && copyBox.left < priceBox.right - 1 && copyBox.right > priceBox.left + 1 && copyBox.top < priceBox.bottom - 1 && copyBox.bottom > priceBox.top + 1),
       };
     });
     return {
@@ -987,6 +987,11 @@ try {
         if (new URL(page.url()).searchParams.get("status") !== "PENDING") throw new Error("Back navigation did not preserve the queue status: " + page.url());
       }
       if (route.path.endsWith("/admin/offer-moderation")) {
+        const queueLocale = route.path.split("/")[1];
+        await page.screenshot({
+          path: join("artifacts/browser-screenshots", "offer-moderation-queue-" + queueLocale + "-" + size.width + "x" + size.height + ".png"),
+          animations: "disabled", fullPage: true,
+        });
         const rows = page.getByTestId("offer-queue").getByRole("button");
         const drawer = page.getByTestId("workspace-drawer");
         await rows.first().click();
