@@ -11,17 +11,18 @@ type Props = {
   direction?: "ltr" | "rtl";
   dirty?: boolean;
   confirmDiscard: string;
+  modalBreakpoint?: number;
   onClose: () => void;
   children: ReactNode;
 };
 
-export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr", dirty = false, confirmDiscard, onClose, children }: Props) {
+export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr", dirty = false, confirmDiscard, modalBreakpoint = 700, onClose, children }: Props) {
   const panelRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const onCloseRef = useRef(onClose);
   const dirtyRef = useRef(dirty);
   const confirmRef = useRef(confirmDiscard);
-  const [mobileModal, setMobileModal] = useState(false);
+  const [modalPresentation, setMobileModal] = useState(false);
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -30,17 +31,17 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr
   }, [onClose, dirty, confirmDiscard]);
 
   useEffect(() => {
-    const media = window.matchMedia("(max-width: 700px)");
+    const media = window.matchMedia("(max-width: " + modalBreakpoint + "px)");
     const update = () => setMobileModal(media.matches);
     update();
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
-  }, []);
+  }, [modalBreakpoint]);
 
   useEffect(() => {
     if (!open) return;
     const previousOverflow = document.body.style.overflow;
-    if (mobileModal) document.body.style.overflow = "hidden";
+    if (modalPresentation) document.body.style.overflow = "hidden";
     const frame = window.requestAnimationFrame(() => closeRef.current?.focus());
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -49,7 +50,7 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr
         onCloseRef.current();
         return;
       }
-      if (mobileModal && event.key === "Tab" && panelRef.current) {
+      if (modalPresentation && event.key === "Tab" && panelRef.current) {
         const nodes = Array.from(panelRef.current.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'));
         if (!nodes.length) { event.preventDefault(); panelRef.current.focus(); return; }
         const first = nodes[0], last = nodes[nodes.length - 1];
@@ -58,7 +59,7 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr
       }
     };
     const onDocumentPointerDown = (event: PointerEvent) => {
-      if (mobileModal) return;
+      if (modalPresentation) return;
       const target = event.target instanceof Element ? event.target : null;
       if (!target || panelRef.current?.contains(target)) return;
       if (target.closest('[data-testid="merchant-review-list"],[data-testid="offer-queue"],[data-testid="support-case-list"]')) return;
@@ -73,7 +74,7 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr
       document.removeEventListener("pointerdown", onDocumentPointerDown, true);
       document.body.style.overflow = previousOverflow;
     };
-  }, [open, mobileModal]);
+  }, [open, modalPresentation]);
 
   const requestClose = () => {
     if (dirtyRef.current && !window.confirm(confirmRef.current)) return;
@@ -83,16 +84,16 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr
   if (!open || typeof document === "undefined") return null;
   return createPortal(
     <div
-      className={mobileModal ? styles.backdrop + " " + styles.mobile : styles.backdrop + " " + styles.desktop}
+      className={modalPresentation ? styles.backdrop + " " + styles.mobile : styles.backdrop + " " + styles.desktop}
       data-testid="workspace-drawer-backdrop"
-      onClick={event => { if (mobileModal && event.target === event.currentTarget) requestClose(); }}
+      onClick={event => { if (modalPresentation && event.target === event.currentTarget) requestClose(); }}
     >
       <aside
         dir={direction}
         ref={panelRef}
         tabIndex={-1}
         role="dialog"
-        aria-modal={mobileModal ? true : undefined}
+        aria-modal={modalPresentation ? true : undefined}
         aria-label={title}
         className={styles.drawer}
         data-testid="workspace-drawer"

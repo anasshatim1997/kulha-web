@@ -988,10 +988,22 @@ try {
       }
       if (route.path.endsWith("/admin/offer-moderation")) {
         const rows = page.getByTestId("offer-queue").getByRole("button");
-        await rows.first().click();
         const drawer = page.getByTestId("workspace-drawer");
+        await rows.first().click();
         await drawer.waitFor({ state: "visible" });
-        if (size.width > 700) {
+        const isModal = await drawer.getAttribute("aria-modal");
+        if (size.width <= 1199) {
+          if (isModal !== "true") {
+            throw new Error("Offer detail must become a modal when the full-width queue sits beneath it at " + size.width + "px.");
+          }
+          await drawer.locator("header button").click();
+          await drawer.waitFor({ state: "hidden" });
+          await rows.nth(1).click();
+          await drawer.waitFor({ state: "visible" });
+        } else {
+          if (isModal === "true") {
+            throw new Error("Desktop offer detail should remain a non-modal side overlay at " + size.width + "px.");
+          }
           await rows.nth(1).click();
           await drawer.waitFor({ state: "visible" });
         }
@@ -1013,7 +1025,7 @@ try {
       if (route.path.endsWith("/admin/offer-moderation")) {
         await assertOfferModerationLayout(page, size.width, size.height);
         const longTitle = "Family breakfast basket with assorted bakery items, fresh fruit and detailed allergen information";
-        if (size.width <= 700) {
+        if (size.width <= 1199) {
           await page.getByTestId("workspace-drawer").locator("header button").click();
           await page.getByTestId("workspace-drawer").waitFor({ state: "hidden" });
         }
