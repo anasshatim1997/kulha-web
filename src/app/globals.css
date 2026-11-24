@@ -16032,3 +16032,7 @@ body:has(.admin-login-shell) #contenu {
 .ws-top-search input{height:44px;min-height:44px;font-size:13px}
 .ws-top-lang select{min-height:44px}
 .ws-top-signout{min-height:44px}
+
+
+.ws-brand small{font-size:13px!important}
+.ws-top-user .ws-avatar{font-size:13px!important}
