@@ -389,55 +389,57 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                 </section>
                 <section className={styles.offerPreviewCard} aria-label={t.selectedOffer} data-testid="offer-detail-panel">
                     {!selectedOffer?<div className={styles.offerEmpty}><Tag size={28} aria-hidden="true"/><strong>{t.selectedOffer}</strong><span>{t.empty}</span></div>:<>
-                        <div className={styles.offerPreviewHeading}>
-                            <div className={styles.offerPreviewThumb}>{selectedOffer.imageUrl?<OfferImage src={selectedOffer.imageUrl} alt={selectedOffer.title}/>:<ImageIcon size={24} aria-hidden="true"/>}</div>
-                            <div className={styles.offerPreviewTitle}>
-                                <small>{t.selectedOffer}</small>
-                                <h2>{selectedOffer.title}</h2>
-                                <p>{selectedOffer.shopName} · {selectedOffer.city}</p>
+                        <div className={styles.offerPreviewScroll} data-testid="offer-preview-scroll">
+                            <div className={styles.offerPreviewHeading}>
+                                <div className={styles.offerPreviewThumb}>{selectedOffer.imageUrl?<OfferImage src={selectedOffer.imageUrl} alt={selectedOffer.title}/>:<ImageIcon size={24} aria-hidden="true"/>}</div>
+                                <div className={styles.offerPreviewTitle}>
+                                    <small>{t.selectedOffer}</small>
+                                    <h2>{selectedOffer.title}</h2>
+                                    <p>{selectedOffer.shopName} · {selectedOffer.city}</p>
+                                </div>
+                                <span className={styles.pill+" "+offerTone(selectedOffer.status)}>{offerLabel(selectedOffer.status)}</span>
                             </div>
-                            <span className={styles.pill+" "+offerTone(selectedOffer.status)}>{offerLabel(selectedOffer.status)}</span>
+                            <dl className={styles.offerPreviewFacts}>
+                                <div><dt>{t.price}</dt><dd>{amount(selectedOffer.priceMinor,locale)} MAD</dd></div>
+                                <div><dt>{t.originalPrice}</dt><dd>{selectedOffer.originalPriceMinor?amount(selectedOffer.originalPriceMinor,locale)+" MAD":"—"}</dd></div>
+                                <div><dt>{t.stock}</dt><dd>{selectedOffer.quantityReserved} / {selectedOffer.quantityTotal} {t.reserved}</dd></div>
+                                <div><dt>{t.reportsTitle}</dt><dd>{selectedOffer.reportedCount}</dd></div>
+                            </dl>
+                            {selectedOffer.allergensStatus==="UNKNOWN"&&<div className={styles.offerPreviewAlert} data-testid="offer-food-safety-alert"><AlertTriangle size={17} aria-hidden="true"/><span><strong>{t.foodSafetyTitle}</strong><small>{t.foodSafetyBody}</small></span></div>}
+                            <section className={styles.merchantModalSection+" "+styles.offerEvidence} data-testid="offer-evidence">
+                                <h3>{t.reportsTitle} · {selectedOffer.reportedCount}</h3>
+                                {selectedOffer.reportedCount>0?<div className={styles.offerModalReport}><strong>{selectedOffer.reportedCount} {t.reportReceived}</strong><span>{t.status}: {offerLabel(selectedOffer.status)}</span></div>:<p className={styles.offerModalNoReports}>{t.noReports}</p>}
+                                {selectedOffer.foodNotes&&<div className={styles.offerModalFoodNotes}><strong>{t.foodInfo}</strong><p>{selectedOffer.foodNotes}</p></div>}
+                            </section>
                         </div>
-                        <dl className={styles.offerPreviewFacts}>
-                            <div><dt>{t.price}</dt><dd>{amount(selectedOffer.priceMinor,locale)} MAD</dd></div>
-                            <div><dt>{t.originalPrice}</dt><dd>{selectedOffer.originalPriceMinor?amount(selectedOffer.originalPriceMinor,locale)+" MAD":"—"}</dd></div>
-                            <div><dt>{t.stock}</dt><dd>{selectedOffer.quantityReserved} / {selectedOffer.quantityTotal} {t.reserved}</dd></div>
-                            <div><dt>{t.reportsTitle}</dt><dd>{selectedOffer.reportedCount}</dd></div>
-                        </dl>
-                        {selectedOffer.allergensStatus==="UNKNOWN"&&<div className={styles.offerPreviewAlert} data-testid="offer-food-safety-alert"><AlertTriangle size={17} aria-hidden="true"/><span><strong>{t.foodSafetyTitle}</strong><small>{t.foodSafetyBody}</small></span></div>}
-                        <div className={styles.offerInlineBody} data-testid="offer-moderation-workflow">
-                            <div className={styles.merchantModalColumn}>
-                                <section className={styles.merchantModalSection}>
-                                    <h3>{t.reportsTitle} · {selectedOffer.reportedCount}</h3>
-                                    {selectedOffer.reportedCount>0?<div className={styles.offerModalReport}><strong>{selectedOffer.reportedCount} {t.reportReceived}</strong><span>{t.status}: {offerLabel(selectedOffer.status)}</span></div>:<p className={styles.offerModalNoReports}>{t.noReports}</p>}
-                                    {selectedOffer.foodNotes&&<div className={styles.offerModalFoodNotes}><strong>{t.foodInfo}</strong><p>{selectedOffer.foodNotes}</p></div>}
-                                </section>
+                        <div className={styles.offerDecisionDock} data-testid="offer-decision-dock">
+                            <div className={styles.offerInlineBody} data-testid="offer-moderation-workflow">
+                                <div className={styles.merchantModalColumn}>
+                                    <section className={styles.merchantModalSection+" "+styles.offerModalReason} data-testid="offer-decision-reason">
+                                        <h3>{t.reason}</h3>
+                                        <div className={styles.reasonChips}>
+                                            {[t.reasonMisleading,t.reasonAllergens,t.reasonPhoto,t.reasonOther].map(label=><button key={label} type="button" className={reason.startsWith(label)?styles.reasonChipActive:styles.reasonChip} onClick={()=>setReason(label+": ")}>{label}</button>)}
+                                        </div>
+                                        <label className={styles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
+                                    </section>
+                                </div>
+                                <div className={styles.merchantModalColumn}>
+                                    <section className={styles.merchantDecision+" "+styles.offerModalDecision}>
+                                        <h3>{t.decision}</h3>
+                                        <p className={styles.offerModalDecisionHint}>{t.reinstateOnlyHidden}</p>
+                                        <div className={styles.offerActionRow}>
+                                            <button type="button" data-action="reinstate" aria-pressed={offerAction==="reinstate"} className={offerAction==="reinstate"?styles.offerActionActive:styles.offerAction} disabled={selectedOffer.status!=="SUSPENDED"} onClick={()=>setOfferAction("reinstate")}>{t.putLive}</button>
+                                            <button type="button" data-action="request-edit" aria-pressed={offerAction==="request-edit"} className={offerAction==="request-edit"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("request-edit")}>{t.askEdit}</button>
+                                            <button type="button" data-action="suspend" aria-pressed={offerAction==="suspend"} className={offerAction==="suspend"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("suspend")}>{selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
+                                        </div>
+                                    </section>
+                                </div>
                             </div>
-                            <div className={styles.merchantModalColumn}>
-                                <section className={styles.merchantModalSection+" "+styles.offerModalReason} data-testid="offer-decision-reason">
-                                    <h3>{t.reason}</h3>
-                                    <div className={styles.reasonChips}>
-                                        {[t.reasonMisleading,t.reasonAllergens,t.reasonPhoto,t.reasonOther].map(label=><button key={label} type="button" className={reason.startsWith(label)?styles.reasonChipActive:styles.reasonChip} onClick={()=>setReason(label+": ")}>{label}</button>)}
-                                    </div>
-                                    <label className={styles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
-                                </section>
-                            </div>
-                            <div className={styles.merchantModalColumn}>
-                                <section className={styles.merchantDecision+" "+styles.offerModalDecision}>
-                                    <h3>{t.decision}</h3>
-                                    <p className={styles.offerModalDecisionHint}>{t.reinstateOnlyHidden}</p>
-                                    <div className={styles.offerActionRow}>
-                                        <button type="button" data-action="reinstate" aria-pressed={offerAction==="reinstate"} className={offerAction==="reinstate"?styles.offerActionActive:styles.offerAction} disabled={selectedOffer.status!=="SUSPENDED"} onClick={()=>setOfferAction("reinstate")}>{t.putLive}</button>
-                                        <button type="button" data-action="request-edit" aria-pressed={offerAction==="request-edit"} className={offerAction==="request-edit"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("request-edit")}>{t.askEdit}</button>
-                                        <button type="button" data-action="suspend" aria-pressed={offerAction==="suspend"} className={offerAction==="suspend"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("suspend")}>{selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
-                                    </div>
-                                </section>
-                            </div>
+                            <footer className={styles.offerInlineFooter} data-testid="offer-moderation-footer">
+                                <p><ShieldCheck size={15} aria-hidden="true"/>{t.auditRecorded}</p>
+                                <button className={styles.primary} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{working?t.loading:offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
+                            </footer>
                         </div>
-                        <footer className={styles.offerInlineFooter} data-testid="offer-moderation-footer">
-                            <p><ShieldCheck size={15} aria-hidden="true"/>{t.auditRecorded}</p>
-                            <button className={styles.primary} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{working?t.loading:offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
-                        </footer>
                     </>}
                 </section>
             </div>

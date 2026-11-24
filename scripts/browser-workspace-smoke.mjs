@@ -36,7 +36,7 @@ const moderationOffers = Array.from({ length: 14 }, (_, index) => ({
   title: index === 0 ? "Panier du fournil" : index === 1 ? "Family breakfast basket with assorted bakery items, fresh fruit and detailed allergen information" : `Basket selection ${index + 1}`,
   shopName: "Boulangerie Test", city: "Casablanca", priceMinor: 4000 + index * 100,
   originalPriceMinor: 8000 + index * 100, quantityTotal: 10, quantityReserved: 2,
-  allergensStatus: index % 3 === 0 ? "UNKNOWN" : "DECLARED", allergens: index % 3 === 0 ? null : "Wheat",
+  allergensStatus: index % 3 === 0 || index === 1 ? "UNKNOWN" : "DECLARED", allergens: index % 3 === 0 || index === 1 ? null : "Wheat",
   foodNotes: "Prepared today", status: "PUBLISHED", reportedCount: index % 3 === 0 ? 2 : 0,
   pickupStart, pickupEnd, imageUrl: null,
 }));
@@ -509,53 +509,130 @@ async function assertOfferDecisionAccessible(page, width, height, route) {
     const queue = document.querySelector('[data-testid="offer-queue"]');
     const pagination = document.querySelector('[data-testid="offer-pagination"]');
     const preview = document.querySelector('[data-testid="offer-detail-panel"]');
+    const previewScroll = document.querySelector('[data-testid="offer-preview-scroll"]');
+    const evidence = document.querySelector('[data-testid="offer-evidence"]');
+    const dock = document.querySelector('[data-testid="offer-decision-dock"]');
     const workflow = document.querySelector('[data-testid="offer-moderation-workflow"]');
     const footer = document.querySelector('[data-testid="offer-moderation-footer"]');
     const reasonPanel = document.querySelector('[data-testid="offer-decision-reason"]');
     const reasonField = reasonPanel?.querySelector("textarea");
+    const reasonLabel = reasonPanel?.querySelector("label");
+    const reasonChips = [...(reasonPanel?.querySelectorAll("button") ?? [])];
+    const decisionButtons = [...(workflow?.querySelectorAll("button[data-action]") ?? [])];
+    const title = preview?.querySelector("h2");
+    const safetyWarning = document.querySelector('[data-testid="offer-food-safety-alert"]');
     const box = element => {
       if (!element) return null;
       const rect = element.getBoundingClientRect();
       return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height: rect.height };
     };
+    const font = element => element ? Number.parseFloat(getComputedStyle(element).fontSize) : null;
     const action = footer?.querySelector("button");
     return {
       workspace: box(workspace), picker: box(picker), queue: box(queue), pagination: box(pagination),
-      preview: box(preview), workflow: box(workflow), footer: box(footer), action: box(action),
-      reasonPanel: box(reasonPanel), reasonField: box(reasonField),
+      preview: box(preview), previewScroll: box(previewScroll), evidence: box(evidence),
+      decisionDock: box(dock), workflow: box(workflow), footer: box(footer),
+      action: box(action), reasonPanel: box(reasonPanel), reasonField: box(reasonField), title: box(title),
       queueClient: queue?.clientHeight ?? 0, queueScroll: queue?.scrollHeight ?? 0,
       queueOverflow: queue ? getComputedStyle(queue).overflowY : "missing",
-      previewClient: preview?.clientHeight ?? 0, previewScroll: preview?.scrollHeight ?? 0,
+      previewClient: preview?.clientHeight ?? 0,
       previewOverflow: preview ? getComputedStyle(preview).overflowY : "missing",
+      previewScrollClient: previewScroll?.clientHeight ?? 0,
+      previewScrollHeight: previewScroll?.scrollHeight ?? 0,
+      previewScrollOverflow: previewScroll ? getComputedStyle(previewScroll).overflowY : "missing",
       documentWidth: document.documentElement.scrollWidth,
-      safetyWarningsInsideDecision: workflow?.querySelectorAll(".foodSafetyAlert").length ?? -1
+      evidenceInsideScroll: Boolean(previewScroll && evidence && previewScroll.contains(evidence)),
+      evidenceInsideWorkflow: Boolean(workflow && evidence && workflow.contains(evidence)),
+      safetyWarningInsideScroll: Boolean(previewScroll && safetyWarning && previewScroll.contains(safetyWarning)),
+      safetyWarningInsideWorkflow: Boolean(workflow && safetyWarning && workflow.contains(safetyWarning)),
+      reasonLabelFont: font(reasonLabel),
+      reasonFieldFont: font(reasonField),
+      reasonChipFonts: reasonChips.map(font),
+      reasonChipHeights: reasonChips.map(element => element.getBoundingClientRect().height),
+      decisionButtonFonts: decisionButtons.map(font),
+      decisionButtonHeights: decisionButtons.map(element => element.getBoundingClientRect().height),
+      footerTextFont: font(footer?.querySelector("p")),
+      actionHeight: action?.getBoundingClientRect().height ?? 0,
     };
   });
-  if (!metrics.workspace || !metrics.picker || !metrics.queue || !metrics.pagination
-      || !metrics.preview || !metrics.workflow || !metrics.footer || !metrics.action
-      || !metrics.reasonPanel || !metrics.reasonField || metrics.reasonField.height < 20) {
-    throw new Error("Offer queue pagination or selected-offer decision is missing at " + width + "x" + height + ": " + JSON.stringify(metrics));
-  }
-  if (metrics.documentWidth > width + 1 || metrics.pagination.top < metrics.picker.top - 1
-      || metrics.pagination.bottom > metrics.picker.bottom + 1) {
-    throw new Error("Offer pagination is clipped or displaced at " + width + "x" + height + ": " + JSON.stringify(metrics));
-  }
-  if (metrics.safetyWarningsInsideDecision !== 0) {
-    throw new Error("Offer detail repeats the food-safety warning inside the decision area at " + width + "x" + height + ".");
-  }
+  const failures = [];
+  const check = (ok, message) => { if (!ok) failures.push(message); };
+  const fmt = value => Number.isFinite(value) ? value.toFixed(1) : String(value);
+  check(Boolean(metrics.workspace), "workspace is missing");
+  check(Boolean(metrics.picker), "offer picker is missing");
+  check(Boolean(metrics.queue), "offer queue is missing");
+  check(Boolean(metrics.pagination), "pagination is missing");
+  check(Boolean(metrics.preview), "preview card is missing");
+  check(Boolean(metrics.previewScroll), "independent preview scroll region is missing");
+  check(Boolean(metrics.evidence), "evidence section is missing");
+  check(Boolean(metrics.decisionDock), "decision dock is missing");
+  check(Boolean(metrics.workflow), "decision workflow is missing");
+  check(Boolean(metrics.footer), "decision footer is missing");
+  check(Boolean(metrics.action), "primary moderation action is missing");
+  check(Boolean(metrics.reasonPanel), "reason panel is missing");
+  check(Boolean(metrics.reasonField), "reason textarea is missing");
+  check(metrics.reasonField?.height >= 44, `reasonField.height ${fmt(metrics.reasonField?.height)} must be >= 44px`);
+  check(metrics.documentWidth <= width + 1, `document width ${metrics.documentWidth}px exceeds viewport ${width}px`);
+  check(metrics.pagination && metrics.picker && metrics.pagination.top >= metrics.picker.top - 1,
+    `pagination.top ${fmt(metrics.pagination?.top)} is above picker.top ${fmt(metrics.picker?.top)}`);
+  check(metrics.pagination && metrics.picker && metrics.pagination.bottom <= metrics.picker.bottom + 1,
+    `pagination.bottom ${fmt(metrics.pagination?.bottom)} exceeds picker.bottom ${fmt(metrics.picker?.bottom)}`);
+  check(metrics.evidenceInsideScroll, "evidence is not inside the independent preview scroll region");
+  check(!metrics.evidenceInsideWorkflow, "evidence must not be inside the decision workflow");
+  check(metrics.safetyWarningInsideScroll, "food-safety warning is not inside the preview scroll region");
+  check(!metrics.safetyWarningInsideWorkflow, "food-safety warning must stay outside the decision workflow");
+  check(metrics.previewScroll && metrics.preview && metrics.previewScroll.top >= metrics.preview.top - 1
+    && metrics.previewScroll.bottom <= metrics.preview.bottom + 1, "preview scroll region escapes the preview card");
+  check(metrics.decisionDock && metrics.preview && metrics.decisionDock.top >= metrics.preview.top - 1
+    && metrics.decisionDock.bottom <= metrics.preview.bottom + 1, "decision dock escapes the preview card");
+  check(metrics.workflow && metrics.footer && metrics.workflow.bottom <= metrics.footer.top - 4,
+    `workflow.bottom ${fmt(metrics.workflow?.bottom)} must be at least 4px above footer.top ${fmt(metrics.footer?.top)}`);
+  check(metrics.reasonField && metrics.footer && metrics.reasonField.bottom <= metrics.footer.top - 4,
+    `reasonField.bottom ${fmt(metrics.reasonField?.bottom)} must be <= footer.top ${fmt(metrics.footer?.top)} - 4`);
+  check(metrics.workflow && metrics.preview && metrics.workflow.bottom <= metrics.preview.bottom,
+    `workflow.bottom ${fmt(metrics.workflow?.bottom)} exceeds preview.bottom ${fmt(metrics.preview?.bottom)}`);
+  check(metrics.footer && metrics.preview && metrics.footer.bottom <= metrics.preview.bottom,
+    `footer.bottom ${fmt(metrics.footer?.bottom)} exceeds preview.bottom ${fmt(metrics.preview?.bottom)}`);
+  check(metrics.action && metrics.preview && metrics.action.bottom <= metrics.preview.bottom - 8,
+    `action.bottom ${fmt(metrics.action?.bottom)} leaves less than 8px below the button inside the preview`);
+  check(metrics.action && metrics.action.bottom <= height + 2,
+    `action.bottom ${fmt(metrics.action?.bottom)} is below viewport height ${height}px`);
+  check(metrics.reasonField && metrics.preview && metrics.reasonField.top >= metrics.preview.top - 1,
+    `reasonField.top ${fmt(metrics.reasonField?.top)} is above preview.top ${fmt(metrics.preview?.top)}`);
+  check(metrics.title && metrics.previewScroll && metrics.title.top >= metrics.previewScroll.top - 1
+    && metrics.title.bottom <= metrics.previewScroll.bottom + 1,
+    `selected title bounds ${JSON.stringify(metrics.title)} escape preview scroll bounds ${JSON.stringify(metrics.previewScroll)}`);
+  check(metrics.reasonLabelFont >= 11, `reason label font ${fmt(metrics.reasonLabelFont)}px is below 11px`);
+  check(metrics.reasonFieldFont >= 11, `reason textarea font ${fmt(metrics.reasonFieldFont)}px is below 11px`);
+  check(metrics.reasonChipFonts.length === 4 && metrics.reasonChipFonts.every(size => size >= 11),
+    `reason chip fonts ${metrics.reasonChipFonts.map(fmt).join(", ")}px must all be >= 11px`);
+  check(metrics.reasonChipHeights.length === 4 && metrics.reasonChipHeights.every(size => size >= 30),
+    `reason chip heights ${metrics.reasonChipHeights.map(fmt).join(", ")}px must all be >= 30px`);
+  check(metrics.decisionButtonFonts.length === 3 && metrics.decisionButtonFonts.every(size => size >= 11),
+    `decision button fonts ${metrics.decisionButtonFonts.map(fmt).join(", ")}px must all be >= 11px`);
+  check(metrics.decisionButtonHeights.length === 3 && metrics.decisionButtonHeights.every(size => size >= 30),
+    `decision button heights ${metrics.decisionButtonHeights.map(fmt).join(", ")}px must all be >= 30px`);
+  check(metrics.footerTextFont >= 11, `footer note font ${fmt(metrics.footerTextFont)}px is below 11px`);
+  check(metrics.actionHeight >= 36, `primary action height ${fmt(metrics.actionHeight)}px is below 36px`);
+  check(metrics.previewOverflow === "hidden", `preview overflow is ${metrics.previewOverflow}, expected hidden`);
+  check(metrics.previewScrollOverflow === "auto",
+    `preview scroll overflow is ${metrics.previewScrollOverflow}, expected auto`);
+  check(metrics.previewClient >= 100, `preview client height ${metrics.previewClient}px is below 100px`);
   if (width >= 1100 && height <= 820) {
-    if (metrics.queueClient < 40 || metrics.queueScroll <= metrics.queueClient + 2
-        || metrics.queueOverflow !== "auto" || metrics.previewOverflow !== "auto"
-        || metrics.previewClient < 100 || metrics.footer.bottom > metrics.preview.bottom + 2
-        || metrics.action.bottom > height + 2
-        || metrics.reasonField.top < metrics.preview.top - 1
-        || metrics.reasonField.bottom > metrics.footer.top + 1) {
-      throw new Error("Offer moderation must keep a scrollable queue, pinned pagination and accessible decision action on "
-        + route + " at " + width + "x" + height + ": " + JSON.stringify(metrics));
-    }
+    check(metrics.queueClient >= 40, `queue client height ${metrics.queueClient}px is below 40px`);
+    check(metrics.queueScroll > metrics.queueClient + 2,
+      `queue scroll height ${metrics.queueScroll}px does not exceed client height ${metrics.queueClient}px`);
+    check(metrics.queueOverflow === "auto", `queue overflow is ${metrics.queueOverflow}, expected auto`);
   }
+  if (failures.length) {
+    await page.screenshot({
+      path: `artifacts/browser-screenshots/FAIL-offer-${width}x${height}.png`,
+      animations: "disabled",
+    });
+    throw new Error(`Offer decision failed at ${width}x${height}:\n- ${failures.join("\n- ")}\n${JSON.stringify(metrics)}`);
+  }
+  process.stdout.write(`PASS offer geometry ${width}x${height}: ${JSON.stringify(metrics)}\n`);
 }
-
 async function assertSupportTimelineVisible(page, width, height) {
   const history = page.getByTestId("support-case-history");
   const timeline = page.getByTestId("support-case-timeline");
@@ -650,6 +727,7 @@ try {
   const sizes = [
     { width: 1920, height: 1080 }, { width: 1440, height: 900 },
     { width: 1366, height: 768 }, { width: 1280, height: 720 },
+    { width: 1279, height: 720 }, { width: 1100, height: 720 },
     { width: 1024, height: 768 }, { width: 768, height: 1024 },
     { width: 390, height: 844 },
   ];
@@ -657,7 +735,7 @@ try {
 
   // Admin login is public: cover the required viewport matrix in English and Arabic.
   {
-    const loginSizes = sizes.filter(size => [1920, 1440, 1366, 1280, 390].includes(size.width));
+    const loginSizes = sizes.filter(size => [1920, 1440, 1366, 1280, 1279, 1100, 390].includes(size.width));
     for (const locale of [
       { code: "en", heading: "Administrator sign in", direction: "ltr" },
       { code: "ar", heading: "دخول الإدارة", direction: "rtl" }
@@ -771,7 +849,22 @@ try {
       if (route.path.endsWith("/admin/offer-moderation")) {
         await assertOfferModerationLayout(page, size.width, size.height);
         await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
+        const longTitle = "Family breakfast basket with assorted bakery items, fresh fruit and detailed allergen information";
+        await page.getByTestId("offer-queue").getByRole("button").filter({ hasText: longTitle }).click();
+        await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
+        const selectedTitle = page.getByTestId("offer-detail-panel").locator("h2").first();
+        await selectedTitle.waitFor({ state: "visible" });
+        const renderedTitle = (await selectedTitle.innerText()).trim();
+        if (renderedTitle !== longTitle) {
+          throw new Error(`Long offer title was not selected at ${size.width}x${size.height}: ${renderedTitle}`);
+        }
+        await assertNoHorizontalOverflow(page, route.path, size.width);
         if (size.width >= 1100) await assertOfferDecisionAccessible(page, size.width, size.height, route.path);
+        const locale = route.path.split("/")[1];
+        await page.screenshot({
+          path: join("artifacts/browser-screenshots", `offer-moderation-long-title-${locale}-${size.width}x${size.height}.png`),
+          animations: "disabled",
+        });
       }
       if (route.path.endsWith("/admin/support-cases")) {
         const supportLayout = await page.evaluate(() => {
