@@ -15831,6 +15831,7 @@ body:has(.kulha-reservation-viewport) > main { min-height:0; overflow:visible; }
   .ws-brand { padding-inline: 0; }
   .ws-shop-card, .ws-note, .ws-user { display: none; }
   .ws-nav { order: 3; flex: 1 1 100%; flex-direction: row; overflow-x: auto; overflow-y: hidden; padding-bottom: 2px; }
+  .ws-sidebar-admin .ws-nav { flex-wrap: wrap; overflow-x: visible; }
   .ws-nav-link { flex: 0 0 auto; min-height: 38px; padding: 7px 11px; font-size: 12.5px; white-space: nowrap; }
   .ws-sidebar-foot { margin: 0 0 0 auto; display: flex; align-items: center; }
   [dir="rtl"] .ws-sidebar-foot { margin: 0 auto 0 0; }
