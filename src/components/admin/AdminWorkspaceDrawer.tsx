@@ -46,21 +46,26 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr
         else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
       }
     };
+    const onDocumentPointerDown = (event: PointerEvent) => {
+      const target = event.target instanceof HTMLElement ? event.target : null;
+      if (!target || panelRef.current?.contains(target)) return;
+      if (target.closest('[data-testid="merchant-review-list"],[data-testid="offer-queue"],[data-testid="support-case-list"]')) return;
+      if (dirtyRef.current && !window.confirm(confirmRef.current)) return;
+      onCloseRef.current();
+    };
     window.addEventListener("keydown", onKeyDown);
+    document.addEventListener("pointerdown", onDocumentPointerDown, true);
     return () => {
       window.cancelAnimationFrame(frame);
       window.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("pointerdown", onDocumentPointerDown, true);
       document.body.style.overflow = previousOverflow;
     };
   }, [open]);
 
   if (!open || typeof document === "undefined") return null;
   return createPortal(
-    <div className={styles.backdrop} data-testid="workspace-drawer-backdrop" onMouseDown={event => {
-      if (event.target !== event.currentTarget) return;
-      if (dirty && !window.confirm(confirmDiscard)) return;
-      onCloseRef.current();
-    }}>
+    <div className={styles.backdrop} data-testid="workspace-drawer-backdrop">
       <aside dir={direction} ref={panelRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={title} className={styles.drawer} data-testid="workspace-drawer">
         <header className={styles.header}>
           <h2>{title}</h2>
