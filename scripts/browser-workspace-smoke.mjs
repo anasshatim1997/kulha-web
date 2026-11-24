@@ -839,7 +839,7 @@ try {
     { path: "/fr/offers", token: "customer-token", heading: "Paniers près de chez vous" },
     { path: "/ar/offers", token: "customer-token", heading: "سلال بالقرب منك", direction: "rtl", directionSelector: '[lang="ar"]' },
   ];
-  const selectedRoutes = focusedWorkspace ? routes.filter(route => route.path.endsWith("/admin/" + focusedWorkspace)) : routes;
+  const selectedRoutes = focusedWorkspace ? routes.filter(route => route.path === "/en/admin/" + focusedWorkspace) : routes;
   for (const route of selectedRoutes) {
     const context = await loginContext(browser, route.token);
     const page = await context.newPage();
@@ -901,7 +901,7 @@ try {
           const secondRow = rows.nth(1);
           const rowBounds = await secondRow.boundingBox();
           const panelBounds = await panel.boundingBox();
-          if (!rowBounds || !panelBounds || rowBounds.x + rowBounds.width / 2 >= panelBounds.x) {
+          if (!rowBounds || !panelBounds || rowBounds.x + rowBounds.width > panelBounds.x + 1) {
             throw new Error("Second merchant row is not fully reachable beside the desktop drawer: " + JSON.stringify({ rowBounds, panelBounds }));
           }
           const previousName = await page.locator('[data-testid="merchant-review-detail-panel"] h2').innerText();
