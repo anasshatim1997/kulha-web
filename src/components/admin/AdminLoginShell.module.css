@@ -1,539 +1,355 @@
-
-/* Admin sign-in — same language as the admin workspace:
-   forest rail #073324, cream surfaces #fffdf8, sand borders #e3dac8,
-   sun #fdbe2e only as the accent. */
-
-/* ---------- Layout ---------- */
-
-.layout :global(.site-header) {
-    display: none !important;
+.layout,
+.layout * {
+    box-sizing: border-box;
 }
 
 .layout {
-    display: grid;
-    grid-template-columns: minmax(360px, 1fr) minmax(420px, 1fr);
-    min-height: 100dvh;
-    background: #fffdf8;
-    color: #073324;
+    --admin-ink: #073324;
+    --admin-paper: #fffdf8;
+    min-height: 100svh;
+    padding: 0 clamp(18px, 4vw, 56px);
+    background: #f4f0e7;
+    color: var(--admin-ink);
 }
 
-/* ---------- Rail (left in LTR, right in RTL) ---------- */
-
-.rail {
+.topbar {
     display: flex;
-    flex-direction: column;
-    gap: 32px;
-    padding: clamp(26px, 4vw, 52px) clamp(28px, 5vw, 64px);
-    background: #073324;
-    color: #fcf4e7;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    width: min(100%, 1440px);
+    height: 78px;
+    margin: 0 auto;
+    border-bottom: 1px solid #e4dccd;
 }
 
 .brand {
-    display: grid;
-    gap: 3px;
-    width: max-content;
-    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 13px;
+    color: var(--admin-ink);
     text-decoration: none;
-    line-height: 1;
 }
 
 .brand:focus-visible {
     outline: 3px solid #fdbe2e;
     outline-offset: 4px;
-    border-radius: 6px;
+    border-radius: 5px;
 }
 
 .word {
-    font-size: 26px;
+    color: var(--admin-ink);
+    font-size: 25px;
     font-weight: 1000;
-    letter-spacing: -.03em;
+    letter-spacing: -.045em;
 }
 
 .word span {
-    color: #fdbe2e;
+    color: #e5a91c;
+}
+
+.brandDivider {
+    width: 1px;
+    height: 23px;
+    background: #d8cfbf;
 }
 
 .brand small {
+    color: #4d6656;
     font-size: 10px;
-    font-weight: 900;
-    letter-spacing: .14em;
-    opacity: .7;
-}
-
-.railBody {
-    margin-block: auto;
-    max-width: 520px;
-}
-
-.headline {
-    margin: 0;
-    color: #fffdf8;
-    font-size: clamp(32px, 3.5vw, 48px);
-    line-height: 1.08;
-    letter-spacing: -.045em;
-    font-weight: 1000;
-    text-wrap: balance;
-}
-
-.intro {
-    max-width: 440px;
-    margin: 16px 0 0;
-    color: #cfe0d5;
-    font-size: 15px;
-    line-height: 1.65;
-}
-
-/* A faithful miniature of what sits behind the door:
-   the four admin sections. */
-
-.console {
-    margin: 34px 0 0;
-    padding: 0;
-    list-style: none;
-    overflow: hidden;
-    border: 1px solid rgb(255 255 255 / .12);
-    border-radius: 20px;
-    background: rgb(255 255 255 / .05);
-}
-
-.console li {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 15px 18px;
-}
-
-.console li + li {
-    border-top: 1px solid rgb(255 255 255 / .09);
-}
-
-.tile {
-    flex: 0 0 auto;
-    display: grid;
-    place-items: center;
-    width: 38px;
-    height: 38px;
-    border-radius: 11px;
-    background: rgb(255 255 255 / .09);
-    color: #e7efe9;
-}
-
-.console strong {
-    display: block;
-    color: #fff;
-    font-size: 14px;
     font-weight: 950;
+    letter-spacing: .17em;
 }
 
-.console small {
-    display: block;
-    margin-top: 2px;
-    color: #a9c0b1;
-    font-size: 13px;
-    line-height: 1.45;
-    font-weight: 700;
-}
-
-.restricted {
-    display: flex;
+.accessLabel {
+    display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin: 0;
-    color: #a9c0b1;
-    font-size: 12px;
-    font-weight: 700;
-}
-
-/* ---------- Form side ---------- */
-
-.formSide {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    padding: 22px clamp(24px, 6vw, 88px) 28px;
-    background: #fffdf8;
-}
-
-.langs {
-    align-self: flex-end;
-    display: inline-flex;
-    gap: 4px;
-    padding: 4px;
-    border: 1px solid #e3dac8;
-    border-radius: 99px;
-    background: #fff;
-}
-
-.langs a {
-    padding: 6px 12px;
-    border-radius: 99px;
-    color: #073324;
-    font-size: 13px;
+    color: #5f7465;
+    font-size: 10px;
     font-weight: 900;
-    text-decoration: none;
+    letter-spacing: .11em;
+    text-transform: uppercase;
 }
 
-.langs a:hover {
-    background: #f3efe3;
+.accessLabel svg {
+    color: #2f6845;
 }
 
-.langs a[aria-current="page"] {
-    background: #073324;
-    color: #fff;
+.stage {
+    display: grid;
+    place-items: center;
+    width: min(100%, 560px);
+    min-height: calc(100svh - 78px);
+    margin: 0 auto;
+    padding: 34px 0 48px;
 }
 
-.langs a:focus-visible {
-    outline: 3px solid #fdbe2e;
-    outline-offset: 2px;
+.accessPanel {
+    display: grid;
+    justify-items: center;
+    width: 100%;
+    min-width: 0;
 }
 
-.formWrap {
-    width: min(100%, 420px);
-    margin: auto;
-    padding-block: 32px;
+.accessCard {
+    width: min(100%, 520px);
+    padding: clamp(30px, 4vw, 46px);
+    border: 1px solid #e7dece;
+    border-radius: 20px;
+    background: var(--admin-paper);
+    box-shadow: 0 18px 48px rgb(46 42 29 / .09);
 }
 
 .lockTile {
     display: grid;
+    width: 44px;
+    height: 44px;
     place-items: center;
-    width: 48px;
-    height: 48px;
-    margin-bottom: 20px;
-    border-radius: 15px;
-    background: #f1ecdf;
-    color: #073324;
+    margin-bottom: 17px;
+    border: 1px solid #dce7dc;
+    border-radius: 12px;
+    background: #edf3ec;
+    color: #245a3c;
 }
 
-.formWrap h1 {
-    margin: 0 0 8px;
-    color: #073324;
-    font-size: clamp(28px, 2.6vw, 36px);
-    line-height: 1.1;
+.cardEyebrow {
+    color: #728075;
+    font-size: 10px;
+    font-weight: 950;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+
+.accessCard h1 {
+    margin: 9px 0 0;
+    color: var(--admin-ink);
+    font-size: clamp(28px, 3vw, 36px);
+    line-height: 1.08;
     letter-spacing: -.04em;
-    font-weight: 1000;
+    font-weight: 950;
 }
 
 .lead {
-    margin: 0 0 26px;
-    color: #5b6e60;
-    font-size: 15px;
-    line-height: 1.6;
+    margin: 10px 0 23px;
+    color: #68776c;
+    font-size: 14px;
+    line-height: 1.55;
 }
 
 .form {
-    width: 100%;
+    min-width: 0;
+}
+
+.form :global(.auth-form-fields) {
+    gap: 16px;
+}
+
+.form :global(.auth-form-fields input:not([type="checkbox"])) {
+    min-height: 50px;
+    border-radius: 10px;
+}
+
+.form :global(.auth-form-fields button[type="submit"]) {
+    min-height: 50px;
+    border-radius: 10px;
+}
+
+.restricted {
+    margin: 14px 0 0;
+    color: #607466;
+    font-size: 11px;
+    font-weight: 850;
+    text-align: center;
 }
 
 .note {
     display: flex;
     align-items: flex-start;
     gap: 9px;
-    margin: 20px 0 0;
-    padding: 12px 14px;
-    border-radius: 14px;
-    background: #f3efe2;
-    color: #66756a;
-    font-size: 13px;
+    margin: 17px 0 0;
+    padding-top: 15px;
+    border-top: 1px solid #eee7dc;
+    color: #728075;
+    font-size: 11px;
     line-height: 1.5;
-    font-weight: 700;
 }
 
 .note svg {
     flex: 0 0 auto;
-    margin-top: 1px;
-    color: #073324;
+    color: #39704b;
 }
 
-.customer {
-    margin: 0;
-    text-align: center;
-    color: #78847a;
-    font-size: 13px;
-    line-height: 1.6;
+.layout[dir="rtl"] :global(.password-toggle) {
+    right: auto;
+    left: .5rem;
 }
 
-.customer a {
-    color: #073324;
-    font-weight: 950;
-    text-decoration: underline;
-    text-underline-offset: 3px;
+.layout[dir="rtl"] :global(.password-field input) {
+    padding-right: 1rem;
+    padding-left: 6rem;
 }
 
-.customer a:focus-visible {
-    outline: 3px solid #fdbe2e;
-    outline-offset: 3px;
-    border-radius: 4px;
-}
-
-/* ---------- Login form ---------- */
-/* LoginForm is shared with customer sign-in.
-   Everything is scoped to .form.
-   Selectors override Tailwind utilities on TextField / Button. */
-
-.form :global(.auth-form-fields) {
-    display: grid;
-    gap: 18px;
-}
-
-.form :global(.auth-form-fields label) {
-    color: #244b38;
-    font-size: 13px;
-    font-weight: 900;
-}
-
-.form :global(.auth-form-fields input:not([type="checkbox"])) {
-    min-height: 50px;
-    padding-block: 10px;
-    border: 1px solid #e3dac8;
-    border-radius: 14px;
-    background: #fff;
-    color: #073324;
-    font-size: 15px;
-    transition: border-color .15s, box-shadow .15s;
-}
-
-.form :global(.auth-form-fields input)::placeholder {
-    color: #9aa79d;
-}
-
-.form :global(.auth-form-fields input:not([type="checkbox"]):focus) {
-    outline: 0;
-    border-color: #073324;
-    box-shadow: 0 0 0 3px rgb(253 190 46 / .33);
-}
-
-.form :global(.auth-form-fields input[aria-invalid="true"]) {
-    border-color: #d93320;
-}
-
-.form :global(.auth-form-fields [role="alert"]) {
-    font-size: 13px;
-    line-height: 1.45;
-}
-
-.form :global(.auth-form-fields > div[role="alert"]) {
-    padding: 11px 14px;
-    border-radius: 14px;
-}
-
-.form :global(.auth-forgot-row) {
-    margin-top: -6px;
-}
-
-.form :global(.auth-form-fields button[type="submit"]) {
-    width: 100%;
-    min-height: 52px;
-    margin-top: 4px;
-    border-radius: 14px;
-    background: #073324;
-    color: #fffdf8;
-    font-size: 15px;
-    font-weight: 950;
-    box-shadow: none;
-    transition: background .15s;
-}
-
-.form :global(.auth-form-fields button[type="submit"]:hover:not(:disabled)) {
-    background: #0a4a33;
-}
-
-.form :global(.auth-form-fields button[type="submit"]:focus-visible) {
-    outline: 3px solid #fdbe2e;
-    outline-offset: 2px;
-}
-
-/* ---------- Narrow screens ---------- */
-/* Slim brand band above the form. */
-
-@media (max-width: 900px) {
-    .layout {
-        grid-template-columns: 1fr;
-        min-height: 0;
-    }
-
-    .rail {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        padding: 16px 22px;
-    }
-
-    .railBody {
-        display: none;
-    }
-
-    .word {
-        font-size: 22px;
-    }
-
-    .formSide {
-        padding: 18px 22px 36px;
-    }
-
-    .formWrap {
-        padding-block: 22px 8px;
-        margin-block: 0 auto;
-    }
-
-    .customer {
-        margin-top: 22px;
-    }
-}
-
-@media (max-width: 520px) {
-    .restricted {
-        display: none;
-    }
-}
-
-
-/* Viewport-first admin sign-in: compact, deliberate and overflow-safe. */
 @media (min-width: 761px) {
     .layout {
-        box-sizing: border-box;
-        width: 100%;
-        height: 100svh;
-        min-height: 0;
+        height: 100vh;
+        min-height: 100vh;
         overflow: hidden;
-        grid-template-columns: minmax(0, .94fr) minmax(0, 1.06fr);
     }
 
-    .rail {
-        box-sizing: border-box;
-        min-width: 0;
+    .stage {
+        height: calc(100vh - 78px);
         min-height: 0;
-        gap: 18px;
-        padding: clamp(22px, 3vw, 42px) clamp(24px, 4vw, 58px);
+        padding-block: 18px;
+    }
+}
+
+@media (min-width: 761px) and (max-height: 760px) {
+    .topbar {
+        height: 68px;
     }
 
-    .railBody {
-        width: 100%;
-        max-width: 500px;
-        margin-block: auto;
-    }
-
-    .headline {
-        max-width: 490px;
-        font-size: clamp(29px, 2.75vw, 40px);
-        line-height: 1.1;
-    }
-
-    .intro {
-        max-width: 420px;
-        margin-top: 12px;
-        font-size: 14px;
-        line-height: 1.5;
-    }
-
-    .console {
-        margin-top: 20px;
-        border-radius: 14px;
-    }
-
-    .console li {
-        gap: 11px;
-        padding: 10px 13px;
-    }
-
-    .tile {
-        width: 34px;
-        height: 34px;
-        border-radius: 9px;
-    }
-
-    .console strong { font-size: 13px; }
-    .console small { font-size: 11px; line-height: 1.35; }
-
-    .formSide {
-        box-sizing: border-box;
+    .stage {
+        height: calc(100vh - 68px);
         min-height: 0;
-        overflow-y: auto;
-        overflow-x: hidden;
-        padding: 18px clamp(28px, 5vw, 72px) 20px;
-    }
-
-    .formWrap {
-        width: min(100%, 410px);
         padding-block: 12px;
+        padding: 18px 0 24px;
+    }
+
+    .accessCard {
+        padding: 25px 34px;
     }
 
     .lockTile {
-        width: 42px;
-        height: 42px;
-        margin-bottom: 15px;
-        border-radius: 12px;
+        width: 40px;
+        height: 40px;
+        margin-bottom: 12px;
     }
 
-    .formWrap h1 {
-        font-size: clamp(27px, 2.3vw, 33px);
-        line-height: 1.12;
+    .lead {
+        margin-bottom: 16px;
     }
 
-    .lead { margin-bottom: 19px; font-size: 14px; }
-    .form :global(.auth-form-fields) { gap: 15px; }
-    .form :global(.auth-form-fields input:not([type="checkbox"])) { min-height: 48px; }
-    .form :global(.auth-form-fields button[type="submit"]) { min-height: 49px; }
-    .note { margin-top: 15px; padding: 10px 12px; font-size: 12px; }
-    .customer { font-size: 12px; }
-}
+    .form :global(.auth-form-fields) {
+        gap: 12px;
+    }
 
-@media (min-width: 761px) and (max-height: 800px) {
-    .rail { padding-block: 20px; gap: 12px; }
-    .headline { font-size: clamp(28px, 2.45vw, 35px); }
-    .intro { margin-top: 9px; line-height: 1.42; }
-    .console { margin-top: 15px; }
-    .console li { padding-block: 8px; }
-    .restricted { font-size: 11px; }
-    .formSide { padding-block: 12px 14px; }
-    .formWrap { padding-block: 8px; }
-    .lockTile { margin-bottom: 11px; }
-    .lead { margin-bottom: 15px; }
-    .form :global(.auth-form-fields) { gap: 12px; }
-    .note { margin-top: 12px; }
+    .form :global(.auth-form-fields input:not([type="checkbox"])) {
+        min-height: 46px;
+    }
+
+    .form :global(.auth-form-fields button[type="submit"]) {
+        min-height: 46px;
+    }
+
+    .note {
+        margin-top: 12px;
+        padding-top: 12px;
+    }
 }
 
 @media (max-width: 760px) {
     .layout {
-        box-sizing: border-box;
-        width: 100%;
         min-height: 100svh;
-        height: auto;
-        overflow-x: clip;
-        overflow-y: auto;
-        grid-template-columns: minmax(0, 1fr);
+        padding: 0 16px 22px;
     }
 
-    .rail {
-        box-sizing: border-box;
-        min-width: 0;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 15px 20px;
+    .topbar {
+        height: 66px;
     }
 
-    .railBody { display: none; }
-    .restricted { margin-inline-start: auto; font-size: 11px; }
-    .formSide {
-        min-width: 0;
-        padding: 20px clamp(18px, 5vw, 30px) 26px;
+    .word {
+        font-size: 23px;
     }
 
-    .formWrap {
-        width: min(100%, 430px);
-        margin: auto;
-        padding-block: 12px 18px;
+    .accessLabel {
+        max-width: 160px;
+        font-size: 9px;
+        line-height: 1.4;
+        text-align: end;
     }
 
-    .formWrap h1 { font-size: clamp(26px, 7vw, 32px); }
-    .customer { margin-top: 12px; }
+    .stage {
+        min-height: calc(100svh - 88px);
+        padding: 24px 0 10px;
+    }
+
+    .accessCard {
+        padding: 25px 21px;
+        border-radius: 17px;
+    }
+
+    .lockTile {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 13px;
+    }
+
+    .accessCard h1 {
+        font-size: clamp(27px, 7vw, 32px);
+    }
+
+    .lead {
+        margin-bottom: 18px;
+        font-size: 13px;
+    }
+
+    .form :global(.auth-form-fields) {
+        gap: 13px;
+    }
+
+    .form :global(.auth-form-fields input:not([type="checkbox"])) {
+        min-height: 46px;
+    }
+
+    .form :global(.auth-form-fields button[type="submit"]) {
+        min-height: 46px;
+    }
 }
 
 @media (max-width: 420px) {
-    .rail { padding-inline: 16px; }
-    .restricted { max-width: 175px; text-align: end; line-height: 1.35; }
-    .formSide { padding-inline: 17px; }
-    .form :global(.auth-form-fields) { gap: 15px; }
+    .layout {
+        padding-inline: 15px;
+    }
+
+    .topbar {
+        gap: 10px;
+    }
+
+    .brand {
+        gap: 9px;
+    }
+
+    .brandDivider {
+        height: 20px;
+    }
+
+    .brand small {
+        font-size: 9px;
+    }
+
+    .accessLabel {
+        max-width: 132px;
+        gap: 6px;
+        font-size: 8px;
+    }
+
+    .accessCard {
+        padding: 23px 18px;
+    }
+
+    .form :global(.auth-form-fields) {
+        gap: 12px;
+    }
+
+    .note {
+        margin-top: 13px;
+        padding-top: 12px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .layout * {
+        scroll-behavior: auto;
+    }
 }

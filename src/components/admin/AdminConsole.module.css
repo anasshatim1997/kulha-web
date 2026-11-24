@@ -21,12 +21,13 @@
 .notice{background:#e5efe3;border-radius:12px;padding:11px 14px;color:#2b5a37;font-weight:850;font-size:13px;margin:0}
 .card{background:#fffdf8;border:1px solid #eee4d1;border-radius:24px;padding:clamp(18px,2vw,26px);box-shadow:0 8px 28px #60491e0b;min-width:0}
 
-/* Tabs */
-.tabs{display:flex;flex-wrap:wrap;gap:8px}
-.tab,.activeTab{border:1px solid #e3dac8;background:#fffdf8;color:#073324;border-radius:99px;padding:10px 18px;font-size:13px;font-weight:900;cursor:pointer}
-.tab:hover{background:#f3efe3}
-.activeTab{background:#073324;color:#fff;border-color:#073324}
+/* Shared compact admin status controls */
+.tabs{display:flex;align-items:center;align-content:flex-start;flex-wrap:wrap;gap:7px;min-width:0}
+.tab,.activeTab{box-sizing:border-box;display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;min-height:36px;max-width:100%;border:1px solid #ded7c9;background:#fffdf8;color:#29483b;border-radius:9px;padding:7px 12px;font-size:12px;line-height:1.2;font-weight:850;white-space:nowrap;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.tab:hover{background:#f3efe3;border-color:#b9c7bb}
+.activeTab{background:#073324;color:#fff;border-color:#073324;box-shadow:inset 0 0 0 1px #073324}
 .card>.tabs{margin-bottom:18px}
+.tabs:focus-within{outline:none}
 .list{display:grid;gap:6px}
 
 /* Pills / tones */
@@ -3298,21 +3299,6 @@
     }
 }
 
-/* The admin shell owns the compact desktop viewport. Prevent the root flex
-   item from expanding the document; collection panels own their own scrolling. */
-@media (min-width: 900px) and (max-height: 800px) {
-    .shell {
-        height: 100%;
-        min-height: 0;
-        overflow: hidden;
-    }
-    .page {
-        height: 100%;
-        min-height: 0;
-        overflow: hidden;
-    }
-}
-
 /* Support case detail: the panel is a three-row layout. The case heading keeps
    its natural size, history owns vertical scrolling, and the composer stays
    in the final row instead of participating in the conversation's scroll. */
@@ -3431,176 +3417,1670 @@
 }
 
 
-/* Offer moderation: use the space below the fixed admin bar and page heading.
-   The queue and detail surface share one measured grid row; only their content
-   scrolls. Small screens return to natural document flow. */
+/* Page layout ownership: every admin route uses natural document flow.
+   Offer moderation may size its own queue, but never the shared shell/page. */
 @media (min-width: 900px) {
-    .shell {
-        box-sizing: border-box;
-        height: 100dvh;
-        min-height: 0;
-        overflow: hidden;
+  .shell { min-height: 100dvh; height: auto; overflow: visible; }
+  .page {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-rows: none;
+    height: auto;
+    min-height: calc(100dvh - var(--ws-top, 64px));
+    padding-top: calc(var(--ws-top, 64px) + 28px);
+    padding-bottom: 44px;
+    row-gap: 22px;
+    overflow: visible;
+  }
+  .shell[data-page="offer-moderation"] .offerWorkspace {
+    align-items: start;
+    height: auto;
+    min-height: 0;
+  }
+  .shell[data-page="offer-moderation"] .offerPicker,
+  .shell[data-page="offer-moderation"] .offerDecision,
+  .shell[data-page="offer-moderation"] .offerPreviewCard {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+  .merchantReviewWorkspace,
+  .supportWorkspace,
+  .auditWorkspace { min-height: 0; }
+  .merchantPicker,
+  .merchantDetails,
+  .caseDetail,
+  .auditRecordCard {
+    max-height: none;
+    overflow: visible;
+  }
+}
+@media (max-width: 899px) {
+  .shell { height: auto; min-height: 100dvh; overflow: visible; }
+  .page { display: grid; grid-template-rows: none; height: auto; min-height: 0; padding-top: 24px; padding-bottom: 42px; overflow: visible; }
+  .tabs { flex-wrap: nowrap; overflow-x: auto; padding: 2px 1px 7px; scrollbar-width: thin; }
+  .tab,.activeTab { flex: 0 0 auto; }
+}
+@media (max-width: 680px) {
+  .page { gap: 14px; }
+  .tabs { gap: 6px; }
+  .tab,.activeTab { min-height: 34px; padding: 6px 10px; font-size: 11px; }
+}
+
+/* Audit ledger follows the reference's ledger + selected-record composition. */
+@media (min-width: 900px) {
+  .auditExplorer {
+    grid-template-columns:minmax(0,1.48fr) minmax(300px,.72fr);
+    align-items:start;
+    column-gap:18px;
+  }
+  .auditExplorerHeading { grid-column:1 / -1; }
+  .auditExplorer > .auditTableCard { grid-column:1; grid-row:2; min-width:0; }
+  .auditExplorer > .auditRecordCard {
+    grid-column:2; grid-row:2;
+    position:sticky; top:calc(var(--ws-top,64px) + 18px);
+    box-sizing:border-box; min-width:0; max-height:calc(100dvh - var(--ws-top,64px) - 36px);
+    overflow:auto; padding:20px; border:1px solid #e8dfd1; border-radius:16px;
+    background:#fffdf8; box-shadow:0 8px 24px #60491e09;
+  }
+}
+.auditRecordHeader { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding-bottom:16px; border-bottom:1px solid #eee8dd; }
+.auditRecordHeader small { color:#728075; font-size:10px; font-weight:900; letter-spacing:.1em; text-transform:uppercase; }
+.auditRecordHeader h2 { margin:6px 0; color:#073324; font-size:20px; line-height:1.2; font-weight:950; }
+.auditRecordHeader code,.auditRecordFacts code { display:inline-block; max-width:100%; overflow-wrap:anywhere; color:#52685a; font-size:10px; }
+.auditRecordSection { padding-top:5px; }
+.auditRecordSection h3 { margin:18px 0 8px; color:#68786d; font-size:10px; font-weight:950; letter-spacing:.1em; text-transform:uppercase; }
+.auditRecordFacts { display:grid; gap:0; margin:0; }
+.auditRecordFacts>div { display:grid; grid-template-columns:minmax(90px,.72fr) minmax(0,1.28fr); gap:12px; padding:9px 0; border-top:1px solid #f0ece4; }
+.auditRecordFacts dt { color:#78847a; font-size:11px; }
+.auditRecordFacts dd { min-width:0; margin:0; color:#173c2c; font-size:11px; font-weight:850; text-align:end; overflow-wrap:anywhere; }
+.auditRecordNotice { display:flex; align-items:flex-start; gap:8px; margin:18px 0 0; padding-top:14px; border-top:1px solid #eee8dd; color:#6b776d; font-size:10px; line-height:1.5; }
+.auditRecordNotice svg { flex:0 0 auto; }
+.auditRecordEmpty { display:grid; justify-items:start; gap:10px; min-height:230px; align-content:center; color:#6b776d; }
+.auditRecordEmpty svg { color:#66806c; }
+.auditRecordEmpty strong { color:#173c2c; font-size:14px; }
+.auditRecordEmpty p { max-width:250px; margin:0; font-size:11px; line-height:1.5; }
+@media(max-width:899px) {
+  .auditExplorer { grid-template-columns:minmax(0,1fr); }
+  .auditExplorerHeading,.auditExplorer > .auditTableCard,.auditExplorer > .auditRecordCard { grid-column:1; grid-row:auto; }
+  .auditExplorer > .auditRecordCard { position:static; max-height:none; overflow:visible; padding:18px; border:1px solid #e8dfd1; border-radius:15px; background:#fffdf8; }
+}
+
+@media (min-width: 1100px) {
+  .auditFilters {
+    display:grid;
+    grid-template-columns:minmax(220px,1.4fr) minmax(250px,1.15fr) minmax(150px,.8fr) minmax(150px,.8fr);
+    align-items:end;
+    gap:10px;
+  }
+  .auditFilterTopRow,.auditFilterBottomRow { display:contents; }
+  .auditExplorer .auditTableCard .table table { min-width:760px; }
+}
+@media (min-width: 900px) and (max-width: 1099px) {
+  .auditFilters { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+  .auditFilterTopRow,.auditFilterBottomRow { display:contents; }
+  .auditExplorer .auditTableCard .table table { min-width:760px; }
+}
+
+/* Merchant review is an in-context decision workspace, not a second modal. */
+@media (min-width: 900px) {
+  .merchantReviewWorkspace { height:auto; min-height:0; align-items:start; }
+  .merchantInlineBody {
+    display:grid; grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);
+    align-items:start; gap:12px; min-width:0; margin-top:16px;
+  }
+  .merchantInlineBody .merchantModalColumn { gap:12px; }
+  .merchantInlineBody .merchantModalSection { padding:15px; border-radius:13px; }
+  .merchantInlineBody .merchantModalSection > h3 { margin-bottom:10px; font-size:11px; }
+  .merchantInlineBody .merchantDecisionFields { grid-template-columns:minmax(0,1fr); gap:8px; }
+  .merchantInlineBody .merchantDecisionFields .field { margin-top:0; }
+  .merchantInlineBody .merchantDecisionFields .field textarea { min-height:60px; }
+  .merchantInlineFooter {
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    margin-top:14px; padding-top:13px; border-top:1px solid #eee8dd;
+  }
+  .merchantInlineFooter p { display:flex; align-items:flex-start; gap:8px; max-width:68%; margin:0; color:#66766b; font-size:10px; line-height:1.45; }
+  .merchantInlineFooter p svg { flex:0 0 auto; }
+  .merchantInlineFooter .primary { min-width:160px; min-height:42px; border-radius:10px; }
+}
+@media (max-width: 1099px) {
+  .merchantInlineBody { grid-template-columns:minmax(0,1fr); }
+  .merchantInlineBody .merchantDecisionFields { grid-template-columns:minmax(0,1fr); }
+}
+@media (max-width: 899px) {
+  .merchantInlineBody { display:grid; grid-template-columns:minmax(0,1fr); gap:12px; margin-top:14px; }
+  .merchantInlineBody .merchantModalSection { padding:15px; border-radius:13px; }
+  .merchantInlineBody .merchantModalSection > h3 { margin-bottom:10px; font-size:11px; }
+  .merchantInlineBody .merchantDecisionFields { grid-template-columns:minmax(0,1fr); gap:9px; }
+  .merchantInlineFooter { display:grid; gap:12px; margin-top:12px; padding-top:12px; border-top:1px solid #eee8dd; }
+  .merchantInlineFooter p { display:flex; gap:8px; margin:0; color:#66766b; font-size:10px; line-height:1.45; }
+  .merchantInlineFooter .primary { width:100%; min-height:44px; }
+}
+
+/* Offer moderation keeps reports and the moderation decision in the selected-offer panel. */
+@media (min-width: 900px) {
+  .offerWorkspace { height:auto; min-height:0; align-items:start; }
+  .offerInlineBody {
+    display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
+    align-items:start; gap:12px; min-width:0; margin-top:16px;
+  }
+  .offerInlineBody .merchantModalColumn { gap:12px; }
+  .offerInlineBody .merchantModalSection,
+  .offerInlineBody .merchantDecision { padding:14px; border-radius:13px; }
+  .offerInlineBody .merchantModalSection > h3,
+  .offerInlineBody .merchantDecision > h3 { margin-bottom:10px; font-size:11px; }
+  .offerInlineBody .offerActionRow { display:flex; flex-wrap:wrap; gap:6px; }
+  .offerInlineBody .offerAction,
+  .offerInlineBody .offerActionActive { min-height:34px; padding:7px 10px; border-radius:8px; font-size:10px; }
+  .offerInlineBody .reasonChips { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; }
+  .offerInlineBody .reasonChip,
+  .offerInlineBody .reasonChipActive { min-height:30px; padding:6px 9px; border-radius:8px; font-size:10px; }
+  .offerInlineBody .field textarea { min-height:66px; border-radius:9px; }
+  .offerInlineFooter {
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    margin-top:14px; padding-top:13px; border-top:1px solid #eee8dd;
+  }
+  .offerInlineFooter p { display:flex; align-items:flex-start; gap:8px; max-width:68%; margin:0; color:#66766b; font-size:10px; line-height:1.45; }
+  .offerInlineFooter p svg { flex:0 0 auto; }
+  .offerInlineFooter .primary { min-width:160px; min-height:42px; border-radius:10px; }
+}
+@media (max-width: 1099px) {
+  .offerInlineBody { grid-template-columns:minmax(0,1fr); }
+}
+@media (max-width: 899px) {
+  .offerInlineBody { display:grid; grid-template-columns:minmax(0,1fr); gap:12px; margin-top:14px; }
+  .offerInlineBody .merchantModalSection,
+  .offerInlineBody .merchantDecision { padding:14px; border-radius:13px; }
+  .offerInlineBody .merchantModalSection > h3,
+  .offerInlineBody .merchantDecision > h3 { margin-bottom:10px; font-size:11px; }
+  .offerInlineBody .offerActionRow { display:flex; flex-wrap:wrap; gap:6px; }
+  .offerInlineBody .reasonChips { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0; }
+  .offerInlineFooter { display:grid; gap:12px; margin-top:12px; padding-top:12px; border-top:1px solid #eee8dd; }
+  .offerInlineFooter p { display:flex; gap:8px; margin:0; color:#66766b; font-size:10px; line-height:1.45; }
+  .offerInlineFooter .primary { width:100%; min-height:44px; }
+}
+
+
+/* Merchant review desktop density — keep verification and the decision in one
+   composed panel, with the decision spanning the full detail-column width. */
+@media (min-width: 1100px) {
+    .shell[data-page="merchant-review"] .page {
+        padding-top: calc(var(--ws-top, 64px) + 12px);
+        padding-bottom: 20px;
+        row-gap: 12px;
     }
 
-    .page {
-        box-sizing: border-box;
+    .shell[data-page="merchant-review"] .header h1 {
+        margin-bottom: 4px;
+        font-size: clamp(28px, 2vw, 34px);
+        line-height: 1.05;
+    }
+
+    .shell[data-page="merchant-review"] .header p {
+        font-size: 13px;
+        line-height: 1.35;
+    }
+
+    .shell[data-page="merchant-review"] > .topbar {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    .shell[data-page="merchant-review"] .tabs {
+        gap: 7px;
+    }
+
+    .shell[data-page="merchant-review"] .tab,
+    .shell[data-page="merchant-review"] .activeTab {
+        min-height: 33px;
+        padding: 6px 11px;
+        border-radius: 8px;
+        font-size: 11px;
+    }
+
+    .merchantReviewWorkspace {
+        grid-template-columns: minmax(250px, .68fr) minmax(0, 1.32fr);
+        align-items: start;
+        gap: 16px;
+    }
+
+    .merchantPicker .list {
+        gap: 8px;
+    }
+
+    .merchantPicker .merchantListItem,
+    .merchantPicker .merchantSelected {
+        padding: 11px 13px;
+        gap: 4px;
+        border-radius: 12px;
+    }
+
+    .merchantPicker .merchantListTop strong {
+        font-size: 13px;
+    }
+
+    .merchantPicker .merchantListItem > small,
+    .merchantPicker .merchantSelected > small {
+        font-size: 11px;
+        line-height: 1.3;
+    }
+
+    .merchantDetails {
+        padding: 14px 16px;
+        border-radius: 16px;
+    }
+
+    .merchantDetails .detailHead {
+        gap: 10px;
+        margin-bottom: 0;
+    }
+
+    .merchantDetails .detailHead h2 {
+        margin-top: 4px;
+        font-size: clamp(22px, 1.55vw, 27px);
+        line-height: 1.08;
+    }
+
+    .merchantDetails .merchantStepper {
+        gap: 9px;
+        margin: 9px 0 10px;
+    }
+
+    .merchantDetails .merchantStepper > div {
+        gap: 7px;
+    }
+
+    .merchantDetails .merchantStepper > div > span {
+        flex-basis: 22px;
+        width: 22px;
+        height: 22px;
+        font-size: 10px;
+    }
+
+    .merchantDetails .merchantStepper strong {
+        font-size: 10px;
+    }
+
+    .merchantDetails .merchantPreviewInfo h3 {
+        margin: 0 0 5px;
+        font-size: 10px;
+    }
+
+    .merchantDetails .merchantPreviewInfo .merchantFacts > div {
+        gap: 9px;
+        padding: 4px 0;
+    }
+
+    .merchantDetails .merchantPreviewInfo .merchantFacts dt,
+    .merchantDetails .merchantPreviewInfo .merchantFacts dd {
+        font-size: 11px;
+        line-height: 1.25;
+    }
+
+    .merchantInlineBody {
         display: grid;
-        grid-template-rows: auto minmax(0, 1fr);
-        height: 100dvh;
-        min-height: 0;
-        padding-top: calc(var(--ws-top, 64px) + 24px);
-        padding-bottom: 18px;
-        row-gap: 20px;
-        overflow: hidden;
+        grid-template-columns: minmax(0, .76fr) minmax(0, 1.24fr);
+        align-items: start;
+        gap: 9px;
+        min-width: 0;
+        margin-top: 9px;
     }
 
-    .offerHeader { min-width: 0; }
+    .merchantInlineBody > .merchantModalColumn:first-child {
+        grid-column: 1;
+        min-width: 0;
+    }
 
-    .offerWorkspace {
-        grid-template-columns: minmax(320px, .88fr) minmax(0, 1.12fr);
+    .merchantInlineBody > .merchantModalColumn:last-child {
+        display: contents;
+    }
+
+    .merchantInlineBody > .merchantModalColumn:last-child > .merchantModalSection:first-child {
+        grid-column: 2;
+        min-width: 0;
+    }
+
+    .merchantInlineBody .merchantModalSection {
+        min-width: 0;
+        padding: 10px 11px;
+        border-radius: 11px;
+    }
+
+    .merchantInlineBody .merchantModalSection > h3,
+    .merchantInlineBody .merchantDecision > h3 {
+        margin: 0 0 7px;
+        font-size: 10px;
+    }
+
+    .merchantInlineBody .missingDocs {
+        gap: 7px;
+        padding: 9px 10px;
+        border-radius: 10px;
+        font-size: 10px;
+        line-height: 1.35;
+    }
+
+    .merchantInlineBody .missingDocs strong {
+        font-size: 11px;
+        line-height: 1.25;
+    }
+
+    .merchantInlineBody .missingDocs small {
+        margin-top: 3px;
+        font-size: 10px;
+        line-height: 1.3;
+    }
+
+    .merchantInlineBody .checkList {
+        gap: 6px;
+    }
+
+    .merchantInlineBody .checkList label {
+        gap: 8px;
+        font-size: 11px;
+        line-height: 1.25;
+    }
+
+    .merchantInlineBody .checkList input {
+        width: 18px;
+        height: 18px;
+        border-radius: 5px;
+    }
+
+    .merchantInlineBody .approveNote {
+        margin-top: 6px;
+        font-size: 10px;
+        line-height: 1.3;
+    }
+
+    .merchantInlineBody .merchantModalDecision {
+        grid-column: 1 / -1;
+        margin-top: 0;
+        padding: 10px 12px;
+        border-radius: 11px;
+    }
+
+    .merchantInlineBody .merchantModalDecision .segment {
+        max-width: none;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    .merchantInlineBody .merchantModalDecision .segment button {
+        min-height: 36px;
+        border-radius: 8px;
+        font-size: 11px;
+    }
+
+    .merchantInlineBody .merchantDecisionFields {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 8px;
+    }
+
+    .merchantInlineBody .merchantDecisionFields .field {
+        gap: 5px;
+        min-width: 0;
+        font-size: 10px;
+    }
+
+    .merchantInlineBody .merchantDecisionFields .field textarea {
+        min-height: 50px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        font-size: 11px;
+        line-height: 1.3;
+    }
+
+    .merchantInlineFooter {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 8px;
+        padding-top: 8px;
+    }
+
+    .merchantInlineFooter p {
+        max-width: 70%;
+        font-size: 10px;
+        line-height: 1.3;
+    }
+
+    .merchantInlineFooter .primary {
+        min-width: 148px;
+        min-height: 38px;
+        padding-inline: 14px;
+        border-radius: 9px;
+        font-size: 11px;
+    }
+}
+
+
+/* Short desktop viewports: compress business facts and vertical rhythm so the
+   entire review decision, reasons and submit action remain in the first view. */
+@media (min-width: 1100px) and (max-height: 820px) {
+    .shell[data-page="merchant-review"] .page {
+        padding-top: 2px;
+        padding-bottom: 8px;
+        row-gap: 7px;
+    }
+
+    .shell[data-page="merchant-review"] .header h1 {
+        font-size: 27px;
+        margin-bottom: 2px;
+    }
+
+    .shell[data-page="merchant-review"] .header p {
+        font-size: 11px;
+        line-height: 1.25;
+    }
+
+    .shell[data-page="merchant-review"] .tabs {
+        gap: 5px;
+    }
+
+    .shell[data-page="merchant-review"] .tab,
+    .shell[data-page="merchant-review"] .activeTab {
+        min-height: 29px;
+        padding: 5px 9px;
+        font-size: 10px;
+    }
+
+    .merchantReviewWorkspace {
+        grid-template-columns: minmax(235px, .65fr) minmax(0, 1.35fr);
+        gap: 12px;
+    }
+
+    .merchantDetails {
+        padding: 11px 13px;
+    }
+
+    .merchantDetails .detailHead h2 {
+        font-size: 23px;
+    }
+
+    .merchantDetails .merchantStepper {
+        margin: 6px 0 7px;
+        gap: 7px;
+    }
+
+    .merchantDetails .merchantStepper > div > span {
+        flex-basis: 19px;
+        width: 19px;
+        height: 19px;
+        font-size: 9px;
+    }
+
+    .merchantDetails .merchantStepper strong {
+        font-size: 9px;
+    }
+
+    .merchantDetails .merchantPreviewInfo h3 {
+        margin-bottom: 3px;
+        font-size: 9px;
+    }
+
+    .merchantDetails .merchantPreviewInfo .merchantFacts {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 14px;
+        row-gap: 0;
+    }
+
+    .merchantDetails .merchantPreviewInfo .merchantFacts > div {
+        min-width: 0;
+        gap: 5px;
+        padding: 3px 0;
+    }
+
+    .merchantDetails .merchantPreviewInfo .merchantFacts dt,
+    .merchantDetails .merchantPreviewInfo .merchantFacts dd {
+        font-size: 10px;
+        line-height: 1.2;
+    }
+
+    .merchantDetails .merchantPreviewInfo .merchantFacts dd {
+        max-width: 66%;
+    }
+
+    .merchantInlineBody {
+        margin-top: 6px;
+        gap: 7px;
+    }
+
+    .merchantInlineBody .merchantModalSection {
+        padding: 8px 9px;
+    }
+
+    .merchantInlineBody .merchantModalSection > h3,
+    .merchantInlineBody .merchantDecision > h3 {
+        margin-bottom: 5px;
+        font-size: 9px;
+    }
+
+    .merchantInlineBody .missingDocs {
+        padding: 7px 8px;
+        font-size: 9px;
+    }
+
+    .merchantInlineBody .missingDocs strong,
+    .merchantInlineBody .missingDocs small {
+        font-size: 9px;
+        line-height: 1.2;
+    }
+
+    .merchantInlineBody .checkList {
+        gap: 4px;
+    }
+
+    .merchantInlineBody .checkList label {
+        font-size: 10px;
+    }
+
+    .merchantInlineBody .approveNote {
+        margin-top: 4px;
+        font-size: 9px;
+    }
+
+    .merchantInlineBody .merchantModalDecision {
+        padding: 8px 10px;
+    }
+
+    .merchantInlineBody .merchantModalDecision .segment button {
+        min-height: 32px;
+        font-size: 10px;
+    }
+
+    .merchantInlineBody .merchantDecisionFields {
+        gap: 8px;
+        margin-top: 6px;
+    }
+
+    .merchantInlineBody .merchantDecisionFields .field {
+        gap: 3px;
+        font-size: 9px;
+    }
+
+    .merchantInlineBody .merchantDecisionFields .field textarea {
+        min-height: 40px;
+        padding: 6px 8px;
+        font-size: 10px;
+        line-height: 1.2;
+    }
+
+    .merchantInlineFooter {
+        margin-top: 5px;
+        padding-top: 5px;
+        gap: 8px;
+    }
+
+    .merchantInlineFooter p {
+        font-size: 9px;
+        line-height: 1.2;
+    }
+
+    .merchantInlineFooter .primary {
+        min-height: 34px;
+        min-width: 136px;
+        font-size: 10px;
+    }
+}
+
+
+/* Final short-height review fit: keep the complete merchant queue and its
+   pagination visible alongside the selected application at 720–820px tall. */
+@media (min-width: 1100px) and (max-height: 820px) {
+    .shell[data-page="merchant-review"] .page {
+        padding-top: calc(var(--ws-top, 64px) + 6px);
+        padding-bottom: 5px;
+        row-gap: 5px;
+    }
+
+    .shell[data-page="merchant-review"] .header h1 {
+        font-size: 24px;
+        line-height: 1;
+        margin-bottom: 2px;
+    }
+
+    .shell[data-page="merchant-review"] .header p {
+        font-size: 10px;
+        line-height: 1.2;
+    }
+
+    .shell[data-page="merchant-review"] .tabs {
+        gap: 5px;
+    }
+
+    .shell[data-page="merchant-review"] .tab,
+    .shell[data-page="merchant-review"] .activeTab {
+        min-height: 27px;
+        padding: 4px 8px;
+        font-size: 9px;
+    }
+
+    .merchantPicker {
+        height: auto;
+        min-height: 0;
+        max-height: none;
+        overflow: visible;
+        align-self: start;
+    }
+
+    .merchantPicker .list {
+        gap: 6px;
+    }
+
+    .merchantPicker .merchantListItem,
+    .merchantPicker .merchantSelected {
+        padding: 8px 10px;
+        gap: 2px;
+        border-radius: 10px;
+    }
+
+    .merchantPicker .merchantListTop strong {
+        font-size: 11px;
+        line-height: 1.2;
+    }
+
+    .merchantPicker .merchantListItem > small,
+    .merchantPicker .merchantSelected > small {
+        font-size: 9px;
+        line-height: 1.2;
+    }
+
+    .merchantPicker .pagination {
+        margin-top: 7px;
+        padding-top: 7px;
+    }
+
+    .merchantDetails {
+        padding: 9px 11px;
+    }
+
+    .merchantDetails .detailHead h2 {
+        font-size: 21px;
+    }
+
+    .merchantDetails .merchantStepper {
+        margin: 5px 0 6px;
+    }
+
+    .merchantDetails .merchantPreviewInfo .merchantFacts > div {
+        padding-block: 2px;
+    }
+
+    .merchantInlineBody {
+        margin-top: 5px;
+        gap: 6px;
+    }
+
+    .merchantInlineBody .merchantModalSection {
+        padding: 7px 8px;
+    }
+
+    .merchantInlineBody .merchantMissingDocs,
+    .merchantInlineBody .missingDocs {
+        padding: 6px 7px;
+    }
+
+    .merchantInlineBody .checkList {
+        gap: 3px;
+    }
+
+    .merchantInlineBody .merchantDecisionFields {
+        gap: 6px;
+        margin-top: 5px;
+    }
+
+    .merchantInlineBody .merchantDecisionFields .field textarea {
+        height: 38px;
+        min-height: 38px;
+        padding: 5px 7px;
+        font-size: 9px;
+    }
+
+    .merchantInlineFooter {
+        margin-top: 4px;
+        padding-top: 4px;
+    }
+
+    .merchantInlineFooter .primary {
+        min-height: 32px;
+        min-width: 128px;
+    }
+}
+
+
+/* Offer moderation: fixed-height desktop workspace, independently scrolling
+   queue/detail panes, visible pagination, and a persistent decision action. */
+.offerPagination {
+    flex: 0 0 auto;
+    min-width: 0;
+    margin-top: 9px;
+    padding-top: 9px;
+    border-top: 1px solid #eee8dd;
+}
+
+@media (min-width: 1100px) and (max-height: 820px) {
+    .shell[data-page="offer-moderation"] .page {
+        padding-top: calc(var(--ws-top, 64px) + 14px);
+        padding-bottom: 8px;
+        row-gap: 14px;
+    }
+
+    .shell[data-page="offer-moderation"] .header h1 {
+        font-size: 30px;
+        margin-bottom: 3px;
+    }
+
+    .shell[data-page="offer-moderation"] .header p {
+        font-size: 12px;
+        line-height: 1.3;
+    }
+
+    .shell[data-page="offer-moderation"] .offerMetrics article {
+        min-height: 56px;
+        padding: 8px 12px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerMetrics strong {
+        font-size: 22px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerWorkspace {
+        display: grid;
+        grid-template-columns: minmax(260px, .88fr) minmax(0, 1.12fr);
         align-items: stretch;
-        height: 100%;
+        height: clamp(520px, calc(100dvh - 208px), 560px);
         min-height: 0;
-        gap: clamp(18px, 2vw, 30px);
+        gap: 14px;
     }
 
-    .offerPicker {
-        position: static;
-        display: grid;
-        grid-template-rows: auto minmax(0, 1fr) auto;
-        align-content: stretch;
-        align-self: stretch;
+    .shell[data-page="offer-moderation"] .offerPicker {
+        display: flex;
+        flex-direction: column;
         box-sizing: border-box;
         width: 100%;
         height: 100%;
         min-height: 0;
-        max-height: none;
-        padding: 0 8px 0 0;
+        max-height: 100%;
         overflow: hidden;
+        padding: 0 8px 0 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
     }
 
-    .offerPicker .tabs {
-        position: static;
-        align-self: start;
-        padding: 0 0 14px;
+    .shell[data-page="offer-moderation"] .offerPicker .tabs {
+        flex: 0 0 auto;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 0 0 8px;
         background: transparent;
     }
 
-    .offerQueue {
-        display: grid;
-        align-content: start;
-        align-self: stretch;
+    .shell[data-page="offer-moderation"] .offerPicker .tab,
+    .shell[data-page="offer-moderation"] .offerPicker .activeTab {
+        min-height: 31px;
+        padding: 5px 9px;
+        border-radius: 8px;
+        font-size: 10px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerQueue {
+        flex: 1 1 auto;
         min-height: 0;
-        overflow-x: hidden;
         overflow-y: auto;
-        padding: 0 4px 8px 0;
-        overscroll-behavior: contain;
-        scrollbar-width: thin;
-        scrollbar-color: #b9aa90 #f5f1e8;
+        overflow-x: hidden;
+        gap: 7px;
+        padding: 2px 7px 7px 0;
     }
 
-    .offerQueue::-webkit-scrollbar { width: 8px; }
-    .offerQueue::-webkit-scrollbar-track { background: #f5f1e8; border-radius: 99px; }
-    .offerQueue::-webkit-scrollbar-thumb { background: #b9aa90; border: 2px solid #f5f1e8; border-radius: 99px; }
-
-    .offerPicker > .pagination {
-        align-self: end;
-        margin-top: 0;
-        padding: 12px 2px 0;
-        background: #f7f1e5;
+    .shell[data-page="offer-moderation"] .offerItem,
+    .shell[data-page="offer-moderation"] .offerItemSelected {
+        grid-template-columns: 44px minmax(0, 1fr) auto;
+        gap: 8px;
+        padding: 8px;
+        border-radius: 11px;
     }
 
-    .offerPreviewCard {
+    .shell[data-page="offer-moderation"] .offerThumb {
+        width: 44px;
+        height: 44px;
+        border-radius: 9px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerCopy > strong {
+        font-size: 11px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerCopy > small {
+        font-size: 9px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerTags em {
+        min-height: 16px;
+        padding: 1px 6px;
+        font-size: 8px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerPrice strong {
+        font-size: 10px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerPrice small {
+        font-size: 9px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerPagination {
+        flex: 0 0 auto;
+        margin-top: 7px;
+        padding-top: 7px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerPagination .pagination {
+        gap: 5px;
+        min-height: 32px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerPagination .pageButton,
+    .shell[data-page="offer-moderation"] .offerPagination .pageNumber,
+    .shell[data-page="offer-moderation"] .offerPagination .pageCurrent {
+        min-width: 29px;
+        min-height: 29px;
+        padding: 0 8px;
+        font-size: 10px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerPreviewCard {
         display: flex;
         flex-direction: column;
         align-self: stretch;
         box-sizing: border-box;
         width: 100%;
         height: 100%;
-        min-width: 0;
         min-height: 0;
-        max-height: none;
+        max-height: 100%;
         overflow-x: hidden;
         overflow-y: auto;
         overscroll-behavior: contain;
-        padding: clamp(20px, 2vw, 30px);
-        scrollbar-width: thin;
-        scrollbar-color: #b9aa90 #f5f1e8;
+        gap: 9px;
+        padding: 13px;
+        border-radius: 16px;
     }
 
-    .offerPreviewHeading,
-    .offerPreviewFacts,
-    .offerPreviewAlert { flex: 0 0 auto; }
+    .shell[data-page="offer-moderation"] .offerPreviewHeading {
+        grid-template-columns: 50px minmax(0, 1fr) auto;
+        gap: 9px;
+    }
 
-    .offerReviewCallout {
+    .shell[data-page="offer-moderation"] .offerPreviewThumb {
+        width: 50px;
+        height: 50px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerPreviewTitle h2 {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        max-height: calc(2 * 1.12em);
+        font-size: 19px;
+        line-height: 1.12;
+    }
+
+    .shell[data-page="offer-moderation"] .offerPreviewTitle p {
+        font-size: 10px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerPreviewFacts {
+        gap: 6px 10px;
+        padding: 8px 0;
+    }
+
+    .shell[data-page="offer-moderation"] .offerPreviewFacts dt,
+    .shell[data-page="offer-moderation"] .offerPreviewFacts dd {
+        font-size: 10px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerPreviewAlert {
+        margin: 0;
+        padding: 8px 10px;
+        gap: 8px;
+        border-radius: 10px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerPreviewAlert strong {
+        font-size: 10px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerPreviewAlert small {
+        font-size: 9px;
+        line-height: 1.3;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody {
+        display: grid;
+        grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr);
+        align-items: start;
+        gap: 8px;
+        min-width: 0;
+        margin-top: 0;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody .merchantModalSection,
+    .shell[data-page="offer-moderation"] .offerInlineBody .merchantDecision {
+        min-width: 0;
+        padding: 9px;
+        border-radius: 10px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody .merchantModalSection > h3,
+    .shell[data-page="offer-moderation"] .offerInlineBody .merchantDecision > h3 {
+        margin: 0 0 6px;
+        font-size: 9px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody .offerModalReport,
+    .shell[data-page="offer-moderation"] .offerInlineBody .offerModalNoReports,
+    .shell[data-page="offer-moderation"] .offerInlineBody .offerModalFoodNotes {
+        padding: 8px;
+        font-size: 9px;
+        line-height: 1.3;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody .offerModalReport strong,
+    .shell[data-page="offer-moderation"] .offerInlineBody .offerModalFoodNotes strong {
+        font-size: 10px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody .offerModalFoodNotes p {
+        margin: 4px 0 0;
+        font-size: 9px;
+        line-height: 1.3;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody .offerModalDecisionHint {
+        margin: 0 0 6px;
+        font-size: 9px;
+        line-height: 1.25;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody .offerActionRow {
+        gap: 5px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody .offerAction,
+    .shell[data-page="offer-moderation"] .offerInlineBody .offerActionActive {
+        min-height: 30px;
+        padding: 5px 7px;
+        border-radius: 7px;
+        font-size: 9px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody .reasonChips {
+        gap: 5px;
+        margin: 7px 0;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody .reasonChip,
+    .shell[data-page="offer-moderation"] .offerInlineBody .reasonChipActive {
+        min-height: 25px;
+        padding: 4px 7px;
+        border-radius: 7px;
+        font-size: 8px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody .field {
+        gap: 4px;
+        margin-top: 7px;
+        font-size: 9px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody .field textarea {
+        min-height: 46px;
+        padding: 7px 8px;
+        border-radius: 8px;
+        font-size: 10px;
+        line-height: 1.25;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineFooter {
+        position: sticky;
+        bottom: -13px;
+        z-index: 4;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 9px;
         flex: 0 0 auto;
-        margin-top: auto;
-        padding: 16px 17px;
+        margin: auto 0 -13px;
+        padding: 9px 2px 5px;
+        background: #fffdf8;
+        box-shadow: 0 -8px 12px #fffdf8;
     }
 
-    .offerEmpty {
-        flex: 1 1 auto;
-        min-height: 0;
+    .shell[data-page="offer-moderation"] .offerInlineFooter p {
+        max-width: 65%;
+        margin: 0;
+        font-size: 9px;
+        line-height: 1.25;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineFooter .primary {
+        min-width: 118px;
+        min-height: 34px;
+        padding-inline: 10px;
+        border-radius: 8px;
+        font-size: 10px;
+    }
+}
+
+/* Support: reserve enough of the detail column for the conversation itself.
+   Case metadata stays compact above the timeline; the timeline still owns its
+   own scroll region and the reply composer remains in the fixed final row. */
+@media (min-width: 900px) {
+    .shell[data-page="support-cases"] .supportWorkspace {
+        grid-template-columns: minmax(255px, .76fr) minmax(0, 1.24fr);
+        gap: 14px;
+    }
+
+    .shell[data-page="support-cases"] .caseDetail {
+        padding: 13px;
+    }
+
+    .shell[data-page="support-cases"] .caseDetail .detailHead {
+        gap: 9px;
+        margin-bottom: 8px;
+    }
+
+    .shell[data-page="support-cases"] .caseDetail .detailHead h2 {
+        margin-top: 3px;
+        font-size: 21px;
+        line-height: 1.1;
+    }
+
+    .shell[data-page="support-cases"] .caseHistory {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .shell[data-page="support-cases"] .caseReferenceCards {
+        flex: 0 0 auto;
+        gap: 7px;
+        margin-bottom: 0;
+    }
+
+    .shell[data-page="support-cases"] .caseReferenceCards article {
+        min-width: 0;
+        padding: 8px 9px;
+        border-radius: 9px;
+    }
+
+    .shell[data-page="support-cases"] .caseReferenceCards article small {
+        font-size: 9px;
+    }
+
+    .shell[data-page="support-cases"] .caseReferenceCards article strong {
+        font-size: 10px;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+    }
+
+    .shell[data-page="support-cases"] .caseTimeline {
+        display: grid;
+        flex: 0 0 auto;
+        gap: 7px;
+        margin: 0 0 5px;
+    }
+
+    .shell[data-page="support-cases"] .caseTimeline article {
+        max-width: 94%;
+        padding: 8px 10px;
+        border-radius: 9px;
+    }
+
+    .shell[data-page="support-cases"] .caseTimeline article strong {
+        margin-bottom: 3px;
+        font-size: 9px;
+    }
+
+    .shell[data-page="support-cases"] .caseTimeline article p {
+        font-size: 10px;
+        line-height: 1.3;
+    }
+
+    .shell[data-page="support-cases"] .caseAssignment,
+    .shell[data-page="support-cases"] .caseCustomer,
+    .shell[data-page="support-cases"] .caseCustomerDisclosure,
+    .shell[data-page="support-cases"] .caseHistory > .hint {
+        flex: 0 0 auto;
+        margin-block: 3px;
+    }
+
+    .shell[data-page="support-cases"] .caseHistory .sectionLabel {
+        margin: 3px 0;
+        font-size: 10px;
+    }
+
+    .shell[data-page="support-cases"] .caseHistory .caseActions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        flex: 0 0 auto;
+        gap: 7px;
+        margin-top: 4px;
+    }
+
+    .shell[data-page="support-cases"] .caseHistory .caseActionReason input {
+        height: 34px;
+        padding-inline: 9px;
+        font-size: 10px;
+    }
+
+    .shell[data-page="support-cases"] .caseHistory .caseActions .ghostBtn,
+    .shell[data-page="support-cases"] .caseHistory .caseActions .primary {
+        min-height: 34px;
+        padding-inline: 10px;
+        border-radius: 8px;
+        font-size: 10px;
+    }
+
+    .shell[data-page="support-cases"] .caseDetail > .messageComposer {
+        margin-top: 8px;
+        padding: 10px;
+        gap: 7px;
+        border-radius: 11px;
+    }
+
+    .shell[data-page="support-cases"] .caseDetail > .messageComposer .messageModes {
+        gap: 6px;
+        margin: 0;
+    }
+
+    .shell[data-page="support-cases"] .caseDetail > .messageComposer .modeButton,
+    .shell[data-page="support-cases"] .caseDetail > .messageComposer .modeActive {
+        min-height: 30px;
+        padding-inline: 9px;
+        border-radius: 8px;
+        font-size: 9px;
+    }
+
+    .shell[data-page="support-cases"] .caseDetail > .messageComposer .field textarea {
+        height: 58px;
+        min-height: 58px;
+        max-height: 90px;
+        padding: 7px 9px;
+        font-size: 10px;
+    }
+
+    .shell[data-page="support-cases"] .caseDetail > .messageComposer .composerFoot {
+        gap: 8px;
+    }
+
+    .shell[data-page="support-cases"] .caseDetail > .messageComposer .composerFoot p {
+        font-size: 9px;
+    }
+
+    .shell[data-page="support-cases"] .caseDetail > .messageComposer .composerFoot .primary {
+        min-height: 34px;
+        padding-inline: 11px;
+        border-radius: 8px;
+        font-size: 10px;
+    }
+}
+
+/* Audit: keep the table and the selected record in the same reference-ledger grid. */
+@media (min-width: 900px) {
+    .shell[data-page="audit-log"] .auditExplorer {
+        display: grid;
+        grid-template-columns: minmax(0, 1.45fr) minmax(300px, .75fr);
+        align-items: start;
+        column-gap: 16px;
+        row-gap: 12px;
+    }
+
+    .shell[data-page="audit-log"] .auditExplorerHeading {
+        grid-column: 1 / -1;
+    }
+
+    .shell[data-page="audit-log"] .auditExplorer > .auditTableCard {
+        grid-column: 1;
+        grid-row: 2;
+        min-width: 0;
+    }
+
+    .shell[data-page="audit-log"] .auditExplorer > .auditRecordCard {
+        grid-column: 2;
+        grid-row: 2;
+        position: sticky;
+        top: calc(var(--ws-top, 64px) + 12px);
+        box-sizing: border-box;
+        min-width: 0;
+        max-height: calc(100dvh - var(--ws-top, 64px) - 30px);
+        overflow: auto;
+        padding: 16px;
+        border: 1px solid #e8dfd1;
+        border-radius: 15px;
+        background: #fffdf8;
+        box-shadow: 0 8px 24px #60491e09;
     }
 }
 
 @media (max-width: 899px) {
-    .shell {
-        height: auto;
-        min-height: 100dvh;
-        overflow: visible;
-    }
-
-    .page {
+    .shell[data-page="audit-log"] .auditExplorer {
         display: grid;
-        grid-template-rows: auto auto;
-        height: auto;
-        min-height: 0;
-        padding-bottom: 42px;
-        overflow: visible;
+        grid-template-columns: minmax(0, 1fr);
     }
 
-    .offerWorkspace {
-        height: auto;
-        min-height: 0;
-        align-items: stretch;
-    }
-
-    .offerPicker {
-        display: grid;
-        grid-template-rows: auto auto auto;
-        height: auto;
-        min-height: 0;
-        max-height: none;
-        overflow: visible;
-        padding: 0;
-    }
-
-    .offerQueue {
-        min-height: 0;
-        overflow: visible;
-    }
-
-    .offerPreviewCard {
-        height: auto;
-        min-height: 300px;
+    .shell[data-page="audit-log"] .auditExplorer > .auditTableCard,
+    .shell[data-page="audit-log"] .auditExplorer > .auditRecordCard {
+        grid-column: 1;
+        grid-row: auto;
+        position: static;
         max-height: none;
         overflow: visible;
     }
 
-    .offerReviewCallout { margin-top: 8px; }
+    .shell[data-page="audit-log"] .auditExplorer > .auditRecordCard {
+        padding: 15px;
+    }
 }
 
-@media (max-width: 620px) {
-    .offerPicker .tabs { gap: 7px; }
-    .offerPicker > .pagination {
-        align-items: flex-start;
-        flex-direction: column;
+
+/* Support at short desktop heights: give the timeline a real first-view share
+   without sacrificing the fixed reply composer or case-action reachability. */
+@media (min-width: 900px) and (max-height: 820px) {
+    .shell[data-page="support-cases"] .supportWorkspace {
+        height: clamp(400px, calc(100dvh - 310px), 700px);
+        min-height: 0;
+        gap: 12px;
     }
-    .offerPreviewCard { padding: 18px; }
-    .offerPreviewHeading { grid-template-columns: 64px minmax(0, 1fr); }
-    .offerPreviewHeading > .pill { grid-column: 2; justify-self: start; }
-    .offerPreviewThumb { width: 64px; height: 64px; }
-    .offerReviewCallout { align-items: stretch; flex-direction: column; }
-    .offerReviewCallout .merchantOpenButton { width: 100%; }
+
+    .shell[data-page="support-cases"] .caseDetail {
+        padding: 11px;
+    }
+
+    .shell[data-page="support-cases"] .caseDetail .detailHead {
+        gap: 8px;
+        margin-bottom: 6px;
+    }
+
+    .shell[data-page="support-cases"] .caseDetail .detailHead h2 {
+        font-size: 20px;
+        line-height: 1.08;
+    }
+
+    .shell[data-page="support-cases"] .caseHistory {
+        gap: 6px;
+    }
+
+    .shell[data-page="support-cases"] .caseReferenceCards {
+        gap: 5px;
+    }
+
+    .shell[data-page="support-cases"] .caseReferenceCards article {
+        padding: 6px 7px;
+        border-radius: 8px;
+    }
+
+    .shell[data-page="support-cases"] .caseReferenceCards article small {
+        font-size: 8px;
+        line-height: 1.2;
+    }
+
+    .shell[data-page="support-cases"] .caseReferenceCards article strong {
+        font-size: 9px;
+        line-height: 1.2;
+    }
+
+    .shell[data-page="support-cases"] .caseHistory .sectionLabel {
+        margin: 2px 0;
+        font-size: 9px;
+    }
+
+    .shell[data-page="support-cases"] .caseTimeline {
+        gap: 5px;
+        margin-bottom: 3px;
+    }
+
+    .shell[data-page="support-cases"] .caseTimeline article {
+        padding: 7px 8px;
+        border-radius: 8px;
+    }
+
+    .shell[data-page="support-cases"] .caseTimeline article strong {
+        margin-bottom: 2px;
+        font-size: 8px;
+        line-height: 1.2;
+    }
+
+    .shell[data-page="support-cases"] .caseTimeline article p {
+        font-size: 9px;
+        line-height: 1.25;
+    }
+
+    .shell[data-page="support-cases"] .caseAssignment,
+    .shell[data-page="support-cases"] .caseCustomer,
+    .shell[data-page="support-cases"] .caseCustomerDisclosure,
+    .shell[data-page="support-cases"] .caseHistory > .hint {
+        margin-block: 1px;
+    }
+
+    .shell[data-page="support-cases"] .caseDetail > .messageComposer {
+        margin-top: 6px;
+        padding: 8px;
+        gap: 5px;
+        border-radius: 9px;
+    }
+
+    .shell[data-page="support-cases"] .caseDetail > .messageComposer .messageModes {
+        gap: 5px;
+    }
+
+    .shell[data-page="support-cases"] .caseDetail > .messageComposer .modeButton,
+    .shell[data-page="support-cases"] .caseDetail > .messageComposer .modeActive {
+        min-height: 27px;
+        padding-inline: 8px;
+        font-size: 8px;
+    }
+
+    .shell[data-page="support-cases"] .caseDetail > .messageComposer .field textarea {
+        height: 50px;
+        min-height: 50px;
+        max-height: 80px;
+        padding: 6px 8px;
+        font-size: 9px;
+    }
+
+    .shell[data-page="support-cases"] .caseDetail > .messageComposer .composerFoot {
+        gap: 6px;
+    }
+
+    .shell[data-page="support-cases"] .caseDetail > .messageComposer .composerFoot p {
+        font-size: 8px;
+    }
+
+    .shell[data-page="support-cases"] .caseDetail > .messageComposer .composerFoot .primary {
+        min-height: 30px;
+        padding-inline: 9px;
+        font-size: 9px;
+    }
+}
+
+
+/* Audit mobile ledger: convert the wide desktop table into compact labeled
+   event cards, preserving every field without requiring horizontal swiping. */
+@media (max-width: 899px) {
+    .shell[data-page="audit-log"] .auditTableCard .table {
+        width: 100%;
+        overflow: visible;
+    }
+
+    .shell[data-page="audit-log"] .auditTableCard .table table,
+    .shell[data-page="audit-log"] .auditTableCard .table tbody {
+        display: block;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .shell[data-page="audit-log"] .auditTableCard .table thead {
+        display: none;
+    }
+
+    .shell[data-page="audit-log"] .auditTableCard .table tbody {
+        display: grid;
+        gap: 8px;
+    }
+
+    .shell[data-page="audit-log"] .auditTableCard .table tbody tr {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0 10px;
+        min-width: 0;
+        padding: 4px 6px;
+        border: 1px solid #eee4d1;
+        border-radius: 11px;
+        background: #fffdf8;
+        cursor: pointer;
+    }
+
+    .shell[data-page="audit-log"] .auditTableCard .table tbody tr.activeRow,
+    .shell[data-page="audit-log"] .auditTableCard .table tbody tr[aria-pressed="true"] {
+        border-color: #073324;
+        outline: 2px solid #073324;
+        outline-offset: -2px;
+        background: #fffefa;
+    }
+
+    .shell[data-page="audit-log"] .auditTableCard .table tbody td {
+        display: grid;
+        grid-template-rows: auto auto;
+        align-content: start;
+        min-width: 0;
+        padding: 7px 5px;
+        border: 0;
+        font-size: 11px;
+        line-height: 1.3;
+        overflow-wrap: anywhere;
+        vertical-align: top;
+    }
+
+    .shell[data-page="audit-log"] .auditTableCard .table tbody td::before {
+        display: block;
+        margin-bottom: 4px;
+        color: #748075;
+        font-size: 8px;
+        line-height: 1.2;
+        font-weight: 950;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        content: attr(data-label);
+    }
+
+    .shell[data-page="audit-log"] .auditTableCard .table tbody td strong {
+        min-width: 0;
+        font-size: 10px;
+        line-height: 1.3;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    .shell[data-page="audit-log"] .auditTableCard .table tbody td small {
+        min-width: 0;
+        font-size: 9px;
+        line-height: 1.25;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    .shell[data-page="audit-log"] .auditTableCard .table tbody td .auditTableReason {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        white-space: normal;
+    }
+
+    .shell[data-page="audit-log"] .auditTableCard .table tbody td:last-child {
+        align-content: center;
+    }
+}
+
+
+/* Offer reason is part of the evidence column, leaving the decision column
+   focused on the action choice while keeping the required reason editable. */
+@media (min-width: 1100px) and (max-height: 820px) {
+    .shell[data-page="offer-moderation"] .offerModalReason {
+        margin-top: 0;
+        padding: 6px 7px;
+        border-radius: 9px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerModalReason > h3 {
+        margin: 0 0 2px;
+        font-size: 8px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerModalReason .reasonChips {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 3px;
+        margin: 1px 0 2px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerModalReason .reasonChip,
+    .shell[data-page="offer-moderation"] .offerModalReason .reasonChipActive {
+        min-width: 0;
+        min-height: 18px;
+        padding: 2px 4px;
+        border-radius: 5px;
+        font-size: 7px;
+        line-height: 1.1;
+        white-space: normal;
+    }
+
+    .shell[data-page="offer-moderation"] .offerModalReason .field {
+        gap: 2px;
+        margin-top: 0;
+        font-size: 8px;
+        transform: translateY(-5px);
+    }
+
+    .shell[data-page="offer-moderation"] .offerModalReason .field textarea {
+        height: 34px;
+        min-height: 34px;
+        max-height: 34px;
+        padding: 4px 6px;
+        border-radius: 6px;
+        font-size: 8px;
+        line-height: 1.2;
+    }
+}
+
+
+/* Three-level offer review hierarchy: evidence spans the top row; the reason
+   editor and action decision sit beside each other beneath it. */
+@media (min-width: 1100px) and (max-height: 820px) {
+    .shell[data-page="offer-moderation"] .offerInlineBody {
+        grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
+        grid-template-rows: auto auto;
+        align-items: start;
+        row-gap: 7px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child {
+        grid-column: 1 / -1;
+        grid-row: 1;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:nth-child(2) {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:nth-child(3) {
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn {
+        min-width: 0;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child .merchantModalSection {
+        padding: 7px 9px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child .offerModalReport,
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child .offerModalNoReports {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: calc(50% - 5px);
+        height: 40px;
+        max-height: 40px;
+        margin-inline-end: 6px;
+        padding: 5px 7px;
+        overflow: hidden;
+        vertical-align: top;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child .offerModalReport strong,
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child .offerModalReport span {
+        display: -webkit-box;
+        min-width: 0;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child .offerModalFoodNotes {
+        display: inline-block;
+        width: calc(50% - 5px);
+        max-width: none;
+        height: 40px;
+        max-height: 40px;
+        margin: 0;
+        padding: 5px 7px;
+        vertical-align: top;
+        overflow: hidden;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child .offerModalFoodNotes strong {
+        display: block;
+        margin-bottom: 2px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child .offerModalFoodNotes p {
+        display: -webkit-box;
+        margin: 0;
+        line-height: 1.2;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:nth-child(2) .offerModalReason {
+        height: 100%;
+        box-sizing: border-box;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:nth-child(3) .offerModalDecision {
+        height: 100%;
+        box-sizing: border-box;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody .offerModalDecisionHint {
+        max-width: 280px;
+    }
+}
+
+
+/* Offer detail hierarchy also applies to full-height desktop viewports. */
+@media (min-width: 1100px) and (min-height: 821px) {
+    .shell[data-page="offer-moderation"] .offerInlineBody {
+        grid-template-columns: minmax(0, .94fr) minmax(0, 1.06fr);
+        grid-template-rows: auto auto;
+        align-items: start;
+        row-gap: 10px;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:first-child {
+        grid-column: 1 / -1;
+        grid-row: 1;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:nth-child(2) {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .shell[data-page="offer-moderation"] .offerInlineBody > .merchantModalColumn:nth-child(3) {
+        grid-column: 2;
+        grid-row: 2;
+    }
 }

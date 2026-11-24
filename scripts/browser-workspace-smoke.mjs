@@ -33,7 +33,7 @@ const offer = {
 };
 const moderationOffers = Array.from({ length: 14 }, (_, index) => ({
   id: `00000000-0000-4000-8000-${String(102 + index).padStart(12, "0")}`,
-  title: index === 0 ? "Panier du fournil" : `Basket selection ${index + 1}`,
+  title: index === 0 ? "Panier du fournil" : index === 1 ? "Family breakfast basket with assorted bakery items, fresh fruit and detailed allergen information" : `Basket selection ${index + 1}`,
   shopName: "Boulangerie Test", city: "Casablanca", priceMinor: 4000 + index * 100,
   originalPriceMinor: 8000 + index * 100, quantityTotal: 10, quantityReserved: 2,
   allergensStatus: index % 3 === 0 ? "UNKNOWN" : "DECLARED", allergens: index % 3 === 0 ? null : "Wheat",
@@ -51,6 +51,36 @@ const supportCase = {
   assigneeName: "Support Agent", hiddenOffer: false, createdAt: now.toISOString(),
   updatedAt: now.toISOString(), resolvedAt: null,
 };
+const merchantRows = [
+  merchant,
+  { ...merchant, id: "00000000-0000-4000-8000-000000000111", name: "Épicerie Atlas", businessType: "GROCERY", ownerEmail: "atlas@kulha.test", city: "Rabat", status: "PENDING" },
+  { ...merchant, id: "00000000-0000-4000-8000-000000000112", name: "Pâtisserie Zayna", businessType: "PASTRY", ownerEmail: "zayna@kulha.test", city: "Marrakech", status: "PENDING" },
+  { ...merchant, id: "00000000-0000-4000-8000-000000000114", name: "Épicerie de la Place", businessType: "GROCERY", ownerEmail: "owner2@kulha.test", city: "Rabat", address: "14 Rue des Consuls", status: "PENDING" },
+  { ...merchant, id: "00000000-0000-4000-8000-000000000115", name: "Pâtisserie Nour", businessType: "BAKERY", ownerEmail: "owner3@kulha.test", city: "Marrakech", address: "8 Avenue Mohammed V", status: "PENDING" },
+  { ...merchant, id: "00000000-0000-4000-8000-000000000116", name: "Primeur Atlas", businessType: "GROCERY", ownerEmail: "owner4@kulha.test", city: "Agadir", address: "22 Boulevard Hassan II", status: "PENDING" },
+];
+const supportCases = [
+  supportCase,
+  { ...supportCase, id: "00000000-0000-4000-8000-000000000121", reference: "SUP-2026-0002", category: "RESERVATION", subject: "Reservation pickup window mismatch", priority: "MEDIUM" },
+  { ...supportCase, id: "00000000-0000-4000-8000-000000000122", reference: "SUP-2026-0003", category: "MERCHANT", subject: "Merchant cannot update opening hours", priority: "LOW" },
+  { ...supportCase, id: "00000000-0000-4000-8000-000000000123", reference: "SUP-2026-0004", category: "FOOD_SAFETY", subject: "Packaging condition reported", priority: "HIGH" },
+  { ...supportCase, id: "00000000-0000-4000-8000-000000000130", reference: "SUP-2026-0005", category: "RESERVATION", subject: "Reservation pickup time clarification", priority: "MEDIUM" },
+  { ...supportCase, id: "00000000-0000-4000-8000-000000000131", reference: "SUP-2026-0006", category: "OFFER_QUALITY", subject: "Incorrect basket contents reported", priority: "MEDIUM" },
+  { ...supportCase, id: "00000000-0000-4000-8000-000000000132", reference: "SUP-2026-0007", category: "MERCHANT_ACCOUNT", subject: "Shop cannot update opening hours", priority: "LOW" },
+  { ...supportCase, id: "00000000-0000-4000-8000-000000000133", reference: "SUP-2026-0008", category: "FOOD_SAFETY", subject: "Possible cold-chain concern", priority: "HIGH", status: "ESCALATED" },
+];
+const auditRows = Array.from({ length: 14 }, (_, index) => ({
+  id: `00000000-0000-4000-8000-${String(500 + index).padStart(12, "0")}`,
+  actorUserId: actorId,
+  actorName: index % 3 === 0 ? "Nadia El Amrani" : index % 3 === 1 ? "Youssef Bennani" : "Support Agent",
+  action: index === 8 ? "SUPPORT_CUSTOMER_DETAILS_REVEALED_AFTER_FOOD_SAFETY_ESCALATION_AND_PRIVACY_REVIEW" : ["MERCHANT_APPROVED", "OFFER_SUSPENDED", "SUPPORT_CASE_RESOLVED", "SUPPORT_CUSTOMER_DETAILS_REVEALED", "AUDIT_LOG_EXPORTED"][index % 5],
+  targetType: ["MERCHANT", "OFFER", "SUPPORT_CASE", "CUSTOMER", "AUDIT_EXPORT"][index % 5],
+  targetId: index === 8 ? `support-case:${supportCase.reference}:customer:${customerId}:authorized-disclosure-review:food-safety-escalation` : [merchant.id, offer.id, supportCase.reference, customerId, "audit-export-2026-11-23"][index % 5],
+  reason: index === 8 ? "The customer disclosure was approved for a documented food-safety escalation after the assigned support agent verified the incident, confirmed the merchant response, checked the reservation history, recorded the operational purpose, and restricted disclosed contact details to the case team. This extended reason deliberately exercises wrapping in the audit ledger and selected-record panel." : index === 0 ? "Business registration, address and owner identity were checked against the submitted application." : index === 1 ? "Offer temporarily hidden while allergen declarations are verified with the merchant." : index === 2 ? "Customer received a resolution after the pickup and food-safety details were reviewed." : index === 3 ? "Authorized support disclosure for a food-safety investigation; customer details were accessed only for this case." : "Operational review completed and action recorded.",
+  result: index === 4 ? "DENIED" : index === 7 ? "FAILED" : "SUCCESS",
+  correlationId: index === 8 ? "kulha-admin-smoke-correlation-food-safety-disclosure-review-2026-11-23-0009" : `kulha-admin-smoke-${index + 1}`,
+  createdAt: new Date(now.getTime() - index * 17 * 60000).toISOString(),
+}));
 let timeline = [{
   id: "00000000-0000-4000-8000-000000000104", authorType: "CUSTOMER",
   authorUserId: customerId, authorLabel: "Customer", visibility: "CUSTOMER",
@@ -146,7 +176,7 @@ const backend = createServer(async (request, response) => {
   if (path === "/merchants/me/sales/export") return csv(response, "kulha-sales.csv");
 
   if (path === "/admin/merchants" && method === "GET") {
-    const rows = url.searchParams.get("status") === "PENDING" && merchantStatus === "PENDING" ? [merchant] : [];
+    const rows = url.searchParams.get("status") === "PENDING" && merchantStatus === "PENDING" ? merchantRows.filter(item => item.status === "PENDING") : merchantRows.filter(item => item.status === url.searchParams.get("status"));
     return json(response, page(rows));
   }
   if (path === `/admin/merchants/${merchant.id}` && method === "GET") return json(response, merchant);
@@ -165,7 +195,7 @@ const backend = createServer(async (request, response) => {
     return json(response, {});
   }
   if (path === "/admin/support-cases" && method === "GET") {
-    const rows = url.searchParams.get("status") === caseStatus ? [supportCase] : [];
+    const rows = url.searchParams.get("status") === caseStatus ? supportCases : [];
     return json(response, page(rows));
   }
   if (path === `/admin/support-cases/${supportCase.reference}` && method === "GET") {
@@ -191,7 +221,7 @@ const backend = createServer(async (request, response) => {
     supportCase.status = caseStatus;
     return json(response, {});
   }
-  if (path === "/admin/audit-log" && method === "GET") return json(response, page([]));
+  if (path === "/admin/audit-log" && method === "GET") return json(response, page(auditRows));
   if (path === "/admin/audit-log/export") return csv(response, "kulha-audit-log.csv");
 
   if (path === "/reservations" && method === "GET") return json(response, page([]));
@@ -296,88 +326,301 @@ async function assertCompactWorkspaceFits(page, route, width, height) {
 async function assertAdminLoginLayout(page, width, height) {
   const metrics = await page.evaluate(() => {
     const root = document.querySelector("main.admin-login-shell");
-    const byClass = fragment => [...(root?.querySelectorAll("*") ?? [])].find(element =>
-      typeof element.className === "string" && element.className.includes(fragment));
     if (!root) return { missingRoot: true };
-    const rail = byClass("rail"), formSide = byClass("formSide");
+    const accessPanel = root.querySelector('[data-testid="admin-login-access-panel"]');
     const form = root.querySelector("form.auth-form-fields");
     const fields = [...(form?.querySelectorAll("input, button[type=submit]") ?? [])];
     const rect = element => {
       if (!element) return null;
       const value = element.getBoundingClientRect();
-      return { top:value.top,bottom:value.bottom,left:value.left,right:value.right,height:value.height };
+      return { top: value.top, bottom: value.bottom, left: value.left, right: value.right, height: value.height };
     };
     return {
-      missingRoot:false, documentWidth:document.documentElement.scrollWidth, bodyWidth:document.body.scrollWidth,
-      documentHeight:document.documentElement.scrollHeight, bodyHeight:document.body.scrollHeight,
-      root:rect(root), rail:rect(rail), formSide:rect(formSide),
-      railClientHeight:rail?.clientHeight ?? 0, railScrollHeight:rail?.scrollHeight ?? 0,
-      formClientHeight:formSide?.clientHeight ?? 0, formScrollHeight:formSide?.scrollHeight ?? 0,
-      fields:fields.map(element=>{const value=element.getBoundingClientRect();return{
-        type:element.getAttribute("type"),top:value.top,bottom:value.bottom,left:value.left,right:value.right,
-        visible:!!(element.offsetWidth||element.offsetHeight),
-      };}),
+      missingRoot: false,
+      documentWidth: document.documentElement.scrollWidth,
+      bodyWidth: document.body.scrollWidth,
+      documentHeight: document.documentElement.scrollHeight,
+      bodyHeight: document.body.scrollHeight,
+      root: rect(root),
+      accessPanel: rect(accessPanel),
+      accessClientHeight: accessPanel?.clientHeight ?? 0,
+      accessScrollHeight: accessPanel?.scrollHeight ?? 0,
+      fields: fields.map(element => {
+        const value = element.getBoundingClientRect();
+        return {
+          type: element.getAttribute("type"),
+          top: value.top, bottom: value.bottom, left: value.left, right: value.right,
+          visible: !!(element.offsetWidth || element.offsetHeight)
+        };
+      })
     };
   });
-  if (metrics.missingRoot || metrics.documentWidth > width+1 || metrics.bodyWidth > width+1) {
-    throw new Error(`Admin login horizontal overflow or missing layout at ${width}x${height}: ${JSON.stringify(metrics)}`);
+  if (metrics.missingRoot || !metrics.accessPanel || metrics.documentWidth > width + 1 || metrics.bodyWidth > width + 1) {
+    throw new Error("Admin login horizontal overflow or missing layout at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (metrics.fields.length < 3 || metrics.fields.some(field=>!field.visible||field.left < -1
-    ||field.right > width+1||field.top < -1||field.bottom > height+1)) {
-    throw new Error(`Admin login form controls are missing or clipped at ${width}x${height}: ${JSON.stringify(metrics)}`);
+  if (metrics.fields.length < 3 || metrics.fields.some(field => !field.visible || field.left < -1
+    || field.right > width + 1 || field.top < -1 || field.bottom > height + 1)) {
+    throw new Error("Admin login form controls are missing or clipped at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (width >= 761 && (metrics.documentHeight > height+1 || metrics.bodyHeight > height+1
-    || metrics.root.top < -1 || metrics.root.bottom > height+1
-    || metrics.railScrollHeight > metrics.railClientHeight+2
-    || metrics.formScrollHeight > metrics.formClientHeight+2)) {
-    throw new Error(`Admin login must fit without page or inner-panel scrolling at ${width}x${height}: ${JSON.stringify(metrics)}`);
+  if (width >= 761 && (metrics.documentHeight > height + 1 || metrics.bodyHeight > height + 1
+    || metrics.root.top < -1 || metrics.root.bottom > height + 1
+    || metrics.accessPanel.top < -1 || metrics.accessPanel.bottom > height + 1
+    || metrics.accessScrollHeight > metrics.accessClientHeight + 2)) {
+    throw new Error("Admin login must fit without page or inner-panel scrolling at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
 }
 async function assertOfferModerationLayout(page, width, height) {
   const metrics = await page.evaluate(() => {
-    const all=[...document.querySelectorAll("*")];
-    const byClass=fragment=>all.find(element=>typeof element.className==="string"&&element.className.includes(fragment));
-    const workspace=byClass("offerWorkspace"),picker=byClass("offerPicker"),queue=byClass("offerQueue");
-    const pagination=byClass("pagination"),preview=byClass("offerPreviewCard"),decision=byClass("offerReviewCallout");
-    const rect=element=>{if(!element)return null;const value=element.getBoundingClientRect();return{
-      top:value.top,bottom:value.bottom,left:value.left,right:value.right,height:value.height,
-    };};
+    const workspace = document.querySelector('[data-testid="offer-workspace"]');
+    const picker = document.querySelector('[data-testid="offer-picker"]');
+    const preview = document.querySelector('[data-testid="offer-detail-panel"]');
+    const tabs = [...document.querySelectorAll('[role="tablist"] button')];
+    const box = element => {
+      if (!element) return null;
+      const rect = element.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height: rect.height };
+    };
     return {
-      documentWidth:document.documentElement.scrollWidth,bodyWidth:document.body.scrollWidth,
-      documentHeight:document.documentElement.scrollHeight,workspace:rect(workspace),picker:rect(picker),
-      queue:rect(queue),pagination:rect(pagination),preview:rect(preview),decision:rect(decision),
-      queueClientHeight:queue?.clientHeight??0,queueScrollHeight:queue?.scrollHeight??0,
-      queueOverflow:queue?getComputedStyle(queue).overflowY:"missing",
+      documentWidth: document.documentElement.scrollWidth,
+      bodyWidth: document.body.scrollWidth,
+      workspace: box(workspace), picker: box(picker), preview: box(preview),
+      direction: workspace ? getComputedStyle(workspace).direction : "missing",
+      tabHeights: tabs.map(tab => Math.round(tab.getBoundingClientRect().height)),
+      offerCount: document.querySelectorAll('[data-testid="offer-queue"] > *').length,
+      longTitleCount: [...document.querySelectorAll('[data-testid="offer-queue"] strong')].filter(element => (element.textContent ?? "").trim().length > 48).length,
+      columns: workspace ? getComputedStyle(workspace).gridTemplateColumns : "",
     };
   });
-  if(metrics.documentWidth>width+1||metrics.bodyWidth>width+1)
+  if (metrics.documentWidth > width + 1 || metrics.bodyWidth > width + 1)
     throw new Error(`Offer moderation horizontal overflow at ${width}x${height}: ${JSON.stringify(metrics)}`);
-  if(!metrics.workspace||!metrics.picker||!metrics.queue||!metrics.pagination||!metrics.preview||!metrics.decision)
+  if (!metrics.workspace || !metrics.picker || !metrics.preview)
     throw new Error(`Offer moderation layout regions are missing at ${width}x${height}: ${JSON.stringify(metrics)}`);
-  if(width>=900){
-    const aligned=Math.abs(metrics.picker.top-metrics.preview.top)<=2
-      &&Math.abs(metrics.picker.bottom-metrics.preview.bottom)<=2
-      &&Math.abs(metrics.picker.height-metrics.preview.height)<=2;
-    if(metrics.documentHeight>height+2||!aligned||metrics.picker.height<height*.58
-      ||height-metrics.picker.bottom>64||height-metrics.picker.bottom<8
-      ||metrics.pagination.bottom>metrics.picker.bottom+1||metrics.picker.bottom-metrics.pagination.bottom>3
-      ||metrics.queueOverflow!=="auto"||metrics.queueScrollHeight<=metrics.queueClientHeight+4
-      ||metrics.decision.bottom>metrics.preview.bottom-8){
-      throw new Error(`Desktop offer moderation workspace/scroll ownership failed at ${width}x${height}: ${JSON.stringify(metrics)}`);
-    }
-  }else if(metrics.picker.bottom>=metrics.preview.top-1){
-    throw new Error(`Mobile offer moderation panels must stack naturally at ${width}px: ${JSON.stringify(metrics)}`);
+  if (metrics.tabHeights.some(value => value > 44))
+    throw new Error(`Admin status filters must remain compact at ${width}x${height}: ${JSON.stringify(metrics.tabHeights)}`);
+  if (width >= 900) {
+    const wrongSide = metrics.direction === "rtl"
+      ? metrics.picker.left <= metrics.preview.left
+      : metrics.picker.left >= metrics.preview.left;
+    if (wrongSide) throw new Error(`Offer queue must remain beside its detail panel in ${metrics.direction} layout at ${width}px: ${JSON.stringify(metrics)}`);
+  }
+  if (width < 900 && metrics.picker.bottom > metrics.preview.top + 2)
+    throw new Error(`Mobile offer panels must stack naturally at ${width}px: ${JSON.stringify(metrics)}`);
+  if (metrics.offerCount < 10 || metrics.longTitleCount < 1)
+    throw new Error(`Offer moderation fixtures must exercise a populated queue and a long offer title: ${JSON.stringify(metrics)}`);
+}
+
+
+async function assertAdminStatusControls(page, route, width, height) {
+  const controls = await page.evaluate(() => [...document.querySelectorAll('[role="tablist"] button')].map(button => {
+    const rect = button.getBoundingClientRect();
+    const style = getComputedStyle(button);
+    return { height: rect.height, radius: parseFloat(style.borderTopLeftRadius) };
+  }));
+  if (controls.some(control => control.height > 44 || control.radius > 16)) {
+    throw new Error("Admin status controls are oversized at " + width + "x" + height + " on " + route + ": " + JSON.stringify(controls));
   }
 }
 
-async function assertDialogWithinViewport(page, route) {
-  const rect = await page.getByRole("dialog").evaluate(element => {
-    const value = element.getBoundingClientRect();
-    return { left: value.left, top: value.top, right: value.right, bottom: value.bottom, width: value.width, height: value.height };
+async function assertMerchantReviewLayout(page, width, height) {
+  const metrics = await page.evaluate(() => {
+    const detail = document.querySelector('[data-testid="merchant-review-detail-panel"]');
+    const heading = document.querySelector('[data-testid="admin-page-heading"]');
+    const topbar = document.querySelector('[data-testid="admin-console-topbar"]');
+    const tabs = document.querySelector('.kulhaAdminShell[data-page="merchant-review"] [role="tablist"]');
+    const workflow = document.querySelector('[data-testid="merchant-review-workflow"]');
+    const decision = document.querySelector('[data-testid="merchant-review-decision"]');
+    const footer = document.querySelector('[data-testid="merchant-review-footer"]');
+    const box = element => {
+      if (!element) return null;
+      const rect = element.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height: rect.height };
+    };
+    const buttons = [...(decision?.querySelectorAll('button') ?? [])].map(button => {
+      const rect = button.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right };
+    });
+    const textareas = [...(decision?.querySelectorAll('textarea') ?? [])].map(element => {
+      const rect = element.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, visible: rect.width > 0 && rect.height > 0 };
+    });
+    const footerButton = footer?.querySelector('button');
+    const footerText = footer?.querySelector('p');
+    const actionRect = footerButton?.getBoundingClientRect();
+    const noteRect = footerText?.getBoundingClientRect();
+    return {
+      detail: box(detail), heading: box(heading), topbar: box(topbar), tabs: box(tabs),
+      workflow: box(workflow), decision: box(decision), footer: box(footer),
+      documentWidth: document.documentElement.scrollWidth, scrollY: window.scrollY,
+      buttons, textareas,
+      footerAction: actionRect ? { top: actionRect.top, bottom: actionRect.bottom, left: actionRect.left, right: actionRect.right } : null,
+      footerNote: noteRect ? { top: noteRect.top, bottom: noteRect.bottom, left: noteRect.left, right: noteRect.right } : null,
+      selectedMerchant: detail?.textContent?.includes('Boulangerie Test') ?? false
+    };
   });
-  const viewport = page.viewportSize();
-  if (!viewport || rect.left < -1 || rect.top < -1 || rect.right > viewport.width + 1 || rect.bottom > viewport.height + 1) {
-    throw new Error(`Dialog exceeds viewport on ${route}: ${JSON.stringify({ rect, viewport })}`);
+  if (!metrics.detail || !metrics.heading || !metrics.topbar || !metrics.tabs
+      || !metrics.workflow || !metrics.decision || !metrics.footer
+      || !metrics.footerAction || !metrics.footerNote || !metrics.selectedMerchant) {
+    throw new Error("Merchant review decision workspace is incomplete at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (metrics.documentWidth > width + 1 || metrics.detail.left < -1 || metrics.detail.right > width + 1) {
+    throw new Error("Merchant review horizontal clipping at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (metrics.scrollY > 1 || metrics.heading.top < metrics.topbar.bottom - 1
+      || metrics.tabs.top < metrics.heading.bottom - 1) {
+    throw new Error("Merchant review heading, filters and topbar overlap or start scrolled at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (metrics.buttons.length !== 3 || metrics.textareas.length !== 2 || metrics.textareas.some(field => !field.visible)) {
+    throw new Error("Merchant review decision controls are missing at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  const overlaps = (a, b) => a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1;
+  for (let i = 0; i < metrics.buttons.length; i++) for (let j = i + 1; j < metrics.buttons.length; j++) {
+    if (overlaps(metrics.buttons[i], metrics.buttons[j])) {
+      throw new Error("Merchant review decision buttons overlap at " + width + "x" + height + ": " + JSON.stringify(metrics));
+    }
+  }
+  if (overlaps(metrics.footerAction, metrics.footerNote)) {
+    throw new Error("Merchant review decision note overlaps the final action at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (width >= 900 && metrics.footer.bottom > height + 2) {
+    throw new Error("Merchant review final action is below the desktop viewport at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+}
+
+
+async function assertOfferDecisionAccessible(page, width, height, route) {
+  const metrics = await page.evaluate(() => {
+    const workspace = document.querySelector('[data-testid="offer-workspace"]');
+    const picker = document.querySelector('[data-testid="offer-picker"]');
+    const queue = document.querySelector('[data-testid="offer-queue"]');
+    const pagination = document.querySelector('[data-testid="offer-pagination"]');
+    const preview = document.querySelector('[data-testid="offer-detail-panel"]');
+    const workflow = document.querySelector('[data-testid="offer-moderation-workflow"]');
+    const footer = document.querySelector('[data-testid="offer-moderation-footer"]');
+    const reasonPanel = document.querySelector('[data-testid="offer-decision-reason"]');
+    const reasonField = reasonPanel?.querySelector("textarea");
+    const box = element => {
+      if (!element) return null;
+      const rect = element.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height: rect.height };
+    };
+    const action = footer?.querySelector("button");
+    return {
+      workspace: box(workspace), picker: box(picker), queue: box(queue), pagination: box(pagination),
+      preview: box(preview), workflow: box(workflow), footer: box(footer), action: box(action),
+      reasonPanel: box(reasonPanel), reasonField: box(reasonField),
+      queueClient: queue?.clientHeight ?? 0, queueScroll: queue?.scrollHeight ?? 0,
+      queueOverflow: queue ? getComputedStyle(queue).overflowY : "missing",
+      previewClient: preview?.clientHeight ?? 0, previewScroll: preview?.scrollHeight ?? 0,
+      previewOverflow: preview ? getComputedStyle(preview).overflowY : "missing",
+      documentWidth: document.documentElement.scrollWidth,
+      safetyWarningsInsideDecision: workflow?.querySelectorAll(".foodSafetyAlert").length ?? -1
+    };
+  });
+  if (!metrics.workspace || !metrics.picker || !metrics.queue || !metrics.pagination
+      || !metrics.preview || !metrics.workflow || !metrics.footer || !metrics.action
+      || !metrics.reasonPanel || !metrics.reasonField || metrics.reasonField.height < 20) {
+    throw new Error("Offer queue pagination or selected-offer decision is missing at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (metrics.documentWidth > width + 1 || metrics.pagination.top < metrics.picker.top - 1
+      || metrics.pagination.bottom > metrics.picker.bottom + 1) {
+    throw new Error("Offer pagination is clipped or displaced at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (metrics.safetyWarningsInsideDecision !== 0) {
+    throw new Error("Offer detail repeats the food-safety warning inside the decision area at " + width + "x" + height + ".");
+  }
+  if (width >= 1100 && height <= 820) {
+    if (metrics.queueClient < 40 || metrics.queueScroll <= metrics.queueClient + 2
+        || metrics.queueOverflow !== "auto" || metrics.previewOverflow !== "auto"
+        || metrics.previewClient < 100 || metrics.footer.bottom > metrics.preview.bottom + 2
+        || metrics.action.bottom > height + 2
+        || metrics.reasonField.top < metrics.preview.top - 1
+        || metrics.reasonField.bottom > metrics.footer.top + 1) {
+      throw new Error("Offer moderation must keep a scrollable queue, pinned pagination and accessible decision action on "
+        + route + " at " + width + "x" + height + ": " + JSON.stringify(metrics));
+    }
+  }
+}
+
+async function assertSupportTimelineVisible(page, width, height) {
+  const history = page.getByTestId("support-case-history");
+  const timeline = page.getByTestId("support-case-timeline");
+  const firstMessage = timeline.locator("article").first();
+  await firstMessage.waitFor({ state: "visible" });
+  const firstBox = await firstMessage.boundingBox();
+  const historyBox = await history.boundingBox();
+  const actionBar = page.getByTestId("support-case-actions");
+  const composer = page.getByTestId("support-message-composer");
+  const composerBox = await composer.boundingBox();
+  if (!firstBox || !historyBox || !composerBox) {
+    throw new Error("Support timeline or reply composer is missing at " + width + "x" + height + ".");
+  }
+  if (width >= 900 && (firstBox.y + firstBox.height <= historyBox.y
+      || firstBox.y >= historyBox.y + historyBox.height)) {
+    throw new Error("The first support conversation message is not visible in the initial timeline viewport at "
+      + width + "x" + height + ": " + JSON.stringify({ firstBox, historyBox }));
+  }
+  await history.evaluate(element => { element.scrollTop = element.scrollHeight; });
+  const actionsBox = await actionBar.boundingBox();
+  const historyAfterScroll = await history.boundingBox();
+  if (!actionsBox || !historyAfterScroll || actionsBox.y < historyAfterScroll.y - 1
+      || actionsBox.y + actionsBox.height > historyAfterScroll.y + historyAfterScroll.height + 1) {
+    throw new Error("Support case actions are not reachable inside the independent history scroller at "
+      + width + "x" + height + ": " + JSON.stringify({ actionsBox, historyAfterScroll }));
+  }
+  const composerAfterScroll = await composer.boundingBox();
+  if (!composerAfterScroll || Math.abs(composerAfterScroll.y - composerBox.y) > 1) {
+    throw new Error("Support reply composer moved while the conversation timeline scrolled at " + width + "x" + height + ".");
+  }
+  await history.evaluate(element => { element.scrollTop = 0; });
+}
+
+async function assertAuditExplorerLayout(page, width, height) {
+  const metrics = await page.evaluate(() => {
+    const explorer = document.querySelector('[data-testid="audit-explorer"]');
+    const table = document.querySelector('[data-testid="audit-table-card"]');
+    const tableViewport = table?.querySelector(".table");
+    const firstRow = table?.querySelector("tbody tr");
+    const detail = document.querySelector('[data-testid="audit-record-detail"]');
+    const header = document.querySelector('[data-testid="audit-record-header"]');
+    const box = element => {
+      if (!element) return null;
+      const rect = element.getBoundingClientRect();
+      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, width: rect.width, height: rect.height };
+    };
+    return {
+      explorer: box(explorer), table: box(table), detail: box(detail), header: box(header),
+      direction: explorer ? getComputedStyle(explorer).direction : "missing",
+      scrollWidth: document.documentElement.scrollWidth,
+      tableViewportWidth: tableViewport?.clientWidth ?? 0,
+      tableViewportScrollWidth: tableViewport?.scrollWidth ?? 0,
+      mobileRowDisplay: firstRow ? getComputedStyle(firstRow).display : "missing",
+      mobileCells: firstRow?.querySelectorAll("td[data-label]").length ?? 0,
+      detailText: detail?.textContent ?? ""
+    };
+  });
+  if (!metrics.explorer || !metrics.table || !metrics.detail || !metrics.header
+      || metrics.detail.width < 220 || metrics.detailText.length < 180) {
+    throw new Error("Audit ledger and selected-record details are not both rendered at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (metrics.scrollWidth > width + 1) {
+    throw new Error("Audit explorer introduces horizontal page overflow at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (width >= 900) {
+    const separated = metrics.direction === "rtl"
+      ? metrics.detail.right <= metrics.table.left + 2
+      : metrics.table.right <= metrics.detail.left + 2;
+    if (!separated) {
+      throw new Error("Audit selected-record panel must sit beside the ledger in " + metrics.direction + " layout at "
+        + width + "x" + height + ": " + JSON.stringify(metrics));
+    }
+  } else {
+    if (metrics.detail.top < metrics.table.bottom - 1) {
+      throw new Error("Audit selected-record panel must stack below the ledger on mobile at " + width + "px: " + JSON.stringify(metrics));
+    }
+    if (metrics.tableViewportScrollWidth > metrics.tableViewportWidth + 1
+        || metrics.mobileRowDisplay !== "grid" || metrics.mobileCells !== 6) {
+      throw new Error("Audit mobile events must use labeled stacked cells without horizontal scrolling at " + width + "x" + height + ": " + JSON.stringify(metrics));
+    }
   }
 }
 
@@ -397,28 +640,59 @@ try {
   ];
   mkdirSync("artifacts/browser-screenshots", { recursive: true });
 
-  // Admin login is public: capture it without creating an authenticated session.
+  // Admin login is public: cover the required viewport matrix in English and Arabic.
   {
-    const context=await browser.newContext({viewport:{width:1920,height:1080}});
-    const page=await context.newPage(),errors=[];
-    page.on("pageerror",error=>errors.push(error.message));
-    for(const size of [{width:1366,height:768},{width:1920,height:1080},{width:390,height:844}]){
-      await page.setViewportSize(size);
-      await page.goto(origin+"/en/admin/login",{waitUntil:"networkidle",timeout:30000});
-      await page.getByRole("heading",{name:"Administrator sign in"}).waitFor({state:"visible"});
-      await page.locator('input[type="email"]').waitFor({state:"visible"});
-      await page.locator('input[type="password"]').waitFor({state:"visible"});
-      await assertNoHorizontalOverflow(page,"/en/admin/login",size.width);
-      await assertAdminLoginLayout(page,size.width,size.height);
-      await page.screenshot({path:join("artifacts/browser-screenshots",`en-admin-login-${size.width}x${size.height}.png`),animations:"disabled"});
-      if(size.width<761) await page.screenshot({
-        path:join("artifacts/browser-screenshots",`en-admin-login-${size.width}x${size.height}-full.png`),
-        animations:"disabled",fullPage:true,
-      });
+    const loginSizes = sizes.filter(size => [1920, 1440, 1366, 1280, 390].includes(size.width));
+    for (const locale of [
+      { code: "en", heading: "Administrator sign in", direction: "ltr" },
+      { code: "ar", heading: "دخول الإدارة", direction: "rtl" }
+    ]) {
+      const context = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
+      const page = await context.newPage();
+      const errors = [];
+      page.on("pageerror", error => errors.push(error.message));
+      for (const size of loginSizes) {
+        await page.setViewportSize(size);
+        const route = "/" + locale.code + "/admin/login";
+        await page.goto(origin + route, { waitUntil: "networkidle", timeout: 30000 });
+        await page.getByRole("heading", { name: locale.heading }).waitFor({ state: "visible" });
+        await page.locator('input[type="email"]').waitFor({ state: "visible" });
+        await page.locator('input[type="password"]').waitFor({ state: "visible" });
+        const direction = await page.locator("main.admin-login-shell").getAttribute("dir");
+        if (direction !== locale.direction) throw new Error(route + " expected dir=" + locale.direction + ", received " + direction + ".");
+        await assertNoHorizontalOverflow(page, route, size.width);
+        await assertAdminLoginLayout(page, size.width, size.height);
+        await page.screenshot({
+          path: join("artifacts/browser-screenshots", locale.code + "-admin-login-" + size.width + "x" + size.height + ".png"),
+          animations: "disabled"
+        });
+        if (size.width === 390) {
+          await page.screenshot({
+            path: join("artifacts/browser-screenshots", locale.code + "-admin-login-390x844-full.png"),
+            animations: "disabled", fullPage: true
+          });
+          await page.locator('form.auth-form-fields button[type="submit"]').click();
+          await page.waitForFunction(() => document.querySelector('#email[aria-invalid="true"]')
+            && document.querySelector('#password[aria-invalid="true"]'));
+          await page.screenshot({
+            path: join("artifacts/browser-screenshots", locale.code + "-admin-login-390x844-validation.png"),
+            animations: "disabled", fullPage: true
+          });
+          const password = page.locator("#password");
+          await page.locator(".password-toggle").click();
+          if (await password.getAttribute("type") !== "text") {
+            throw new Error(route + " password visibility control did not reveal the password field.");
+          }
+          await page.locator(".password-toggle").click();
+          if (await password.getAttribute("type") !== "password") {
+            throw new Error(route + " password visibility control did not conceal the password field.");
+          }
+        }
+      }
+      if (errors.length) throw new Error("Browser errors on /" + locale.code + "/admin/login: " + errors.join("; "));
+      await context.close();
     }
-    if(errors.length) throw new Error(`Browser errors on /en/admin/login: ${errors.join("; ")}`);
-    await context.close();
-    process.stdout.write("PASS admin login at 1366x768, 1920x1080 and 390x844; desktop page and inner panels fit without scrollbars; no horizontal overflow\\n");
+    process.stdout.write("PASS admin login: five required viewports, English and Arabic RTL, validation errors and password visibility\n");
   }
 
   const routes = [
@@ -426,12 +700,18 @@ try {
     { path: "/en/merchant/reservations/scan", token: "merchant-token", heading: "Validate a pickup" , compact: true },
     { path: "/en/merchant/staff", token: "merchant-token", heading: "Staff" , compact: true },
     { path: "/en/merchant/sales", token: "merchant-token", heading: "Sales" , compact: true },
-    { path: "/en/admin/merchant-review", token: "admin-token", heading: "Merchant review" , compact: true },
-    { path: "/en/admin/offer-moderation", token: "admin-token", heading: "Offer moderation" , compact: true },
-    { path: "/en/admin/support-cases", token: "support-token", heading: "Support cases" , compact: true },
-    { path: "/fr/admin/support-cases", token: "support-token", heading: "Dossiers support" , compact: true },
-    { path: "/ar/admin/support-cases", token: "support-token", heading: "طلبات الدعم", direction: "rtl" , compact: true },
-    { path: "/en/admin/audit-log", token: "admin-token", heading: "Audit log" , compact: true },
+    { path: "/en/admin/merchant-review", token: "admin-token", heading: "Merchant review", adminPage: true },
+    { path: "/fr/admin/merchant-review", token: "admin-token", heading: "Revue des commerces", adminPage: true },
+    { path: "/ar/admin/merchant-review", token: "admin-token", heading: "مراجعة المتاجر", direction: "rtl", adminPage: true },
+    { path: "/en/admin/offer-moderation", token: "admin-token", heading: "Offer moderation", adminPage: true },
+    { path: "/fr/admin/offer-moderation", token: "admin-token", heading: "Modération des offres", adminPage: true },
+    { path: "/ar/admin/offer-moderation", token: "admin-token", heading: "مراجعة العروض", direction: "rtl", adminPage: true },
+    { path: "/en/admin/support-cases", token: "support-token", heading: "Support cases", compact: true, adminPage: true },
+    { path: "/fr/admin/support-cases", token: "support-token", heading: "Dossiers support", compact: true, adminPage: true },
+    { path: "/ar/admin/support-cases", token: "support-token", heading: "طلبات الدعم", direction: "rtl", compact: true, adminPage: true },
+    { path: "/en/admin/audit-log", token: "admin-token", heading: "Audit log", adminPage: true },
+    { path: "/fr/admin/audit-log", token: "admin-token", heading: "Journal d’audit", adminPage: true },
+    { path: "/ar/admin/audit-log", token: "admin-token", heading: "سجل التدقيق", direction: "rtl", adminPage: true },
     { path: "/fr/reservations", token: "customer-token", heading: "Mes réservations" },
     { path: "/ar/reservations", token: "customer-token", heading: "حجوزاتي", direction: "rtl", directionSelector: '[lang="ar"]' },
     { path: "/fr/account", token: "customer-token", heading: "Profil et paramètres" },
@@ -454,8 +734,30 @@ try {
         const bodyText = (await page.locator("body").innerText()).slice(0, 1200);
         throw new Error(`Workspace did not render ${route.path}; current URL=${page.url()}; body=${bodyText}; backend requests=${JSON.stringify(requests.slice(-12))}`);
       }
+      await page.evaluate(() => window.scrollTo(0, 0));
       await assertNoHorizontalOverflow(page, route.path, size.width);
-      if(route.path.endsWith("/admin/offer-moderation")) await assertOfferModerationLayout(page,size.width,size.height);
+      if (route.adminPage && !route.path.endsWith("/admin/audit-log")) {
+        const search = page.getByTestId("admin-console-search");
+        await search.getByTestId("admin-global-search").waitFor({ state: "visible" });
+        const searchBounds = await search.boundingBox();
+        if (!searchBounds || (size.width < 900 && searchBounds.width < size.width - 64)) {
+          throw new Error(`Admin search must remain visible and full-width at ${size.width}px on ${route.path}: ${JSON.stringify(searchBounds)}`);
+        }
+      }
+      if (size.width === 1366 && route.path.endsWith("/admin/merchant-review")) {
+        await page.getByTestId("merchant-review-workflow").waitFor({ state: "visible" });
+      }
+      if (size.width === 1366 && route.path.endsWith("/admin/support-cases")) {
+        await page.getByTestId("support-case-row").first().click();
+        await page.locator('[data-testid="support-case-detail"] h2').waitFor({ state: "visible" });
+      }
+      if (route.adminPage) await assertAdminStatusControls(page, route.path, size.width, size.height);
+      if (route.path.endsWith("/admin/merchant-review") && size.width >= 1280) await assertMerchantReviewLayout(page, size.width, size.height);
+      if (route.path.endsWith("/admin/offer-moderation")) {
+        await assertOfferModerationLayout(page, size.width, size.height);
+        await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
+        if (size.width >= 1100) await assertOfferDecisionAccessible(page, size.width, size.height, route.path);
+      }
       if (route.path.endsWith("/admin/support-cases")) {
         const supportLayout = await page.evaluate(() => {
           const detail = document.querySelector('[data-testid="support-case-detail"]');
@@ -483,6 +785,7 @@ try {
         if (supportLayout.missingRegion || supportLayout.composerBottom > supportLayout.panelBottom + 1) {
           throw new Error(`Support composer escaped its detail panel at ${size.width}x${size.height}: ${JSON.stringify(supportLayout)}`);
         }
+        if (size.width >= 900) await assertSupportTimelineVisible(page, size.width, size.height);
         if (size.width < 900 && supportLayout.pickerBottom !== null
           && supportLayout.detailTop < supportLayout.pickerBottom - 1) {
           throw new Error(`Support detail must stack below the case picker at ${size.width}px: ${JSON.stringify(supportLayout)}`);
@@ -503,11 +806,55 @@ try {
         const count = requests.filter(item => item.path === "/reservations").length - reservationRequestCount;
         if (count !== 3) throw new Error(`${route.path} expected 3 reservation list requests, observed ${count}.`);
       }
+      if (route.path.endsWith("/admin/audit-log")) {
+        const events = page.getByTestId("audit-record-row");
+        if (await events.count() < 7) throw new Error(route.path + " must render at least seven populated audit events.");
+        await events.last().click();
+        await page.getByTestId("audit-record-header").waitFor({ state: "visible" });
+        const detailText = await page.getByTestId("audit-record-detail").innerText();
+        if (detailText.length < 180) throw new Error(route.path + " selected audit detail did not render the long record fields.");
+        if (size.width >= 900) await assertAuditExplorerLayout(page, size.width, size.height);
+      }
+      await page.evaluate(() => window.scrollTo(0, 0));
       await page.screenshot({ path: join("artifacts/browser-screenshots", screenshotName), animations: "disabled" });
-      if(route.path.endsWith("/admin/offer-moderation")&&size.width===390) await page.screenshot({
-        path:join("artifacts/browser-screenshots","en-admin-offer-moderation-390x844-full.png"),
-        animations:"disabled",fullPage:true,
-      });
+      if (route.adminPage && size.width === 390) {
+        await page.screenshot({
+          path: join("artifacts/browser-screenshots", route.path.slice(1).replaceAll("/", "-") + "-390x844-full.png"),
+          animations: "disabled", fullPage: true,
+        });
+      }
+      if (size.width === 1366 && size.height === 768 && route.path.includes("/admin/")) {
+        const fullName = route.path.replace(/^\/+/, "").replaceAll("/", "-");
+        await page.screenshot({
+          path: join("artifacts/browser-screenshots", `${fullName}-full-1366x768.png`),
+          animations: "disabled",
+          fullPage: true,
+        });
+        const search = route.path.endsWith("/audit-log")
+          ? page.getByTestId("audit-search-input")
+          : page.getByTestId("admin-global-search");
+        await search.fill("no matching KULHA record");
+        if (route.path.endsWith("/audit-log")) {
+          await page.waitForFunction(() => document.querySelectorAll('[data-testid="audit-record-row"]').length === 0, undefined, { timeout: 8000 });
+        } else {
+          await page.waitForTimeout(450);
+        }
+        const emptyCounts = await page.evaluate(() => ({
+          merchants: document.querySelector('[data-testid="merchant-review-list"]')?.children.length ?? null,
+          offers: document.querySelector('[data-testid="offer-queue"]')?.children.length ?? null,
+          support: document.querySelector('[data-testid="support-case-list"]')?.children.length ?? null,
+          audit: document.querySelectorAll('[data-testid="audit-record-row"]').length
+        }));
+        const emptyCount = route.path.endsWith("/merchant-review") ? emptyCounts.merchants
+          : route.path.endsWith("/offer-moderation") ? emptyCounts.offers
+          : route.path.endsWith("/support-cases") ? emptyCounts.support : emptyCounts.audit;
+        if (emptyCount !== 0) throw new Error(route.path + " empty-state search returned " + emptyCount + " rows.");
+        await page.screenshot({
+          path: join("artifacts/browser-screenshots", `${route.path.replace(/^\/+/, "").replaceAll("/", "-")}-empty-state-1366x768.png`),
+          animations: "disabled",
+        });
+        await search.fill("");
+      }
       if (route.compact && size.width >= 1024 && size.height <= 768) {
         await assertCompactWorkspaceFits(page, route.path, size.width, size.height);
       }
@@ -581,15 +928,14 @@ try {
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
-    await page.getByRole("button", { name: "Review application" }).click();
-    await assertDialogWithinViewport(page, "/en/admin/merchant-review");
-    const dialog = page.getByRole("dialog");
-    await dialog.getByLabel("Address and location checked").check();
-    await dialog.getByLabel("Phone number reachable").check();
-    await dialog.getByLabel("Documents readable and valid").check();
-    await dialog.getByRole("button", { name: "Approve" }).click();
-    await dialog.getByLabel("Reason (required)").fill("Verified during browser workflow test.");
-    await dialog.getByRole("button", { name: "Submit decision" }).click();
+    const inlineReview = page.getByTestId("merchant-review-workflow");
+    await inlineReview.waitFor({ state: "visible" });
+    await inlineReview.getByLabel("Address and location checked").check();
+    await inlineReview.getByLabel("Phone number reachable").check();
+    await inlineReview.getByLabel("Documents readable and valid").check();
+    await inlineReview.getByRole("button", { name: "Approve" }).click();
+    await inlineReview.getByLabel("Reason (required)").fill("Verified during browser workflow test.");
+    await page.getByTestId("merchant-review-footer").getByRole("button", { name: "Submit decision" }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/approve"), "Merchant approval");
     await context.close();
   }
@@ -601,12 +947,11 @@ try {
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(origin + "/en/admin/offer-moderation", { waitUntil: "networkidle" });
-    await page.getByRole("button", { name: "Open moderation" }).click();
-    await assertDialogWithinViewport(page, "/en/admin/offer-moderation");
-    const dialog = page.getByRole("dialog");
-    await dialog.locator('[data-action="suspend"]').click();
-    await dialog.getByLabel("Reason (required)").fill("Allergen information needs verification.");
-    await dialog.getByRole("button", { name: "Hide offer" }).last().click();
+    const inlineOffer = page.getByTestId("offer-moderation-workflow");
+    await inlineOffer.waitFor({ state: "visible" });
+    await inlineOffer.locator('[data-action="suspend"]').click();
+    await inlineOffer.getByLabel("Reason (required)").fill("Allergen information needs verification.");
+    await page.getByTestId("offer-moderation-footer").getByRole("button", { name: "Hide offer" }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/suspend"), "Offer moderation action");
     await context.close();
   }
