@@ -219,7 +219,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const [reason,setReason]=useState("");const [disclosureReason,setDisclosureReason]=useState("");const [internalNote,setInternalNote]=useState("");const [draftMessage,setDraftMessage]=useState("");const [sendToCustomer,setSendToCustomer]=useState(true);const [revealed,setRevealed]=useState<{fullName:string;email:string;phone:string|null}|null>(null);const [working,setWorking]=useState(false);
 
     useEffect(()=>{if(!selectedMerchant)merchantReturnFocusRef.current?.focus();},[selectedMerchant]);
-    useEffect(()=>{if(!selectedOffer)offerReturnFocusRef.current?.focus();},[selectedOffer]);
+    useEffect(()=>{if(!selectedOffer)offerReturnFocusRef.current?.focus({preventScroll:true});},[selectedOffer]);
     useEffect(()=>{if(!selectedCase)caseReturnFocusRef.current?.focus();},[selectedCase]);
     useEffect(()=>{if(page==="audit-log")return;const onSearch=(event:Event)=>setQuery((event as CustomEvent<string>).detail??"");window.addEventListener("kulha:admin-search",onSearch);return()=>window.removeEventListener("kulha:admin-search",onSearch);},[page]);
     useEffect(()=>{if(page!=="audit-log")return;const timeout=window.setTimeout(()=>setAuditSearch(query.trim()),280);return()=>window.clearTimeout(timeout);},[page,query]);
