@@ -16024,3 +16024,11 @@ body:has(.admin-login-shell) #contenu {
 .ws-top-user,.ws-top-lang,.ws-top-signout{flex:0 0 auto;white-space:nowrap}
 @media(max-width:900px){.ws-topbar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px}.ws-top-search{grid-column:1/-1;grid-row:2;max-width:none;width:100%}.ws-top-user{grid-column:1;grid-row:1}.ws-top-lang{grid-column:2;grid-row:1}.ws-top-signout{grid-column:3;grid-row:1}}
 @media(max-width:420px){.ws-topbar{grid-template-columns:minmax(0,1fr) auto;gap:8px}.ws-top-user{grid-column:1;min-width:0}.ws-top-lang{grid-column:2}.ws-top-signout{grid-column:1/-1;grid-row:3;justify-self:end}.ws-top-identity strong{max-width:calc(100vw - 190px)}}
+
+
+/* Keep the workspace identity and topbar controls comfortably readable and tappable. */
+.ws-topbar small,.ws-top-user strong,.ws-top-signout,.ws-top-lang select,.ws-badge,.ws-avatar,.ws-bell-count{font-size:13px}
+.ws-top-search{min-height:44px}
+.ws-top-search input{height:44px;min-height:44px;font-size:13px}
+.ws-top-lang select{min-height:44px}
+.ws-top-signout{min-height:44px}
