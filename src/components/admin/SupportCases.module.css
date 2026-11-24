@@ -74,3 +74,9 @@
     .composerFoot .primary { width: 100%; }
     .caseActionButtons > button { flex: 1 1 100%; }
 }
+
+/* List-first workspace and responsive drawer layout */
+.supportWorkspace { grid-template-columns: minmax(0, 1fr); }
+.casePicker { padding: 20px; }
+.caseList { grid-template-columns: repeat(auto-fit, minmax(min(100%, 390px), 1fr)); gap: 14px; }
+.caseItem, .caseSelected { min-height: 112px; padding: 17px; }
