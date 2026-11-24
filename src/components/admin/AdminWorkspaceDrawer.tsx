@@ -79,7 +79,7 @@ export function AdminWorkspaceDrawer({ open, title, closeLabel, direction = "ltr
       window.removeEventListener("keydown", onKeyDown);
       document.removeEventListener("pointerdown", onDocumentPointerDown, true);
       document.body.style.overflow = previousOverflow;
-      if (modalPresentation) window.scrollTo({ left: previousScrollX, top: previousScrollY, behavior: "instant" });
+      if (modalPresentation) window.requestAnimationFrame(() => window.scrollTo({ left: previousScrollX, top: previousScrollY, behavior: "instant" }));
     };
   }, [open, modalPresentation]);
 
