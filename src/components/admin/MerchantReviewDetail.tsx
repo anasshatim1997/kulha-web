@@ -42,7 +42,7 @@ export function MerchantReviewDetail({id,locale,backStatus,backPage,backQuery}:P
   finally{setWorking(false);}
  };
  return <AdminShell page="merchant-review" locale={locale} topbar={null}>
-  <main className={styles.detailPage} data-testid="merchant-review-detail-page">
+  <div className={styles.detailPage} data-testid="merchant-review-detail-page">
    <div className={styles.detailBreadcrumb}><Link href={backHref} className={styles.backLink} data-testid="merchant-review-back">{locale==="ar"?<ArrowRight size={17}/>:<ArrowLeft size={17}/>} {t.back}</Link><span>{t.title}</span></div>
    {loading?<div className={styles.detailState} aria-live="polite">{t.title}…</div>:failed||!merchant?
     <div className={styles.detailState} role="alert"><AlertCircle size={22}/><p>{failed?t.loadError:t.notFound}</p><button type="button" onClick={()=>router.refresh()}>{t.retry}</button></div>:
@@ -109,6 +109,6 @@ export function MerchantReviewDetail({id,locale,backStatus,backPage,backQuery}:P
      </div>
     </>
    }
-  </main>
+  </div>
  </AdminShell>;
 }
