@@ -187,12 +187,21 @@ export function SiteHeader() {
       : roles.includes("SUPPORT") ? l("الدعم", "Support", "Support")
       : l("مدير", "Admin", "Administrateur");
     type WsLink = readonly [string, string, boolean, typeof Store, number];
-    const adminLinks: WsLink[] = [
-      [l("مراقبة العروض", "Offers", "Offres"), localePath(locale, "/admin/offer-moderation"), /\/admin\/offer-moderation(?:\/|$)/.test(pathname), Tag, 0],
-      [l("مراجعة المتاجر", "Merchants", "Commerces"), localePath(locale, "/admin/merchant-review"), /\/admin\/merchant-review(?:\/|$)/.test(pathname), Store, shellInfo.pendingMerchants],
-      [l("حالات الدعم", "Support", "Support"), localePath(locale, "/admin/support-cases"), /\/admin\/support-cases(?:\/|$)/.test(pathname), Flag, shellInfo.openCases],
-      [l("سجل التدقيق", "Audit log", "Journal d’audit"), localePath(locale, "/admin/audit-log"), /\/admin\/audit-log(?:\/|$)/.test(pathname), FileText, 0],
-    ];
+    const canAdmin = roles.includes("ADMIN") || roles.includes("SUPER_ADMIN");
+    const adminHomeHref = canAdmin
+      ? localePath(locale, "/admin")
+      : roles.includes("SUPPORT")
+        ? localePath(locale, "/admin/support-cases")
+        : localePath(locale, "/offers");
+    const adminLinks: WsLink[] = canAdmin ? [
+      [l("لوحة الإدارة", "Overview", "Vue d’ensemble"), localePath(locale, "/admin"), pathname === localePath(locale, "/admin"), LayoutDashboard, 0],
+      [l("مراقبة العروض", "Offers", "Offres"), localePath(locale, "/admin/offer-moderation"), /\\/admin\\/offer-moderation(?:\\/|$)/.test(pathname), Tag, 0],
+      [l("مراجعة المتاجر", "Merchants", "Commerces"), localePath(locale, "/admin/merchant-review"), /\\/admin\\/merchant-review(?:\\/|$)/.test(pathname), Store, shellInfo.pendingMerchants],
+      [l("حالات الدعم", "Support", "Support"), localePath(locale, "/admin/support-cases"), /\\/admin\\/support-cases(?:\\/|$)/.test(pathname), Flag, shellInfo.openCases],
+      [l("سجل التدقيق", "Audit log", "Journal d’audit"), localePath(locale, "/admin/audit-log"), /\\/admin\\/audit-log(?:\\/|$)/.test(pathname), FileText, 0],
+    ] : roles.includes("SUPPORT") ? [
+      [l("حالات الدعم", "Support", "Support"), localePath(locale, "/admin/support-cases"), /\\/admin\\/support-cases(?:\\/|$)/.test(pathname), Flag, shellInfo.openCases],
+    ] : [];
     const merchantLinks: WsLink[] = [
       [l("لوحة المتجر", "Dashboard", "Tableau de bord"), localePath(locale, "/merchant/dashboard"), /\/merchant\/(dashboard|apply)\/?$/.test(pathname), LayoutDashboard, 0],
       [l("الطلبات", "Orders", "Commandes"), localePath(locale, "/merchant/orders"), /\/merchant\/orders(?:\/|$)/.test(pathname), ClipboardList, shellInfo.toCollect],
@@ -212,7 +221,7 @@ export function SiteHeader() {
     return (
       <>
         <aside className={`ws-sidebar ${isAdminWorkspace ? "ws-sidebar-admin" : "ws-sidebar-merchant"}`} dir={copy.dir}>
-          <Link href={isAdminWorkspace ? localePath(locale, "/admin/merchant-review") : localePath(locale, "/merchant/dashboard")} aria-label="Kulha!" className="ws-brand">
+          <Link href={isAdminWorkspace ? adminHomeHref : localePath(locale, "/merchant/dashboard")} aria-label="Kulha!" className="ws-brand">
             <span className="ws-brand-word">KULHA<span>!</span></span>
             <small>{isAdminWorkspace ? "ADMIN" : "SHOP SPACE"}</small>
           </Link>
