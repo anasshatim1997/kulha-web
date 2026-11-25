@@ -328,7 +328,7 @@ export function AdminOverview({ locale }: { locale: SiteLocale }) {
 
   useEffect(() => {
     mounted.current = true;
-    void refresh();
+    const initialLoad = window.setTimeout(() => void refresh(), 0);
 
     const onFocus = () => void refresh();
     const onVisibilityChange = () => {
@@ -342,6 +342,7 @@ export function AdminOverview({ locale }: { locale: SiteLocale }) {
     document.addEventListener("visibilitychange", onVisibilityChange);
     return () => {
       mounted.current = false;
+      window.clearTimeout(initialLoad);
       window.clearInterval(interval);
       window.removeEventListener("focus", onFocus);
       document.removeEventListener("visibilitychange", onVisibilityChange);
