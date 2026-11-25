@@ -200,7 +200,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const t={...words[locale],...more[locale]};const {state}=useSession();const actorId=state.status==="authenticated"?state.user.id:"";const roles=state.status==="authenticated"?state.user.roles:[];const isSupportOnly=roles.includes("SUPPORT")&&!roles.includes("ADMIN")&&!roles.includes("SUPER_ADMIN");
     const [loading,setLoading]=useState(true);const [failed,setFailed]=useState(false);const [reload,setReload]=useState(0);const [message,setMessage]=useState("");const [query,setQuery]=useState("");
     const [merchants,setMerchants]=useState<Page<Merchant>|null>(null);const [merchantStatus,setMerchantStatus]=useState("PENDING");const [merchantPage,setMerchantPage]=useState(0);const [selectedMerchant,setSelectedMerchant]=useState<Merchant|null>(null);const [merchantAction,setMerchantAction]=useState<MerchantAction|null>(null);const [merchantDecisionOpen,setMerchantDecisionOpen]=useState(false);const [checks,setChecks]=useState([false,false,false]);const [tabCounts,setTabCounts]=useState<{pending:number|null;info:number|null}>({pending:null,info:null});
-    const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useState("");const [offerPage,setOfferPage]=useState(0);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");const [offerDecisionOpen,setOfferDecisionOpen]=useState(false);
+    const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useState("NEEDS_REVIEW");const [offerPage,setOfferPage]=useState(0);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");const [offerDecisionOpen,setOfferDecisionOpen]=useState(false);
     const [cases,setCases]=useState<Page<CaseItem>|null>(null);const [caseStatus,setCaseStatus]=useState("OPEN");const [casePage,setCasePage]=useState(0);const [selectedCase,setSelectedCase]=useState<{summary:CaseItem;timeline:Timeline[]}|null>(null);const [supportActionOpen,setSupportActionOpen]=useState(false);const [caseCounts,setCaseCounts]=useState<{open:number|null;escalated:number|null;waiting:number|null;resolved:number|null}>({open:null,escalated:null,waiting:null,resolved:null});
     const [audit,setAudit]=useState<AuditPage|null>(null);const [auditPage,setAuditPage]=useState(0);const [auditPageSize,setAuditPageSize]=useState(AUDIT_PAGE_SIZE);const [selectedAuditId,setSelectedAuditId]=useState<string|null>(null);const [auditModalOpen,setAuditModalOpen]=useState(false);const [auditSearch,setAuditSearch]=useState("");const [auditFrom,setAuditFrom]=useState("");const [auditTo,setAuditTo]=useState("");const [auditAction,setAuditAction]=useState("");const [auditResult,setAuditResult]=useState("");
     const [reason,setReason]=useState("");const [disclosureReason,setDisclosureReason]=useState("");const [internalNote,setInternalNote]=useState("");const [draftMessage,setDraftMessage]=useState("");const [sendToCustomer,setSendToCustomer]=useState(true);const [revealed,setRevealed]=useState<{fullName:string;email:string;phone:string|null}|null>(null);const [working,setWorking]=useState(false);
@@ -268,7 +268,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const allOfferItems=offers?.items??[];
     const offerItems=allOfferItems.filter(o=>{
         const matchesQuery=match(o.title,o.shopName,o.city);
-        const matchesFilter=!offerStatus||(offerStatus==="REPORTED"&&o.reportedCount>0)||(offerStatus==="ALLERGENS_UNKNOWN"&&o.allergensStatus==="UNKNOWN")||(offerStatus==="SUSPENDED"&&o.status==="SUSPENDED");
+        const matchesFilter=offerStatus==="NEEDS_REVIEW"?(o.reportedCount>0||o.allergensStatus==="UNKNOWN"):!offerStatus||(offerStatus==="REPORTED"&&o.reportedCount>0)||(offerStatus==="ALLERGENS_UNKNOWN"&&o.allergensStatus==="UNKNOWN")||(offerStatus==="SUSPENDED"&&o.status==="SUSPENDED");
         return matchesQuery&&matchesFilter;
     });
     const needsReviewCount=allOfferItems.filter(o=>o.reportedCount>0||o.allergensStatus==="UNKNOWN").length;
@@ -385,60 +385,41 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
             </div>}
         </>}
         {page==="offer-moderation"&&offers&&<>
-            <div className={styles.offerWorkspace} data-testid="offer-workspace">
-                <section className={styles.offerPicker} aria-label={t.offersTitle} data-testid="offer-picker">
-                    <div className={styles.tabs} role="tablist" aria-label={t.filter}>
-                        {[
-                            {value:"",label:t.all,count:offers.total},
-                            {value:"REPORTED",label:t.reportedFilter,count:reportedOfferCount},
-                            {value:"ALLERGENS_UNKNOWN",label:t.allergensUnknown,count:unknownAllergenCount},
-                            {value:"SUSPENDED",label:t.hiddenFilter,count:hiddenOfferCount}
-                        ].map(tab=><button key={tab.value||"all"} type="button" role="tab" aria-selected={offerStatus===tab.value} className={offerStatus===tab.value?styles.activeTab:styles.tab} onClick={()=>{setOfferStatus(tab.value);setOfferPage(0);setSelectedOffer(null);setReason("");}}>{tab.label} · {tab.count}</button>)}
-                    </div>
-                    <div className={styles.offerQueue} data-testid="offer-queue">
-                        {offerItems.map(item=>{const d=discount(item);return <button type="button" key={item.id} aria-pressed={selectedOffer?.id===item.id} className={selectedOffer?.id===item.id?styles.offerItemSelected:styles.offerItem} onClick={()=>{setSelectedOffer(item);setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");setOfferDecisionOpen(false);}}>
-                            <span className={styles.offerThumb}>{item.imageUrl?<OfferImage src={item.imageUrl} alt="" lazy/>:<ImageIcon size={20} aria-hidden="true"/>}</span>
-                            <span className={styles.offerCopy}><strong>{item.title}</strong><small>{item.shopName} · {item.city}</small><span className={styles.offerTags}>
+            <section className={styles.offerTableCard} data-testid="offer-workspace">
+                <div className={styles.tabs} role="tablist" aria-label={t.filter}>
+                    {[
+                        {value:"NEEDS_REVIEW",label:t.needsReview,count:needsReviewCount},
+                        {value:"REPORTED",label:t.reportedFilter,count:reportedOfferCount},
+                        {value:"ALLERGENS_UNKNOWN",label:t.allergensUnknown,count:unknownAllergenCount},
+                        {value:"SUSPENDED",label:t.hiddenFilter,count:hiddenOfferCount},
+                        {value:"",label:t.all,count:offers.total},
+                    ].map(tab=><button key={tab.value||"all"} type="button" role="tab" aria-selected={offerStatus===tab.value} className={offerStatus===tab.value?styles.activeTab:styles.tab} onClick={()=>{setOfferStatus(tab.value);setOfferPage(0);setSelectedOffer(null);setOfferDecisionOpen(false);setReason("");}}>{tab.label} · {tab.count}</button>)}
+                </div>
+                <div className={styles.offerTableWrap}>
+                    <table className={styles.offerTable}>
+                        <thead><tr><th>{t.offer}</th><th>{t.reports}</th><th>{t.price}</th><th>{t.stock}</th><th>{t.pickup}</th><th aria-label={t.review}/></tr></thead>
+                        <tbody>{offerItems.map(item=><tr key={item.id} data-testid="offer-row">
+                            <td><div className={styles.offerTableIdentity}>
+                                <span className={styles.offerTableThumb}>{item.imageUrl?<OfferImage src={item.imageUrl} alt="" lazy/>:<ImageIcon size={20}/>}</span>
+                                <span><strong>{item.title}</strong><small>{item.shopName} · {item.city}</small></span>
+                            </div></td>
+                            <td><div className={styles.offerSignals}>
                                 {item.reportedCount>0&&<em className={styles.reportTag}>{item.reportedCount} {item.reportedCount===1?t.report:t.reportsN}</em>}
                                 {item.allergensStatus==="UNKNOWN"&&<em className={styles.allergenTag}>{t.allergensUnknown}</em>}
                                 {item.status==="SUSPENDED"&&<em className={styles.hiddenTag}>{t.hiddenS}</em>}
-                            </span></span>
-                            <span className={styles.offerPrice}><strong>{amount(item.priceMinor,locale)} MAD</strong><small>{d?"−"+d+"%":""}</small></span>
-                        </button>;})}
-                    </div>
-                    {!offerItems.length&&<p className={styles.empty}>{t.empty}</p>}
-                    <div className={styles.offerPagination} data-testid="offer-pagination"><AdminPagination page={offerPage} pageCount={offerPageCount} total={offers.total} size={offers.size||OFFER_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setOfferPage(next);setSelectedOffer(null);}} /></div>
-                </section>
-                <section className={styles.offerPreviewCard} aria-label={t.selectedOffer} data-testid="offer-detail-panel">
-                    {!selectedOffer?<div className={styles.offerEmpty}><Tag size={28} aria-hidden="true"/><strong>{t.selectedOffer}</strong><span>{t.empty}</span></div>:<>
-                        <div className={styles.offerPreviewScroll} data-testid="offer-preview-scroll">
-                            <div className={styles.offerPreviewHeading}>
-                                <div className={styles.offerPreviewThumb}>{selectedOffer.imageUrl?<OfferImage src={selectedOffer.imageUrl} alt={selectedOffer.title}/>:<ImageIcon size={24} aria-hidden="true"/>}</div>
-                                <div className={styles.offerPreviewTitle}>
-                                    <small>{t.selectedOffer}</small>
-                                    <h2>{selectedOffer.title}</h2>
-                                    <p>{selectedOffer.shopName} · {selectedOffer.city}</p>
-                                </div>
-                                <span className={styles.pill+" "+offerTone(selectedOffer.status)}>{offerLabel(selectedOffer.status)}</span>
-                            </div>
-                            <dl className={styles.offerPreviewFacts}>
-                                <div><dt>{t.price}</dt><dd>{amount(selectedOffer.priceMinor,locale)} MAD</dd></div>
-                                <div><dt>{t.originalPrice}</dt><dd>{selectedOffer.originalPriceMinor?amount(selectedOffer.originalPriceMinor,locale)+" MAD":"—"}</dd></div>
-                                <div><dt>{t.stock}</dt><dd>{selectedOffer.quantityReserved} / {selectedOffer.quantityTotal} {t.reserved}</dd></div>
-                                <div><dt>{t.reportsTitle}</dt><dd>{selectedOffer.reportedCount}</dd></div>
-                            </dl>
-                            {selectedOffer.allergensStatus==="UNKNOWN"&&<div className={styles.offerPreviewAlert} data-testid="offer-food-safety-alert"><AlertTriangle size={17} aria-hidden="true"/><span><strong>{t.foodSafetyTitle}</strong><small>{t.foodSafetyBody}</small></span></div>}
-                            <section className={styles.merchantModalSection+" "+styles.offerEvidence} data-testid="offer-evidence">
-                                <h3>{t.reportsTitle} · {selectedOffer.reportedCount}</h3>
-                                {selectedOffer.reportedCount>0?<div className={styles.offerModalReport}><strong>{selectedOffer.reportedCount} {t.reportReceived}</strong><span>{t.status}: {offerLabel(selectedOffer.status)}</span></div>:<p className={styles.offerModalNoReports}>{t.noReports}</p>}
-                                {selectedOffer.foodNotes&&<div className={styles.offerModalFoodNotes}><strong>{t.foodInfo}</strong><p>{selectedOffer.foodNotes}</p></div>}
-                            </section>
-                        </div>
-                        <div className={styles.merchantReadActions}>
-                            <p><ShieldCheck size={16} aria-hidden="true"/>{t.offerReviewHint}</p>
-                            <button type="button" className={styles.primary} onClick={()=>{setReason("");setOfferAction(selectedOffer.status==="SUSPENDED"?"reinstate":"suspend");setOfferDecisionOpen(true);}}>{t.openOfferReview}</button>
-                        </div>
-                    </>}
+                                {item.reportedCount===0&&item.allergensStatus!=="UNKNOWN"&&item.status!=="SUSPENDED"&&<span>—</span>}
+                            </div></td>
+                            <td><strong>{amount(item.priceMinor,locale)} MAD</strong></td>
+                            <td>{item.quantityReserved} / {item.quantityTotal}</td>
+                            <td>{clockTime(item.pickupStart,locale)}</td>
+                            <td><button type="button" className={styles.offerReviewButton} onClick={()=>{setSelectedOffer(item);setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");setOfferDecisionOpen(true);}}>{t.review}</button></td>
+                        </tr>)}</tbody>
+                    </table>
+                </div>
+                {!offerItems.length&&<p className={styles.empty}>{t.empty}</p>}
+                <div className={styles.offerPagination} data-testid="offer-pagination"><AdminPagination page={offerPage} pageCount={offerPageCount} total={offers.total} size={offers.size||OFFER_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setOfferPage(next);setSelectedOffer(null);setOfferDecisionOpen(false);}} /></div>
+            </section>
+        </>}
                 </section>
             </div>
             
@@ -450,20 +431,31 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     <div><small>{t.decision}</small><h2 id="offer-action-title">{selectedOffer.title}</h2><p>{selectedOffer.shopName} · {selectedOffer.city}</p></div>
                     <button type="button" className={styles.ghostBtn} onClick={()=>setOfferDecisionOpen(false)}>{t.closeReview}</button>
                 </header>
-                <div className={styles.actionDialogBody} data-testid="offer-moderation-workflow">
-                    <section className={styles.merchantModalSection+" "+styles.offerModalReason} data-testid="offer-decision-reason">
-                        <h3>{t.reason}</h3>
-                        <div className={styles.reasonChips}>{[t.reasonMisleading,t.reasonAllergens,t.reasonPhoto,t.reasonOther].map(label=><button key={label} type="button" className={reason.startsWith(label)?styles.reasonChipActive:styles.reasonChip} onClick={()=>setReason(label+": ")}>{label}</button>)}</div>
-                        <label className={styles.field}><span>{t.reason}</span><textarea rows={4} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
-                    </section>
-                    <section className={styles.merchantDecision+" "+styles.offerModalDecision}>
-                        <h3>{t.decision}</h3><p className={styles.offerModalDecisionHint}>{t.reinstateOnlyHidden}</p>
-                        <div className={styles.offerActionRow}>
-                            <button type="button" data-action="reinstate" aria-pressed={offerAction==="reinstate"} className={offerAction==="reinstate"?styles.offerActionActive:styles.offerAction} disabled={selectedOffer.status!=="SUSPENDED"} onClick={()=>setOfferAction("reinstate")}>{t.putLive}</button>
-                            <button type="button" data-action="request-edit" aria-pressed={offerAction==="request-edit"} className={offerAction==="request-edit"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("request-edit")}>{t.askEdit}</button>
-                            <button type="button" data-action="suspend" aria-pressed={offerAction==="suspend"} className={offerAction==="suspend"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("suspend")}>{selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
+                <div className={styles.actionDialogBody+" "+styles.offerDialogBody} data-testid="offer-moderation-workflow">
+                    <section className={styles.offerDialogFacts}>
+                        <div className={styles.offerDialogImage}>{selectedOffer.imageUrl?<OfferImage src={selectedOffer.imageUrl} alt={selectedOffer.title}/>:<ImageIcon size={28}/>}</div>
+                        <strong className={styles.offerDialogPrice}>{amount(selectedOffer.priceMinor,locale)} MAD</strong>
+                        {selectedOffer.originalPriceMinor&&<small className={styles.offerDialogOriginal}>{amount(selectedOffer.originalPriceMinor,locale)} MAD</small>}
+                        <div className={styles.offerSignals}>
+                            {selectedOffer.reportedCount>0&&<em className={styles.reportTag}>{selectedOffer.reportedCount} {selectedOffer.reportedCount===1?t.report:t.reportsN}</em>}
+                            {selectedOffer.allergensStatus==="UNKNOWN"&&<em className={styles.allergenTag}>{t.allergensUnknown}</em>}
                         </div>
+                        <div className={styles.offerDialogStock}>{t.stock}: {selectedOffer.quantityReserved} / {selectedOffer.quantityTotal} {t.reserved}</div>
+                        {selectedOffer.allergensStatus==="UNKNOWN"&&<div className={styles.offerPreviewAlert}><AlertTriangle size={17}/><span><strong>{t.foodSafetyTitle}</strong><small>{t.foodSafetyBody}</small></span></div>}
+                        {selectedOffer.foodNotes&&<p className={styles.offerDialogNotes}>{selectedOffer.foodNotes}</p>}
                     </section>
+                    <div className={styles.offerDialogDecision}>
+                        <section className={styles.merchantDecision+" "+styles.offerModalDecision}>
+                            <h3>{t.decision}</h3>
+                            <div className={styles.offerDecisionChoices}>
+                                <button type="button" data-action="suspend" aria-pressed={offerAction==="suspend"} className={offerAction==="suspend"?styles.offerChoiceDanger:styles.offerChoice} onClick={()=>setOfferAction("suspend")}><strong>{t.hide}</strong><small>{locale==="fr"?"Retirer cette offre du marketplace.":locale==="ar"?"إزالة هذا العرض من السوق الآن.":"Remove it from the marketplace now."}</small></button>
+                                <button type="button" data-action="request-edit" aria-pressed={offerAction==="request-edit"} className={offerAction==="request-edit"?styles.offerChoiceWarn:styles.offerChoice} onClick={()=>setOfferAction("request-edit")}><strong>{t.askEdit}</strong><small>{locale==="fr"?"Le commerce corrige puis soumet à nouveau.":locale==="ar"?"يقوم المتجر بالتصحيح ثم يعيد الإرسال.":"The shop fixes it and resubmits."}</small></button>
+                                <button type="button" data-action="reinstate" aria-pressed={offerAction==="reinstate"} className={offerAction==="reinstate"?styles.offerChoice:styles.offerChoiceDisabled} disabled={selectedOffer.status!=="SUSPENDED"} onClick={()=>setOfferAction("reinstate")}><strong>{t.putLive}</strong><small>{t.reinstateOnlyHidden}</small></button>
+                            </div>
+                            <div className={styles.reasonChips}>{[t.reasonMisleading,t.reasonAllergens,t.reasonPhoto,t.reasonOther].map(label=><button key={label} type="button" className={reason.startsWith(label)?styles.reasonChipActive:styles.reasonChip} onClick={()=>setReason(label+": ")}>{label}</button>)}</div>
+                        </section>
+                        <label className={styles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500} placeholder={t.needsReason}/></label>
+                    </div>
                 </div>
                 <footer className={styles.actionDialogFooter} data-testid="offer-moderation-footer">
                     <p><ShieldCheck size={16} aria-hidden="true"/>{t.auditRecorded}</p>
