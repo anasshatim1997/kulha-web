@@ -200,7 +200,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const t={...words[locale],...more[locale]};const {state}=useSession();const actorId=state.status==="authenticated"?state.user.id:"";const roles=state.status==="authenticated"?state.user.roles:[];const isSupportOnly=roles.includes("SUPPORT")&&!roles.includes("ADMIN")&&!roles.includes("SUPER_ADMIN");
     const [loading,setLoading]=useState(true);const [failed,setFailed]=useState(false);const [reload,setReload]=useState(0);const [message,setMessage]=useState("");const [query,setQuery]=useState("");
     const [merchants,setMerchants]=useState<Page<Merchant>|null>(null);const [merchantStatus,setMerchantStatus]=useState("PENDING");const [merchantPage,setMerchantPage]=useState(0);const [selectedMerchant,setSelectedMerchant]=useState<Merchant|null>(null);const [merchantAction,setMerchantAction]=useState<MerchantAction|null>(null);const [merchantDecisionOpen,setMerchantDecisionOpen]=useState(false);const [checks,setChecks]=useState([false,false,false]);const [tabCounts,setTabCounts]=useState<{pending:number|null;info:number|null}>({pending:null,info:null});
-    const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useState("NEEDS_REVIEW");const [offerPage,setOfferPage]=useState(0);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");const [offerDecisionOpen,setOfferDecisionOpen]=useState(false);
+    const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useState("NEEDS_REVIEW");const [offerPage,setOfferPage]=useState(0);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");const [offerDecisionOpen,setOfferDecisionOpen]=useState(false);const [selectedOfferIds,setSelectedOfferIds]=useState<string[]>([]);const [selectedOfferRecords,setSelectedOfferRecords]=useState<Record<string,Offer>>({});const [batchOpen,setBatchOpen]=useState(false);const [batchAction,setBatchAction]=useState<OfferAction>("suspend");const [batchReason,setBatchReason]=useState("");const [batchWorking,setBatchWorking]=useState(false);const [batchResult,setBatchResult]=useState<{completed:string[];failed:string[];total:number}|null>(null);
     const [cases,setCases]=useState<Page<CaseItem>|null>(null);const [caseStatus,setCaseStatus]=useState("OPEN");const [casePage,setCasePage]=useState(0);const [selectedCase,setSelectedCase]=useState<{summary:CaseItem;timeline:Timeline[]}|null>(null);const [supportActionOpen,setSupportActionOpen]=useState(false);const [caseCounts,setCaseCounts]=useState<{open:number|null;escalated:number|null;waiting:number|null;resolved:number|null}>({open:null,escalated:null,waiting:null,resolved:null});
     const [audit,setAudit]=useState<AuditPage|null>(null);const [auditPage,setAuditPage]=useState(0);const [auditPageSize,setAuditPageSize]=useState(AUDIT_PAGE_SIZE);const [selectedAuditId,setSelectedAuditId]=useState<string|null>(null);const [auditModalOpen,setAuditModalOpen]=useState(false);const [auditSearch,setAuditSearch]=useState("");const [auditFrom,setAuditFrom]=useState("");const [auditTo,setAuditTo]=useState("");const [auditAction,setAuditAction]=useState("");const [auditResult,setAuditResult]=useState("");
     const [reason,setReason]=useState("");const [disclosureReason,setDisclosureReason]=useState("");const [internalNote,setInternalNote]=useState("");const [draftMessage,setDraftMessage]=useState("");const [sendToCustomer,setSendToCustomer]=useState(true);const [revealed,setRevealed]=useState<{fullName:string;email:string;phone:string|null}|null>(null);const [working,setWorking]=useState(false);
@@ -256,6 +256,26 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     async function assignToMe(){if(!selectedCase||!actorId)return;setWorking(true);try{await api.put("/admin/support-cases/"+selectedCase.summary.reference+"/assignee",{assignedTo:actorId});await loadCase(selectedCase.summary.reference);setMessage(t.save);}catch{setMessage(t.error);}finally{setWorking(false);}}
     function exportAudit(){const p=new URLSearchParams();if(auditFrom)p.set("from",auditFrom);if(auditTo)p.set("to",auditTo);if(auditAction)p.set("action",auditAction);if(auditResult)p.set("result",auditResult);if(auditSearch)p.set("q",auditSearch);const a=document.createElement("a");a.href="/api/bff/admin/audit-log/export?"+p.toString();a.download="kulha-audit-log.csv";a.click();}
     const switchTab=(apply:()=>void)=>{setLoading(true);setFailed(false);apply();};
+    const selectedBatchOffers=selectedOfferIds.map(id=>selectedOfferRecords[id]).filter((item):item is Offer=>Boolean(item));
+    function toggleOfferSelection(item:Offer,checked:boolean){
+        setSelectedOfferRecords(current=>checked?{...current,[item.id]:item}:current);
+        setSelectedOfferIds(current=>checked?[...current.filter(id=>id!==item.id),item.id]:current.filter(id=>id!==item.id));
+    }
+    async function submitBatchOffers(){
+        if(!selectedOfferIds.length||!batchReason.trim())return;
+        setBatchWorking(true);
+        const priorCompleted=batchResult?.completed??[];
+        const total=batchResult?.total??selectedOfferIds.length;
+        const completed:string[]=[];const failedIds:string[]=[];
+        for(const id of selectedOfferIds){
+            if(!selectedOfferRecords[id]){failedIds.push(id);continue;}
+            try{await api.post("/admin/offers/"+id+"/"+batchAction,{reason:batchReason.trim()});completed.push(id);}
+            catch{failedIds.push(id);}
+        }
+        setBatchResult({completed:[...priorCompleted,...completed],failed:failedIds,total});
+        setSelectedOfferIds(failedIds);setReload(v=>v+1);setBatchWorking(false);
+    }
+
 
     const searchPlaceholder=page==="merchant-review"?t.searchMerchant:page==="offer-moderation"?t.searchOffers:page==="support-cases"?t.searchCases:t.searchAudit;
     const topbar=<div className={styles.topbar} data-testid="admin-console-topbar">{page!=="audit-log"&&<label className={styles.search} data-testid="admin-console-search"><Search size={17} aria-hidden="true"/><span className="sr-only">{searchPlaceholder}</span><input type="search" data-testid="admin-global-search" value={query} onChange={e=>{setQuery(e.target.value);}} placeholder={searchPlaceholder}/></label>}</div>;
@@ -393,7 +413,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                 </div>
                 <div className={redesign.offerTableWrap}>
                     <table className={redesign.offerTable}>
-                        <thead><tr><th>{t.offer}</th><th>{t.reports}</th><th>{t.price}</th><th>{t.stock}</th><th>{t.pickup}</th><th aria-label={t.review}/></tr></thead>
+                        <thead><tr><th aria-label="Select offers"/><th>{t.offer}</th><th>{t.reports}</th><th>{t.price}</th><th>{t.stock}</th><th>{t.pickup}</th><th aria-label={t.review}/></tr></thead>
                         <tbody>{offerItems.map(item=><tr key={item.id} data-testid="offer-row">
                             <td><div className={redesign.offerTableIdentity}>
                                 <span className={redesign.offerTableThumb}>{item.imageUrl?<OfferImage src={item.imageUrl} alt="" lazy/>:<ImageIcon size={20}/>}</span>
@@ -413,6 +433,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     </table>
                 </div>
                 {!offerItems.length&&<p className={styles.empty}>{t.empty}</p>}
+                {selectedOfferIds.length>0&&!batchOpen&&<div className={redesign.batchBar} data-testid="offer-batch-bar"><strong>{selectedOfferIds.length} {t.offers} selected</strong><button type="button" onClick={()=>{setSelectedOfferIds([]);setSelectedOfferRecords({});setBatchResult(null);}}>Clear</button><button type="button" onClick={()=>{setBatchReason("");setBatchAction("suspend");setBatchResult(null);setBatchOpen(true);}}>Review {selectedOfferIds.length} together →</button></div>}
                 <div className={redesign.offerPagination} data-testid="offer-pagination"><AdminPagination page={offerPage} pageCount={offerPageCount} total={offers.total} size={offers.size||OFFER_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setOfferPage(next);setSelectedOffer(null);setOfferDecisionOpen(false);}} /></div>
             </section>
         </>}
@@ -455,6 +476,22 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                 </footer>
             </section>
         </div>}
+
+        {batchOpen&&<div className={styles.actionOverlay} role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget&&!batchWorking){setBatchOpen(false);setBatchResult(null);}}}>
+            <section className={styles.actionDialog+" "+redesign.batchDialog} role="dialog" aria-modal="true" aria-labelledby="offer-batch-title" data-testid="offer-batch-dialog">
+                <header className={styles.actionDialogHeader}><div><small>{batchResult?"BATCH REVIEW · DONE":"BATCH REVIEW"}</small><h2 id="offer-batch-title">{batchResult?batchResult.total+" offers processed":"Review "+selectedBatchOffers.length+" offers together"}</h2><p>{batchResult?"Failed items stay selected so nothing is lost.":"Same decision and reason for all. Each offer gets its own audit entry."}</p></div><button type="button" className={styles.ghostBtn} disabled={batchWorking} onClick={()=>{setBatchOpen(false);setBatchResult(null);}}>{t.closeReview}</button></header>
+                {!batchResult?<div className={styles.actionDialogBody+" "+redesign.batchBody}>
+                    <section className={redesign.batchSelected}><h3>SELECTED · {selectedBatchOffers.length}</h3>{selectedBatchOffers.map(item=><article key={item.id}><div><strong>{item.title}</strong><small>{item.shopName}</small><em>{batchAction==="suspend"?"→ Will be hidden":batchAction==="request-edit"?"→ Will be sent for edit":"→ Will be restored"}</em></div><button type="button" aria-label={"Remove "+item.title} onClick={()=>setSelectedOfferIds(ids=>ids.filter(id=>id!==item.id))}>×</button></article>)}</section>
+                    <section className={redesign.batchDecision}><h3>YOUR DECISION · APPLIES TO ALL {selectedBatchOffers.length}</h3><div className={styles.offerDecisionChoices}>
+                        <button type="button" className={batchAction==="suspend"?redesign.offerChoiceDanger:redesign.offerChoice} aria-pressed={batchAction==="suspend"} onClick={()=>setBatchAction("suspend")}><strong>{t.hide}</strong><small>Remove all selected offers from the marketplace now.</small></button>
+                        <button type="button" className={batchAction==="request-edit"?redesign.offerChoiceWarn:redesign.offerChoice} aria-pressed={batchAction==="request-edit"} onClick={()=>setBatchAction("request-edit")}><strong>{t.askEdit}</strong><small>Each shop is asked to fix its offer.</small></button>
+                        <button type="button" className={batchAction==="reinstate"?redesign.offerChoice:redesign.offerChoiceDisabled} aria-pressed={batchAction==="reinstate"} disabled={selectedBatchOffers.some(item=>item.status!=="SUSPENDED")} onClick={()=>setBatchAction("reinstate")}><strong>{t.putLive}</strong><small>Only works on hidden offers.</small></button>
+                    </div><div className={styles.reasonChips}>{[t.reasonMisleading,t.reasonAllergens,t.reasonPhoto,t.reasonOther].map(label=><button key={label} type="button" className={batchReason.startsWith(label)?styles.reasonChipActive:styles.reasonChip} onClick={()=>setBatchReason(label+": ")}>{label}</button>)}</div><label className={styles.field}><span>ONE REASON FOR ALL (REQUIRED)</span><textarea rows={3} value={batchReason} onChange={event=>setBatchReason(event.target.value)} maxLength={500}/></label></section>
+                </div>:<div className={styles.actionDialogBody+" "+redesign.batchResult}><section><h3>RESULT · {batchResult.completed.length} OF {batchResult.total} DONE</h3><strong className={redesign.batchResultNumber}>{batchResult.completed.length} of {batchResult.total}</strong><p>offers {batchAction==="suspend"?"hidden":batchAction==="request-edit"?"sent for edit":"restored"}</p><div className={redesign.batchProgress}><span style={{width:(batchResult.total?batchResult.completed.length/batchResult.total*100:0)+"%"}}/></div>{batchResult.failed.length>0&&<div className={styles.offerPreviewAlert}><AlertTriangle size={17}/><span><strong>{batchResult.failed.length} failed</strong><small>Failed offers remain selected. Your decision and reason are kept so you can retry.</small></span></div>}</section><section className={redesign.batchSelected}>{[...batchResult.completed,...batchResult.failed].map(id=>{const item=selectedOfferRecords[id];return <article key={id}><div><strong>{item?.title??id}</strong><small>{item?.shopName??""}</small><em>{batchResult.failed.includes(id)?"× Failed":"✓ Completed"}</em></div></article>;})}</section></div>}
+                <footer className={styles.actionDialogFooter}><p>{batchResult?batchResult.completed.length+" audit entries saved":selectedBatchOffers.length+" offers · "+new Set(selectedBatchOffers.map(item=>item.shopName)).size+" shops · one audit entry per offer"}</p>{!batchResult?<button type="button" className={styles.primary} disabled={batchWorking||!selectedBatchOffers.length||!batchReason.trim()||(batchAction==="reinstate"&&selectedBatchOffers.some(item=>item.status!=="SUSPENDED"))} onClick={()=>void submitBatchOffers()}>{batchWorking?t.loading:(batchAction==="suspend"?t.hide:batchAction==="request-edit"?t.askEdit:t.putLive)+" "+selectedBatchOffers.length+" offers →"}</button>:<div className={redesign.batchFooterActions}><button type="button" className={styles.ghostBtn} onClick={()=>{setBatchOpen(false);setBatchResult(null);}}>{t.closeReview}</button>{batchResult.failed.length>0&&<button type="button" className={styles.primary} disabled={batchWorking} onClick={()=>void submitBatchOffers()}>{batchWorking?t.loading:"Retry "+batchResult.failed.length+" failed →"}</button>}</div>}</footer>
+            </section>
+        </div>}
+
         {page==="support-cases"&&cases&&<>
             <div className={styles.tabs} role="tablist" aria-label={t.casesTitle}>
                 {([["OPEN",t.open,caseCounts.open],["ESCALATED",t.escalated,caseCounts.escalated],["WAITING_REPLY",t.waiting,caseCounts.waiting],["RESOLVED",t.resolved,caseCounts.resolved]] as const).map(([value,label,count])=><button key={value} role="tab" aria-selected={caseStatus===value} className={caseStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setCaseStatus(value);setCasePage(0);setSelectedCase(null);setReason("");})}>{label}{typeof count==="number"?" · "+count:""}</button>)}
