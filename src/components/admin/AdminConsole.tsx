@@ -511,7 +511,6 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                 <button type="button" className={styles.primary} onClick={()=>setSupportActionOpen(true)}>{t.openReview}</button>
                             </div>
                         </section>
-                        </section>
                     </>}
                 </section>
             </div>
