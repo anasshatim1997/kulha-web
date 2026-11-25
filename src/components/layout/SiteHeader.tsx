@@ -195,12 +195,12 @@ export function SiteHeader() {
         : localePath(locale, "/offers");
     const adminLinks: WsLink[] = canAdmin ? [
       [l("لوحة الإدارة", "Overview", "Vue d’ensemble"), localePath(locale, "/admin"), pathname === localePath(locale, "/admin"), LayoutDashboard, 0],
-      [l("مراقبة العروض", "Offers", "Offres"), localePath(locale, "/admin/offer-moderation"), /\\/admin\\/offer-moderation(?:\\/|$)/.test(pathname), Tag, 0],
-      [l("مراجعة المتاجر", "Merchants", "Commerces"), localePath(locale, "/admin/merchant-review"), /\\/admin\\/merchant-review(?:\\/|$)/.test(pathname), Store, shellInfo.pendingMerchants],
-      [l("حالات الدعم", "Support", "Support"), localePath(locale, "/admin/support-cases"), /\\/admin\\/support-cases(?:\\/|$)/.test(pathname), Flag, shellInfo.openCases],
-      [l("سجل التدقيق", "Audit log", "Journal d’audit"), localePath(locale, "/admin/audit-log"), /\\/admin\\/audit-log(?:\\/|$)/.test(pathname), FileText, 0],
+      [l("مراقبة العروض", "Offers", "Offres"), localePath(locale, "/admin/offer-moderation"), /\/admin\/offer-moderation(?:\/|$)/.test(pathname), Tag, 0],
+      [l("مراجعة المتاجر", "Merchants", "Commerces"), localePath(locale, "/admin/merchant-review"), /\/admin\/merchant-review(?:\/|$)/.test(pathname), Store, shellInfo.pendingMerchants],
+      [l("حالات الدعم", "Support", "Support"), localePath(locale, "/admin/support-cases"), /\/admin\/support-cases(?:\/|$)/.test(pathname), Flag, shellInfo.openCases],
+      [l("سجل التدقيق", "Audit log", "Journal d’audit"), localePath(locale, "/admin/audit-log"), /\/admin\/audit-log(?:\/|$)/.test(pathname), FileText, 0],
     ] : roles.includes("SUPPORT") ? [
-      [l("حالات الدعم", "Support", "Support"), localePath(locale, "/admin/support-cases"), /\\/admin\\/support-cases(?:\\/|$)/.test(pathname), Flag, shellInfo.openCases],
+      [l("حالات الدعم", "Support", "Support"), localePath(locale, "/admin/support-cases"), /\/admin\/support-cases(?:\/|$)/.test(pathname), Flag, shellInfo.openCases],
     ] : [];
     const merchantLinks: WsLink[] = [
       [l("لوحة المتجر", "Dashboard", "Tableau de bord"), localePath(locale, "/merchant/dashboard"), /\/merchant\/(dashboard|apply)\/?$/.test(pathname), LayoutDashboard, 0],
