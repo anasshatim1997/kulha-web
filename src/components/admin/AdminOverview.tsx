@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Activity, AlertTriangle, ArrowUpRight, CheckCircle2, Clock3, FileText, Flag, RefreshCw, ShieldCheck, Store, Tag } from "lucide-react";
+import { Activity, AlertTriangle, ArrowUpRight, CheckCircle2, FileText, Flag, RefreshCw, Store, Tag } from "lucide-react";
 import { api } from "@/lib/api/client";
 import { localePath } from "@/lib/navigation";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
@@ -14,8 +14,8 @@ type Merchant = { id: string; name: string; businessType: string; city: string; 
 type Offer = { id: string; title: string; shopName: string; city: string; status: string; reportedCount: number; allergensStatus: string; priceMinor: number };
 type SupportCase = { id: string; reference: string; subject: string; priority: string; status: string; merchantName: string | null; updatedAt: string };
 type AuditEntry = { id: string; actorName: string; action: string; targetType: string; targetId: string; reason: string | null; result: string; createdAt: string };
-type Snapshot = { merchants: Page<Merchant> | null; offers: Page<Offer> | null; cases: Page<SupportCase> | null; audit: Page<AuditEntry> | null };
-const emptySnapshot: Snapshot = { merchants: null, offers: null, cases: null, audit: null };
+type Snapshot = { merchants: Page<Merchant> | null; infoMerchants: Page<Merchant> | null; offers: Page<Offer> | null; cases: Page<SupportCase> | null; audit: Page<AuditEntry> | null };
+const emptySnapshot: Snapshot = { merchants: null, infoMerchants: null, offers: null, cases: null, audit: null };
 
 const copy = {
   en: {
@@ -123,14 +123,14 @@ export function AdminOverview({locale}:{locale:SiteLocale}) {
   const queue=[
     ...flagged.slice(0,2).map(x=>({id:x.id,title:x.title,subtitle:x.shopName+" · "+x.city,kind:"offer" as const,meta:x.reportedCount>0?x.reportedCount+" "+t.reported:t.allergensUnknown,href:"/admin/offer-moderation",time:""})),
     ...cases.slice(0,1).map(x=>({id:x.id,title:x.reference+" · "+x.subject,subtitle:x.merchantName||t.case,kind:"case" as const,meta:humanize(x.priority),href:"/admin/support-cases",time:date(x.updatedAt,locale)})),
-    ...merchants.slice(0,2).map(x=>({id:x.id,title:x.name,subtitle:(x.businessType||t.shop)+" · "+x.city,kind:"shop" as const,meta:x.status==="INFO_REQUIRED"?t.infoRequired:t.pending,href:"/admin/merchant-review",time:date(x.createdAt,locale)})),
+    ...([...merchants,...infoMerchants].slice(0,2).map(x=>({id:x.id,title:x.name,subtitle:(x.businessType||t.shop)+" · "+x.city,kind:"shop" as const,meta:x.status==="INFO_REQUIRED"?t.infoRequired:t.pending,href:"/admin/merchant-review",time:date(x.createdAt,locale)}))),
   ];
   const activity=snapshot.audit?.items.slice(0,3)??[];
-  const lastUpdated=lastUpdatedLabel(lastUpdated,locale,t.syncing);
+  const updatedLabel=lastUpdatedLabel(lastUpdated,locale,t.syncing);
 
   return <div className={`${styles.overview} ${redesign.root}`} data-testid="admin-overview" dir={locale==="ar"?"rtl":"ltr"}>
     <header className={styles.dashboardHeading}>
-      <div><h1 id="admin-overview-title">{t.title}</h1><p>{lastUpdated}</p></div>
+      <div><h1 id="admin-overview-title">{t.title}</h1><p>{updatedLabel}</p></div>
       <div className={styles.dashboardActions}><span className={styles.livePill}><span/>{t.live}</span><button type="button" className={styles.refreshButton} onClick={()=>void refresh()} disabled={refreshing}><RefreshCw size={15} className={refreshing?styles.spinning:""} aria-hidden="true"/>{refreshing?t.syncing:t.refresh}</button></div>
     </header>
 
@@ -143,8 +143,8 @@ export function AdminOverview({locale}:{locale:SiteLocale}) {
         <div><b>{t.foodSafety}</b><small>{reported} {t.reported} · {unknown} {t.allergensUnknown}</small></div><ArrowUpRight size={16}/>
       </Link>
       <Link href={localePath(locale,"/admin/merchant-review")} className={`${styles.metricCard} ${styles.metricMerchants}`}>
-        <div className={styles.metricIcon}><Store size={19}/></div><strong>{snapshot.merchants?number(snapshot.merchants.total,locale):"—"}</strong>
-        <div><b>{t.merchants}</b><small>{number(snapshot.merchants?.total??0,locale)} {t.pending} · {infoRequired} {t.infoRequired}</small></div><ArrowUpRight size={16}/>
+        <div className={styles.metricIcon}><Store size={19}/></div><strong>{snapshot.merchants||snapshot.infoMerchants?number((snapshot.merchants?.total??0)+(snapshot.infoMerchants?.total??0),locale):"—"}</strong>
+        <div><b>{t.merchants}</b><small>{number(snapshot.merchants?.total??0,locale)} {t.pending} · {number(infoRequired,locale)} {t.infoRequired}</small></div><ArrowUpRight size={16}/>
       </Link>
       <Link href={localePath(locale,"/admin/support-cases")} className={`${styles.metricCard} ${styles.metricSupport}`}>
         <div className={styles.metricIcon}><Flag size={19}/></div><strong>{snapshot.cases?number(snapshot.cases.total,locale):"—"}</strong>
