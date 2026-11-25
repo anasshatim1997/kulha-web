@@ -20,6 +20,7 @@ import { api } from "@/lib/api/client";
 import { localePath } from "@/lib/navigation";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import styles from "./AdminOverview.module.css";
+import redesign from "./AdminOverviewRedesign.module.css";
 
 type Page<T> = { items: T[]; page: number; size: number; total: number };
 type Merchant = {
@@ -362,7 +363,7 @@ export function AdminOverview({ locale }: { locale: SiteLocale }) {
   const showPartial = loadState === "partial";
 
   return (
-    <div className={styles.overview} data-testid="admin-overview" dir={locale === "ar" ? "rtl" : "ltr"}>
+    <div className={`${styles.overview} ${redesign.root}`} data-testid="admin-overview" dir={locale === "ar" ? "rtl" : "ltr"}>
       <section className={styles.hero} aria-labelledby="admin-overview-title">
         <div className={styles.heroGlow} aria-hidden="true" />
         <div className={styles.heroContent}>
