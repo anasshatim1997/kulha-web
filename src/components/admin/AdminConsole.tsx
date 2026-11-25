@@ -415,16 +415,12 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                 <div className={styles.offerPagination} data-testid="offer-pagination"><AdminPagination page={offerPage} pageCount={offerPageCount} total={offers.total} size={offers.size||OFFER_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setOfferPage(next);setSelectedOffer(null);setOfferDecisionOpen(false);}} /></div>
             </section>
         </>}
-                </section>
-            </div>
-            
-        </>}
 
         {offerDecisionOpen&&selectedOffer&&<div className={styles.actionOverlay} role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setOfferDecisionOpen(false);}}>
             <section className={styles.actionDialog} role="dialog" aria-modal="true" aria-labelledby="offer-action-title" data-testid="offer-action-dialog">
                 <header className={styles.actionDialogHeader}>
-                    <div><small>{t.decision}</small><h2 id="offer-action-title">{selectedOffer.title}</h2><p>{selectedOffer.shopName} · {selectedOffer.city}</p></div>
-                    <button type="button" className={styles.ghostBtn} onClick={()=>setOfferDecisionOpen(false)}>{t.closeReview}</button>
+                    <div><small>{offerLabel(selectedOffer.status)} · {selectedOfferIndex+1} / {offerItems.length}</small><h2 id="offer-action-title">{selectedOffer.title}</h2><p>{selectedOffer.shopName} · {selectedOffer.city}</p></div>
+                    <div className={styles.offerDialogNav}><button type="button" aria-label="Previous offer" disabled={selectedOfferIndex<=0} onClick={()=>{const item=offerItems[selectedOfferIndex-1];if(item)setSelectedOffer(item);setReason("");setOfferAction(item?.status==="SUSPENDED"?"reinstate":"suspend");}}>‹</button><button type="button" aria-label="Next offer" disabled={selectedOfferIndex<0||selectedOfferIndex>=offerItems.length-1} onClick={()=>{const item=offerItems[selectedOfferIndex+1];if(item)setSelectedOffer(item);setReason("");setOfferAction(item?.status==="SUSPENDED"?"reinstate":"suspend");}}>›</button><button type="button" className={styles.ghostBtn} onClick={()=>setOfferDecisionOpen(false)}>{t.closeReview}</button></div>
                 </header>
                 <div className={styles.actionDialogBody+" "+styles.offerDialogBody} data-testid="offer-moderation-workflow">
                     <section className={styles.offerDialogFacts}>
