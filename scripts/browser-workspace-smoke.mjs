@@ -793,6 +793,9 @@ try {
     { path: "/en/merchant/reservations/scan", token: "merchant-token", heading: "Validate a pickup" , compact: true },
     { path: "/en/merchant/staff", token: "merchant-token", heading: "Staff" , compact: true },
     { path: "/en/merchant/sales", token: "merchant-token", heading: "Sales" , compact: true },
+    { path: "/en/admin", token: "admin-token", heading: "Run KULHA! from one clear workspace.", overviewPage: true },
+    { path: "/fr/admin", token: "admin-token", heading: "Pilotez KULHA! depuis un seul endroit.", overviewPage: true },
+    { path: "/ar/admin", token: "admin-token", heading: "أدر KULHA! من مساحة عمل واحدة.", direction: "rtl", directionSelector: '[data-testid="admin-overview"]', overviewPage: true },
     { path: "/en/admin/merchant-review", token: "admin-token", heading: "Merchant review", adminPage: true },
     { path: "/fr/admin/merchant-review", token: "admin-token", heading: "Revue des commerces", adminPage: true },
     { path: "/ar/admin/merchant-review", token: "admin-token", heading: "مراجعة المتاجر", direction: "rtl", adminPage: true },
@@ -826,6 +829,14 @@ try {
       } catch {
         const bodyText = (await page.locator("body").innerText()).slice(0, 1200);
         throw new Error(`Workspace did not render ${route.path}; current URL=${page.url()}; body=${bodyText}; backend requests=${JSON.stringify(requests.slice(-12))}`);
+      }
+      if (route.overviewPage) {
+        await page.getByTestId("admin-overview").waitFor({ state: "visible" });
+        const metrics = page.locator('[data-testid="admin-overview-metrics"] > article');
+        if (await metrics.count() !== 4) {
+          throw new Error(route.path + " must render all four live overview metrics.");
+        }
+        await page.getByTestId("admin-overview-document-warning").waitFor({ state: "visible" });
       }
       await page.evaluate(() => window.scrollTo(0, 0));
       await assertNoHorizontalOverflow(page, route.path, size.width);
@@ -925,7 +936,7 @@ try {
       }
       await page.evaluate(() => window.scrollTo(0, 0));
       await page.screenshot({ path: join("artifacts/browser-screenshots", screenshotName), animations: "disabled" });
-      if (route.adminPage && size.width === 390) {
+      if ((route.adminPage || route.overviewPage) && size.width === 390) {
         await page.screenshot({
           path: join("artifacts/browser-screenshots", route.path.slice(1).replaceAll("/", "-") + "-390x844-full.png"),
           animations: "disabled", fullPage: true,
@@ -1028,7 +1039,7 @@ try {
     await context.close();
   }
 
-  // Merchant review: checklist gates approval; the decision is submitted with a reason.
+  // Merchant review: approval stays locked until actual uploaded documents can be reviewed.
   {
     merchantStatus = "PENDING";
     merchant.status = merchantStatus;
@@ -1038,13 +1049,18 @@ try {
     await page.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
     const inlineReview = page.getByTestId("merchant-review-workflow");
     await inlineReview.waitFor({ state: "visible" });
+    const approve = inlineReview.getByRole("button", { name: "Approve" });
+    if (await inlineReview.getByLabel("Documents readable and valid").count() !== 0) {
+      throw new Error("Merchant review must not expose a document-validity checkbox when no documents exist.");
+    }
     await inlineReview.getByLabel("Address and location checked").check();
     await inlineReview.getByLabel("Phone number reachable").check();
-    await inlineReview.getByLabel("Documents readable and valid").check();
-    await inlineReview.getByRole("button", { name: "Approve" }).click();
-    await inlineReview.getByLabel("Reason (required)").fill("Verified during browser workflow test.");
-    await page.getByTestId("merchant-review-footer").getByRole("button", { name: "Submit decision" }).click();
-    await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/approve"), "Merchant approval");
+    if (!(await approve.isDisabled())) {
+      throw new Error("Shop approval must remain disabled until the uploaded documents can be reviewed.");
+    }
+    if (!(await inlineReview.getByRole("button", { name: "Request information" }).isEnabled())) {
+      throw new Error("Request-information decision should remain available while shop documents are unavailable.");
+    }
     await context.close();
   }
 
@@ -1240,7 +1256,7 @@ try {
   process.stdout.write("PASS admin merchant review, offer moderation, assigned support disclosure/resolution and audit download\n");
   process.stdout.write("PASS admin login screenshots/layout at 1366x768, 1920x1080 and 390x844\n");
   process.stdout.write("PASS moderation panels align at 1366x768 and 1920x1080; pagination anchored; populated offer queue internally scrollable; mobile stack checked\n");
-  process.stdout.write("PASS 7 viewport sizes across 16 authenticated routes; merchant/admin modal bounds at 390px; Arabic RTL at 390px\n");
+  process.stdout.write("PASS localized live admin overview, responsive workspace routes, document-gated shop approval and Arabic RTL\n");
 } finally {
   await browser?.close();
   app.kill("SIGTERM");
