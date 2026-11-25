@@ -7,7 +7,7 @@ import type { SiteLocale } from "@/lib/i18n/site-copy";
 import {
   closeWorkspaceTab, createWorkspaceTab, emptyAdminWorkspaceState, persistableWorkspace,
   restoreWorkspace, upsertWorkspaceTab, workspaceStorageKey,
-  type AdminWorkspaceState, type AdminWorkspaceTab,
+  type AdminWorkspaceState, type AdminWorkspaceTab, type SafeAdminWorkspaceDraft,
 } from "./admin-workspace-state";
 import styles from "./AdminWorkspace.module.css";
 
@@ -30,6 +30,29 @@ export function useAdminWorkspace() {
   const value = useContext(WorkspaceContext);
   if (!value) throw new Error("useAdminWorkspace must be used inside AdminWorkspaceProvider");
   return value;
+}
+
+export function useAdminWorkspaceDraft<K extends keyof SafeAdminWorkspaceDraft>(
+  key: K,
+  fallback: SafeAdminWorkspaceDraft[K],
+): [SafeAdminWorkspaceDraft[K], (value: SafeAdminWorkspaceDraft[K]) => void, () => void] {
+  const pathname = usePathname() ?? "";
+  const { state, setDraft, clearDraft } = useAdminWorkspace();
+  const stored = state.drafts[pathname]?.[key];
+  const value = (stored === undefined ? fallback : stored) as SafeAdminWorkspaceDraft[K];
+  const update = useCallback((next: SafeAdminWorkspaceDraft[K]) => setDraft(pathname, key, next), [pathname, key, setDraft]);
+  const clear = useCallback(() => clearDraft(pathname, key), [pathname, key, clearDraft]);
+  return [value, update, clear];
+}
+
+export function useAdminWorkspaceMemoryDraft(key: string, fallback = ""): [string, (value: string) => void, () => void] {
+  const pathname = usePathname() ?? "";
+  const { state, setDraft, clearDraft } = useAdminWorkspace();
+  const stored = state.drafts[pathname]?.[key];
+  const value = typeof stored === "string" ? stored : fallback;
+  const update = useCallback((next: string) => setDraft(pathname, key, next), [pathname, key, setDraft]);
+  const clear = useCallback(() => clearDraft(pathname, key), [pathname, key, clearDraft]);
+  return [value, update, clear];
 }
 
 export function AdminWorkspaceProvider({ locale, children }: { locale: SiteLocale; children: ReactNode }) {
@@ -87,9 +110,11 @@ export function AdminWorkspaceProvider({ locale, children }: { locale: SiteLocal
     setState(next);
     if (visibleState.activeTabId === id) {
       const target = next.tabs.find(tab => tab.id === next.activeTabId);
-      if (target) router.push(target.href);
+      // Closing the last record tab falls back to its real parent queue route.
+      const queuePath = (pathname ?? "").split("/").slice(0, 4).join("/") || "/";
+      router.push(target?.href ?? queuePath);
     }
-  }, [router, visibleState]);
+  }, [pathname, router, visibleState]);
 
   const setDraft = useCallback((tabId: string, key: string, value: unknown) => {
     setState(current => ({ ...current, drafts: { ...current.drafts, [tabId]: { ...current.drafts[tabId], [key]: value } } }));
@@ -118,17 +143,32 @@ export function AdminWorkspaceTabs({ page, locale, children }: { page: string; l
     : locale === "ar"
       ? { close: "إغلاق علامة التبويب", workspace: "مساحة العمل" }
       : { close: "Close tab", workspace: "Workspace" };
+  const activateAdjacentTab = (index: number, key: string) => {
+    const rtl = locale === "ar";
+    const nextIndex = key === "Home" ? 0
+      : key === "End" ? state.tabs.length - 1
+        : key === "ArrowRight" ? (index + (rtl ? -1 : 1) + state.tabs.length) % state.tabs.length
+          : (index + (rtl ? 1 : -1) + state.tabs.length) % state.tabs.length;
+    const next = state.tabs[nextIndex];
+    if (next) openTab(next.href);
+  };
 
   return (
     <div className={styles.workspace} data-admin-workspace={page}>
       {state.tabs.length > 0 && (
-        <nav className={styles.tabBar} aria-label={labels.workspace} role="tablist">
-          {state.tabs.map(tab => (
+        <nav className={styles.tabBar} aria-label={labels.workspace} aria-orientation="horizontal" role="tablist" data-testid="admin-workspace-tabs">
+          {state.tabs.map((tab, index) => (
             <div className={styles.tabItem} key={tab.id}>
               <button type="button" role="tab" aria-selected={state.activeTabId === tab.id}
                 aria-controls="admin-workspace-panel"
                 className={state.activeTabId === tab.id ? styles.activeTab : styles.tab}
-                onClick={() => openTab(tab.href)}>
+                onClick={() => openTab(tab.href)}
+                onKeyDown={event => {
+                  if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
+                    event.preventDefault();
+                    activateAdjacentTab(index, event.key);
+                  }
+                }}>
                 <span>{tab.title}</span>
               </button>
               {state.tabs.length > 1 && (
@@ -139,7 +179,9 @@ export function AdminWorkspaceTabs({ page, locale, children }: { page: string; l
           ))}
         </nav>
       )}
-      <div id="admin-workspace-panel" role={state.tabs.length ? "tabpanel" : undefined} tabIndex={state.tabs.length ? 0 : undefined}>
+      <div id="admin-workspace-panel" role={state.tabs.length ? "tabpanel" : undefined}
+        aria-label={state.tabs.find(tab => tab.id === state.activeTabId)?.title ?? labels.workspace}
+        tabIndex={state.tabs.length ? 0 : undefined}>
         {children}
       </div>
     </div>

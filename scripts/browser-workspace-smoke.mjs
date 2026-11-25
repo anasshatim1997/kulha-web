@@ -539,55 +539,48 @@ async function assertSupportTimelineVisible(page, width, height) {
     const timeline = document.querySelector('[data-testid="support-case-timeline"]');
     const composer = document.querySelector('[data-testid="support-message-composer"]');
     const actions = document.querySelector('[data-testid="support-case-actions"]');
-    const drawer = document.querySelector('[data-testid="workspace-drawer"]');
-    const drawerContent = drawer?.querySelector(":scope > div");
-    const drawerStyle = drawerContent ? getComputedStyle(drawerContent) : null;
-    const style = timeline ? getComputedStyle(timeline) : null;
-    const box = element => {
+    const panel = document.querySelector('[data-testid="workspace-record-panel"]');
+    const style = element => element ? getComputedStyle(element) : null;
+    const bounds = element => {
       if (!element) return null;
       const rect = element.getBoundingClientRect();
-      return { top: rect.top, bottom: rect.bottom };
+      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right };
     };
     return {
-      detail: box(detail), history: box(history), timeline: box(timeline),
-      composer: box(composer), actions: box(actions),
-      overflowY: style?.overflowY ?? "missing",
-      drawerOverflowY: drawerStyle?.overflowY ?? "missing",
-      drawerScrollHeight: drawerContent?.scrollHeight ?? 0,
-      drawerClientHeight: drawerContent?.clientHeight ?? 0,
-      historyOverflowY: history ? getComputedStyle(history).overflowY : "missing",
-      detailOverflowY: detail ? getComputedStyle(detail).overflowY : "missing",
+      detail: bounds(detail), history: bounds(history), timeline: bounds(timeline),
+      composer: bounds(composer), actions: bounds(actions), panel: bounds(panel),
+      timelineOverflow: style(timeline)?.overflowY ?? "missing",
+      historyOverflow: style(history)?.overflowY ?? "missing",
+      detailOverflow: style(detail)?.overflowY ?? "missing",
+      panelOverflow: style(panel)?.overflowY ?? "missing",
+      panelRole: panel?.getAttribute("role") ?? null,
+      ariaModal: panel?.getAttribute("aria-modal") ?? null,
       timelineScrollHeight: timeline?.scrollHeight ?? 0,
       timelineClientHeight: timeline?.clientHeight ?? 0,
       timelineBeforeComposer: Boolean(timeline && composer
         && timeline.getBoundingClientRect().bottom <= composer.getBoundingClientRect().top + 1),
       composerBeforeActions: Boolean(composer && actions
         && composer.getBoundingClientRect().bottom <= actions.getBoundingClientRect().top + 1),
-      composerInsideTimeline: Boolean(timeline && composer && timeline.contains(composer)),
-      actionsInsideTimeline: Boolean(timeline && actions && timeline.contains(actions)),
+      composerInsidePanel: Boolean(panel && composer && panel.contains(composer)),
+      actionsInsidePanel: Boolean(panel && actions && panel.contains(actions)),
       timelineInsideDetail: Boolean(detail && timeline && detail.contains(timeline)),
+      documentScrollHeight: document.documentElement.scrollHeight,
+      viewportHeight: window.innerHeight,
     };
   });
-  if (!metrics.detail || !metrics.history || !metrics.timeline || !metrics.composer || !metrics.actions
-      || !metrics.timelineInsideDetail) {
-    throw new Error("Support case structure is incomplete at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  if (!metrics.detail || !metrics.history || !metrics.timeline || !metrics.composer || !metrics.actions || !metrics.panel
+      || !metrics.timelineInsideDetail || !metrics.composerInsidePanel || !metrics.actionsInsidePanel) {
+    throw new Error("Support workspace record structure is incomplete at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (metrics.overflowY !== "visible" || metrics.drawerOverflowY !== "auto") {
-    throw new Error("The drawer document must own support-case scrolling at "
-      + width + "x" + height + ": " + JSON.stringify(metrics));
+  if (metrics.panelRole || metrics.ariaModal) {
+    throw new Error("Support record review must remain an inline non-modal workspace panel: " + JSON.stringify(metrics));
   }
-  if (metrics.historyOverflowY === "auto" || metrics.historyOverflowY === "scroll"
-      || metrics.detailOverflowY === "auto" || metrics.detailOverflowY === "scroll") {
-    throw new Error("Support detail/history must not create nested scroll regions at "
-      + width + "x" + height + ": " + JSON.stringify(metrics));
-  }
-  if (metrics.composerInsideTimeline || metrics.actionsInsideTimeline) {
-    throw new Error("Reply composer and Case Actions must remain outside the conversation scroller at "
-      + width + "x" + height + ": " + JSON.stringify(metrics));
+  if ([metrics.timelineOverflow, metrics.historyOverflow, metrics.detailOverflow, metrics.panelOverflow].some(value => value === "auto" || value === "scroll")) {
+    throw new Error("Support record review must remain in document flow without nested drawer scroll regions: " + JSON.stringify(metrics));
   }
   if (metrics.timelineScrollHeight > metrics.timelineClientHeight + 1
       || !metrics.timelineBeforeComposer || !metrics.composerBeforeActions) {
-    throw new Error("Support conversation must remain fully in document flow ahead of the reply composer and case actions at "
+    throw new Error("Support timeline, composer and actions are not laid out in document order at "
       + width + "x" + height + ": " + JSON.stringify(metrics));
   }
 }
@@ -597,7 +590,8 @@ async function assertAuditExplorerLayout(page, width, height) {
     const explorer = document.querySelector('[data-testid="audit-explorer"]');
     const card = document.querySelector('[data-testid="audit-table-card"]');
     const wrapper = document.querySelector('[data-testid="audit-table-wrapper"]');
-    const drawer = document.querySelector('[data-testid="audit-record-detail"]');
+    const panel = document.querySelector('[data-testid="audit-record-detail"]');
+    const panelWrap = document.querySelector('[data-testid="audit-record-panel"]');
     const header = document.querySelector('[data-testid="audit-record-header"]');
     const ths = [...(wrapper?.querySelectorAll("thead th") ?? [])];
     const resultHeader = ths[ths.length - 1];
@@ -609,24 +603,24 @@ async function assertAuditExplorerLayout(page, width, height) {
     };
     return {
       explorer: bounds(explorer), card: bounds(card), wrapper: bounds(wrapper),
-      drawer: bounds(drawer), header: bounds(header),
-      drawerRole: drawer?.getAttribute("role") ?? null,
-      ariaModal: drawer?.getAttribute("aria-modal") ?? null,
+      panel: bounds(panel), panelWrap: bounds(panelWrap), header: bounds(header),
+      panelRole: panel?.getAttribute("role") ?? null,
+      ariaModal: panel?.getAttribute("aria-modal") ?? null,
       tableColumns: ths.length,
       resultHeader: bounds(resultHeader), resultCell: bounds(resultCell),
-      copyButtons: [...(drawer?.querySelectorAll("button") ?? [])].filter(button => !button.hasAttribute("aria-label")).length,
+      copyButtons: [...(panel?.querySelectorAll("button") ?? [])].filter(button => !button.hasAttribute("aria-label")).length,
       tableWidth: wrapper?.clientWidth ?? 0,
       tableScrollWidth: wrapper?.scrollWidth ?? 0,
-      detailLength: drawer?.textContent?.length ?? 0,
+      detailLength: panel?.textContent?.length ?? 0,
     };
   });
-  if (!metrics.explorer || !metrics.card || !metrics.wrapper || !metrics.drawer || !metrics.header
-      || metrics.drawerRole !== "dialog" || metrics.ariaModal !== "true"
+  if (!metrics.explorer || !metrics.card || !metrics.wrapper || !metrics.panel || !metrics.panelWrap || !metrics.header
+      || metrics.panelRole || metrics.ariaModal
       || metrics.tableColumns !== 5 || metrics.copyButtons < 3 || metrics.detailLength < 180) {
-    throw new Error("Audit ledger/drawer requirements failed at " + width + "x" + height + ": " + JSON.stringify(metrics));
+    throw new Error("Audit ledger/inline record requirements failed at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (metrics.drawer.width > 520 + 1 || metrics.drawer.width > width + 1) {
-    throw new Error("Audit drawer exceeds min(520px, 100%) at " + width + "px: " + JSON.stringify(metrics));
+  if (metrics.panel.width > width + 1 || metrics.panel.width > metrics.panelWrap.width + 1) {
+    throw new Error("Audit record panel exceeds its workspace column at " + width + "px: " + JSON.stringify(metrics));
   }
   if (metrics.tableScrollWidth > metrics.tableWidth + 1) {
     throw new Error("Audit table wrapper clips horizontally at " + width + "x" + height + ": " + JSON.stringify(metrics));
@@ -637,15 +631,17 @@ async function assertAuditExplorerLayout(page, width, height) {
     throw new Error("Audit Result column is not completely visible at desktop width "
       + width + "px: " + JSON.stringify(metrics));
   }
-  const row = page.getByTestId("audit-record-row").last();
+  const detailPath = new URL(page.url()).pathname;
+  if (!/\/admin\/audit-log\/[^/]+$/.test(detailPath)) {
+    throw new Error("Selecting an audit event must navigate to its record-specific workspace route: " + page.url());
+  }
   await page.keyboard.press("Escape");
+  await page.waitForURL(url => url.pathname.endsWith("/admin/audit-log"));
   await page.getByTestId("audit-record-detail").waitFor({ state: "detached" });
-  const focusReturned = await row.evaluate(element => document.activeElement === element);
-  if (!focusReturned) throw new Error("Closing the audit drawer must return focus to its source row.");
+  const row = page.getByTestId("audit-record-row").last();
   await row.click();
   await page.getByTestId("audit-record-detail").waitFor({ state: "visible" });
 }
-
 
 async function assertReadable(page, route, width, height) {
   const report = await page.evaluate(() => {
@@ -705,7 +701,7 @@ async function assertAdminCardClipping(page, route, width, height) {
     const candidates = [...root.querySelectorAll("[data-testid]")].filter(element => {
       const id = element.getAttribute("data-testid") ?? "";
       return /detail|workspace|picker|table|queue|workflow|footer|composer|history|drawer/.test(id)
-        && id !== "workspace-drawer-backdrop"
+        && id !== "legacy-workspace-drawer-backdrop"
         && !/record-row|case-row/.test(id);
     });
     const overflow = candidates.map(element => ({
@@ -1004,51 +1000,52 @@ try {
           animations: "disabled", fullPage: true,
         });
         const rows = page.getByTestId("offer-queue").getByRole("button");
-        const drawer = page.getByTestId("workspace-drawer");
+        if (await rows.count() < 2) throw new Error("Offer queue requires multiple test records to verify tab switching.");
         await rows.first().click();
-        await drawer.waitFor({ state: "visible" });
-        const isModal = await drawer.getAttribute("aria-modal");
-        if (size.width <= 1399) {
-          if (isModal !== "true") {
-            throw new Error("Offer detail must become a modal when the full-width queue sits beneath it at " + size.width + "px.");
-          }
-          await drawer.locator("header button").click();
-          await drawer.waitFor({ state: "hidden" });
-          await rows.nth(1).click();
-          await drawer.waitFor({ state: "visible" });
-        } else {
-          if (isModal === "true") {
-            throw new Error("Desktop offer detail should remain a non-modal side overlay at " + size.width + "px.");
-          }
-          await rows.nth(1).click();
-          await drawer.waitFor({ state: "visible" });
+        await page.getByTestId("workspace-record-panel").waitFor({ state: "visible" });
+        const firstRecordPath = new URL(page.url()).pathname;
+        if (!/\/admin\/offer-moderation\/[^/]+$/.test(firstRecordPath)) {
+          throw new Error("Offer selection must open a record-specific workspace route: " + page.url());
         }
+        if (await page.getByTestId("workspace-record-panel").getAttribute("aria-modal")) {
+          throw new Error("Offer review must be an inline non-modal workspace panel at " + size.width + "px.");
+        }
+        await rows.nth(1).click();
+        await page.waitForURL(url => url.pathname.includes("/admin/offer-moderation/") && url.pathname !== firstRecordPath);
+        await page.getByTestId("workspace-record-panel").waitFor({ state: "visible" });
+        const tabs = page.getByTestId("admin-workspace-tabs").getByRole("tab");
+        if (await tabs.count() < 3) {
+          throw new Error("Queue and selected offer records must each have their own workspace tabs.");
+        }
+        await tabs.nth(1).click();
+        await page.waitForURL(url => url.pathname === firstRecordPath);
+        await page.getByTestId("workspace-record-panel").waitFor({ state: "visible" });
+        await tabs.nth(2).click();
+        await page.waitForURL(url => url.pathname.includes("/admin/offer-moderation/") && url.pathname !== firstRecordPath);
+        await page.getByTestId("workspace-record-panel").waitFor({ state: "visible" });
+        await page.getByTestId("workspace-record-panel").getByRole("button").first().click();
+        await page.waitForURL(url => url.pathname.endsWith("/admin/offer-moderation"));
+        await page.getByTestId("workspace-record-panel").waitFor({ state: "detached" });
       }
       if (route.path.endsWith("/admin/support-cases")) {
         const rows = page.getByTestId("support-case-row");
+        if (await rows.count() < 2) throw new Error("Support queue requires multiple test records to verify tab switching.");
         await rows.first().click();
-        const drawer = page.getByTestId("workspace-drawer");
-        await drawer.waitFor({ state: "visible" });
-        const supportIsModal = await drawer.getAttribute("aria-modal") === "true";
-        if (size.width <= 1399 && !supportIsModal) {
-          throw new Error("Support detail must be modal while the full-width queue sits underneath it at " + size.width + "px.");
+        await page.getByTestId("workspace-record-panel").waitFor({ state: "visible" });
+        const firstRecordPath = new URL(page.url()).pathname;
+        if (!/\/admin\/support-cases\/[^/]+$/.test(firstRecordPath)) {
+          throw new Error("Support selection must open a record-specific workspace route: " + page.url());
         }
-        if (size.width > 1399 && supportIsModal) {
-          throw new Error("Wide desktop Support detail should remain a non-modal side overlay.");
+        if (await page.getByTestId("workspace-record-panel").getAttribute("aria-modal")) {
+          throw new Error("Support case review must be an inline non-modal panel at " + size.width + "px.");
         }
-        if (size.width > 1399) {
-          const firstSubject = await page.locator('[data-testid="support-case-detail"] h2').innerText();
-          await rows.nth(1).click();
-          await page.waitForFunction(previous => document.querySelector('[data-testid="support-case-detail"] h2')?.textContent !== previous, firstSubject);
-          if (!(await drawer.isVisible())) throw new Error("Selecting another support case closed the detail drawer.");
-        } else if (size.width > 700) {
-          await drawer.locator("header button").click();
-          await drawer.waitFor({ state: "hidden" });
-          await rows.nth(1).click();
-          await drawer.waitFor({ state: "visible" });
-          if (await drawer.getAttribute("aria-modal") !== "true") {
-            throw new Error("Reopened Support detail lost its modal presentation at " + size.width + "px.");
-          }
+        const firstSubject = await page.locator('[data-testid="support-case-detail"] h2').innerText();
+        await rows.nth(1).click();
+        await page.waitForURL(url => url.pathname.includes("/admin/support-cases/") && url.pathname !== firstRecordPath);
+        await page.waitForFunction(previous => document.querySelector('[data-testid="support-case-detail"] h2')?.textContent !== previous, firstSubject);
+        await page.getByTestId("workspace-record-panel").waitFor({ state: "visible" });
+        if (await page.getByTestId("admin-workspace-tabs").getByRole("tab").count() < 3) {
+          throw new Error("Support case queue and each selected case must remain independent workspace tabs.");
         }
       }
       if (route.adminPage) await assertAdminStatusControls(page, route.path, size.width, size.height);
@@ -1056,11 +1053,11 @@ try {
       if (route.path.endsWith("/admin/offer-moderation")) {
         await assertOfferModerationLayout(page, size.width, size.height);
         const longTitle = "Family breakfast basket with assorted bakery items, fresh fruit and detailed allergen information";
-        if (size.width <= 1399) {
-          await page.getByTestId("workspace-drawer").locator("header button").click();
-          await page.getByTestId("workspace-drawer").waitFor({ state: "hidden" });
-        }
         await page.getByTestId("offer-queue").getByRole("button").filter({ hasText: longTitle }).click();
+        await page.getByTestId("workspace-record-panel").waitFor({ state: "visible" });
+        if (!/\/admin\/offer-moderation\/[^/]+$/.test(new URL(page.url()).pathname)) {
+          throw new Error("Selecting the long-title offer must navigate to its record workspace route: " + page.url());
+        }
         await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
         await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
         const selectedTitle = page.getByTestId("offer-detail-panel").locator("h2").first();
@@ -1221,12 +1218,48 @@ try {
     const decision = page.getByTestId("merchant-review-decision");
     await page.getByTestId("merchant-review-detail-page").waitFor({ state: "visible" });
     await workflow.waitFor({ state: "visible" });
+    const workspaceTabs = page.getByTestId("admin-workspace-tabs");
+    if (await workspaceTabs.getByRole("tab").count() < 2) {
+      throw new Error("Opening a merchant must create a separate record tab alongside the merchant queue tab.");
+    }
+    if (!new URL(page.url()).pathname.includes("/admin/merchant-review/")) {
+      throw new Error("Merchant selection must navigate to a real merchant record route: " + page.url());
+    }
     await decision.getByRole("button", { name: "Approve" }).click();
-    const reviewButton = page.getByTestId("merchant-review-footer").getByRole("button", { name: "Review decision" });
-    if (await reviewButton.isEnabled()) throw new Error("Approval unlocked before all three verification checks.");
     await workflow.getByLabel("Address and location checked").check();
-    await workflow.getByLabel("Phone number reachable").check();
-    await workflow.getByLabel("Documents readable and valid").check();
+    await page.getByLabel("Reason (required)").fill("Verified during full-page browser workflow test.");
+    await page.getByLabel(/Internal note/).fill("Internal verification note from browser workflow test.");
+    await page.waitForFunction(() => {
+      const values = [];
+      for (let index = 0; index < sessionStorage.length; index += 1) values.push(sessionStorage.getItem(sessionStorage.key(index)) || "");
+      return values.some(value => value.includes("merchantChecks") && value.includes("merchantAction"));
+    });
+    const persistedDraft = await page.evaluate(() => {
+      const values = [];
+      for (let index = 0; index < sessionStorage.length; index += 1) values.push(sessionStorage.getItem(sessionStorage.key(index)) || "");
+      return values.join("\\n");
+    });
+    if (persistedDraft.includes("Verified during full-page browser workflow test.")
+        || persistedDraft.includes("Internal verification note from browser workflow test.")) {
+      throw new Error("Merchant reason/internal-note free text leaked into persisted workspace storage.");
+    }
+    await page.reload({ waitUntil: "networkidle" });
+    await page.getByTestId("merchant-review-detail-page").waitFor({ state: "visible" });
+    const restoredChecks = page.getByTestId("merchant-review-workflow");
+    const restoredDecision = page.getByTestId("merchant-review-decision");
+    const reviewButton = page.getByTestId("merchant-review-footer").getByRole("button", { name: "Review decision" });
+    if (!(await restoredChecks.getByLabel("Address and location checked").isChecked())) {
+      throw new Error("Safe merchant verification checks were not restored after reload.");
+    }
+    if (await restoredDecision.getByRole("button", { name: "Approve" }).getAttribute("aria-pressed") !== "true") {
+      throw new Error("The safe merchant decision selection was not restored after reload.");
+    }
+    if (await page.getByLabel("Reason (required)").inputValue() !== ""
+        || await page.getByLabel(/Internal note/).inputValue() !== "") {
+      throw new Error("Sensitive merchant free-text drafts must not be restored after reload.");
+    }
+    await restoredChecks.getByLabel("Phone number reachable").check();
+    await restoredChecks.getByLabel("Documents readable and valid").check();
     await page.getByLabel("Reason (required)").fill("Verified during full-page browser workflow test.");
     await page.getByLabel(/Internal note/).fill("Internal verification note from browser workflow test.");
     if (!(await reviewButton.isEnabled())) throw new Error("Decision did not unlock after the checks and reason were completed.");
@@ -1246,8 +1279,32 @@ try {
     await page.getByTestId("offer-queue").getByRole("button").first().click();
     const inlineOffer = page.getByTestId("offer-moderation-workflow");
     await inlineOffer.waitFor({ state: "visible" });
-    await inlineOffer.locator('[data-action="suspend"]').click();
+    await inlineOffer.locator('[data-action="request-edit"]').click();
     await inlineOffer.getByLabel("Reason (required)").fill("Allergen information needs verification.");
+    await page.waitForFunction(() => {
+      const values = [];
+      for (let index = 0; index < sessionStorage.length; index += 1) values.push(sessionStorage.getItem(sessionStorage.key(index)) || "");
+      return values.some(value => value.includes('"offerAction":"request-edit"'));
+    });
+    const savedOfferDraft = await page.evaluate(() => {
+      const values = [];
+      for (let index = 0; index < sessionStorage.length; index += 1) values.push(sessionStorage.getItem(sessionStorage.key(index)) || "");
+      return values.join("\\n");
+    });
+    if (savedOfferDraft.includes("Allergen information needs verification.")) {
+      throw new Error("Offer moderation free-text reason leaked into persisted workspace storage.");
+    }
+    await page.reload({ waitUntil: "networkidle" });
+    const restoredOffer = page.getByTestId("offer-moderation-workflow");
+    await restoredOffer.waitFor({ state: "visible" });
+    if (await restoredOffer.locator('[data-action="request-edit"]').getAttribute("aria-pressed") !== "true") {
+      throw new Error("Safe offer action draft was not restored after reload.");
+    }
+    if (await restoredOffer.getByLabel("Reason (required)").inputValue() !== "") {
+      throw new Error("Sensitive offer reason must not be restored after reload.");
+    }
+    await restoredOffer.locator('[data-action="suspend"]').click();
+    await restoredOffer.getByLabel("Reason (required)").fill("Allergen information needs verification.");
     await page.getByTestId("offer-moderation-footer").getByRole("button", { name: "Hide offer" }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/suspend"), "Offer moderation action");
     await context.close();
@@ -1267,7 +1324,7 @@ try {
     await timelinePanel.waitFor({ state: "visible" });
     await assertSupportTimelineVisible(page, 1366, 768);
 
-    // Long conversations stay in document flow; the drawer scrolls so the composer and case actions remain reachable.
+    // Long conversations stay in document flow; the document scroll reveals the composer and case actions.
     timeline = Array.from({ length: 48 }, (_, index) => ({
       id: `00000000-0000-4000-8000-${String(300 + index).padStart(12, "0")}`,
       authorType: index % 2 ? "AGENT" : "CUSTOMER",
@@ -1283,35 +1340,38 @@ try {
       await page.getByTestId("support-case-row").first().click();
       await timelinePanel.waitFor({ state: "visible" });
       await assertSupportTimelineVisible(page, size.width, size.height);
-      const drawerContent = page.locator('[data-testid="workspace-drawer"] > div');
-      const before = await drawerContent.evaluate(content => {
+      const before = await page.evaluate(() => {
+        const panel = document.querySelector('[data-testid="workspace-record-panel"]');
+        const detail = document.querySelector('[data-testid="support-case-detail"]');
         const timelineNode = document.querySelector('[data-testid="support-case-timeline"]');
         return {
-          clientHeight: content.clientHeight,
-          scrollHeight: content.scrollHeight,
-          overflow: getComputedStyle(content).overflowY,
+          documentHeight: document.documentElement.scrollHeight,
+          viewportHeight: window.innerHeight,
+          documentOverflow: getComputedStyle(document.documentElement).overflowY,
+          panelOverflow: panel ? getComputedStyle(panel).overflowY : "missing",
+          detailOverflow: detail ? getComputedStyle(detail).overflowY : "missing",
           timelineOverflow: timelineNode ? getComputedStyle(timelineNode).overflowY : "missing",
         };
       });
-      if (before.scrollHeight <= before.clientHeight + 2 || before.overflow !== "auto" || before.timelineOverflow !== "visible") {
-        throw new Error("Support drawer does not own the long-conversation scroll at " + size.width + "px: " + JSON.stringify(before));
+      if (before.documentHeight <= before.viewportHeight + 2
+          || [before.panelOverflow, before.detailOverflow, before.timelineOverflow].some(value => value === "auto" || value === "scroll")) {
+        throw new Error("Long support conversations must expand the page in normal document flow at "
+          + size.width + "px: " + JSON.stringify(before));
       }
-      const after = await drawerContent.evaluate(content => {
-        content.scrollTop = content.scrollHeight;
-        const viewport = content.getBoundingClientRect();
-        const composerBounds = document.querySelector('[data-testid="support-message-composer"]')?.getBoundingClientRect();
-        const actionsBounds = document.querySelector('[data-testid="support-case-actions"]')?.getBoundingClientRect();
-        return {
-          scrollTop: content.scrollTop,
-          maxScrollTop: content.scrollHeight - content.clientHeight,
-          composerReachable: Boolean(composerBounds && composerBounds.bottom > viewport.top - 1
-            && composerBounds.top < viewport.bottom + 1),
-          actionsVisible: Boolean(actionsBounds && actionsBounds.top >= viewport.top - 1
-            && actionsBounds.bottom <= viewport.bottom + 1),
-        };
+      const after = await page.evaluate(() => {
+        const composerNode = document.querySelector('[data-testid="support-message-composer"]');
+        const actionsNode = document.querySelector('[data-testid="support-case-actions"]');
+        if (!composerNode || !actionsNode) return { composerReachable: false, actionsVisible: false };
+        composerNode.scrollIntoView({ block: "center", behavior: "instant" });
+        const composerBounds = composerNode.getBoundingClientRect();
+        const composerReachable = composerBounds.top >= -1 && composerBounds.bottom <= window.innerHeight + 1;
+        actionsNode.scrollIntoView({ block: "center", behavior: "instant" });
+        const actionsBounds = actionsNode.getBoundingClientRect();
+        const actionsVisible = actionsBounds.top >= -1 && actionsBounds.bottom <= window.innerHeight + 1;
+        return { composerReachable, actionsVisible, scrollY: window.scrollY };
       });
-      if (after.scrollTop <= 0 || after.maxScrollTop <= 0 || !after.composerReachable || !after.actionsVisible) {
-        throw new Error("Scrolling a long support conversation must reveal its reply composer and keep Case Actions reachable at "
+      if (!after.composerReachable || !after.actionsVisible || after.scrollY <= 0) {
+        throw new Error("Document scrolling must independently reach the support reply composer and Case Actions at "
           + size.width + "px: " + JSON.stringify({ before, after }));
       }
     }

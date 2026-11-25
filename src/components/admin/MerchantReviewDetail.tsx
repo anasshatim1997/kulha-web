@@ -7,6 +7,7 @@ import { api } from "@/lib/api/client";
 import { localePath } from "@/lib/navigation";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { AdminShell } from "./AdminShell";
+import { useAdminWorkspaceDraft, useAdminWorkspaceMemoryDraft } from "./AdminWorkspace";
 import styles from "./MerchantReviewPage.module.css";
 
 type Merchant={id:string;ownerUserId:string;ownerEmail:string;name:string;businessType:string;address:string;city:string;phone:string;openingHours:string;status:string;decisionReason:string|null;createdAt:string};
@@ -25,8 +26,8 @@ export function MerchantReviewDetail({id,locale,backStatus,backPage,backQuery}:P
  const [merchant,setMerchant]=useState<Merchant|null>(null),[settledRequest,setSettledRequest]=useState(""),[failedRequest,setFailedRequest]=useState(""),[retryVersion,setRetryVersion]=useState(0);
  const requestKey=id+"|retry="+retryVersion;
  const loading=settledRequest!==requestKey,failed=failedRequest===requestKey;
- const [checks,setChecks]=useState([false,false,false]),[action,setAction]=useState<Action|null>(null);
- const [reason,setReason]=useState(""),[internalNote,setInternalNote]=useState(""),[confirmation,setConfirmation]=useState(false);
+ const [checks,setChecks]=useAdminWorkspaceDraft("merchantChecks",[false,false,false] as [boolean,boolean,boolean]),[action,setAction]=useAdminWorkspaceDraft("merchantAction",null);
+ const [reason,setReason]=useAdminWorkspaceMemoryDraft("actionReason",""),[internalNote,setInternalNote]=useAdminWorkspaceMemoryDraft("internalNote",""),[confirmation,setConfirmation]=useState(false);
  const [working,setWorking]=useState(false),[message,setMessage]=useState("");
  const base=localePath(locale,"/admin/merchant-review");
  const backHref=useMemo(()=>{const p=new URLSearchParams({status:backStatus,page:String(backPage)});if(backQuery.trim())p.set("q",backQuery.trim());return base+"?"+p.toString();},[backPage,backQuery,backStatus,base]);
@@ -82,7 +83,7 @@ export function MerchantReviewDetail({id,locale,backStatus,backPage,backQuery}:P
         <div className={styles.verificationList}>
          {[{label:t.addressCheck,detail:t.address,index:0},{label:t.phoneCheck,detail:t.phone,index:1},{label:t.docsCheck,detail:t.documents,index:2}].map(item=>
           <label className={styles.verificationItem} key={item.index}>
-           <input type="checkbox" checked={checks[item.index]} onChange={e=>{setChecks(old=>old.map((v,i)=>i===item.index?e.target.checked:v));setConfirmation(false);}}/>
+           <input type="checkbox" checked={checks[item.index]} onChange={e=>{setChecks(checks.map((v,i)=>i===item.index?e.target.checked:v) as [boolean,boolean,boolean]);setConfirmation(false);}}/>
            <span className={styles.checkVisual}>{checks[item.index]?<Check size={15}/>:null}</span>
            <span className={styles.verificationCopy}><strong>{item.label}</strong><small>{item.detail}</small></span>
            <em>{checks[item.index]?t.completed:"—"}</em>

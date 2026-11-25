@@ -1,12 +1,12 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Search, Store, MapPin, CalendarDays, ArrowUpRight, AlertTriangle } from "lucide-react";
 import { api } from "@/lib/api/client";
 import { localePath } from "@/lib/navigation";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { AdminShell } from "./AdminShell";
 import { AdminPagination } from "./AdminPagination";
+import { useAdminWorkspace } from "./AdminWorkspace";
 import styles from "./MerchantReviewPage.module.css";
 
 type Merchant = { id:string; ownerUserId:string; ownerEmail:string; name:string; businessType:string; address:string; city:string; phone:string; openingHours:string; status:string; decisionReason:string|null; createdAt:string };
@@ -35,7 +35,7 @@ function businessLabel(value:string, locale:SiteLocale) {
 type Props = {locale:SiteLocale;initialStatus:Status;initialPage:number;initialQuery:string};
 
 export function MerchantReviewQueue({locale,initialStatus,initialPage,initialQuery}:Props) {
-  const t=words[locale], router=useRouter();
+  const t=words[locale], {openTab}=useAdminWorkspace();
   const [status,setStatus]=useState<Status>(initialStatus), [page,setPage]=useState(initialPage);
   const [query,setQuery]=useState(initialQuery), [data,setData]=useState<Page<Merchant>|null>(null);
   const [counts,setCounts]=useState<Partial<Record<Status,number>>>({});
@@ -73,9 +73,9 @@ export function MerchantReviewQueue({locale,initialStatus,initialPage,initialQue
   const base=localePath(locale,"/admin/merchant-review");
   const labels={previous:t.previous,next:t.next,of:t.of,label:t.pagination};
   const label=(s:Status)=>s==="PENDING"?t.pendingLabel:s==="INFO_REQUIRED"?t.infoLabel:s==="APPROVED"?t.approvedLabel:t.rejectedLabel;
-  const open=(id:string)=>{
+  const open=(id:string,name:string)=>{
     const q=new URLSearchParams({status,page:String(page)});if(query.trim())q.set("q",query.trim());
-    router.push(base+"/"+encodeURIComponent(id)+"?"+q.toString());
+    openTab(base+"/"+encodeURIComponent(id)+"?"+q.toString(),t.merchant+" · "+name);
   };
   return <AdminShell page="merchant-review" locale={locale} topbar={null}>
     <header className={styles.pageHeader} data-testid="admin-page-heading">
@@ -105,7 +105,7 @@ export function MerchantReviewQueue({locale,initialStatus,initialPage,initialQue
               {!loading&&rows.map(m=>{
                 const incomplete=!m.ownerEmail||!m.phone;
                 const tone=m.status==="APPROVED"?styles.status_approved:m.status==="REJECTED"?styles.status_rejected:m.status==="INFO_REQUIRED"?styles.status_info_required:styles.status_pending;
-                return <button key={m.id} type="button" className={styles.merchantRow} data-testid="merchant-application-row" onClick={()=>open(m.id)}>
+                return <button key={m.id} type="button" className={styles.merchantRow} data-testid="merchant-application-row" onClick={()=>open(m.id,m.name)}>
                   <span className={styles.merchantIdentity}><span className={styles.merchantAvatar}>{m.name.trim().slice(0,1).toLocaleUpperCase(localeTag(locale))}</span>
                     <span className={styles.merchantIdentityText}><strong>{m.name}</strong><small title={m.id}>{t.identifier} · {m.id.slice(0,8)}…</small>{incomplete&&<em><AlertTriangle size={13} aria-hidden="true"/> {t.warning}</em>}</span>
                   </span>

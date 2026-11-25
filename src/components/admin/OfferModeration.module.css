@@ -119,3 +119,7 @@
        Reserving its width here leaves an unusable queue strip behind the overlay. */
     .drawerOpen .offerPicker { width: 100%; }
 }
+/* Queue and selected offer are simultaneous workspace panes, not a modal drawer. */
+.offerWorkspace { grid-template-columns: minmax(0, 1fr); }
+.offerWorkspace.recordOpen { grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); }
+@media (max-width: 900px) { .offerWorkspace.recordOpen { grid-template-columns: minmax(0, 1fr); } }

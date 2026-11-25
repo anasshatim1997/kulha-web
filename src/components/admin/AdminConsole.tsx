@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode, type RefObject, type SyntheticEvent } from "react";
+import { usePathname } from "next/navigation";
 import { api } from "@/lib/api/client";
 import { canRevealSupportCustomerDetails, SUPPORT_DISCLOSURE_REASON_MAX_LENGTH } from "@/lib/auth/admin-access";
 import { useSession } from "@/components/session/SessionProvider";
@@ -10,7 +11,8 @@ import offerStyles from "./OfferModeration.module.css";
 import supportStyles from "./SupportCases.module.css";
 import auditStyles from "./AuditLog.module.css";
 import { AdminShell } from "./AdminShell";
-import { AdminWorkspaceDrawer } from "./AdminWorkspaceDrawer";
+import { AdminWorkspaceRecordPanel } from "./AdminWorkspaceRecordPanel";
+import { useAdminWorkspace, useAdminWorkspaceDraft, useAdminWorkspaceMemoryDraft } from "./AdminWorkspace";
 import { AdminPagination, type PaginationLabels } from "./AdminPagination";
 
 const styles: Record<string, string> = {
@@ -208,15 +210,25 @@ const AUDIT_PAGE_SIZE=10;
 type MerchantAction="approve"|"request-information"|"reject";
 type OfferAction="suspend"|"request-edit"|"reinstate";
 
-export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
+export function AdminConsole({locale,page,recordId,initialPage=0,initialFilter="",initialAuditPageSize=AUDIT_PAGE_SIZE,initialAuditFrom="",initialAuditTo="",initialAuditAction="",initialAuditResult=""}:{locale:SiteLocale;page:PageKey;recordId?:string;initialPage?:number;initialFilter?:string;initialAuditPageSize?:10|20|50;initialAuditFrom?:string;initialAuditTo?:string;initialAuditAction?:string;initialAuditResult?: ""|"SUCCESS"|"DENIED"|"FAILED"}){
+    const pathname=usePathname()??"";
+    const queuePathname=pathname.split("/").slice(0,4).join("/");
+    const openRecord=(id:string,title:string,params:Record<string,string|number|undefined>={})=>{
+        const queryParams=new URLSearchParams();
+        for(const [key,value] of Object.entries(params))if(value!==undefined&&value!=="")queryParams.set(key,String(value));
+        openTab(queuePathname+"/"+encodeURIComponent(id)+(queryParams.size?"?"+queryParams.toString():""),title);
+    };
+    const {openTab,closeTab,setDraft,state:workspaceState}=useAdminWorkspace();
+    const offerSnapshot=workspaceState.drafts[pathname]?.selectedOfferRecord as Offer|undefined;
+    const auditSnapshot=workspaceState.drafts[pathname]?.selectedAuditRecord as AuditRow|undefined;
     const t={...words[locale],...more[locale]};const {state}=useSession();const actorId=state.status==="authenticated"?state.user.id:"";const roles=state.status==="authenticated"?state.user.roles:[];const isSupportOnly=roles.includes("SUPPORT")&&!roles.includes("ADMIN")&&!roles.includes("SUPER_ADMIN");
     const merchantReturnFocusRef=useRef<HTMLElement|null>(null);const offerReturnFocusRef=useRef<HTMLElement|null>(null);const caseReturnFocusRef=useRef<HTMLElement|null>(null);
     const [loading,setLoading]=useState(true);const [failed,setFailed]=useState(false);const [reload,setReload]=useState(0);const [message,setMessage]=useState("");const [query,setQuery]=useState("");
-    const [merchants,setMerchants]=useState<Page<Merchant>|null>(null);const [merchantStatus,setMerchantStatus]=useState("PENDING");const [merchantPage,setMerchantPage]=useState(0);const [selectedMerchant,setSelectedMerchant]=useState<Merchant|null>(null);const [merchantAction,setMerchantAction]=useState<MerchantAction|null>(null);const [checks,setChecks]=useState([false,false,false]);const [tabCounts,setTabCounts]=useState<{pending:number|null;info:number|null}>({pending:null,info:null});
-    const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useState("");const [offerPage,setOfferPage]=useState(0);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");
-    const [cases,setCases]=useState<Page<CaseItem>|null>(null);const [caseStatus,setCaseStatus]=useState("OPEN");const [casePage,setCasePage]=useState(0);const [selectedCase,setSelectedCase]=useState<{summary:CaseItem;timeline:Timeline[]}|null>(null);const [caseCounts,setCaseCounts]=useState<{open:number|null;escalated:number|null;waiting:number|null;resolved:number|null}>({open:null,escalated:null,waiting:null,resolved:null});
-    const [audit,setAudit]=useState<AuditPage|null>(null);const [auditPage,setAuditPage]=useState(0);const [auditPageSize,setAuditPageSize]=useState(AUDIT_PAGE_SIZE);const [selectedAuditId,setSelectedAuditId]=useState<string|null>(null);const [auditModalOpen,setAuditModalOpen]=useState(false);const auditDrawerRef=useRef<HTMLElement|null>(null);const auditReturnFocusRef=useRef<HTMLElement|null>(null);const [auditSearch,setAuditSearch]=useState("");const [auditFrom,setAuditFrom]=useState("");const [auditTo,setAuditTo]=useState("");const [auditAction,setAuditAction]=useState("");const [auditResult,setAuditResult]=useState("");
-    const [reason,setReason]=useState("");const [disclosureReason,setDisclosureReason]=useState("");const [internalNote,setInternalNote]=useState("");const [draftMessage,setDraftMessage]=useState("");const [sendToCustomer,setSendToCustomer]=useState(true);const [revealed,setRevealed]=useState<{fullName:string;email:string;phone:string|null}|null>(null);const [working,setWorking]=useState(false);
+    const [merchants,setMerchants]=useState<Page<Merchant>|null>(null);const [merchantStatus,setMerchantStatus]=useState("PENDING");const [merchantPage,setMerchantPage]=useState(0);const [selectedMerchant,setSelectedMerchant]=useState<Merchant|null>(null);const [merchantAction,setMerchantAction]=useAdminWorkspaceDraft("merchantAction",null);const [checks,setChecks]=useAdminWorkspaceDraft("merchantChecks",[false,false,false] as [boolean,boolean,boolean]);const [tabCounts,setTabCounts]=useState<{pending:number|null;info:number|null}>({pending:null,info:null});
+    const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useAdminWorkspaceDraft("offerFilter",(["","REPORTED","ALLERGENS_UNKNOWN","SUSPENDED"].includes(initialFilter)?initialFilter:"") as ""|"REPORTED"|"ALLERGENS_UNKNOWN"|"SUSPENDED");const [offerPage,setOfferPage]=useAdminWorkspaceDraft("offerPage",initialPage);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useAdminWorkspaceDraft("offerAction","suspend");
+    const [cases,setCases]=useState<Page<CaseItem>|null>(null);const [caseStatus,setCaseStatus]=useAdminWorkspaceDraft("supportStatus",(["OPEN","ESCALATED","WAITING_REPLY","RESOLVED"].includes(initialFilter)?initialFilter:"OPEN") as "OPEN"|"ESCALATED"|"WAITING_REPLY"|"RESOLVED");const [casePage,setCasePage]=useAdminWorkspaceDraft("supportPage",initialPage);const [selectedCase,setSelectedCase]=useState<{summary:CaseItem;timeline:Timeline[]}|null>(null);const [caseCounts,setCaseCounts]=useState<{open:number|null;escalated:number|null;waiting:number|null;resolved:number|null}>({open:null,escalated:null,waiting:null,resolved:null});
+    const [audit,setAudit]=useState<AuditPage|null>(null);const [auditPage,setAuditPage]=useAdminWorkspaceDraft("auditPage",initialPage);const [auditPageSize,setAuditPageSize]=useAdminWorkspaceDraft("auditPageSize",initialAuditPageSize);const [selectedAuditId,setSelectedAuditId]=useState<string|null>(null);const [auditModalOpen,setAuditModalOpen]=useState(false);const auditDrawerRef=useRef<HTMLElement|null>(null);const auditReturnFocusRef=useRef<HTMLElement|null>(null);const [auditSearch,setAuditSearch]=useAdminWorkspaceMemoryDraft("auditSearch","");const [auditFrom,setAuditFrom]=useAdminWorkspaceDraft("auditFrom",initialAuditFrom);const [auditTo,setAuditTo]=useAdminWorkspaceDraft("auditTo",initialAuditTo);const [auditAction,setAuditAction]=useAdminWorkspaceDraft("auditAction",initialAuditAction);const [auditResult,setAuditResult]=useAdminWorkspaceDraft("auditResult",initialAuditResult);
+    const [reason,setReason]=useAdminWorkspaceMemoryDraft("actionReason","");const [disclosureReason,setDisclosureReason]=useAdminWorkspaceMemoryDraft("disclosureReason","");const [internalNote,setInternalNote]=useAdminWorkspaceMemoryDraft("internalNote","");const [draftMessage,setDraftMessage]=useAdminWorkspaceMemoryDraft("draftMessage","");const [sendToCustomer,setSendToCustomer]=useAdminWorkspaceDraft("supportSendToCustomer",true);const [revealed,setRevealed]=useState<{fullName:string;email:string;phone:string|null}|null>(null);const [working,setWorking]=useState(false);
 
     useEffect(()=>{if(!selectedMerchant)merchantReturnFocusRef.current?.focus();},[selectedMerchant]);
     useEffect(()=>{if(!selectedOffer)offerReturnFocusRef.current?.focus();},[selectedOffer]);
@@ -228,8 +240,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
         const onKeyDown=(event:KeyboardEvent)=>{
             if(event.key==="Escape"){
                 event.preventDefault();
-                setAuditModalOpen(false);
-                window.requestAnimationFrame(()=>auditReturnFocusRef.current?.focus());
+                closeAuditDrawer();
             }
         };
         window.addEventListener("keydown",onKeyDown);
@@ -242,19 +253,23 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
             if(page==="merchant-review"){const data=await api.get<Page<Merchant>>("/admin/merchants?status="+merchantStatus+"&page="+merchantPage+"&size="+MERCHANT_PAGE_SIZE);if(active){setMerchants(data);setFailed(false);setSelectedMerchant(null);setMerchantAction(null);setChecks([false,false,false]);setReason("");setInternalNote("");}
                 const [p,i]=await Promise.allSettled([api.get<Page<Merchant>>("/admin/merchants?status=PENDING&page=0&size=1"),api.get<Page<Merchant>>("/admin/merchants?status=INFO_REQUIRED&page=0&size=1")]);
                 if(active)setTabCounts({pending:p.status==="fulfilled"?p.value.total:null,info:i.status==="fulfilled"?i.value.total:null});}
-            if(page==="offer-moderation"){const data=await api.get<Page<Offer>>(`/admin/offers?page=${offerPage}&size=${OFFER_PAGE_SIZE}`);if(active){const lastPage=Math.max(0,Math.ceil(data.total/Math.max(1,data.size))-1);if(offerPage>lastPage){setOfferPage(lastPage);return;}setOffers(data);setFailed(false);setSelectedOffer(null);setOfferAction("suspend");}}
+            if(page==="offer-moderation"){const data=await api.get<Page<Offer>>(`/admin/offers?page=${offerPage}&size=${OFFER_PAGE_SIZE}`);if(active){const lastPage=Math.max(0,Math.ceil(data.total/Math.max(1,data.size))-1);if(offerPage>lastPage){setOfferPage(lastPage);return;}setOffers(data);setFailed(false);
+                    if(recordId){const selected=data.items.find(item=>item.id===recordId)??(offerSnapshot?.id===recordId?offerSnapshot:null);if(active)setSelectedOffer(selected);}
+                    else setSelectedOffer(null);
+                }}
             if(page==="support-cases"){
                 const data=await api.get<Page<CaseItem>>("/admin/support-cases?status="+caseStatus+"&page="+casePage+"&size="+CASE_PAGE_SIZE);
                 if(active){setCases(data);setFailed(false);}
                 const statuses=["OPEN","ESCALATED","WAITING_REPLY","RESOLVED"] as const;
                 const stats=await Promise.allSettled(statuses.map(status=>api.get<Page<CaseItem>>("/admin/support-cases?status="+status+"&page=0&size=1")));
                 if(active)setCaseCounts({open:stats[0].status==="fulfilled"?stats[0].value.total:null,escalated:stats[1].status==="fulfilled"?stats[1].value.total:null,waiting:stats[2].status==="fulfilled"?stats[2].value.total:null,resolved:stats[3].status==="fulfilled"?stats[3].value.total:null});
-                if(active)setSelectedCase(null);
+                if(active&&recordId)void loadCase(recordId);
+                else if(active)setSelectedCase(null);
             }
-            if(page==="audit-log"){const q=new URLSearchParams();if(auditFrom)q.set("from",auditFrom);if(auditTo)q.set("to",auditTo);if(auditAction)q.set("action",auditAction);if(auditResult)q.set("result",auditResult);if(auditSearch)q.set("q",auditSearch);q.set("page",String(auditPage));q.set("size",String(auditPageSize));const data=await api.get<AuditPage>("/admin/audit-log?"+q.toString());if(active){setAudit(data);setSelectedAuditId(data.items[0]?.id??null);setAuditModalOpen(false);setFailed(false);}}
+            if(page==="audit-log"){const q=new URLSearchParams();if(auditFrom)q.set("from",auditFrom);if(auditTo)q.set("to",auditTo);if(auditAction)q.set("action",auditAction);if(auditResult)q.set("result",auditResult);if(recordId)q.set("q",recordId);else if(auditSearch)q.set("q",auditSearch);q.set("page",String(auditPage));q.set("size",String(auditPageSize));const data=await api.get<AuditPage>("/admin/audit-log?"+q.toString());if(active){setAudit(data);setSelectedAuditId(recordId??data.items[0]?.id??null);setAuditModalOpen(Boolean(recordId));setFailed(false);}}
         }catch{if(active)setFailed(true);}finally{if(active)setLoading(false);}};
         void load();return()=>{active=false;};
-    },[page,reload,merchantStatus,merchantPage,caseStatus,casePage,auditFrom,auditTo,auditAction,auditResult,auditPage,auditPageSize,auditSearch,offerPage]);
+    },[page,recordId,offerSnapshot,reload,merchantStatus,merchantPage,caseStatus,casePage,auditFrom,auditTo,auditAction,auditResult,auditPage,auditPageSize,auditSearch,offerPage]);
 
     const title=page==="merchant-review"?t.merchantTitle:page==="offer-moderation"?t.offersTitle:page==="support-cases"?t.casesTitle:t.auditTitle;
     const lead=page==="merchant-review"?t.merchantLead:page==="offer-moderation"?t.offersLead:page==="support-cases"?t.casesLead:t.auditLead;
@@ -268,7 +283,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const priorityTone=(p:string)=>p==="HIGH"?styles.toneBad:p==="MEDIUM"?styles.toneWarn:p==="LOW"?styles.toneMuted:styles.toneInfo;
     const discount=(o:Offer)=>o.originalPriceMinor&&o.originalPriceMinor>o.priceMinor?Math.round((1-o.priceMinor/o.originalPriceMinor)*100):null;
 
-    async function loadMerchant(id:string){setWorking(true);try{const data=await api.get<Merchant>("/admin/merchants/"+id);setSelectedMerchant(data);window.requestAnimationFrame(()=>document.querySelector<HTMLButtonElement>('[data-testid="workspace-drawer"] button[aria-label]')?.focus());setReason("");setInternalNote("");setMerchantAction(null);setChecks([false,false,false]);}catch{setMessage(t.error);}finally{setWorking(false);}}
+    async function loadMerchant(id:string){setWorking(true);try{const data=await api.get<Merchant>("/admin/merchants/"+id);setSelectedMerchant(data);window.requestAnimationFrame(()=>document.querySelector<HTMLButtonElement>('[data-testid="workspace-record-panel"] button[aria-label]')?.focus());setReason("");setInternalNote("");setMerchantAction(null);setChecks([false,false,false]);}catch{setMessage(t.error);}finally{setWorking(false);}}
     async function submitMerchant(){
         if(!selectedMerchant)return;if(!merchantAction||!reason.trim()){setMessage(t.needsReason);return;}if(merchantAction==="approve"&&checks.some(value=>!value)){setMessage(t.approveUnlocks);return;}setWorking(true);setMessage("");
         try{await api.post("/admin/merchants/"+selectedMerchant.id+"/"+merchantAction,{reason:reason.trim(),internalNote:internalNote.trim()});setMessage(t.save);setReload(v=>v+1);setSelectedMerchant(null);setReason("");setInternalNote("");setMerchantAction(null);}
@@ -279,12 +294,12 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
         try{await api.post("/admin/offers/"+selectedOffer.id+"/"+offerAction,{reason:reason.trim()});setMessage(t.save);setReload(v=>v+1);setSelectedOffer(null);setReason("");}
         catch{setMessage(t.error);}finally{setWorking(false);}
     }
-    async function loadCase(reference:string){setWorking(true);setRevealed(null);setDisclosureReason("");try{const d=await api.get<{summary:CaseItem;timeline:Timeline[]}>("/admin/support-cases/"+reference);setSelectedCase(d);window.requestAnimationFrame(()=>document.querySelector<HTMLButtonElement>('[data-testid="workspace-drawer"] button[aria-label]')?.focus());setReason("");}catch{setMessage(t.error);}finally{setWorking(false);}}
+    async function loadCase(reference:string){setWorking(true);setRevealed(null);setDisclosureReason("");try{const d=await api.get<{summary:CaseItem;timeline:Timeline[]}>("/admin/support-cases/"+reference);setSelectedCase(d);window.requestAnimationFrame(()=>document.querySelector<HTMLButtonElement>('[data-testid="workspace-record-panel"] button[aria-label]')?.focus());setReason("");}catch{setMessage(t.error);}finally{setWorking(false);}}
     async function caseAction(action:string){if(!selectedCase)return;if(!reason.trim()){setMessage(t.saveReason);return;}setWorking(true);try{await api.post("/admin/support-cases/"+selectedCase.summary.reference+"/actions",{action,reason:reason.trim()});setMessage(t.save);await loadCase(selectedCase.summary.reference);setReload(v=>v+1);}catch{setMessage(t.error);}finally{setWorking(false);}}
     async function sendMessage(event:SyntheticEvent<HTMLFormElement>){event.preventDefault();if(!selectedCase||!draftMessage.trim())return;setWorking(true);try{await api.post("/admin/support-cases/"+selectedCase.summary.reference+"/messages",{message:draftMessage.trim(),sendToCustomer});setDraftMessage("");await loadCase(selectedCase.summary.reference);setMessage(t.save);}catch{setMessage(t.error);}finally{setWorking(false);}}
     async function revealCustomer(){if(!selectedCase)return;if(!disclosureReason.trim()){setMessage(t.saveReason);return;}setWorking(true);try{const d=await api.post<{fullName:string;email:string;phone:string|null}>("/admin/support-cases/"+selectedCase.summary.reference+"/reveal-customer",{reason:disclosureReason.trim()});setRevealed(d);setDisclosureReason("");}catch{setMessage(t.error);}finally{setWorking(false);}}
     async function assignToMe(){if(!selectedCase||!actorId)return;setWorking(true);try{await api.put("/admin/support-cases/"+selectedCase.summary.reference+"/assignee",{assignedTo:actorId});await loadCase(selectedCase.summary.reference);setMessage(t.save);}catch{setMessage(t.error);}finally{setWorking(false);}}
-    function closeAuditDrawer(){setAuditModalOpen(false);window.requestAnimationFrame(()=>auditReturnFocusRef.current?.focus());}
+    function closeAuditDrawer(){setAuditModalOpen(false);closeTab(pathname);}
     async function copyAuditIdentifier(value:string){try{await navigator.clipboard.writeText(value);}catch{setMessage(locale==="fr"?"Impossible de copier l’identifiant.":locale==="ar"?"تعذر نسخ المعرّف.":"Unable to copy the identifier.");}}
     function exportAudit(){const p=new URLSearchParams();if(auditFrom)p.set("from",auditFrom);if(auditTo)p.set("to",auditTo);if(auditAction)p.set("action",auditAction);if(auditResult)p.set("result",auditResult);if(auditSearch)p.set("q",auditSearch);const a=document.createElement("a");a.href="/api/bff/admin/audit-log/export?"+p.toString();a.download="kulha-audit-log.csv";a.click();}
     const switchTab=(apply:()=>void)=>{setLoading(true);setFailed(false);apply();};
@@ -313,8 +328,8 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const casePageCount=Math.max(1,Math.ceil((cases?.total??0)/Math.max(1,cases?.size??CASE_PAGE_SIZE)));
     const auditPageCount=Math.max(1,Math.ceil((audit?.total??0)/Math.max(1,audit?.size??AUDIT_PAGE_SIZE)));
     const caseItems=cases?.items.filter(c=>match(c.subject,c.reference,c.merchantName,c.reservationReference,c.offerTitle))??[];
-    const auditItems=audit?.items.filter(a=>match(a.actorName,a.actorUserId,a.action,a.targetType,a.targetId,a.reason,a.correlationId))??[];
-    const selectedAudit=auditItems.find(item=>item.id===selectedAuditId)??null;
+    const auditItems=recordId?((audit?.items??[]).filter(a=>a.id===recordId)):((audit?.items??[]).filter(a=>match(a.actorName,a.actorUserId,a.action,a.targetType,a.targetId,a.reason,a.correlationId,a.id)));
+    const selectedAudit=auditItems.find(item=>item.id===selectedAuditId)??(auditSnapshot?.id===recordId?auditSnapshot:null);
     const auditUi=auditText[locale];
     const resultLabel=(r:string)=>r==="SUCCESS"?t.success:r==="DENIED"?t.denied:r==="FAILED"?auditUi.failed:r;
     const resultTone=(r:string)=>r==="SUCCESS"?styles.toneOk:r==="DENIED"||r==="FAILED"?styles.toneBad:styles.toneMuted;
@@ -336,7 +351,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
 
         {page==="merchant-review"&&merchants&&<>
             <div className={styles.tabs} role="tablist" aria-label={t.merchantTitle}>{merchantStatuses.map(value=>{const n=tabCount(value);return <button key={value} role="tab" aria-selected={merchantStatus===value} className={merchantStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setMerchantStatus(value);setMerchantPage(0);setSelectedMerchant(null);setReason("");setInternalNote("");})}>{merchantLabel(value)}{typeof n==="number"?" · "+n:""}</button>;})}</div>
-            <div className={merchantStyles.merchantReviewWorkspace+(selectedMerchant?" "+merchantStyles.drawerOpen:"")}>
+            <div className={merchantStyles.merchantReviewWorkspace+(selectedMerchant?" "+merchantStyles.recordOpen:"")}>
                 <section className={styles.merchantPicker} aria-label={t.merchantTitle}>
                     <div className={styles.list+" "+merchantStyles.list} data-testid="merchant-review-list">{merchantItems.map(item=><button key={item.id} aria-pressed={selectedMerchant?.id===item.id} className={selectedMerchant?.id===item.id?styles.merchantSelected:styles.merchantListItem} onClick={event=>{merchantReturnFocusRef.current=event.currentTarget;void loadMerchant(item.id);}}>
                         <span className={styles.merchantListTop}><strong>{item.name}</strong><em className={styles.pill+" "+merchantTone(item.status)}>{merchantLabel(item.status)}</em></span>
@@ -344,7 +359,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     </button>)}</div>{!merchantItems.length&&<p className={styles.empty}>{t.empty}</p>}
                     <AdminPagination page={merchantPage} pageCount={merchantPageCount} total={merchants.total} size={merchants.size||MERCHANT_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setMerchantPage(next);setSelectedMerchant(null);}} />
                 </section>
-                <AdminWorkspaceDrawer direction={locale==="ar"?"rtl":"ltr"} open={!!selectedMerchant} title={t.review} closeLabel={more[locale].closeReview} confirmDiscard={locale==="fr"?"Abandonner les modifications non enregistrées ?":locale==="ar"?"هل تريد تجاهل التغييرات غير المحفوظة؟":"Discard unsaved changes?"} dirty={!!(checks.some(Boolean)||merchantAction||reason.trim()||internalNote.trim())} onClose={()=>setSelectedMerchant(null)}><section className={styles.card+" "+styles.merchantDetails} data-testid="merchant-review-detail-panel">
+                <AdminWorkspaceRecordPanel direction={locale==="ar"?"rtl":"ltr"} open={!!selectedMerchant} title={t.review} closeLabel={more[locale].closeReview} confirmDiscard={locale==="fr"?"Abandonner les modifications non enregistrées ?":locale==="ar"?"هل تريد تجاهل التغييرات غير المحفوظة؟":"Discard unsaved changes?"} dirty={!!(checks.some(Boolean)||merchantAction||reason.trim()||internalNote.trim())} onClose={()=>{setSelectedMerchant(null);closeTab(pathname);}}><section className={styles.card+" "+styles.merchantDetails} data-testid="merchant-review-detail-panel">
                     {!selectedMerchant?<p className={styles.empty}>{t.empty}</p>:<>
                         <div className={merchantStyles.detailHead}><div><small>{t.application} KLH-M-{selectedMerchant.id.slice(0,4).toUpperCase()}</small><h2>{selectedMerchant.name}</h2></div><span className={styles.pill+" "+merchantTone(selectedMerchant.status)}>{merchantLabel(selectedMerchant.status)}</span></div>
                         <div className={styles.merchantStepper} aria-label={t.application}>
@@ -369,7 +384,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             </section>
                             <section className={styles.merchantModalSection}>
                                 <h3>{t.checklist}</h3>
-                                <div className={styles.checkList}>{[t.locationChecked,t.phoneChecked,t.docsChecked].map((label,i)=><label key={label}><input type="checkbox" checked={checks[i]} onChange={e=>setChecks(current=>current.map((value,index)=>index===i?e.target.checked:value))}/>{label}</label>)}</div>
+                                <div className={styles.checkList}>{[t.locationChecked,t.phoneChecked,t.docsChecked].map((label,i)=><label key={label}><input type="checkbox" checked={checks[i]} onChange={e=>setChecks(checks.map((value,index)=>index===i?e.target.checked:value) as [boolean,boolean,boolean])}/>{label}</label>)}</div>
                             </section>
                             <section className={styles.merchantDecision+ " "+styles.merchantModalDecision} data-testid="merchant-review-decision">
                                 <h3>{t.decision}</h3>
@@ -389,11 +404,11 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             <p className={styles.merchantActionHint} id="merchant-decision-hint">{merchantAction==="approve"&&checks.some(value=>!value)?t.approveDisabledHint:!merchantAction||!reason.trim()?t.decisionDisabledHint:""}</p>
                             <button className={styles.primary+" "+merchantStyles.primary} aria-describedby="merchant-decision-hint" disabled={working||!merchantAction||!reason.trim()||(merchantAction==="approve"&&checks.some(value=>!value))} onClick={()=>void submitMerchant()}>{working?t.loading:t.save}</button>
                         </footer>
-                    </>}</section></AdminWorkspaceDrawer></div>
+                    </>}</section></AdminWorkspaceRecordPanel></div>
             
         </>}
         {page==="offer-moderation"&&offers&&<>
-            <div className={styles.offerWorkspace+(selectedOffer?" "+offerStyles.drawerOpen:"")} data-testid="offer-workspace">
+            <div className={styles.offerWorkspace+(selectedOffer?" "+offerStyles.recordOpen:"")} data-testid="offer-workspace">
                 <section className={styles.offerPicker} aria-label={t.offersTitle} data-testid="offer-picker">
                     <div className={styles.tabs+" "+offerStyles.tabs} role="tablist" aria-label={t.filter}>
                         {[
@@ -404,7 +419,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         ].map(tab=><button key={tab.value||"all"} type="button" role="tab" aria-selected={offerStatus===tab.value} className={offerStatus===tab.value?styles.activeTab+" "+offerStyles.activeTab:styles.tab+" "+offerStyles.tab} onClick={()=>{setOfferStatus(tab.value);setOfferPage(0);setSelectedOffer(null);setReason("");}}>{tab.label} · {tab.count}</button>)}
                     </div>
                     <div className={styles.offerQueue} data-testid="offer-queue">
-                        {offerItems.map(item=>{const d=discount(item);return <button type="button" key={item.id} aria-pressed={selectedOffer?.id===item.id} className={selectedOffer?.id===item.id?styles.offerItemSelected:styles.offerItem} onClick={event=>{offerReturnFocusRef.current=event.currentTarget;setSelectedOffer(item);window.requestAnimationFrame(()=>document.querySelector<HTMLButtonElement>('[data-testid="workspace-drawer"] button[aria-label]')?.focus());setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");}}>
+                        {offerItems.map(item=>{const d=discount(item);return <button type="button" key={item.id} aria-pressed={selectedOffer?.id===item.id} className={selectedOffer?.id===item.id?styles.offerItemSelected:styles.offerItem} onClick={event=>{offerReturnFocusRef.current=event.currentTarget;setDraft(queuePathname+"/"+encodeURIComponent(item.id),"selectedOfferRecord",item);openRecord(item.id,item.title,{page:offerPage,filter:offerStatus});setSelectedOffer(item);setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");}}>
                             <span className={styles.offerThumb}>{item.imageUrl?<OfferImage src={item.imageUrl} alt="" lazy/>:<ImageIcon size={20} aria-hidden="true"/>}</span>
                             <span className={styles.offerCopy}><strong>{item.title}</strong><small>{item.shopName} · {item.city}</small><span className={styles.offerTags}>
                                 {item.reportedCount>0&&<em className={styles.reportTag}>{item.reportedCount} {item.reportedCount===1?t.report:t.reportsN}</em>}
@@ -417,7 +432,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     {!offerItems.length&&<p className={styles.empty}>{t.empty}</p>}
                     <div className={styles.offerPagination} data-testid="offer-pagination"><AdminPagination page={offerPage} pageCount={offerPageCount} total={offers.total} size={offers.size||OFFER_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setOfferPage(next);setSelectedOffer(null);}} /></div>
                 </section>
-                <AdminWorkspaceDrawer direction={locale==="ar"?"rtl":"ltr"} rtlSide="left" modalBreakpoint={1399} open={!!selectedOffer} title={t.selectedOffer} closeLabel={more[locale].closeReview} confirmDiscard={locale==="fr"?"Abandonner le motif non enregistré ?":locale==="ar"?"هل تريد تجاهل السبب غير المحفوظ؟":"Discard the unsaved reason?"} dirty={!!reason.trim()} onClose={()=>setSelectedOffer(null)}><section className={styles.offerPreviewCard} aria-label={t.selectedOffer} data-testid="offer-detail-panel">
+                <AdminWorkspaceRecordPanel direction={locale==="ar"?"rtl":"ltr"} open={!!selectedOffer} title={t.selectedOffer} closeLabel={more[locale].closeReview} confirmDiscard={locale==="fr"?"Abandonner le motif non enregistré ?":locale==="ar"?"هل تريد تجاهل السبب غير المحفوظ؟":"Discard the unsaved reason?"} dirty={!!reason.trim()} onClose={()=>{setSelectedOffer(null);closeTab(pathname);}}><section className={styles.offerPreviewCard} aria-label={t.selectedOffer} data-testid="offer-detail-panel">
                     {!selectedOffer?<div className={styles.offerEmpty}><Tag size={28} aria-hidden="true"/><strong>{t.selectedOffer}</strong><span>{t.empty}</span></div>:<>
                         <div className={styles.offerPreviewScroll} data-testid="offer-preview-scroll">
                             <div className={styles.offerPreviewHeading}>
@@ -470,7 +485,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                 <button className={styles.primary+" "+offerStyles.primary} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{working?t.loading:(locale==="fr"?"Confirmer":locale==="ar"?"تأكيد":"Confirm")+" · "+(offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide)}</button>
                             </footer>
                         </div>
-                    </>}</section></AdminWorkspaceDrawer></div>
+                    </>}</section></AdminWorkspaceRecordPanel></div>
             
         </>}
 
@@ -478,15 +493,15 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
             <div className={styles.tabs} role="tablist" aria-label={t.casesTitle}>
                 {([["OPEN",t.open,caseCounts.open],["ESCALATED",t.escalated,caseCounts.escalated],["WAITING_REPLY",t.waiting,caseCounts.waiting],["RESOLVED",t.resolved,caseCounts.resolved]] as const).map(([value,label,count])=><button key={value} role="tab" aria-selected={caseStatus===value} className={caseStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setCaseStatus(value);setCasePage(0);setSelectedCase(null);setReason("");})}>{label}{typeof count==="number"?" · "+count:""}</button>)}
             </div>
-            <div className={styles.supportWorkspace+(selectedCase?" "+supportStyles.drawerOpen:"")} data-testid="support-workspace">
+            <div className={styles.supportWorkspace+(selectedCase?" "+supportStyles.recordOpen:"")} data-testid="support-workspace">
                 <section className={styles.casePicker} aria-label={t.casesTitle} data-testid="support-case-queue">
-                    <div className={styles.caseList} data-testid="support-case-list">{caseItems.map(item=><button key={item.reference} data-testid="support-case-row" aria-pressed={selectedCase?.summary.reference===item.reference} className={selectedCase?.summary.reference===item.reference?styles.caseSelected:styles.caseItem} onClick={event=>{caseReturnFocusRef.current=event.currentTarget;void loadCase(item.reference);}}>
+                    <div className={styles.caseList} data-testid="support-case-list">{caseItems.map(item=><button key={item.reference} data-testid="support-case-row" aria-pressed={selectedCase?.summary.reference===item.reference} className={selectedCase?.summary.reference===item.reference?styles.caseSelected:styles.caseItem} onClick={event=>{caseReturnFocusRef.current=event.currentTarget;openRecord(item.reference,(locale==="fr"?"Dossier · ":locale==="ar"?"حالة · ":"Case · ")+item.reference,{page:casePage,status:caseStatus});}}>
                         <span className={styles.caseListTop}><small>{item.reference} · {item.category}</small><em className={styles.pill+" "+priorityTone(item.priority)}>{priorityLabel(item.priority)}</em></span>
                         <strong>{item.subject}</strong><small>{item.reservationReference?item.reservationReference+" · ":""}{item.merchantName||t.shop}</small>
                     </button>)}</div>{!caseItems.length&&<p className={styles.empty}>{t.empty}</p>}
                     <AdminPagination page={casePage} pageCount={casePageCount} total={cases.total} size={cases.size||CASE_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setCasePage(next);setSelectedCase(null);}} />
                 </section>
-                <AdminWorkspaceDrawer direction={locale==="ar"?"rtl":"ltr"} rtlSide="left" modalBreakpoint={1399} open={!!selectedCase} title={t.selectedRecord} closeLabel={more[locale].closeReview} confirmDiscard={locale==="fr"?"Abandonner le message ou le motif non enregistré ?":locale==="ar"?"هل تريد تجاهل الرسالة أو السبب غير المحفوظ؟":"Discard the unsent message or reason?"} dirty={!!(draftMessage.trim()||reason.trim()||disclosureReason.trim())} onClose={()=>setSelectedCase(null)}><section className={styles.caseDetail} data-testid="support-case-detail">
+                <AdminWorkspaceRecordPanel direction={locale==="ar"?"rtl":"ltr"} open={!!selectedCase} title={t.selectedRecord} closeLabel={more[locale].closeReview} confirmDiscard={locale==="fr"?"Abandonner le message ou le motif non enregistré ?":locale==="ar"?"هل تريد تجاهل الرسالة أو السبب غير المحفوظ؟":"Discard the unsent message or reason?"} dirty={!!(draftMessage.trim()||reason.trim()||disclosureReason.trim())} onClose={()=>{setSelectedCase(null);closeTab(pathname);}}><section className={styles.caseDetail} data-testid="support-case-detail">
                     {!selectedCase?<p className={styles.empty}>{t.empty}</p>:<>
                         <div className={supportStyles.detailHead}><div><small>{t.record} {selectedCase.summary.reference} · {selectedCase.summary.category}</small><h2>{selectedCase.summary.subject}</h2></div><span className={styles.pill+" "+priorityTone(selectedCase.summary.priority)}>{priorityLabel(selectedCase.summary.priority)}</span></div>
                         <div className={styles.caseHistory} data-testid="support-case-history">
@@ -536,7 +551,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             </div>
                             <p className={styles.hint}><ShieldCheck size={13} aria-hidden="true"/>{t.actionNote}</p>
                         </section>
-                    </>}</section></AdminWorkspaceDrawer></div>
+                    </>}</section></AdminWorkspaceRecordPanel></div>
         </>}
         {page==="audit-log"&&audit&&<>
             <section className={styles.auditFilters} aria-label={t.filter}>
@@ -575,7 +590,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                 <section className={styles.auditTableCard} data-testid="audit-table-card">
                     <div className={styles.table} data-testid="audit-table-wrapper">
                         <table><thead><tr><th>{t.when.toUpperCase()}</th><th>{t.person.toUpperCase()}</th><th>{t.action.toUpperCase()}</th><th>{t.record.toUpperCase()}</th><th>{t.result.toUpperCase()}</th></tr></thead>
-                            <tbody>{auditItems.map(item=><tr key={item.id} data-testid="audit-record-row" tabIndex={0} aria-label={`${auditActionLabel(item.action,locale)} · ${auditActorLabel(item,locale)}`} aria-pressed={selectedAuditId===item.id} className={selectedAuditId===item.id?styles.auditSelectedRow:""} onClick={event=>{auditReturnFocusRef.current=event.currentTarget;setSelectedAuditId(item.id);setAuditModalOpen(true);}} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();auditReturnFocusRef.current=event.currentTarget;setSelectedAuditId(item.id);setAuditModalOpen(true);}}}>
+                            <tbody>{auditItems.map(item=><tr key={item.id} data-testid="audit-record-row" tabIndex={0} aria-label={`${auditActionLabel(item.action,locale)} · ${auditActorLabel(item,locale)}`} aria-pressed={selectedAuditId===item.id} className={selectedAuditId===item.id?styles.auditSelectedRow:""} onClick={event=>{auditReturnFocusRef.current=event.currentTarget;setDraft(queuePathname+"/"+encodeURIComponent(item.id),"selectedAuditRecord",item);openRecord(item.id,(locale==="fr"?"Audit · ":locale==="ar"?"تدقيق · ":"Audit · ")+item.action,{page:auditPage,size:auditPageSize,from:auditFrom,to:auditTo,action:auditAction,result:auditResult});setSelectedAuditId(item.id);setAuditModalOpen(true);}} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();auditReturnFocusRef.current=event.currentTarget;setDraft(queuePathname+"/"+encodeURIComponent(item.id),"selectedAuditRecord",item);openRecord(item.id,(locale==="fr"?"Audit · ":locale==="ar"?"تدقيق · ":"Audit · ")+item.action,{page:auditPage,size:auditPageSize,from:auditFrom,to:auditTo,action:auditAction,result:auditResult});setSelectedAuditId(item.id);setAuditModalOpen(true);}}}>
                                 <td data-label={t.when}>{shortDateTime(item.createdAt,locale)}</td>
                                 <td data-label={t.person}><strong>{auditActorLabel(item,locale)}</strong></td>
                                 <td data-label={t.action}><strong>{auditActionLabel(item.action,locale)}</strong><small>{item.reason||"—"}</small></td>
@@ -590,8 +605,8 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         <AdminPagination page={auditPage} pageCount={auditPageCount} total={audit.total} size={audit.size||auditPageSize} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setAuditPage(next);setAuditModalOpen(false);setSelectedAuditId(null);}} />
                     </div>
                 </section>
-            {auditModalOpen&&selectedAudit&&<div className={styles.auditDrawerBackdrop} data-testid="audit-drawer-backdrop" onMouseDown={event=>{if(event.target===event.currentTarget)closeAuditDrawer();}}>
-                <aside ref={auditDrawerRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="audit-record-title" className={styles.auditDrawer} data-testid="audit-record-detail">
+            {auditModalOpen&&selectedAudit&&<section className={styles.auditRecordPanelWrap} data-testid="audit-record-panel">
+                <article ref={auditDrawerRef} tabIndex={-1} aria-labelledby="audit-record-title" className={styles.auditRecordPanel} data-testid="audit-record-detail">
                     <header className={styles.auditRecordHeader} data-testid="audit-record-header">
                         <div><small>{auditUi.eventDetails}</small><h2 id="audit-record-title">{auditActionLabel(selectedAudit.action,locale)}</h2><code>{selectedAudit.action}</code></div>
                         {resultPill(selectedAudit.result)}
@@ -617,8 +632,8 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         </dl>
                     </section>
                     <p className={styles.auditRecordNotice}><Lock size={14} aria-hidden="true"/>{auditUi.immutableNotice}</p>
-                </aside>
-            </div>}
+                </article>
+            </section>}
             </section>
         </>}
 

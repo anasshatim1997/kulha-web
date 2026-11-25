@@ -1,0 +1,9 @@
+.panel{display:grid;grid-template-rows:auto minmax(0,1fr);min-width:0;max-width:100%;border:1px solid #e7e0d2;border-radius:16px;background:#fffdf8;box-shadow:0 8px 24px rgb(42 56 42 / 5%)}
+.header{display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0;padding:16px 20px;border-bottom:1px solid #e7e0d2}
+.header h2{margin:0;color:#073324;font-size:18px;font-weight:800;overflow-wrap:anywhere}
+.close{display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;border:1px solid #e7e0d2;border-radius:50%;background:#fff;color:#073324;font-size:25px;line-height:1;cursor:pointer}
+.close:hover{background:#f7f5ee}
+.close:focus-visible{outline:3px solid #e5a900;outline-offset:2px}
+.content{min-width:0;width:100%;box-sizing:border-box;padding:20px}
+.content>section{box-shadow:none}
+@media(max-width:760px){.panel{border-radius:13px}.header{padding:14px 16px}.content{padding:14px}}

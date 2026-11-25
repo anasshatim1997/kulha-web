@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - develop
+      - feat/admin-workspace-tabs
   pull_request:
     branches:
       - main
