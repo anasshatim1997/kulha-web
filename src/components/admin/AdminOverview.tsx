@@ -362,7 +362,7 @@ export function AdminOverview({ locale }: { locale: SiteLocale }) {
   const showPartial = loadState === "partial";
 
   return (
-    <div className={styles.overview} dir={locale === "ar" ? "rtl" : "ltr"}>
+    <div className={styles.overview} data-testid="admin-overview" dir={locale === "ar" ? "rtl" : "ltr"}>
       <section className={styles.hero} aria-labelledby="admin-overview-title">
         <div className={styles.heroGlow} aria-hidden="true" />
         <div className={styles.heroContent}>
@@ -395,7 +395,7 @@ export function AdminOverview({ locale }: { locale: SiteLocale }) {
         </div>
       )}
 
-      <section className={styles.metrics} aria-label={t.eyebrow}>
+      <section className={styles.metrics} data-testid="admin-overview-metrics" aria-label={t.eyebrow}>
         <article className={styles.metricCard}>
           <div className={styles.metricTop}>
             <span className={styles.metricIcon + " " + styles.metricGold}><Store size={18} /></span>
@@ -531,7 +531,7 @@ export function AdminOverview({ locale }: { locale: SiteLocale }) {
             </div>
           </article>
 
-          <article className={styles.documentCard}>
+          <article className={styles.documentCard} data-testid="admin-overview-document-warning">
             <div className={styles.documentTop}>
               <span className={styles.documentIcon}><ShieldCheck size={19} aria-hidden="true" /></span>
               <span className={styles.documentStatus}>{t.documentsStatus}</span>
