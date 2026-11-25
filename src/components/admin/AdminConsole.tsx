@@ -199,7 +199,7 @@ type OfferAction="suspend"|"request-edit"|"reinstate";
 export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const t={...words[locale],...more[locale]};const {state}=useSession();const actorId=state.status==="authenticated"?state.user.id:"";const roles=state.status==="authenticated"?state.user.roles:[];const isSupportOnly=roles.includes("SUPPORT")&&!roles.includes("ADMIN")&&!roles.includes("SUPER_ADMIN");
     const [loading,setLoading]=useState(true);const [failed,setFailed]=useState(false);const [reload,setReload]=useState(0);const [message,setMessage]=useState("");const [query,setQuery]=useState("");
-    const [merchants,setMerchants]=useState<Page<Merchant>|null>(null);const [merchantStatus,setMerchantStatus]=useState("PENDING");const [merchantPage,setMerchantPage]=useState(0);const [selectedMerchant,setSelectedMerchant]=useState<Merchant|null>(null);const [merchantAction,setMerchantAction]=useState<MerchantAction|null>(null);const [checks,setChecks]=useState([false,false,false]);const [tabCounts,setTabCounts]=useState<{pending:number|null;info:number|null}>({pending:null,info:null});
+    const [merchants,setMerchants]=useState<Page<Merchant>|null>(null);const [merchantStatus,setMerchantStatus]=useState("PENDING");const [merchantPage,setMerchantPage]=useState(0);const [selectedMerchant,setSelectedMerchant]=useState<Merchant|null>(null);const [merchantAction,setMerchantAction]=useState<MerchantAction|null>(null);const [merchantDecisionOpen,setMerchantDecisionOpen]=useState(false);const [checks,setChecks]=useState([false,false,false]);const [tabCounts,setTabCounts]=useState<{pending:number|null;info:number|null}>({pending:null,info:null});
     const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useState("");const [offerPage,setOfferPage]=useState(0);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");
     const [cases,setCases]=useState<Page<CaseItem>|null>(null);const [caseStatus,setCaseStatus]=useState("OPEN");const [casePage,setCasePage]=useState(0);const [selectedCase,setSelectedCase]=useState<{summary:CaseItem;timeline:Timeline[]}|null>(null);const [caseCounts,setCaseCounts]=useState<{open:number|null;escalated:number|null;waiting:number|null;resolved:number|null}>({open:null,escalated:null,waiting:null,resolved:null});
     const [audit,setAudit]=useState<AuditPage|null>(null);const [auditPage,setAuditPage]=useState(0);const [auditPageSize,setAuditPageSize]=useState(AUDIT_PAGE_SIZE);const [selectedAuditId,setSelectedAuditId]=useState<string|null>(null);const [auditModalOpen,setAuditModalOpen]=useState(false);const [auditSearch,setAuditSearch]=useState("");const [auditFrom,setAuditFrom]=useState("");const [auditTo,setAuditTo]=useState("");const [auditAction,setAuditAction]=useState("");const [auditResult,setAuditResult]=useState("");
@@ -209,7 +209,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
 
     useEffect(()=>{let active=true;
         const load=async()=>{try{
-            if(page==="merchant-review"){const data=await api.get<Page<Merchant>>("/admin/merchants?status="+merchantStatus+"&page="+merchantPage+"&size="+MERCHANT_PAGE_SIZE);if(active){setMerchants(data);setFailed(false);setSelectedMerchant(data.items[0]??null);setMerchantAction(null);setChecks([false,false]);setReason("");setInternalNote("");}
+            if(page==="merchant-review"){const data=await api.get<Page<Merchant>>("/admin/merchants?status="+merchantStatus+"&page="+merchantPage+"&size="+MERCHANT_PAGE_SIZE);if(active){setMerchants(data);setFailed(false);setSelectedMerchant(data.items[0]??null);setMerchantAction(null);setMerchantDecisionOpen(false);setChecks([false,false]);setReason("");setInternalNote("");}
                 const [p,i]=await Promise.allSettled([api.get<Page<Merchant>>("/admin/merchants?status=PENDING&page=0&size=1"),api.get<Page<Merchant>>("/admin/merchants?status=INFO_REQUIRED&page=0&size=1")]);
                 if(active)setTabCounts({pending:p.status==="fulfilled"?p.value.total:null,info:i.status==="fulfilled"?i.value.total:null});}
             if(page==="offer-moderation"){const data=await api.get<Page<Offer>>(`/admin/offers?page=${offerPage}&size=${OFFER_PAGE_SIZE}`);if(active){const lastPage=Math.max(0,Math.ceil(data.total/Math.max(1,data.size))-1);if(offerPage>lastPage){setOfferPage(lastPage);return;}setOffers(data);setFailed(false);setSelectedOffer(data.items[0]??null);setOfferAction(data.items[0]?.status==="SUSPENDED"?"reinstate":"suspend");}}
@@ -331,41 +331,58 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                 <div><dt>{t.submitted}</dt><dd>{dateTime(selectedMerchant.createdAt,locale)}</dd></div>
                             </dl>
                         </section>
-                        <div className={styles.merchantInlineBody} data-testid="merchant-review-workflow">
-                            <div className={styles.merchantModalColumn}>
-                                <section className={styles.merchantModalSection}>
-                                    <h3>{t.documents}</h3>
-                                    <div className={styles.missingDocs}><FileText size={18} aria-hidden="true"/><span><strong>{t.noDocumentsTitle}</strong><small>{t.noDocumentsBody}</small></span></div>
-                                </section>
-                            </div>
-                            <div className={styles.merchantModalColumn}>
-                                <section className={styles.merchantModalSection}>
-                                    <h3>{t.checklist}</h3>
-                                    <div className={styles.checkList}>{[t.locationChecked,t.phoneChecked].map((label,i)=><label key={label}><input type="checkbox" checked={checks[i]} onChange={e=>setChecks(current=>current.map((value,index)=>index===i?e.target.checked:value))}/>{label}</label>)}</div>
-                                    <p className={styles.approveNote}>{t.approveUnlocks}</p>
-                                </section>
-                                <section className={styles.merchantDecision+" "+styles.merchantModalDecision} data-testid="merchant-review-decision">
-                                    <h3>{t.decision}</h3>
-                                    <div className={styles.segment} role="group" aria-label={t.decision}>
-                                        <button type="button" aria-pressed={merchantAction==="approve"} className={styles.segApprove+" "+(merchantAction==="approve"?styles.segOn:"")} disabled={working||!MERCHANT_DOCUMENT_REVIEW_ENABLED||checks.some(value=>!value)} onClick={()=>setMerchantAction("approve")}>{t.approve}</button>
-                                        <button type="button" aria-pressed={merchantAction==="request-information"} className={styles.segInfo+" "+(merchantAction==="request-information"?styles.segOn:"")} onClick={()=>setMerchantAction("request-information")}>{t.requestInfo}</button>
-                                        <button type="button" aria-pressed={merchantAction==="reject"} className={styles.segReject+" "+(merchantAction==="reject"?styles.segOn:"")} onClick={()=>setMerchantAction("reject")}>{t.reject}</button>
-                                    </div>
-                                    <div className={styles.merchantDecisionFields}>
-                                        <label className={styles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
-                                        <label className={styles.field}><span>{t.internalNote} · {t.optional}</span><textarea rows={3} value={internalNote} onChange={e=>setInternalNote(e.target.value)} placeholder={t.optional}/></label>
-                                    </div>
-                                </section>
-                            </div>
+                        <div className={styles.merchantReadWorkspace} data-testid="merchant-review-workflow">
+                            <section className={styles.merchantReadSection}>
+                                <h3>{t.documents}</h3>
+                                <div className={styles.missingDocs}><FileText size={20} aria-hidden="true"/><span><strong>{t.noDocumentsTitle}</strong><small>{t.noDocumentsBody}</small></span></div>
+                            </section>
+                            <section className={styles.merchantReadSection}>
+                                <h3>{t.checklist}</h3>
+                                <ul className={styles.merchantReadChecks}>
+                                    <li><span aria-hidden="true">○</span>{t.locationChecked}</li>
+                                    <li><span aria-hidden="true">○</span>{t.phoneChecked}</li>
+                                </ul>
+                                <p className={styles.approveNote}>{t.approveUnlocks}</p>
+                            </section>
                         </div>
-                        <footer className={styles.merchantInlineFooter} data-testid="merchant-review-footer">
-                            <p><ShieldCheck size={15} aria-hidden="true"/>{t.decisionNote}</p>
-                            <button className={styles.primary} disabled={working||!merchantAction||!reason.trim()||(merchantAction==="approve"&&(!MERCHANT_DOCUMENT_REVIEW_ENABLED||checks.some(value=>!value)))} onClick={()=>void submitMerchant()}>{working?t.loading:t.save}</button>
-                        </footer>
+                        <div className={styles.merchantReadActions}>
+                            <p><ShieldCheck size={16} aria-hidden="true"/>{t.decisionNote}</p>
+                            <button type="button" className={styles.primary} onClick={()=>{setMerchantAction(null);setReason("");setInternalNote("");setChecks([false,false]);setMerchantDecisionOpen(true);}}>{t.openReview}</button>
+                        </div>
                     </>}
                 </section>
             </div>
-            
+            {merchantDecisionOpen&&selectedMerchant&&<div className={styles.actionOverlay} role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setMerchantDecisionOpen(false);}}>
+                <section className={styles.actionDialog} role="dialog" aria-modal="true" aria-labelledby="merchant-action-title" data-testid="merchant-review-action-dialog">
+                    <header className={styles.actionDialogHeader}>
+                        <div><small>{t.decision}</small><h2 id="merchant-action-title">{selectedMerchant.name}</h2><p>{t.reviewHint}</p></div>
+                        <button type="button" className={styles.ghostBtn} onClick={()=>setMerchantDecisionOpen(false)}>{t.closeReview}</button>
+                    </header>
+                    <div className={styles.actionDialogBody}>
+                        <section className={styles.merchantModalSection}>
+                            <h3>{t.checklist}</h3>
+                            <div className={styles.checkList}>{[t.locationChecked,t.phoneChecked].map((label,i)=><label key={label}><input type="checkbox" checked={checks[i]} onChange={e=>setChecks(current=>current.map((value,index)=>index===i?e.target.checked:value))}/>{label}</label>)}</div>
+                            <p className={styles.approveNote}>{t.approveUnlocks}</p>
+                        </section>
+                        <section className={styles.merchantDecision+" "+styles.merchantModalDecision} data-testid="merchant-review-decision">
+                            <h3>{t.decision}</h3>
+                            <div className={styles.segment} role="group" aria-label={t.decision}>
+                                <button type="button" aria-pressed={merchantAction==="approve"} className={styles.segApprove+" "+(merchantAction==="approve"?styles.segOn:"")} disabled={working||!MERCHANT_DOCUMENT_REVIEW_ENABLED||checks.some(value=>!value)} onClick={()=>setMerchantAction("approve")}>{t.approve}</button>
+                                <button type="button" aria-pressed={merchantAction==="request-information"} className={styles.segInfo+" "+(merchantAction==="request-information"?styles.segOn:"")} onClick={()=>setMerchantAction("request-information")}>{t.requestInfo}</button>
+                                <button type="button" aria-pressed={merchantAction==="reject"} className={styles.segReject+" "+(merchantAction==="reject"?styles.segOn:"")} onClick={()=>setMerchantAction("reject")}>{t.reject}</button>
+                            </div>
+                            <div className={styles.merchantDecisionFields}>
+                                <label className={styles.field}><span>{t.reason}</span><textarea rows={4} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
+                                <label className={styles.field}><span>{t.internalNote} · {t.optional}</span><textarea rows={3} value={internalNote} onChange={e=>setInternalNote(e.target.value)} placeholder={t.optional}/></label>
+                            </div>
+                        </section>
+                    </div>
+                    <footer className={styles.actionDialogFooter} data-testid="merchant-review-footer">
+                        <p><ShieldCheck size={16} aria-hidden="true"/>{t.decisionNote}</p>
+                        <button type="button" className={styles.primary} disabled={working||!merchantAction||!reason.trim()||(merchantAction==="approve"&&(!MERCHANT_DOCUMENT_REVIEW_ENABLED||checks.some(value=>!value)))} onClick={()=>void submitMerchant()}>{working?t.loading:t.save}</button>
+                    </footer>
+                </section>
+            </div>}
         </>}
         {page==="offer-moderation"&&offers&&<>
             <div className={styles.offerWorkspace} data-testid="offer-workspace">
