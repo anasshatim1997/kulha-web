@@ -283,7 +283,8 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const auditPageCount=Math.max(1,Math.ceil((audit?.total??0)/Math.max(1,audit?.size??AUDIT_PAGE_SIZE)));
     const caseItems=cases?.items.filter(c=>match(c.subject,c.reference,c.merchantName,c.reservationReference,c.offerTitle))??[];
     const auditItems=audit?.items.filter(a=>match(a.actorName,a.actorUserId,a.action,a.targetType,a.targetId,a.reason,a.correlationId))??[];
-    const selectedAudit=auditItems.find(item=>item.id===selectedAuditId)??null;\n    const selectedOfferIndex=selectedOffer?offerItems.findIndex(item=>item.id===selectedOffer.id):-1;
+    const selectedAudit=auditItems.find(item=>item.id===selectedAuditId)??null;
+    const selectedOfferIndex=selectedOffer?offerItems.findIndex(item=>item.id===selectedOffer.id):-1;
     const auditUi=auditText[locale];
     const resultLabel=(r:string)=>r==="SUCCESS"?t.success:r==="DENIED"?t.denied:r==="FAILED"?auditUi.failed:r;
     const resultTone=(r:string)=>r==="SUCCESS"?styles.toneOk:r==="DENIED"||r==="FAILED"?styles.toneBad:styles.toneMuted;
