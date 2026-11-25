@@ -381,7 +381,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
             </div>}
         </>}
         {page==="offer-moderation"&&offers&&<>
-            <section className={styles.offerTableCard} data-testid="offer-workspace">
+            <section className={redesign.offerTableCard} data-testid="offer-workspace">
                 <div className={styles.tabs} role="tablist" aria-label={t.filter}>
                     {[
                         {value:"NEEDS_REVIEW",label:t.needsReview,count:needsReviewCount},
@@ -391,15 +391,15 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         {value:"",label:t.all,count:offers.total},
                     ].map(tab=><button key={tab.value||"all"} type="button" role="tab" aria-selected={offerStatus===tab.value} className={offerStatus===tab.value?styles.activeTab:styles.tab} onClick={()=>{setOfferStatus(tab.value);setOfferPage(0);setSelectedOffer(null);setOfferDecisionOpen(false);setReason("");}}>{tab.label} · {tab.count}</button>)}
                 </div>
-                <div className={styles.offerTableWrap}>
-                    <table className={styles.offerTable}>
+                <div className={redesign.offerTableWrap}>
+                    <table className={redesign.offerTable}>
                         <thead><tr><th>{t.offer}</th><th>{t.reports}</th><th>{t.price}</th><th>{t.stock}</th><th>{t.pickup}</th><th aria-label={t.review}/></tr></thead>
                         <tbody>{offerItems.map(item=><tr key={item.id} data-testid="offer-row">
-                            <td><div className={styles.offerTableIdentity}>
-                                <span className={styles.offerTableThumb}>{item.imageUrl?<OfferImage src={item.imageUrl} alt="" lazy/>:<ImageIcon size={20}/>}</span>
+                            <td><div className={redesign.offerTableIdentity}>
+                                <span className={redesign.offerTableThumb}>{item.imageUrl?<OfferImage src={item.imageUrl} alt="" lazy/>:<ImageIcon size={20}/>}</span>
                                 <span><strong>{item.title}</strong><small>{item.shopName} · {item.city}</small></span>
                             </div></td>
-                            <td><div className={styles.offerSignals}>
+                            <td><div className={redesign.offerSignals}>
                                 {item.reportedCount>0&&<em className={styles.reportTag}>{item.reportedCount} {item.reportedCount===1?t.report:t.reportsN}</em>}
                                 {item.allergensStatus==="UNKNOWN"&&<em className={styles.allergenTag}>{t.allergensUnknown}</em>}
                                 {item.status==="SUSPENDED"&&<em className={styles.hiddenTag}>{t.hiddenS}</em>}
@@ -408,12 +408,12 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             <td><strong>{amount(item.priceMinor,locale)} MAD</strong></td>
                             <td>{item.quantityReserved} / {item.quantityTotal}</td>
                             <td>{clockTime(item.pickupStart,locale)}</td>
-                            <td><button type="button" className={styles.offerReviewButton} onClick={()=>{setSelectedOffer(item);setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");setOfferDecisionOpen(true);}}>{t.review}</button></td>
+                            <td><button type="button" className={redesign.offerReviewButton} onClick={()=>{setSelectedOffer(item);setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");setOfferDecisionOpen(true);}}>{t.review}</button></td>
                         </tr>)}</tbody>
                     </table>
                 </div>
                 {!offerItems.length&&<p className={styles.empty}>{t.empty}</p>}
-                <div className={styles.offerPagination} data-testid="offer-pagination"><AdminPagination page={offerPage} pageCount={offerPageCount} total={offers.total} size={offers.size||OFFER_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setOfferPage(next);setSelectedOffer(null);setOfferDecisionOpen(false);}} /></div>
+                <div className={redesign.offerPagination} data-testid="offer-pagination"><AdminPagination page={offerPage} pageCount={offerPageCount} total={offers.total} size={offers.size||OFFER_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setOfferPage(next);setSelectedOffer(null);setOfferDecisionOpen(false);}} /></div>
             </section>
         </>}
 
@@ -421,28 +421,28 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
             <section className={styles.actionDialog} role="dialog" aria-modal="true" aria-labelledby="offer-action-title" data-testid="offer-action-dialog">
                 <header className={styles.actionDialogHeader}>
                     <div><small>{offerLabel(selectedOffer.status)} · {selectedOfferIndex+1} / {offerItems.length}</small><h2 id="offer-action-title">{selectedOffer.title}</h2><p>{selectedOffer.shopName} · {selectedOffer.city}</p></div>
-                    <div className={styles.offerDialogNav}><button type="button" aria-label="Previous offer" disabled={selectedOfferIndex<=0} onClick={()=>{const item=offerItems[selectedOfferIndex-1];if(item)setSelectedOffer(item);setReason("");setOfferAction(item?.status==="SUSPENDED"?"reinstate":"suspend");}}>‹</button><button type="button" aria-label="Next offer" disabled={selectedOfferIndex<0||selectedOfferIndex>=offerItems.length-1} onClick={()=>{const item=offerItems[selectedOfferIndex+1];if(item)setSelectedOffer(item);setReason("");setOfferAction(item?.status==="SUSPENDED"?"reinstate":"suspend");}}>›</button><button type="button" className={styles.ghostBtn} onClick={()=>setOfferDecisionOpen(false)}>{t.closeReview}</button></div>
+                    <div className={redesign.offerDialogNav}><button type="button" aria-label="Previous offer" disabled={selectedOfferIndex<=0} onClick={()=>{const item=offerItems[selectedOfferIndex-1];if(item)setSelectedOffer(item);setReason("");setOfferAction(item?.status==="SUSPENDED"?"reinstate":"suspend");}}>‹</button><button type="button" aria-label="Next offer" disabled={selectedOfferIndex<0||selectedOfferIndex>=offerItems.length-1} onClick={()=>{const item=offerItems[selectedOfferIndex+1];if(item)setSelectedOffer(item);setReason("");setOfferAction(item?.status==="SUSPENDED"?"reinstate":"suspend");}}>›</button><button type="button" className={styles.ghostBtn} onClick={()=>setOfferDecisionOpen(false)}>{t.closeReview}</button></div>
                 </header>
-                <div className={styles.actionDialogBody+" "+styles.offerDialogBody} data-testid="offer-moderation-workflow">
-                    <section className={styles.offerDialogFacts}>
-                        <div className={styles.offerDialogImage}>{selectedOffer.imageUrl?<OfferImage src={selectedOffer.imageUrl} alt={selectedOffer.title}/>:<ImageIcon size={28}/>}</div>
-                        <strong className={styles.offerDialogPrice}>{amount(selectedOffer.priceMinor,locale)} MAD</strong>
-                        {selectedOffer.originalPriceMinor&&<small className={styles.offerDialogOriginal}>{amount(selectedOffer.originalPriceMinor,locale)} MAD</small>}
-                        <div className={styles.offerSignals}>
+                <div className={styles.actionDialogBody+" "+redesign.offerDialogBody} data-testid="offer-moderation-workflow">
+                    <section className={redesign.offerDialogFacts}>
+                        <div className={redesign.offerDialogImage}>{selectedOffer.imageUrl?<OfferImage src={selectedOffer.imageUrl} alt={selectedOffer.title}/>:<ImageIcon size={28}/>}</div>
+                        <strong className={redesign.offerDialogPrice}>{amount(selectedOffer.priceMinor,locale)} MAD</strong>
+                        {selectedOffer.originalPriceMinor&&<small className={redesign.offerDialogOriginal}>{amount(selectedOffer.originalPriceMinor,locale)} MAD</small>}
+                        <div className={redesign.offerSignals}>
                             {selectedOffer.reportedCount>0&&<em className={styles.reportTag}>{selectedOffer.reportedCount} {selectedOffer.reportedCount===1?t.report:t.reportsN}</em>}
                             {selectedOffer.allergensStatus==="UNKNOWN"&&<em className={styles.allergenTag}>{t.allergensUnknown}</em>}
                         </div>
-                        <div className={styles.offerDialogStock}>{t.stock}: {selectedOffer.quantityReserved} / {selectedOffer.quantityTotal} {t.reserved}</div>
+                        <div className={redesign.offerDialogStock}>{t.stock}: {selectedOffer.quantityReserved} / {selectedOffer.quantityTotal} {t.reserved}</div>
                         {selectedOffer.allergensStatus==="UNKNOWN"&&<div className={styles.offerPreviewAlert}><AlertTriangle size={17}/><span><strong>{t.foodSafetyTitle}</strong><small>{t.foodSafetyBody}</small></span></div>}
-                        {selectedOffer.foodNotes&&<p className={styles.offerDialogNotes}>{selectedOffer.foodNotes}</p>}
+                        {selectedOffer.foodNotes&&<p className={redesign.offerDialogNotes}>{selectedOffer.foodNotes}</p>}
                     </section>
-                    <div className={styles.offerDialogDecision}>
+                    <div className={redesign.offerDialogDecision}>
                         <section className={styles.merchantDecision+" "+styles.offerModalDecision}>
                             <h3>{t.decision}</h3>
-                            <div className={styles.offerDecisionChoices}>
-                                <button type="button" data-action="suspend" aria-pressed={offerAction==="suspend"} className={offerAction==="suspend"?styles.offerChoiceDanger:styles.offerChoice} onClick={()=>setOfferAction("suspend")}><strong>{t.hide}</strong><small>{locale==="fr"?"Retirer cette offre du marketplace.":locale==="ar"?"إزالة هذا العرض من السوق الآن.":"Remove it from the marketplace now."}</small></button>
-                                <button type="button" data-action="request-edit" aria-pressed={offerAction==="request-edit"} className={offerAction==="request-edit"?styles.offerChoiceWarn:styles.offerChoice} onClick={()=>setOfferAction("request-edit")}><strong>{t.askEdit}</strong><small>{locale==="fr"?"Le commerce corrige puis soumet à nouveau.":locale==="ar"?"يقوم المتجر بالتصحيح ثم يعيد الإرسال.":"The shop fixes it and resubmits."}</small></button>
-                                <button type="button" data-action="reinstate" aria-pressed={offerAction==="reinstate"} className={offerAction==="reinstate"?styles.offerChoice:styles.offerChoiceDisabled} disabled={selectedOffer.status!=="SUSPENDED"} onClick={()=>setOfferAction("reinstate")}><strong>{t.putLive}</strong><small>{t.reinstateOnlyHidden}</small></button>
+                            <div className={redesign.offerDecisionChoices}>
+                                <button type="button" data-action="suspend" aria-pressed={offerAction==="suspend"} className={offerAction==="suspend"?redesign.offerChoiceDanger:redesign.offerChoice} onClick={()=>setOfferAction("suspend")}><strong>{t.hide}</strong><small>{locale==="fr"?"Retirer cette offre du marketplace.":locale==="ar"?"إزالة هذا العرض من السوق الآن.":"Remove it from the marketplace now."}</small></button>
+                                <button type="button" data-action="request-edit" aria-pressed={offerAction==="request-edit"} className={offerAction==="request-edit"?redesign.offerChoiceWarn:redesign.offerChoice} onClick={()=>setOfferAction("request-edit")}><strong>{t.askEdit}</strong><small>{locale==="fr"?"Le commerce corrige puis soumet à nouveau.":locale==="ar"?"يقوم المتجر بالتصحيح ثم يعيد الإرسال.":"The shop fixes it and resubmits."}</small></button>
+                                <button type="button" data-action="reinstate" aria-pressed={offerAction==="reinstate"} className={offerAction==="reinstate"?redesign.offerChoice:redesign.offerChoiceDisabled} disabled={selectedOffer.status!=="SUSPENDED"} onClick={()=>setOfferAction("reinstate")}><strong>{t.putLive}</strong><small>{t.reinstateOnlyHidden}</small></button>
                             </div>
                             <div className={styles.reasonChips}>{[t.reasonMisleading,t.reasonAllergens,t.reasonPhoto,t.reasonOther].map(label=><button key={label} type="button" className={reason.startsWith(label)?styles.reasonChipActive:styles.reasonChip} onClick={()=>setReason(label+": ")}>{label}</button>)}</div>
                         </section>
