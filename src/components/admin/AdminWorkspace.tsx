@@ -18,7 +18,6 @@ type WorkspaceContextValue = {
   setDraft: (tabId: string, key: string, value: unknown) => void;
   clearDraft: (tabId: string, key?: string) => void;
 };
-
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
 
 function routeTab(href: string, locale: SiteLocale, title?: string): AdminWorkspaceTab | null {
@@ -29,11 +28,11 @@ function routeTab(href: string, locale: SiteLocale, title?: string): AdminWorksp
 
 export function useAdminWorkspace() {
   const value = useContext(WorkspaceContext);
-  if (!value) throw new Error("useAdminWorkspace must be used inside AdminWorkspace");
+  if (!value) throw new Error("useAdminWorkspace must be used inside AdminWorkspaceProvider");
   return value;
 }
 
-export function AdminWorkspace({ page, locale, children }: { page: string; locale: SiteLocale; children: ReactNode }) {
+export function AdminWorkspaceProvider({ locale, children }: { locale: SiteLocale; children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { state: session } = useSession();
@@ -109,6 +108,11 @@ export function AdminWorkspace({ page, locale, children }: { page: string; local
   }, []);
 
   const value = useMemo(() => ({ state: visibleState, openTab, closeTab, setDraft, clearDraft }), [visibleState, openTab, closeTab, setDraft, clearDraft]);
+  return <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>;
+}
+
+export function AdminWorkspaceTabs({ page, locale, children }: { page: string; locale: SiteLocale; children: ReactNode }) {
+  const { state, openTab, closeTab } = useAdminWorkspace();
   const labels = locale === "fr"
     ? { close: "Fermer l’onglet", workspace: "Espace de travail" }
     : locale === "ar"
@@ -116,30 +120,28 @@ export function AdminWorkspace({ page, locale, children }: { page: string; local
       : { close: "Close tab", workspace: "Workspace" };
 
   return (
-    <WorkspaceContext.Provider value={value}>
-      <div className={styles.workspace} data-admin-workspace={page}>
-        {visibleState.tabs.length > 0 && (
-          <nav className={styles.tabBar} aria-label={labels.workspace} role="tablist">
-            {visibleState.tabs.map(tab => (
-              <div className={styles.tabItem} key={tab.id}>
-                <button type="button" role="tab" aria-selected={visibleState.activeTabId === tab.id}
-                  aria-controls="admin-workspace-panel"
-                  className={visibleState.activeTabId === tab.id ? styles.activeTab : styles.tab}
-                  onClick={() => openTab(tab.href)}>
-                  <span>{tab.title}</span>
-                </button>
-                {visibleState.tabs.length > 1 && (
-                  <button type="button" className={styles.closeTab} aria-label={labels.close + ": " + tab.title}
-                    onClick={() => closeTab(tab.id)}>×</button>
-                )}
-              </div>
-            ))}
-          </nav>
-        )}
-        <div id="admin-workspace-panel" role={visibleState.tabs.length ? "tabpanel" : undefined} tabIndex={visibleState.tabs.length ? 0 : undefined}>
-          {children}
-        </div>
+    <div className={styles.workspace} data-admin-workspace={page}>
+      {state.tabs.length > 0 && (
+        <nav className={styles.tabBar} aria-label={labels.workspace} role="tablist">
+          {state.tabs.map(tab => (
+            <div className={styles.tabItem} key={tab.id}>
+              <button type="button" role="tab" aria-selected={state.activeTabId === tab.id}
+                aria-controls="admin-workspace-panel"
+                className={state.activeTabId === tab.id ? styles.activeTab : styles.tab}
+                onClick={() => openTab(tab.href)}>
+                <span>{tab.title}</span>
+              </button>
+              {state.tabs.length > 1 && (
+                <button type="button" className={styles.closeTab} aria-label={labels.close + ": " + tab.title}
+                  onClick={() => closeTab(tab.id)}>×</button>
+              )}
+            </div>
+          ))}
+        </nav>
+      )}
+      <div id="admin-workspace-panel" role={state.tabs.length ? "tabpanel" : undefined} tabIndex={state.tabs.length ? 0 : undefined}>
+        {children}
       </div>
-    </WorkspaceContext.Provider>
+    </div>
   );
 }
