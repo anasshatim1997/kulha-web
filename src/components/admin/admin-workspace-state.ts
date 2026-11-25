@@ -16,7 +16,7 @@ export type AdminWorkspaceState = {
   // Runtime drafts may contain sensitive form values; the persistence boundary is explicitly allowlisted below.
   drafts: Record<string, Record<string, unknown>>;
 };
-export type SafeAdminWorkspaceDraft = Partial<{
+export type SafeAdminWorkspaceDraft = {
   merchantAction: "approve" | "request-information" | "reject" | null;
   merchantChecks: [boolean, boolean, boolean];
   offerAction: "suspend" | "request-edit" | "reinstate";
@@ -32,12 +32,12 @@ export type SafeAdminWorkspaceDraft = Partial<{
   auditAction: string;
   auditResult: "" | "SUCCESS" | "DENIED" | "FAILED";
   auditPageSize: 10 | 20 | 50;
-}>;
+};
 export type PersistedAdminWorkspace = {
   version: typeof ADMIN_WORKSPACE_STORAGE_VERSION;
   tabs: AdminWorkspaceTab[];
   activeTabId: string | null;
-  drafts: Record<string, SafeAdminWorkspaceDraft>;
+  drafts: Record<string, Partial<SafeAdminWorkspaceDraft>>;
 };
 
 export const emptyAdminWorkspaceState: AdminWorkspaceState = { tabs: [], activeTabId: null, drafts: {} };
@@ -120,14 +120,14 @@ const safeDraftValidators: Record<string, (value: unknown) => boolean> = {
   auditPageSize: value => value === 10 || value === 20 || value === 50,
 };
 
-export function sanitizeWorkspaceDraft(value: unknown): SafeAdminWorkspaceDraft {
+export function sanitizeWorkspaceDraft(value: unknown): Partial<SafeAdminWorkspaceDraft> {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
   const safe: Record<string, unknown> = {};
   for (const [key, item] of Object.entries(value)) {
     const validate = safeDraftValidators[key];
     if (validate?.(item)) safe[key] = Array.isArray(item) ? [...item] : item;
   }
-  return safe as SafeAdminWorkspaceDraft;
+  return safe as Partial<SafeAdminWorkspaceDraft>;
 }
 
 function safeWorkspaceHref(href: string): string {
@@ -166,7 +166,7 @@ function safeStoredTab(tab: AdminWorkspaceTab): AdminWorkspaceTab {
 export function persistableWorkspace(state: AdminWorkspaceState): PersistedAdminWorkspace {
   const validTabs = state.tabs.filter(tab => pageFromPath(tab.id) === tab.page);
   const tabIds = new Set(validTabs.map(tab => tab.id));
-  const drafts: Record<string, SafeAdminWorkspaceDraft> = {};
+  const drafts: Record<string, Partial<SafeAdminWorkspaceDraft>> = {};
   for (const [tabId, draft] of Object.entries(state.drafts)) {
     if (!tabIds.has(tabId)) continue;
     const safe = sanitizeWorkspaceDraft(draft);

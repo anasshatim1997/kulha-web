@@ -22,7 +22,8 @@ export default async function AdminAuditRecordPage({
   const initialPage = Math.max(0, Number.isFinite(Number(query.page)) ? Math.min(10000, Math.floor(Number(query.page))) : 0);
   const parsedSize = Number(query.size);
   const initialAuditPageSize = ([10, 20, 50] as const).includes(parsedSize as 10 | 20 | 50) ? parsedSize as 10 | 20 | 50 : 10;
-  const initialAuditResult = results.includes(query.result as (typeof results)[number]) ? query.result! : "";
+  const initialAuditResult: "" | "SUCCESS" | "DENIED" | "FAILED" =
+    results.includes(query.result as (typeof results)[number]) ? query.result as "SUCCESS" | "DENIED" | "FAILED" : "";
   return (
     <AdminConsole
       locale={locale as SiteLocale}
