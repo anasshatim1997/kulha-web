@@ -200,7 +200,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const t={...words[locale],...more[locale]};const {state}=useSession();const actorId=state.status==="authenticated"?state.user.id:"";const roles=state.status==="authenticated"?state.user.roles:[];const isSupportOnly=roles.includes("SUPPORT")&&!roles.includes("ADMIN")&&!roles.includes("SUPER_ADMIN");
     const [loading,setLoading]=useState(true);const [failed,setFailed]=useState(false);const [reload,setReload]=useState(0);const [message,setMessage]=useState("");const [query,setQuery]=useState("");
     const [merchants,setMerchants]=useState<Page<Merchant>|null>(null);const [merchantStatus,setMerchantStatus]=useState("PENDING");const [merchantPage,setMerchantPage]=useState(0);const [selectedMerchant,setSelectedMerchant]=useState<Merchant|null>(null);const [merchantAction,setMerchantAction]=useState<MerchantAction|null>(null);const [merchantDecisionOpen,setMerchantDecisionOpen]=useState(false);const [checks,setChecks]=useState([false,false,false]);const [tabCounts,setTabCounts]=useState<{pending:number|null;info:number|null}>({pending:null,info:null});
-    const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useState("");const [offerPage,setOfferPage]=useState(0);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");
+    const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useState("");const [offerPage,setOfferPage]=useState(0);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");const [offerDecisionOpen,setOfferDecisionOpen]=useState(false);
     const [cases,setCases]=useState<Page<CaseItem>|null>(null);const [caseStatus,setCaseStatus]=useState("OPEN");const [casePage,setCasePage]=useState(0);const [selectedCase,setSelectedCase]=useState<{summary:CaseItem;timeline:Timeline[]}|null>(null);const [caseCounts,setCaseCounts]=useState<{open:number|null;escalated:number|null;waiting:number|null;resolved:number|null}>({open:null,escalated:null,waiting:null,resolved:null});
     const [audit,setAudit]=useState<AuditPage|null>(null);const [auditPage,setAuditPage]=useState(0);const [auditPageSize,setAuditPageSize]=useState(AUDIT_PAGE_SIZE);const [selectedAuditId,setSelectedAuditId]=useState<string|null>(null);const [auditModalOpen,setAuditModalOpen]=useState(false);const [auditSearch,setAuditSearch]=useState("");const [auditFrom,setAuditFrom]=useState("");const [auditTo,setAuditTo]=useState("");const [auditAction,setAuditAction]=useState("");const [auditResult,setAuditResult]=useState("");
     const [reason,setReason]=useState("");const [disclosureReason,setDisclosureReason]=useState("");const [internalNote,setInternalNote]=useState("");const [draftMessage,setDraftMessage]=useState("");const [sendToCustomer,setSendToCustomer]=useState(true);const [revealed,setRevealed]=useState<{fullName:string;email:string;phone:string|null}|null>(null);const [working,setWorking]=useState(false);
@@ -396,7 +396,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         ].map(tab=><button key={tab.value||"all"} type="button" role="tab" aria-selected={offerStatus===tab.value} className={offerStatus===tab.value?styles.activeTab:styles.tab} onClick={()=>{setOfferStatus(tab.value);setOfferPage(0);setSelectedOffer(null);setReason("");}}>{tab.label} · {tab.count}</button>)}
                     </div>
                     <div className={styles.offerQueue} data-testid="offer-queue">
-                        {offerItems.map(item=>{const d=discount(item);return <button type="button" key={item.id} aria-pressed={selectedOffer?.id===item.id} className={selectedOffer?.id===item.id?styles.offerItemSelected:styles.offerItem} onClick={()=>{setSelectedOffer(item);setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");}}>
+                        {offerItems.map(item=>{const d=discount(item);return <button type="button" key={item.id} aria-pressed={selectedOffer?.id===item.id} className={selectedOffer?.id===item.id?styles.offerItemSelected:styles.offerItem} onClick={()=>{setSelectedOffer(item);setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");setOfferDecisionOpen(false);}}>
                             <span className={styles.offerThumb}>{item.imageUrl?<OfferImage src={item.imageUrl} alt="" lazy/>:<ImageIcon size={20} aria-hidden="true"/>}</span>
                             <span className={styles.offerCopy}><strong>{item.title}</strong><small>{item.shopName} · {item.city}</small><span className={styles.offerTags}>
                                 {item.reportedCount>0&&<em className={styles.reportTag}>{item.reportedCount} {item.reportedCount===1?t.report:t.reportsN}</em>}
@@ -434,33 +434,9 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                 {selectedOffer.foodNotes&&<div className={styles.offerModalFoodNotes}><strong>{t.foodInfo}</strong><p>{selectedOffer.foodNotes}</p></div>}
                             </section>
                         </div>
-                        <div className={styles.offerDecisionDock} data-testid="offer-decision-dock">
-                            <div className={styles.offerInlineBody} data-testid="offer-moderation-workflow">
-                                <div className={styles.merchantModalColumn}>
-                                    <section className={styles.merchantModalSection+" "+styles.offerModalReason} data-testid="offer-decision-reason">
-                                        <h3>{t.reason}</h3>
-                                        <div className={styles.reasonChips}>
-                                            {[t.reasonMisleading,t.reasonAllergens,t.reasonPhoto,t.reasonOther].map(label=><button key={label} type="button" className={reason.startsWith(label)?styles.reasonChipActive:styles.reasonChip} onClick={()=>setReason(label+": ")}>{label}</button>)}
-                                        </div>
-                                        <label className={styles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
-                                    </section>
-                                </div>
-                                <div className={styles.merchantModalColumn}>
-                                    <section className={styles.merchantDecision+" "+styles.offerModalDecision}>
-                                        <h3>{t.decision}</h3>
-                                        <p className={styles.offerModalDecisionHint}>{t.reinstateOnlyHidden}</p>
-                                        <div className={styles.offerActionRow}>
-                                            <button type="button" data-action="reinstate" aria-pressed={offerAction==="reinstate"} className={offerAction==="reinstate"?styles.offerActionActive:styles.offerAction} disabled={selectedOffer.status!=="SUSPENDED"} onClick={()=>setOfferAction("reinstate")}>{t.putLive}</button>
-                                            <button type="button" data-action="request-edit" aria-pressed={offerAction==="request-edit"} className={offerAction==="request-edit"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("request-edit")}>{t.askEdit}</button>
-                                            <button type="button" data-action="suspend" aria-pressed={offerAction==="suspend"} className={offerAction==="suspend"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("suspend")}>{selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
-                                        </div>
-                                    </section>
-                                </div>
-                            </div>
-                            <footer className={styles.offerInlineFooter} data-testid="offer-moderation-footer">
-                                <p><ShieldCheck size={15} aria-hidden="true"/>{t.auditRecorded}</p>
-                                <button className={styles.primary} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{working?t.loading:offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
-                            </footer>
+                        <div className={styles.merchantReadActions}>
+                            <p><ShieldCheck size={16} aria-hidden="true"/>{t.offerReviewHint}</p>
+                            <button type="button" className={styles.primary} onClick={()=>{setReason("");setOfferAction(selectedOffer.status==="SUSPENDED"?"reinstate":"suspend");setOfferDecisionOpen(true);}}>{t.openOfferReview}</button>
                         </div>
                     </>}
                 </section>
@@ -468,6 +444,33 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
             
         </>}
 
+        {offerDecisionOpen&&selectedOffer&&<div className={styles.actionOverlay} role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setOfferDecisionOpen(false);}}>
+            <section className={styles.actionDialog} role="dialog" aria-modal="true" aria-labelledby="offer-action-title" data-testid="offer-action-dialog">
+                <header className={styles.actionDialogHeader}>
+                    <div><small>{t.decision}</small><h2 id="offer-action-title">{selectedOffer.title}</h2><p>{selectedOffer.shopName} · {selectedOffer.city}</p></div>
+                    <button type="button" className={styles.ghostBtn} onClick={()=>setOfferDecisionOpen(false)}>{t.closeReview}</button>
+                </header>
+                <div className={styles.actionDialogBody} data-testid="offer-moderation-workflow">
+                    <section className={styles.merchantModalSection+" "+styles.offerModalReason} data-testid="offer-decision-reason">
+                        <h3>{t.reason}</h3>
+                        <div className={styles.reasonChips}>{[t.reasonMisleading,t.reasonAllergens,t.reasonPhoto,t.reasonOther].map(label=><button key={label} type="button" className={reason.startsWith(label)?styles.reasonChipActive:styles.reasonChip} onClick={()=>setReason(label+": ")}>{label}</button>)}</div>
+                        <label className={styles.field}><span>{t.reason}</span><textarea rows={4} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
+                    </section>
+                    <section className={styles.merchantDecision+" "+styles.offerModalDecision}>
+                        <h3>{t.decision}</h3><p className={styles.offerModalDecisionHint}>{t.reinstateOnlyHidden}</p>
+                        <div className={styles.offerActionRow}>
+                            <button type="button" data-action="reinstate" aria-pressed={offerAction==="reinstate"} className={offerAction==="reinstate"?styles.offerActionActive:styles.offerAction} disabled={selectedOffer.status!=="SUSPENDED"} onClick={()=>setOfferAction("reinstate")}>{t.putLive}</button>
+                            <button type="button" data-action="request-edit" aria-pressed={offerAction==="request-edit"} className={offerAction==="request-edit"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("request-edit")}>{t.askEdit}</button>
+                            <button type="button" data-action="suspend" aria-pressed={offerAction==="suspend"} className={offerAction==="suspend"?styles.offerActionActive:styles.offerAction} onClick={()=>setOfferAction("suspend")}>{selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
+                        </div>
+                    </section>
+                </div>
+                <footer className={styles.actionDialogFooter} data-testid="offer-moderation-footer">
+                    <p><ShieldCheck size={16} aria-hidden="true"/>{t.auditRecorded}</p>
+                    <button type="button" className={styles.primary} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{working?t.loading:offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
+                </footer>
+            </section>
+        </div>}
         {page==="support-cases"&&cases&&<>
             <div className={styles.tabs} role="tablist" aria-label={t.casesTitle}>
                 {([["OPEN",t.open,caseCounts.open],["ESCALATED",t.escalated,caseCounts.escalated],["WAITING_REPLY",t.waiting,caseCounts.waiting],["RESOLVED",t.resolved,caseCounts.resolved]] as const).map(([value,label,count])=><button key={value} role="tab" aria-selected={caseStatus===value} className={caseStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setCaseStatus(value);setCasePage(0);setSelectedCase(null);setReason("");})}>{label}{typeof count==="number"?" · "+count:""}</button>)}
