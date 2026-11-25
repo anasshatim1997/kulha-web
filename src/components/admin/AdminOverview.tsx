@@ -96,7 +96,7 @@ export function AdminOverview({locale}:{locale:SiteLocale}) {
       audit:settled[3].status==="fulfilled"?settled[3].value:null,
     };
     const available=settled.filter(x=>x.status==="fulfilled").length;
-    setSnapshot(next); setLoadState(available===0?"error":available===4?"ready":"partial");
+    setSnapshot(next); setLoadState(available===0?"error":available===5?"ready":"partial");
     setLastUpdated(new Date()); setRefreshing(false);
   },[]);
 
@@ -130,7 +130,7 @@ export function AdminOverview({locale}:{locale:SiteLocale}) {
 
   return <div className={`${styles.overview} ${redesign.root}`} data-testid="admin-overview" dir={locale==="ar"?"rtl":"ltr"}>
     <header className={styles.dashboardHeading}>
-      <div><h1 id="admin-overview-title">{t.title}</h1><p>{updatedLabel}</p></div>
+      <div><h1 id="admin-overview-title">{t.title}</h1><p>{updatedLabel} · {t.refreshed}</p></div>
       <div className={styles.dashboardActions}><span className={styles.livePill}><span/>{t.live}</span><button type="button" className={styles.refreshButton} onClick={()=>void refresh()} disabled={refreshing}><RefreshCw size={15} className={refreshing?styles.spinning:""} aria-hidden="true"/>{refreshing?t.syncing:t.refresh}</button></div>
     </header>
 
