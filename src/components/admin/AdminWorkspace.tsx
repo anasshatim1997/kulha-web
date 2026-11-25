@@ -62,25 +62,33 @@ export function AdminWorkspaceProvider({ locale, children }: { locale: SiteLocal
   const userId = session.status === "authenticated" ? session.user.id : null;
   const [state, setState] = useState<AdminWorkspaceState>(emptyAdminWorkspaceState);
   const [readyUser, setReadyUser] = useState<string | null>(null);
-  const visibleState = readyUser === userId ? state : emptyAdminWorkspaceState;
+  const visibleState = userId && readyUser === userId ? state : emptyAdminWorkspaceState;
 
   useEffect(() => {
-    if (!userId) {
-      setState(emptyAdminWorkspaceState);
-      setReadyUser(null);
-      return;
-    }
-    let restored = emptyAdminWorkspaceState;
-    try {
-      const raw = window.sessionStorage.getItem(workspaceStorageKey(userId));
-      if (raw) restored = restoreWorkspace(JSON.parse(raw));
-    } catch {
-      // Storage can be unavailable in hardened browser contexts; keep the workspace usable in memory.
-    }
-    const current = createWorkspaceTab(window.location.pathname, window.location.search, locale);
-    if (current) restored = upsertWorkspaceTab(restored, current);
-    setState(restored);
-    setReadyUser(userId);
+    let active = true;
+    const frame = window.requestAnimationFrame(() => {
+      if (!active) return;
+      if (!userId) {
+        setState(emptyAdminWorkspaceState);
+        setReadyUser(null);
+        return;
+      }
+      let restored = emptyAdminWorkspaceState;
+      try {
+        const raw = window.sessionStorage.getItem(workspaceStorageKey(userId));
+        if (raw) restored = restoreWorkspace(JSON.parse(raw));
+      } catch {
+        // Storage can be unavailable in hardened browser contexts; keep the workspace usable in memory.
+      }
+      const current = createWorkspaceTab(window.location.pathname, window.location.search, locale);
+      if (current) restored = upsertWorkspaceTab(restored, current);
+      setState(restored);
+      setReadyUser(userId);
+    });
+    return () => {
+      active = false;
+      window.cancelAnimationFrame(frame);
+    };
   }, [userId, locale]);
 
   useEffect(() => {
@@ -95,7 +103,11 @@ export function AdminWorkspaceProvider({ locale, children }: { locale: SiteLocal
   useEffect(() => {
     if (!userId || readyUser !== userId || !pathname) return;
     const tab = createWorkspaceTab(pathname, window.location.search, locale);
-    if (tab) setState(current => upsertWorkspaceTab(current, tab));
+    if (!tab) return;
+    const frame = window.requestAnimationFrame(() => {
+      setState(current => upsertWorkspaceTab(current, tab));
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [pathname, locale, userId, readyUser]);
 
   const openTab = useCallback((href: string, title?: string) => {
