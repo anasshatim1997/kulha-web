@@ -74,3 +74,57 @@
 .root :global([class*="supportReadContext"]) :global([class*="caseAssignment"]){margin:0;padding:0;border:0;background:transparent}
 .root :global([class*="supportReadContext"]) :global([class*="caseCustomer"]){padding:16px 18px;border:1px solid #e9e2d5;border-radius:14px;background:#faf8f1}
 .root :global([class*="supportReadContext"]) :global([class*="merchantReadActions"]){margin:0}
+
+/* PDF pages 2–3 — full-width offer queue and focused decision dialog */
+.root :global([class*="offerTableCard"]){display:grid;gap:14px;min-width:0}
+.root :global([class*="offerTableCard"]) :global([class*="tabs"]){display:flex;flex-wrap:wrap;gap:9px}
+.root :global([class*="offerTableCard"]) :global(button[class*="activeTab"]),
+.root :global([class*="offerTableCard"]) :global(button[class*="tab"]){min-height:40px;padding:9px 15px;border:1px solid #e5ddcf;border-radius:22px;background:#fffefa;color:#214332;font-size:12px;font-weight:850}
+.root :global([class*="offerTableCard"]) :global(button[class*="activeTab"]){border-color:#073b2b;background:#073b2b;color:#fff}
+.root :global([class*="offerTableCard"]) :global([class*="offerTableWrap"]){overflow-x:auto;border:1px solid #e8e0d3;border-radius:18px;background:#fffefa}
+.root :global([class*="offerTable"]){width:100%;min-width:850px;border-collapse:collapse;text-align:start}
+.root :global([class*="offerTable"]) th{height:42px;padding:10px 16px;color:#788278;font-size:10px;font-weight:950;letter-spacing:.08em;text-align:start;text-transform:uppercase}
+.root :global([class*="offerTable"]) td{height:76px;padding:10px 16px;border-top:1px solid #eee9df;color:#254333;font-size:12px;font-weight:700;white-space:nowrap}
+.root :global([class*="offerTable"]) td>strong{font-size:13px;font-weight:900}
+.root :global([class*="offerTableIdentity"]){display:flex;align-items:center;gap:13px;min-width:260px}
+.root :global([class*="offerTableIdentity"])>span:last-child{display:grid;gap:4px;min-width:0}
+.root :global([class*="offerTableIdentity"]) strong{overflow:hidden;color:#173b2d;font-size:13px;font-weight:900;text-overflow:ellipsis;white-space:nowrap}
+.root :global([class*="offerTableIdentity"]) small{color:#818980;font-size:10px}
+.root :global([class*="offerTableThumb"]){display:grid;place-items:center;flex:0 0 auto;width:42px;height:42px;overflow:hidden;border-radius:11px;background:#f4e7c7;color:#94743a}
+.root :global([class*="offerTableThumb"]) img{width:100%;height:100%;object-fit:cover}
+.root :global([class*="offerSignals"]){display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.root :global([class*="offerSignals"]) em{font-size:10px;font-style:normal}
+.root :global(button[class*="offerReviewButton"]){min-width:74px;min-height:38px;padding:0 14px;border:0;border-radius:22px;background:#073b2b;color:#fff;font-size:11px;font-weight:900;cursor:pointer}
+.root :global(button[class*="offerReviewButton"]:hover){background:#0d5b3d}
+.root :global([class*="offerPagination"]){padding:0 2px}
+.root :global([class*="offerDialogNav"]){display:flex;align-items:center;gap:8px}
+.root :global([class*="offerDialogNav"]) button{display:grid;place-items:center;min-width:38px;min-height:38px;border:1px solid #e8e0d3;border-radius:50%;background:#fffefa;color:#173b2d;font-size:18px}
+.root :global([class*="offerDialogNav"]) button:disabled{opacity:.35;cursor:not-allowed}
+.root :global([class*="offerDialogBody"]){grid-template-columns:minmax(230px,.72fr) minmax(0,1.28fr);align-items:start;gap:22px}
+.root :global([class*="offerDialogFacts"]){display:grid;align-content:start;gap:12px;min-width:0}
+.root :global([class*="offerDialogImage"]){display:grid;place-items:center;width:100%;aspect-ratio:1.55;overflow:hidden;border-radius:16px;background:#f6dfb3;color:#8a7042}
+.root :global([class*="offerDialogImage"]) img{width:100%;height:100%;object-fit:cover}
+.root :global([class*="offerDialogPrice"]){color:#073b2b;font-size:28px;line-height:1;font-weight:950}
+.root :global([class*="offerDialogOriginal"]){margin-top:-8px;color:#8d958c;font-size:12px;text-decoration:line-through}
+.root :global([class*="offerDialogStock"]){color:#647366;font-size:12px;font-weight:800}
+.root :global([class*="offerDialogNotes"]){margin:0;padding:12px;border-radius:12px;background:#f8f4e9;color:#5c6b5e;font-size:12px;line-height:1.5}
+.root :global([class*="offerDialogDecision"]){display:grid;gap:14px;min-width:0}
+.root :global([class*="offerDecisionChoices"]){display:grid;gap:8px}
+.root :global([class*="offerDecisionChoices"]) button{display:grid;gap:4px;width:100%;min-height:64px;padding:12px 15px;border:1px solid #e5ddcf;border-radius:13px;text-align:start;background:#f7f4ec;color:#234432}
+.root :global([class*="offerDecisionChoices"]) strong{font-size:13px;font-weight:950}
+.root :global([class*="offerDecisionChoices"]) small{font-size:11px;line-height:1.35;color:#69776b}
+.root :global([class*="offerDecisionChoices"]) button[class*="offerChoiceDanger"]{border:2px solid #c94334;background:#fbe9e6;color:#9f3329}
+.root :global([class*="offerDecisionChoices"]) button[class*="offerChoiceWarn"]{border:2px solid #e4c66f;background:#fff4d6;color:#795a13}
+.root :global([class*="offerDecisionChoices"]) button[class*="offerChoice"]{border:2px solid #2d7652;background:#e1f1e5;color:#175b3b}
+.root :global([class*="offerDecisionChoices"]) button[class*="offerChoiceDisabled"]{opacity:.55;cursor:not-allowed}
+.root :global([class*="offerDialogDecision"]) :global([class*="reasonChips"]){display:flex;flex-wrap:wrap;gap:7px}
+.root :global([class*="offerDialogDecision"]) :global([class*="reasonChip"]),
+.root :global([class*="offerDialogDecision"]) :global([class*="reasonChipActive"]){min-height:34px;padding:7px 11px;border-radius:18px;font-size:10px}
+.root :global([class*="offerDialogDecision"]) :global([class*="field"]) textarea{min-height:86px}
+@media(max-width:760px){
+ .root :global([class*="offerDialogBody"]){grid-template-columns:1fr}
+ .root :global([class*="offerDialogImage"]){max-height:180px;aspect-ratio:2.2}
+ .root :global([class*="offerDialogNav"]) button{min-width:34px;min-height:34px}
+ .root :global([class*="offerTableCard"]) :global([class*="tabs"]){flex-wrap:nowrap;overflow-x:auto;padding-bottom:3px}
+ .root :global([class*="offerTableCard"]) :global(button[class*="tab"]),.root :global([class*="offerTableCard"]) :global(button[class*="activeTab"]){flex:0 0 auto}
+}
