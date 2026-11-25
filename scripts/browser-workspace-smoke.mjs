@@ -1039,7 +1039,7 @@ try {
     await context.close();
   }
 
-  // Merchant review: approval stays locked until actual uploaded documents can be reviewed.
+  // Merchant review: read mode is separate from the decision workspace.
   {
     merchantStatus = "PENDING";
     merchant.status = merchantStatus;
@@ -1047,18 +1047,27 @@ try {
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
-    const inlineReview = page.getByTestId("merchant-review-workflow");
-    await inlineReview.waitFor({ state: "visible" });
-    const approve = inlineReview.getByRole("button", { name: "Approve" });
-    if (await inlineReview.getByLabel("Documents readable and valid").count() !== 0) {
+    const readView = page.getByTestId("merchant-review-workflow");
+    await readView.waitFor({ state: "visible" });
+    if (await readView.locator("textarea, input").count() !== 0) {
+      throw new Error("Merchant inspection view must be read-only; decision fields belong in the action workspace.");
+    }
+    if (await readView.getByRole("button").count() !== 0) {
+      throw new Error("Merchant inspection view must not contain decision submit controls.");
+    }
+    await page.getByRole("button", { name: "Review application" }).click();
+    const actionDialog = page.getByTestId("merchant-review-action-dialog");
+    await actionDialog.waitFor({ state: "visible" });
+    const approve = actionDialog.getByRole("button", { name: "Approve" });
+    if (await actionDialog.getByLabel("Documents readable and valid").count() !== 0) {
       throw new Error("Merchant review must not expose a document-validity checkbox when no documents exist.");
     }
-    await inlineReview.getByLabel("Address and location checked").check();
-    await inlineReview.getByLabel("Phone number reachable").check();
+    await actionDialog.getByLabel("Address and location checked").check();
+    await actionDialog.getByLabel("Phone number reachable").check();
     if (!(await approve.isDisabled())) {
-      throw new Error("Shop approval must remain disabled until the uploaded documents can be reviewed.");
+      throw new Error("Shop approval must remain disabled until uploaded documents can be reviewed.");
     }
-    if (!(await inlineReview.getByRole("button", { name: "Request information" }).isEnabled())) {
+    if (!(await actionDialog.getByRole("button", { name: "Request information" }).isEnabled())) {
       throw new Error("Request-information decision should remain available while shop documents are unavailable.");
     }
     await context.close();
