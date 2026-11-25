@@ -128,3 +128,26 @@
  .root :global([class*="offerTableCard"]) :global([class*="tabs"]){flex-wrap:nowrap;overflow-x:auto;padding-bottom:3px}
  .root :global([class*="offerTableCard"]) :global(button[class*="tab"]),.root :global([class*="offerTableCard"]) :global(button[class*="activeTab"]){flex:0 0 auto}
 }
+
+.offerTableCard{}
+.offerTableWrap{}
+.offerTable{}
+.offerTableIdentity{}
+.offerTableThumb{}
+.offerSignals{}
+.offerReviewButton{}
+.offerDialogNav{}
+.offerDialogBody{}
+.offerDialogFacts{}
+.offerDialogImage{}
+.offerDialogPrice{}
+.offerDialogOriginal{}
+.offerDialogStock{}
+.offerDialogDecision{}
+.offerDecisionChoices{}
+.offerChoiceDanger{}
+.offerChoiceWarn{}
+.offerChoice{}
+.offerChoiceDisabled{}
+.offerDialogNotes{}
+.offerPagination{}
