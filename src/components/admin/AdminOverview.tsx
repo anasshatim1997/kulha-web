@@ -2,20 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Activity,
-  AlertTriangle,
-  ArrowUpRight,
-  CheckCircle2,
-  ChevronRight,
-  Clock3,
-  FileText,
-  Flag,
-  RefreshCw,
-  ShieldCheck,
-  Store,
-  Tag,
-} from "lucide-react";
+import { Activity, AlertTriangle, ArrowUpRight, CheckCircle2, Clock3, FileText, Flag, RefreshCw, ShieldCheck, Store, Tag } from "lucide-react";
 import { api } from "@/lib/api/client";
 import { localePath } from "@/lib/navigation";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
@@ -23,572 +10,190 @@ import styles from "./AdminOverview.module.css";
 import redesign from "./AdminOverviewRedesign.module.css";
 
 type Page<T> = { items: T[]; page: number; size: number; total: number };
-type Merchant = {
-  id: string;
-  name: string;
-  businessType: string;
-  city: string;
-  ownerEmail: string;
-  status: string;
-  createdAt: string;
-};
-type Offer = {
-  id: string;
-  title: string;
-  shopName: string;
-  city: string;
-  status: string;
-  reportedCount: number;
-  allergensStatus: string;
-  priceMinor: number;
-};
-type SupportCase = {
-  id: string;
-  reference: string;
-  subject: string;
-  priority: string;
-  status: string;
-  merchantName: string | null;
-  updatedAt: string;
-};
-type AuditEntry = {
-  id: string;
-  actorName: string;
-  action: string;
-  targetType: string;
-  targetId: string;
-  reason: string | null;
-  result: string;
-  createdAt: string;
-};
-
-type Snapshot = {
-  merchants: Page<Merchant> | null;
-  offers: Page<Offer> | null;
-  cases: Page<SupportCase> | null;
-  audit: Page<AuditEntry> | null;
-};
-
-const emptySnapshot: Snapshot = {
-  merchants: null,
-  offers: null,
-  cases: null,
-  audit: null,
-};
+type Merchant = { id: string; name: string; businessType: string; city: string; ownerEmail: string; status: string; createdAt: string };
+type Offer = { id: string; title: string; shopName: string; city: string; status: string; reportedCount: number; allergensStatus: string; priceMinor: number };
+type SupportCase = { id: string; reference: string; subject: string; priority: string; status: string; merchantName: string | null; updatedAt: string };
+type AuditEntry = { id: string; actorName: string; action: string; targetType: string; targetId: string; reason: string | null; result: string; createdAt: string };
+type Snapshot = { merchants: Page<Merchant> | null; offers: Page<Offer> | null; cases: Page<SupportCase> | null; audit: Page<AuditEntry> | null };
+const emptySnapshot: Snapshot = { merchants: null, offers: null, cases: null, audit: null };
 
 const copy = {
-  fr: {
-    eyebrow: "ESPACE D’ADMINISTRATION",
-    title: "Pilotez KULHA! depuis un seul endroit.",
-    lead: "Les files de travail prioritaires, les décisions récentes et l’état opérationnel de la plateforme.",
-    live: "Données en direct",
-    refresh: "Actualiser",
-    syncing: "Synchronisation…",
-    updated: "Dernière actualisation",
-    pendingShops: "Commerces à examiner",
-    openCases: "Dossiers ouverts",
-    offersCatalog: "Offres enregistrées",
-    auditEvents: "Événements d’audit",
-    queueTitle: "File de validation des commerces",
-    queueLead: "Demandes en attente de décision",
-    viewAll: "Voir la file",
-    offerTitle: "Signalements sur les offres",
-    offerLead: "Offres signalées ou avec allergènes non renseignés dans l’échantillon chargé",
-    supportTitle: "Support à traiter",
-    supportLead: "Dossiers ouverts les plus récemment mis à jour",
-    activityTitle: "Journal récent",
-    activityLead: "Les dernières actions enregistrées par l’équipe",
-    noShops: "Aucune demande en attente dans cette file.",
-    noOffers: "Aucun signalement dans les offres chargées.",
-    noCases: "Aucun dossier ouvert à afficher.",
-    noActivity: "Aucune activité récente à afficher.",
-    shop: "Commerce",
-    city: "Ville",
-    submitted: "Demande reçue",
-    offer: "Offre",
-    issue: "Point à vérifier",
-    reports: "signalement(s)",
-    unknownAllergens: "Allergènes inconnus",
-    case: "Dossier",
-    priority: "Priorité",
-    action: "Action",
-    actor: "Par",
-    record: "Enregistrement",
-    documentsTitle: "Dossier documentaire non connecté",
-    documentsLead: "Le backend actuel ne fournit pas encore de dépôt, de liste ou de prévisualisation sécurisée des justificatifs. Ne marquez pas un document comme vérifié sur la base d’une case à cocher.",
-    documentsStatus: "Intégration requise",
-    documentsAction: "Ouvrir la validation des commerces",
-    quickTitle: "Accès direct",
-    quickLead: "Aller directement à une file de travail.",
-    merchants: "Commerces",
-    offers: "Modération des offres",
-    support: "Support",
-    audit: "Journal d’audit",
-    partial: "Certaines sources n’ont pas répondu. Les sections disponibles restent consultables.",
-    error: "Les services d’administration sont momentanément indisponibles.",
-    retry: "Réessayer",
-    priorityHigh: "Haute",
-    priorityMedium: "Moyenne",
-    priorityLow: "Faible",
-    statusPending: "En attente",
-    statusInfo: "Informations requises",
-    statusFlagged: "À vérifier",
-    statusReported: "Signalée",
-    statusUnknown: "Allergènes inconnus",
-    resultDenied: "Refusée",
-    resultFailed: "Échec",
-    resultSuccess: "Réussie",
-    emptyValue: "—",
-  },
   en: {
-    eyebrow: "ADMINISTRATION",
-    title: "Run KULHA! from one clear workspace.",
-    lead: "Priority work queues, recent decisions, and a live operational view of the platform.",
-    live: "Live data",
-    refresh: "Refresh",
-    syncing: "Syncing…",
-    updated: "Last refreshed",
-    pendingShops: "Shops awaiting review",
-    openCases: "Open support cases",
-    offersCatalog: "Offers in catalogue",
-    auditEvents: "Audit events",
-    queueTitle: "Shop verification queue",
-    queueLead: "Applications waiting for a decision",
-    viewAll: "Open queue",
-    offerTitle: "Offer signals",
-    offerLead: "Reported offers or unknown allergens in the loaded sample",
-    supportTitle: "Support to handle",
-    supportLead: "Recently updated open cases",
-    activityTitle: "Recent activity",
-    activityLead: "Latest actions recorded by the team",
-    noShops: "There are no pending applications in this queue.",
-    noOffers: "No signals found in the loaded offers.",
-    noCases: "There are no open cases to show.",
-    noActivity: "There is no recent activity to show.",
-    shop: "Shop",
-    city: "City",
-    submitted: "Application received",
-    offer: "Offer",
-    issue: "Review signal",
-    reports: "report(s)",
-    unknownAllergens: "Unknown allergens",
-    case: "Case",
-    priority: "Priority",
-    action: "Action",
-    actor: "By",
-    record: "Record",
-    documentsTitle: "Document review is not connected",
-    documentsLead: "The current backend does not expose secure document upload, listing, or preview endpoints yet. Do not mark a document as verified using a checkbox.",
-    documentsStatus: "Integration required",
-    documentsAction: "Open shop verification",
-    quickTitle: "Jump to work",
-    quickLead: "Go straight to an operational queue.",
-    merchants: "Shops",
-    offers: "Offer moderation",
-    support: "Support",
-    audit: "Audit log",
-    partial: "Some data sources did not respond. Available sections are still shown.",
-    error: "Admin services are temporarily unavailable.",
-    retry: "Try again",
-    priorityHigh: "High",
-    priorityMedium: "Medium",
-    priorityLow: "Low",
-    statusPending: "Pending",
-    statusInfo: "Information required",
-    statusFlagged: "Needs review",
-    statusReported: "Reported",
-    statusUnknown: "Unknown allergens",
-    resultDenied: "Denied",
-    resultFailed: "Failed",
-    resultSuccess: "Succeeded",
-    emptyValue: "—",
+    title:"Today at Kulha!", live:"Live", refresh:"Refresh", syncing:"Refreshing…", refreshed:"refreshed",
+    foodSafety:"Food-safety offers", reported:"reported", allergensUnknown:"allergens unknown",
+    merchants:"Merchants waiting", pending:"pending", infoRequired:"info required",
+    support:"Open support cases", high:"high", medium:"medium", low:"low",
+    upNext:"Up next · most urgent first", viewAll:"View all", recent:"Recent activity",
+    offers:"Offers", audit:"Audit", noResponse:"no response", documents:"Documents not connected",
+    documentsLead:"Can’t verify files until the backend serves them.", review:"Review", open:"Open",
+    applied:"Applied", updated:"Updated", empty:"Nothing needs attention right now.",
+    error:"Admin services are temporarily unavailable.", partial:"Some sources did not respond.",
+    retry:"Try again", offer:"Offer", case:"Case", shop:"Merchant", systems:"Systems",
+    offerHidden:"Offer hidden", merchantApproved:"Merchant approved", caseEscalated:"Case escalated",
+    noActivity:"No recent activity.", dataUnavailable:"Unavailable", ready:"Connected",
+  },
+  fr: {
+    title:"Aujourd’hui chez Kulha !", live:"En direct", refresh:"Actualiser", syncing:"Actualisation…", refreshed:"actualisé",
+    foodSafety:"Offres · sécurité alimentaire", reported:"signalées", allergensUnknown:"allergènes inconnus",
+    merchants:"Commerces en attente", pending:"en attente", infoRequired:"infos requises",
+    support:"Dossiers de support ouverts", high:"élevée", medium:"moyenne", low:"faible",
+    upNext:"À traiter · par ordre d’urgence", viewAll:"Voir tout", recent:"Activité récente",
+    offers:"Offres", audit:"Audit", noResponse:"sans réponse", documents:"Documents non connectés",
+    documentsLead:"Impossible de vérifier les fichiers tant que le backend ne les fournit pas.", review:"Examiner", open:"Ouvrir",
+    applied:"Déposé", updated:"Mis à jour", empty:"Aucun élément à traiter pour le moment.",
+    error:"Les services d’administration sont temporairement indisponibles.", partial:"Certaines sources n’ont pas répondu.",
+    retry:"Réessayer", offer:"Offre", case:"Dossier", shop:"Commerce", systems:"Systèmes",
+    offerHidden:"Offre masquée", merchantApproved:"Commerce approuvé", caseEscalated:"Dossier escaladé",
+    noActivity:"Aucune activité récente.", dataUnavailable:"Indisponible", ready:"Connecté",
   },
   ar: {
-    eyebrow: "مساحة الإدارة",
-    title: "أدر KULHA! من مساحة عمل واحدة.",
-    lead: "قوائم العمل ذات الأولوية، والقرارات الأخيرة، ومؤشرات تشغيل المنصة.",
-    live: "بيانات مباشرة",
-    refresh: "تحديث",
-    syncing: "جارٍ التحديث…",
-    updated: "آخر تحديث",
-    pendingShops: "متاجر بانتظار المراجعة",
-    openCases: "طلبات دعم مفتوحة",
-    offersCatalog: "العروض المسجلة",
-    auditEvents: "أحداث التدقيق",
-    queueTitle: "قائمة التحقق من المتاجر",
-    queueLead: "طلبات بانتظار القرار",
-    viewAll: "عرض القائمة",
-    offerTitle: "تنبيهات العروض",
-    offerLead: "العروض المبلغ عنها أو التي لا تتوفر لها معلومات مسببات الحساسية في العينة المحملة",
-    supportTitle: "طلبات الدعم المطلوب معالجتها",
-    supportLead: "أحدث الحالات المفتوحة تحديثاً",
-    activityTitle: "النشاط الأخير",
-    activityLead: "آخر الإجراءات المسجلة من الفريق",
-    noShops: "لا توجد طلبات معلقة في هذه القائمة.",
-    noOffers: "لا توجد تنبيهات في العروض المحملة.",
-    noCases: "لا توجد حالات دعم مفتوحة للعرض.",
-    noActivity: "لا يوجد نشاط حديث للعرض.",
-    shop: "المتجر",
-    city: "المدينة",
-    submitted: "تاريخ الطلب",
-    offer: "العرض",
-    issue: "نقطة للمراجعة",
-    reports: "بلاغات",
-    unknownAllergens: "مسببات حساسية غير معروفة",
-    case: "الحالة",
-    priority: "الأولوية",
-    action: "الإجراء",
-    actor: "بواسطة",
-    record: "السجل",
-    documentsTitle: "مراجعة الوثائق غير متصلة",
-    documentsLead: "لا توفر الواجهة الخلفية حالياً رفع الوثائق أو عرضها أو معاينتها بشكل آمن. لا تؤكد صلاحية وثيقة باستخدام خانة اختيار.",
-    documentsStatus: "التكامل مطلوب",
-    documentsAction: "فتح مراجعة المتاجر",
-    quickTitle: "وصول سريع",
-    quickLead: "انتقل مباشرة إلى إحدى قوائم العمل.",
-    merchants: "المتاجر",
-    offers: "مراجعة العروض",
-    support: "الدعم",
-    audit: "سجل التدقيق",
-    partial: "لم تستجب بعض مصادر البيانات. ما توفر منها لا يزال معروضاً.",
-    error: "خدمات الإدارة غير متاحة مؤقتاً.",
-    retry: "إعادة المحاولة",
-    priorityHigh: "مرتفعة",
-    priorityMedium: "متوسطة",
-    priorityLow: "منخفضة",
-    statusPending: "قيد الانتظار",
-    statusInfo: "معلومات مطلوبة",
-    statusFlagged: "تحتاج مراجعة",
-    statusReported: "مبلغ عنها",
-    statusUnknown: "مسببات حساسية غير معروفة",
-    resultDenied: "مرفوض",
-    resultFailed: "فشل",
-    resultSuccess: "ناجح",
-    emptyValue: "—",
+    title:"اليوم في Kulha!", live:"مباشر", refresh:"تحديث", syncing:"جارٍ التحديث…", refreshed:"تم التحديث",
+    foodSafety:"عروض · سلامة الغذاء", reported:"بلاغات", allergensUnknown:"مسببات حساسية غير معروفة",
+    merchants:"متاجر بانتظار المراجعة", pending:"قيد الانتظار", infoRequired:"معلومات مطلوبة",
+    support:"حالات دعم مفتوحة", high:"مرتفعة", medium:"متوسطة", low:"منخفضة",
+    upNext:"التالي · حسب الأولوية", viewAll:"عرض الكل", recent:"النشاط الأخير",
+    offers:"العروض", audit:"التدقيق", noResponse:"لا توجد استجابة", documents:"الوثائق غير متصلة",
+    documentsLead:"لا يمكن التحقق من الملفات حتى توفرها الواجهة الخلفية.", review:"مراجعة", open:"فتح",
+    applied:"تاريخ الطلب", updated:"آخر تحديث", empty:"لا توجد عناصر تتطلب الانتباه حالياً.",
+    error:"خدمات الإدارة غير متاحة مؤقتاً.", partial:"لم تستجب بعض المصادر.",
+    retry:"إعادة المحاولة", offer:"عرض", case:"حالة", shop:"متجر", systems:"الأنظمة",
+    offerHidden:"تم إخفاء العرض", merchantApproved:"تمت الموافقة على المتجر", caseEscalated:"تم تصعيد الحالة",
+    noActivity:"لا يوجد نشاط حديث.", dataUnavailable:"غير متاح", ready:"متصل",
   },
 } as const;
 
-function formatNumber(value: number, locale: SiteLocale) {
-  const tag = locale === "ar" ? "ar-MA" : locale === "en" ? "en-MA" : "fr-MA";
-  return new Intl.NumberFormat(tag, { maximumFractionDigits: 0 }).format(value);
+function number(value:number, locale:SiteLocale) {
+  return new Intl.NumberFormat(locale==="ar"?"ar-MA":locale==="en"?"en-MA":"fr-MA",{maximumFractionDigits:0}).format(value);
 }
-
-function formatDate(value: string | null | undefined, locale: SiteLocale) {
-  if (!value) return "";
-  const timestamp = Date.parse(value);
-  if (!Number.isFinite(timestamp)) return "";
-  const tag = locale === "ar" ? "ar-MA" : locale === "en" ? "en-MA" : "fr-MA";
-  return new Intl.DateTimeFormat(tag, {
-    timeZone: "Africa/Casablanca",
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(timestamp);
+function date(value:string|undefined, locale:SiteLocale) {
+  if(!value) return "";
+  const stamp=Date.parse(value); if(!Number.isFinite(stamp)) return "";
+  return new Intl.DateTimeFormat(locale==="ar"?"ar-MA":locale==="en"?"en-MA":"fr-MA",{timeZone:"Africa/Casablanca",day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}).format(stamp);
 }
+function humanize(value:string) { return value.split(/[._-]+/).filter(Boolean).map(x=>x.charAt(0)+x.slice(1).toLowerCase()).join(" "); }
 
-function humanize(value: string, locale: SiteLocale) {
-  return value
-    .split(/[._-]+/)
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toLocaleUpperCase(locale) + part.slice(1).toLocaleLowerCase(locale))
-    .join(" ");
-}
+export function AdminOverview({locale}:{locale:SiteLocale}) {
+  const t=copy[locale];
+  const [snapshot,setSnapshot]=useState<Snapshot>(emptySnapshot);
+  const [refreshing,setRefreshing]=useState(false);
+  const [lastUpdated,setLastUpdated]=useState<Date|null>(null);
+  const [loadState,setLoadState]=useState<"initial"|"ready"|"partial"|"error">("initial");
+  const mounted=useRef(false);
 
-export function AdminOverview({ locale }: { locale: SiteLocale }) {
-  const t = copy[locale];
-  const [snapshot, setSnapshot] = useState<Snapshot>(emptySnapshot);
-  const [refreshing, setRefreshing] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [loadState, setLoadState] = useState<"initial" | "ready" | "partial" | "error">("initial");
-  const mounted = useRef(false);
-
-  const refresh = useCallback(async () => {
+  const refresh=useCallback(async()=>{
     setRefreshing(true);
-    const settled = await Promise.allSettled([
+    const settled=await Promise.allSettled([
       api.get<Page<Merchant>>("/admin/merchants?status=PENDING&page=0&size=6"),
       api.get<Page<Offer>>("/admin/offers?page=0&size=8"),
       api.get<Page<SupportCase>>("/admin/support-cases?status=OPEN&page=0&size=5"),
       api.get<Page<AuditEntry>>("/admin/audit-log?page=0&size=6"),
     ]);
-
-    if (!mounted.current) return;
-
-    const next: Snapshot = {
-      merchants: settled[0].status === "fulfilled" ? settled[0].value : null,
-      offers: settled[1].status === "fulfilled" ? settled[1].value : null,
-      cases: settled[2].status === "fulfilled" ? settled[2].value : null,
-      audit: settled[3].status === "fulfilled" ? settled[3].value : null,
+    if(!mounted.current) return;
+    const next:Snapshot={
+      merchants:settled[0].status==="fulfilled"?settled[0].value:null,
+      offers:settled[1].status==="fulfilled"?settled[1].value:null,
+      cases:settled[2].status==="fulfilled"?settled[2].value:null,
+      audit:settled[3].status==="fulfilled"?settled[3].value:null,
     };
-    const available = settled.filter((entry) => entry.status === "fulfilled").length;
-    setSnapshot(next);
-    setLoadState(available === 0 ? "error" : available === 4 ? "ready" : "partial");
-    setLastUpdated(new Date());
-    setRefreshing(false);
-  }, []);
+    const available=settled.filter(x=>x.status==="fulfilled").length;
+    setSnapshot(next); setLoadState(available===0?"error":available===4?"ready":"partial");
+    setLastUpdated(new Date()); setRefreshing(false);
+  },[]);
 
-  useEffect(() => {
-    mounted.current = true;
-    const initialLoad = window.setTimeout(() => void refresh(), 0);
+  useEffect(()=>{
+    mounted.current=true;
+    const initial=window.setTimeout(()=>void refresh(),0);
+    const onFocus=()=>void refresh();
+    const onVisibility=()=>{if(!document.hidden) void refresh();};
+    const interval=window.setInterval(()=>{if(!document.hidden) void refresh();},60_000);
+    window.addEventListener("focus",onFocus); document.addEventListener("visibilitychange",onVisibility);
+    return ()=>{mounted.current=false;window.clearTimeout(initial);window.clearInterval(interval);window.removeEventListener("focus",onFocus);document.removeEventListener("visibilitychange",onVisibility);};
+  },[refresh]);
 
-    const onFocus = () => void refresh();
-    const onVisibilityChange = () => {
-      if (!document.hidden) void refresh();
-    };
-    const interval = window.setInterval(() => {
-      if (!document.hidden) void refresh();
-    }, 60_000);
+  const offers=snapshot.offers?.items??[];
+  const flagged=offers.filter(x=>x.reportedCount>0||x.allergensStatus==="UNKNOWN");
+  const reported=offers.filter(x=>x.reportedCount>0).length;
+  const unknown=offers.filter(x=>x.allergensStatus==="UNKNOWN").length;
+  const merchants=snapshot.merchants?.items??[];
+  const infoRequired=merchants.filter(x=>x.status==="INFO_REQUIRED").length;
+  const cases=snapshot.cases?.items??[];
+  const high=cases.filter(x=>x.priority==="HIGH").length;
+  const medium=cases.filter(x=>x.priority==="MEDIUM").length;
+  const low=cases.filter(x=>x.priority==="LOW").length;
+  const queue=[
+    ...flagged.slice(0,2).map(x=>({id:x.id,title:x.title,subtitle:x.shopName+" · "+x.city,kind:"offer" as const,meta:x.reportedCount>0?x.reportedCount+" "+t.reported:t.allergensUnknown,href:"/admin/offer-moderation",time:""})),
+    ...cases.slice(0,1).map(x=>({id:x.id,title:x.reference+" · "+x.subject,subtitle:x.merchantName||t.case,kind:"case" as const,meta:humanize(x.priority),href:"/admin/support-cases",time:date(x.updatedAt,locale)})),
+    ...merchants.slice(0,2).map(x=>({id:x.id,title:x.name,subtitle:(x.businessType||t.shop)+" · "+x.city,kind:"shop" as const,meta:x.status==="INFO_REQUIRED"?t.infoRequired:t.pending,href:"/admin/merchant-review",time:date(x.createdAt,locale)})),
+  ];
+  const activity=snapshot.audit?.items.slice(0,3)??[];
+  const lastUpdated=lastUpdatedLabel(lastUpdated,locale,t.syncing);
 
-    window.addEventListener("focus", onFocus);
-    document.addEventListener("visibilitychange", onVisibilityChange);
-    return () => {
-      mounted.current = false;
-      window.clearTimeout(initialLoad);
-      window.clearInterval(interval);
-      window.removeEventListener("focus", onFocus);
-      document.removeEventListener("visibilitychange", onVisibilityChange);
-    };
-  }, [refresh]);
+  return <div className={`${styles.overview} ${redesign.root}`} data-testid="admin-overview" dir={locale==="ar"?"rtl":"ltr"}>
+    <header className={styles.dashboardHeading}>
+      <div><h1 id="admin-overview-title">{t.title}</h1><p>{lastUpdated}</p></div>
+      <div className={styles.dashboardActions}><span className={styles.livePill}><span/>{t.live}</span><button type="button" className={styles.refreshButton} onClick={()=>void refresh()} disabled={refreshing}><RefreshCw size={15} className={refreshing?styles.spinning:""} aria-hidden="true"/>{refreshing?t.syncing:t.refresh}</button></div>
+    </header>
 
-  const lastUpdatedLabel = lastUpdated
-    ? formatDate(lastUpdated.toISOString(), locale)
-    : t.syncing;
+    {loadState==="error"&&<div className={styles.errorNotice} role="alert"><AlertTriangle size={18}/><span>{t.error}</span><button type="button" onClick={()=>void refresh()}>{t.retry}</button></div>}
+    {loadState==="partial"&&<div className={styles.partialNotice} role="status"><AlertTriangle size={16}/><span>{t.partial}</span></div>}
 
-  const flaggedOffers = (snapshot.offers?.items ?? []).filter(
-    (offer) => offer.reportedCount > 0 || offer.allergensStatus === "UNKNOWN",
-  );
-  const visibleOffers = flaggedOffers.slice(0, 4);
+    <section className={styles.metrics} data-testid="admin-overview-metrics" aria-label={t.title}>
+      <Link href={localePath(locale,"/admin/offer-moderation")} className={`${styles.metricCard} ${styles.metricSafety}`}>
+        <div className={styles.metricIcon}><AlertTriangle size={19}/></div><strong>{snapshot.offers?number(flagged.length,locale):"—"}</strong>
+        <div><b>{t.foodSafety}</b><small>{reported} {t.reported} · {unknown} {t.allergensUnknown}</small></div><ArrowUpRight size={16}/>
+      </Link>
+      <Link href={localePath(locale,"/admin/merchant-review")} className={`${styles.metricCard} ${styles.metricMerchants}`}>
+        <div className={styles.metricIcon}><Store size={19}/></div><strong>{snapshot.merchants?number(snapshot.merchants.total,locale):"—"}</strong>
+        <div><b>{t.merchants}</b><small>{number(snapshot.merchants?.total??0,locale)} {t.pending} · {infoRequired} {t.infoRequired}</small></div><ArrowUpRight size={16}/>
+      </Link>
+      <Link href={localePath(locale,"/admin/support-cases")} className={`${styles.metricCard} ${styles.metricSupport}`}>
+        <div className={styles.metricIcon}><Flag size={19}/></div><strong>{snapshot.cases?number(snapshot.cases.total,locale):"—"}</strong>
+        <div><b>{t.support}</b><small>{high} {t.high} · {medium} {t.medium} · {low} {t.low}</small></div><ArrowUpRight size={16}/>
+      </Link>
+    </section>
 
-  const showError = loadState === "error";
-  const showPartial = loadState === "partial";
-
-  return (
-    <div className={`${styles.overview} ${redesign.root}`} data-testid="admin-overview" dir={locale === "ar" ? "rtl" : "ltr"}>
-      <section className={styles.hero} aria-labelledby="admin-overview-title">
-        <div className={styles.heroGlow} aria-hidden="true" />
-        <div className={styles.heroContent}>
-          <div className={styles.eyebrow}><span className={styles.liveDot} />{t.eyebrow}</div>
-          <h1 id="admin-overview-title">{t.title}</h1>
-          <p>{t.lead}</p>
-          <div className={styles.heroMeta}>
-            <span className={styles.livePill}><span />{t.live}</span>
-            <span className={styles.updatedAt}><Clock3 size={14} aria-hidden="true" />{t.updated}: {lastUpdatedLabel}</span>
-          </div>
-        </div>
-        <button type="button" className={styles.refreshButton} onClick={() => void refresh()} disabled={refreshing}>
-          <RefreshCw size={16} className={refreshing ? styles.spinning : ""} aria-hidden="true" />
-          {refreshing ? t.syncing : t.refresh}
-        </button>
-        <div className={styles.heroMark} aria-hidden="true">K!</div>
-      </section>
-
-      {showError && (
-        <div className={styles.errorNotice} role="alert">
-          <AlertTriangle size={18} aria-hidden="true" />
-          <span>{t.error}</span>
-          <button type="button" onClick={() => void refresh()}>{t.retry}</button>
-        </div>
-      )}
-      {showPartial && (
-        <div className={styles.partialNotice} role="status">
-          <AlertTriangle size={16} aria-hidden="true" />
-          <span>{t.partial}</span>
-        </div>
-      )}
-
-      <section className={styles.metrics} data-testid="admin-overview-metrics" aria-label={t.eyebrow}>
-        <article className={styles.metricCard}>
-          <div className={styles.metricTop}>
-            <span className={styles.metricIcon + " " + styles.metricGold}><Store size={18} /></span>
-            <span className={styles.metricContext}>{t.pendingShops}</span>
-          </div>
-          <strong>{snapshot.merchants ? formatNumber(snapshot.merchants.total, locale) : t.emptyValue}</strong>
-          <span className={styles.metricFoot}>{t.queueLead}</span>
-        </article>
-        <article className={styles.metricCard}>
-          <div className={styles.metricTop}>
-            <span className={styles.metricIcon + " " + styles.metricBlue}><Flag size={18} /></span>
-            <span className={styles.metricContext}>{t.openCases}</span>
-          </div>
-          <strong>{snapshot.cases ? formatNumber(snapshot.cases.total, locale) : t.emptyValue}</strong>
-          <span className={styles.metricFoot}>{t.supportLead}</span>
-        </article>
-        <article className={styles.metricCard}>
-          <div className={styles.metricTop}>
-            <span className={styles.metricIcon + " " + styles.metricGreen}><Tag size={18} /></span>
-            <span className={styles.metricContext}>{t.offersCatalog}</span>
-          </div>
-          <strong>{snapshot.offers ? formatNumber(snapshot.offers.total, locale) : t.emptyValue}</strong>
-          <span className={styles.metricFoot}>{t.offerLead}</span>
-        </article>
-        <article className={styles.metricCard}>
-          <div className={styles.metricTop}>
-            <span className={styles.metricIcon + " " + styles.metricInk}><FileText size={18} /></span>
-            <span className={styles.metricContext}>{t.auditEvents}</span>
-          </div>
-          <strong>{snapshot.audit ? formatNumber(snapshot.audit.total, locale) : t.emptyValue}</strong>
-          <span className={styles.metricFoot}>{t.activityLead}</span>
-        </article>
-      </section>
-
-      <section className={styles.workGrid}>
-        <div className={styles.primaryColumn}>
-          <article className={styles.panel}>
-            <div className={styles.panelHeader}>
-              <div>
-                <span className={styles.sectionKicker}>01 / {t.merchants}</span>
-                <h2>{t.queueTitle}</h2>
-                <p>{t.queueLead}</p>
-              </div>
-              <Link href={localePath(locale, "/admin/merchant-review")} className={styles.textLink}>
-                {t.viewAll}<ArrowUpRight size={16} aria-hidden="true" />
-              </Link>
-            </div>
-            <div className={styles.tableWrap}>
-              <table className={styles.queueTable}>
-                <thead>
-                  <tr><th>{t.shop}</th><th>{t.city}</th><th>{t.submitted}</th><th aria-label={t.statusPending} /></tr>
-                </thead>
-                <tbody>
-                  {snapshot.merchants?.items.slice(0, 5).map((merchant) => (
-                    <tr key={merchant.id}>
-                      <td>
-                        <strong>{merchant.name}</strong>
-                        <small>{merchant.businessType || merchant.ownerEmail}</small>
-                      </td>
-                      <td>{merchant.city || t.emptyValue}</td>
-                      <td>{formatDate(merchant.createdAt, locale) || t.emptyValue}</td>
-                      <td><span className={styles.statusPending}>{merchant.status === "INFO_REQUIRED" ? t.statusInfo : t.statusPending}</span></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {snapshot.merchants && snapshot.merchants.items.length === 0 && <p className={styles.emptyState}>{t.noShops}</p>}
-              {!snapshot.merchants && loadState !== "initial" && <p className={styles.emptyState}>{t.emptyValue}</p>}
-              {loadState === "initial" && <div className={styles.tableSkeleton}><span /><span /><span /></div>}
-            </div>
-          </article>
-
-          <article className={styles.panel}>
-            <div className={styles.panelHeader}>
-              <div>
-                <span className={styles.sectionKicker}>02 / {t.offers}</span>
-                <h2>{t.offerTitle}</h2>
-                <p>{t.offerLead}</p>
-              </div>
-              <Link href={localePath(locale, "/admin/offer-moderation")} className={styles.textLink}>
-                {t.viewAll}<ArrowUpRight size={16} aria-hidden="true" />
-              </Link>
-            </div>
-            <div className={styles.signalList}>
-              {visibleOffers.map((offer) => {
-                const reported = offer.reportedCount > 0;
-                return (
-                  <div className={styles.signalRow} key={offer.id}>
-                    <span className={styles.signalIcon}><Tag size={17} aria-hidden="true" /></span>
-                    <div className={styles.signalContent}>
-                      <strong>{offer.title}</strong>
-                      <small>{offer.shopName} · {offer.city}</small>
-                    </div>
-                    <span className={reported ? styles.signalReported : styles.signalUnknown}>
-                      {reported ? offer.reportedCount + " " + t.reports : t.unknownAllergens}
-                    </span>
-                  </div>
-                );
-              })}
-              {snapshot.offers && visibleOffers.length === 0 && <p className={styles.emptyState}>{t.noOffers}</p>}
-              {!snapshot.offers && loadState !== "initial" && <p className={styles.emptyState}>{t.emptyValue}</p>}
-              {loadState === "initial" && <div className={styles.tableSkeleton}><span /><span /></div>}
-            </div>
-          </article>
-        </div>
-
-        <aside className={styles.secondaryColumn}>
-          <article className={styles.panel + " " + styles.supportPanel}>
-            <div className={styles.panelHeader}>
-              <div>
-                <span className={styles.sectionKicker}>03 / {t.support}</span>
-                <h2>{t.supportTitle}</h2>
-                <p>{t.supportLead}</p>
-              </div>
-              <Link href={localePath(locale, "/admin/support-cases")} className={styles.iconLink} aria-label={t.viewAll}>
-                <ArrowUpRight size={17} aria-hidden="true" />
-              </Link>
-            </div>
-            <div className={styles.caseList}>
-              {snapshot.cases?.items.slice(0, 4).map((item) => (
-                <div className={styles.caseRow} key={item.id}>
-                  <span className={item.priority === "HIGH" ? styles.priorityHigh : item.priority === "MEDIUM" ? styles.priorityMedium : styles.priorityLow} />
-                  <div>
-                    <strong>{item.subject}</strong>
-                    <small>{item.reference} · {item.merchantName || t.case}</small>
-                  </div>
-                  <time>{formatDate(item.updatedAt, locale)}</time>
-                </div>
-              ))}
-              {snapshot.cases && snapshot.cases.items.length === 0 && <p className={styles.emptyState}>{t.noCases}</p>}
-              {!snapshot.cases && loadState !== "initial" && <p className={styles.emptyState}>{t.emptyValue}</p>}
-              {loadState === "initial" && <div className={styles.tableSkeleton}><span /><span /></div>}
-            </div>
-          </article>
-
-          <article className={styles.documentCard} data-testid="admin-overview-document-warning">
-            <div className={styles.documentTop}>
-              <span className={styles.documentIcon}><ShieldCheck size={19} aria-hidden="true" /></span>
-              <span className={styles.documentStatus}>{t.documentsStatus}</span>
-            </div>
-            <h2>{t.documentsTitle}</h2>
-            <p>{t.documentsLead}</p>
-            <Link href={localePath(locale, "/admin/merchant-review")} className={styles.documentLink}>
-              {t.documentsAction}<ChevronRight size={16} aria-hidden="true" />
-            </Link>
-          </article>
-
-          <article className={styles.quickPanel}>
-            <div className={styles.panelHeader}>
-              <div><h2>{t.quickTitle}</h2><p>{t.quickLead}</p></div>
-              <Activity size={18} aria-hidden="true" />
-            </div>
-            <div className={styles.quickLinks}>
-              <Link href={localePath(locale, "/admin/merchant-review")}><Store size={16} />{t.merchants}<ArrowUpRight size={14} /></Link>
-              <Link href={localePath(locale, "/admin/offer-moderation")}><Tag size={16} />{t.offers}<ArrowUpRight size={14} /></Link>
-              <Link href={localePath(locale, "/admin/support-cases")}><Flag size={16} />{t.support}<ArrowUpRight size={14} /></Link>
-              <Link href={localePath(locale, "/admin/audit-log")}><FileText size={16} />{t.audit}<ArrowUpRight size={14} /></Link>
-            </div>
-          </article>
-        </aside>
-      </section>
-
-      <article className={styles.panel + " " + styles.activityPanel}>
-        <div className={styles.panelHeader}>
-          <div>
-            <span className={styles.sectionKicker}>04 / {t.audit}</span>
-            <h2>{t.activityTitle}</h2>
-            <p>{t.activityLead}</p>
-          </div>
-          <Link href={localePath(locale, "/admin/audit-log")} className={styles.textLink}>
-            {t.viewAll}<ArrowUpRight size={16} aria-hidden="true" />
-          </Link>
-        </div>
-        <div className={styles.activityList}>
-          {snapshot.audit?.items.slice(0, 5).map((entry) => (
-            <div className={styles.activityRow} key={entry.id}>
-              <span className={entry.result === "SUCCESS" ? styles.activitySuccess : styles.activityIssue}>
-                {entry.result === "SUCCESS" ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
-              </span>
-              <div className={styles.activityCopy}>
-                <strong>{humanize(entry.action, locale)}</strong>
-                <small>{entry.actorName || t.emptyValue} · {entry.targetType} {entry.targetId}</small>
-                {entry.reason && <small className={styles.activityReason}>{entry.reason}</small>}
-              </div>
-              <time>{formatDate(entry.createdAt, locale)}</time>
-            </div>
-          ))}
-          {snapshot.audit && snapshot.audit.items.length === 0 && <p className={styles.emptyState}>{t.noActivity}</p>}
-          {!snapshot.audit && loadState !== "initial" && <p className={styles.emptyState}>{t.emptyValue}</p>}
-          {loadState === "initial" && <div className={styles.tableSkeleton}><span /><span /><span /></div>}
+    <section className={styles.dashboardGrid}>
+      <article className={styles.queuePanel}>
+        <div className={styles.panelHeader}><h2>{t.upNext}</h2><Link href={localePath(locale,"/admin/offer-moderation")}>{t.viewAll} <ArrowUpRight size={15}/></Link></div>
+        <div className={styles.priorityQueue}>
+          {queue.map(item=><Link className={styles.queueItem} href={localePath(locale,item.href)} key={item.kind+item.id}>
+            <span className={item.kind==="offer"?styles.queueOffer:item.kind==="case"?styles.queueCase:styles.queueShop}>{item.kind==="offer"?<Tag size={17}/>:item.kind==="case"?<Flag size={17}/>:<Store size={17}/>}</span>
+            <span className={styles.queueCopy}><strong>{item.title}</strong><small>{item.subtitle}</small></span>
+            <span className={styles.queueMeta}>{item.meta}</span>
+            {item.time&&<time>{item.time}</time>}
+            <span className={styles.queueAction}>{item.kind==="case"?t.open:t.review}</span>
+          </Link>)}
+          {queue.length===0&&loadState!=="initial"&&<p className={styles.emptyState}>{t.empty}</p>}
+          {loadState==="initial"&&<div className={styles.tableSkeleton}><span/><span/><span/></div>}
         </div>
       </article>
-    </div>
-  );
+
+      <aside className={styles.dashboardAside}>
+        <article className={styles.activityPanel}>
+          <div className={styles.panelHeader}><h2>{t.recent}</h2><Activity size={17}/></div>
+          <div className={styles.activityList}>{activity.map(entry=><div className={styles.activityRow} key={entry.id}>
+            <span className={entry.result==="SUCCESS"?styles.activitySuccess:styles.activityIssue}>{entry.result==="SUCCESS"?<CheckCircle2 size={14}/>:<AlertTriangle size={14}/>}</span>
+            <div className={styles.activityCopy}><strong>{humanize(entry.action)}</strong><small>{entry.actorName} · {date(entry.createdAt,locale)}</small></div>
+          </div>)}{snapshot.audit&&activity.length===0&&<p className={styles.emptyState}>{t.noActivity}</p>}</div>
+        </article>
+        <article className={styles.systemPanel}>
+          <h2>{t.systems}</h2><div className={styles.systemPills}>
+            <span className={snapshot.offers?styles.systemOk:styles.systemWait}>{t.offers} {snapshot.offers?"✓":"·"}</span>
+            <span className={snapshot.audit?styles.systemOk:styles.systemWait}>{t.audit} {snapshot.audit?"✓":"·"}</span>
+            <span className={snapshot.cases?styles.systemOk:styles.systemWait}>{t.support}: {snapshot.cases?t.ready:t.noResponse}</span>
+          </div>
+        </article>
+        <article className={styles.documentCard} data-testid="admin-overview-document-warning">
+          <div className={styles.documentTop}><span className={styles.documentIcon}><FileText size={18}/></span></div>
+          <h2>{t.documents}</h2><p>{t.documentsLead}</p>
+        </article>
+      </aside>
+    </section>
+  </div>;
+}
+
+function lastUpdatedLabel(value:Date|null,locale:SiteLocale,fallback:string) {
+  if(!value) return fallback;
+  const tag=locale==="ar"?"ar-MA":locale==="en"?"en-MA":"fr-MA";
+  return new Intl.DateTimeFormat(tag,{timeZone:"Africa/Casablanca",weekday:"long",day:"2-digit",month:"long",hour:"2-digit",minute:"2-digit"}).format(value);
 }
