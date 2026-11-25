@@ -586,7 +586,7 @@ async function assertSupportTimelineVisible(page, width, height) {
 }
 
 async function assertAuditExplorerLayout(page, width, height) {
-  await page.waitForURL(url => url.pathname.includes("/admin/audit-log/"));
+  await page.waitForURL(url => url.pathname.includes("/admin/audit-log/"), { waitUntil: "commit" });
   const metrics = await page.evaluate(() => {
     const explorer = document.querySelector('[data-testid="audit-explorer"]');
     const card = document.querySelector('[data-testid="audit-table-card"]');
@@ -637,7 +637,7 @@ async function assertAuditExplorerLayout(page, width, height) {
     throw new Error("Selecting an audit event must navigate to its record-specific workspace route: " + page.url());
   }
   await page.keyboard.press("Escape");
-  await page.waitForURL(url => url.pathname.endsWith("/admin/audit-log"));
+  await page.waitForURL(url => url.pathname.endsWith("/admin/audit-log"), { waitUntil: "commit" });
   await page.getByTestId("audit-record-detail").waitFor({ state: "detached" });
   const row = page.getByTestId("audit-record-row").last();
   await row.click();
@@ -1003,7 +1003,7 @@ try {
         const rows = page.getByTestId("offer-queue").getByRole("button");
         if (await rows.count() < 2) throw new Error("Offer queue requires multiple test records to verify tab switching.");
         await rows.first().click();
-        await page.waitForURL(url => url.pathname.includes("/admin/offer-moderation/"));
+        await page.waitForURL(url => url.pathname.includes("/admin/offer-moderation/"), { waitUntil: "commit" });
         await page.getByTestId("workspace-record-panel").waitFor({ state: "visible" });
         const firstRecordPath = new URL(page.url()).pathname;
         if (!/\/admin\/offer-moderation\/[^/]+$/.test(firstRecordPath)) {
@@ -1013,27 +1013,27 @@ try {
           throw new Error("Offer review must be an inline non-modal workspace panel at " + size.width + "px.");
         }
         await rows.nth(1).click();
-        await page.waitForURL(url => url.pathname.includes("/admin/offer-moderation/") && url.pathname !== firstRecordPath);
+        await page.waitForURL(url => url.pathname.includes("/admin/offer-moderation/") && url.pathname !== firstRecordPath, { waitUntil: "commit" });
         await page.getByTestId("workspace-record-panel").waitFor({ state: "visible" });
         const tabs = page.getByTestId("admin-workspace-tabs").getByRole("tab");
         if (await tabs.count() < 3) {
           throw new Error("Queue and selected offer records must each have their own workspace tabs.");
         }
         await tabs.nth(1).click();
-        await page.waitForURL(url => url.pathname === firstRecordPath);
+        await page.waitForURL(url => url.pathname === firstRecordPath, { waitUntil: "commit" });
         await page.getByTestId("workspace-record-panel").waitFor({ state: "visible" });
         await tabs.nth(2).click();
-        await page.waitForURL(url => url.pathname.includes("/admin/offer-moderation/") && url.pathname !== firstRecordPath);
+        await page.waitForURL(url => url.pathname.includes("/admin/offer-moderation/") && url.pathname !== firstRecordPath, { waitUntil: "commit" });
         await page.getByTestId("workspace-record-panel").waitFor({ state: "visible" });
         await page.getByTestId("workspace-record-panel").getByRole("button").first().click();
-        await page.waitForURL(url => url.pathname.endsWith("/admin/offer-moderation"));
+        await page.waitForURL(url => url.pathname.endsWith("/admin/offer-moderation"), { waitUntil: "commit" });
         await page.getByTestId("workspace-record-panel").waitFor({ state: "detached" });
       }
       if (route.path.endsWith("/admin/support-cases")) {
         const rows = page.getByTestId("support-case-row");
         if (await rows.count() < 2) throw new Error("Support queue requires multiple test records to verify tab switching.");
         await rows.first().click();
-        await page.waitForURL(url => url.pathname.includes("/admin/support-cases/"));
+        await page.waitForURL(url => url.pathname.includes("/admin/support-cases/"), { waitUntil: "commit" });
         await page.getByTestId("workspace-record-panel").waitFor({ state: "visible" });
         const firstRecordPath = new URL(page.url()).pathname;
         if (!/\/admin\/support-cases\/[^/]+$/.test(firstRecordPath)) {
@@ -1044,7 +1044,7 @@ try {
         }
         const firstSubject = await page.locator('[data-testid="support-case-detail"] h2').innerText();
         await rows.nth(1).click();
-        await page.waitForURL(url => url.pathname.includes("/admin/support-cases/") && url.pathname !== firstRecordPath);
+        await page.waitForURL(url => url.pathname.includes("/admin/support-cases/") && url.pathname !== firstRecordPath, { waitUntil: "commit" });
         await page.waitForFunction(previous => document.querySelector('[data-testid="support-case-detail"] h2')?.textContent !== previous, firstSubject);
         await page.getByTestId("workspace-record-panel").waitFor({ state: "visible" });
         if (await page.getByTestId("admin-workspace-tabs").getByRole("tab").count() < 3) {
