@@ -1073,166 +1073,49 @@ try {
     await context.close();
   }
 
-  // Offer moderation: the selected action and mandatory reason are submitted.
+  // Offer moderation: the offer is read first; moderation writes happen in a separate action workspace.
   {
     offerStatus = "PUBLISHED";
     const context = await loginContext(browser, "admin-token");
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(origin + "/en/admin/offer-moderation", { waitUntil: "networkidle" });
-    const inlineOffer = page.getByTestId("offer-moderation-workflow");
-    await inlineOffer.waitFor({ state: "visible" });
-    await inlineOffer.locator('[data-action="suspend"]').click();
-    await inlineOffer.getByLabel("Reason (required)").fill("Allergen information needs verification.");
-    await page.getByTestId("offer-moderation-footer").getByRole("button", { name: "Hide offer" }).click();
+    const detail = page.getByTestId("offer-detail-panel");
+    await detail.waitFor({ state: "visible" });
+    if (await detail.locator("textarea, input").count() !== 0) {
+      throw new Error("Offer inspection must be read-only.");
+    }
+    await page.getByRole("button", { name: "Open moderation" }).click();
+    const action = page.getByTestId("offer-action-dialog");
+    await action.waitFor({ state: "visible" });
+    await action.locator('[data-action="suspend"]').click();
+    await action.getByLabel("Reason (required)").fill("Allergen information needs verification.");
+    await action.getByTestId("offer-moderation-footer").getByRole("button", { name: "Hide offer" }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/suspend"), "Offer moderation action");
     await context.close();
   }
 
-  // Support: assigned SUPPORT agent reveals PII only after a reason and resolves with a separate reason.
+  // Support: case history is read-only; customer disclosure, replies and case actions live separately.
   {
     caseStatus = "OPEN";
     supportCase.status = caseStatus;
     const context = await loginContext(browser, "support-token");
     const page = await context.newPage();
+    await page.setViewportSize({ width: 1366, height: 768 });
     await page.goto(origin + "/en/admin/support-cases", { waitUntil: "networkidle" });
-    await page.setViewportSize({ width: 1366, height: 768 });
-    const detail = page.locator('[data-testid="support-case-detail"]');
-    const history = page.locator('[data-testid="support-case-history"]');
-    const composer = page.locator('[data-testid="support-message-composer"]');
-    await history.waitFor({ state: "visible" });
-    const shortLayout = await page.evaluate(() => {
-      const detailNode = document.querySelector('[data-testid="support-case-detail"]');
-      const historyNode = document.querySelector('[data-testid="support-case-history"]');
-      const composerNode = document.querySelector('[data-testid="support-message-composer"]');
-      const panel = detailNode.getBoundingClientRect();
-      const reply = composerNode.getBoundingClientRect();
-      return {
-        documentHeight: document.documentElement.scrollHeight,
-        viewportHeight: window.innerHeight,
-        detailOverflow: getComputedStyle(detailNode).overflowY,
-        historyOverflow: getComputedStyle(historyNode).overflowY,
-        composerBottom: reply.bottom,
-        detailBottom: panel.bottom,
-        textareaHeight: composerNode.querySelector("textarea").getBoundingClientRect().height,
-      };
-    });
-    if (shortLayout.documentHeight > shortLayout.viewportHeight + 1
-      || shortLayout.detailOverflow !== "hidden"
-      || shortLayout.historyOverflow !== "auto"
-      || shortLayout.composerBottom > shortLayout.detailBottom + 1
-      || shortLayout.textareaHeight > 140) {
-      throw new Error(`Short support conversation layout failed: ${JSON.stringify(shortLayout)}`);
+    const detail = page.getByTestId("support-case-detail");
+    await page.getByTestId("support-case-history").waitFor({ state: "visible" });
+    if (await detail.locator("input, textarea, form").count() !== 0) {
+      throw new Error("Support case inspection must not contain write controls.");
     }
-
-    // Long history must scroll inside .caseHistory; the detail panel and composer stay fixed.
-    timeline = Array.from({ length: 48 }, (_, index) => ({
-      id: `00000000-0000-4000-8000-${String(300 + index).padStart(12, "0")}`,
-      authorType: index % 2 ? "AGENT" : "CUSTOMER",
-      authorUserId: index % 2 ? actorId : customerId,
-      authorLabel: index % 2 ? "Support Agent" : "Customer",
-      visibility: "CUSTOMER",
-      message: `Conversation history entry ${index + 1}: ${"The complete case discussion remains available to the support team. ".repeat(3)}`,
-      createdAt: new Date(Date.now() - (48 - index) * 60000).toISOString(),
-    }));
-    await page.reload({ waitUntil: "networkidle" });
-    await history.waitFor({ state: "visible" });
-    const longLayout = await page.evaluate(() => {
-      const detailNode = document.querySelector('[data-testid="support-case-detail"]');
-      const historyNode = document.querySelector('[data-testid="support-case-history"]');
-      const composerNode = document.querySelector('[data-testid="support-message-composer"]');
-      const detailRect = detailNode.getBoundingClientRect();
-      const composerRect = composerNode.getBoundingClientRect();
-      return {
-        documentHeight: document.documentElement.scrollHeight,
-        viewportHeight: window.innerHeight,
-        detailClient: detailNode.clientHeight,
-        detailScroll: detailNode.scrollHeight,
-        historyClient: historyNode.clientHeight,
-        historyScroll: historyNode.scrollHeight,
-        historyOverflow: getComputedStyle(historyNode).overflowY,
-        composerTop: composerRect.top,
-        composerBottom: composerRect.bottom,
-        detailTop: detailRect.top,
-        detailBottom: detailRect.bottom,
-      };
-    });
-    if (longLayout.documentHeight > longLayout.viewportHeight + 1
-      || longLayout.detailScroll > longLayout.detailClient + 2
-      || longLayout.historyScroll <= longLayout.historyClient + 2
-      || longLayout.historyOverflow !== "auto"
-      || longLayout.composerBottom > longLayout.detailBottom + 1
-      || longLayout.composerTop < longLayout.detailTop - 1) {
-      throw new Error(`Long support conversation layout failed: ${JSON.stringify(longLayout)}`);
-    }
-    await history.evaluate(element => { element.scrollTop = element.scrollHeight; });
-    const composerAfterScroll = await composer.boundingBox();
-    if (!composerAfterScroll || composerAfterScroll.y + composerAfterScroll.height > longLayout.detailBottom + 1) {
-      throw new Error("Reply composer moved outside the detail panel while scrolling the conversation.");
-    }
-    await composer.getByPlaceholder("Write a message…").fill("Reply sent from the long-conversation browser test.");
-    await composer.getByRole("button", { name: "Send to customer" }).click();
-    await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/messages"), "Support reply submission");
-    await page.getByText("Reply sent from the long-conversation browser test.").waitFor({ state: "visible" });
-
-    // Repeat the long-history behavior at every required viewport. Desktop scroll
-    // stays in history; narrow layouts retain ordinary document scrolling.
-    for (const size of sizes) {
-      await page.setViewportSize(size);
-      await page.reload({ waitUntil: "networkidle" });
-      const matrixLayout = await page.evaluate(() => {
-        const detailNode = document.querySelector('[data-testid="support-case-detail"]');
-        const historyNode = document.querySelector('[data-testid="support-case-history"]');
-        const composerNode = document.querySelector('[data-testid="support-message-composer"]');
-        const detailRect = detailNode.getBoundingClientRect();
-        const composerRect = composerNode.getBoundingClientRect();
-        return {
-          viewportHeight: innerHeight,
-          documentHeight: document.documentElement.scrollHeight,
-          detailClient: detailNode.clientHeight,
-          detailScroll: detailNode.scrollHeight,
-          detailBottom: detailRect.bottom,
-          composerBottom: composerRect.bottom,
-          historyClient: historyNode.clientHeight,
-          historyScroll: historyNode.scrollHeight,
-          historyOverflow: getComputedStyle(historyNode).overflowY,
-          detailOverflow: getComputedStyle(detailNode).overflowY,
-          firstEntry: historyNode.textContent.includes("Conversation history entry 1"),
-          lastEntry: historyNode.textContent.includes("Conversation history entry 48"),
-        };
-      });
-      if (matrixLayout.composerBottom > matrixLayout.detailBottom + 1
-        || !matrixLayout.firstEntry || !matrixLayout.lastEntry) {
-        throw new Error(`Long support conversation content/composer failed at ${size.width}x${size.height}: ${JSON.stringify(matrixLayout)}`);
-      }
-      if (size.width >= 900) {
-        if (matrixLayout.documentHeight > size.height + 1
-          || matrixLayout.detailScroll > matrixLayout.detailClient + 2
-          || matrixLayout.historyScroll <= matrixLayout.historyClient + 2
-          || matrixLayout.historyOverflow !== "auto"
-          || matrixLayout.detailOverflow !== "hidden"
-          || matrixLayout.detailBottom > size.height + 1) {
-          throw new Error(`Long desktop history scroll ownership failed at ${size.width}x${size.height}: ${JSON.stringify(matrixLayout)}`);
-        }
-      } else {
-        if (matrixLayout.historyOverflow !== "visible" || matrixLayout.documentHeight <= size.height) {
-          throw new Error(`Long mobile conversation must use document scrolling at ${size.width}x${size.height}: ${JSON.stringify(matrixLayout)}`);
-        }
-        await page.locator('[data-testid="support-message-composer"]').scrollIntoViewIfNeeded();
-        const composerVisible = await page.locator('[data-testid="support-message-composer"]').evaluate(element => {
-          const rect = element.getBoundingClientRect();
-          return rect.top >= 0 && rect.bottom <= innerHeight;
-        });
-        if (!composerVisible) throw new Error(`Mobile reply composer is unreachable at ${size.width}px.`);
-      }
-    }
-    await page.setViewportSize({ width: 1366, height: 768 });
-    await page.reload({ waitUntil: "networkidle" });
-    await page.getByLabel("Reason for viewing customer details (required)").fill("Confirming a food-safety complaint.");
-    await page.getByRole("button", { name: "Reveal" }).click();
+    await detail.getByRole("button", { name: "Review application" }).click();
+    const actions = page.getByTestId("support-action-dialog");
+    await actions.waitFor({ state: "visible" });
+    await actions.getByLabel("Reason for viewing customer details (required)").fill("Confirming a food-safety complaint.");
+    await actions.getByRole("button", { name: "Reveal" }).click();
     await page.getByText("customer@kulha.test").waitFor({ state: "visible" });
-    await page.getByLabel(/Reason for the action/).fill("Food-safety case reviewed and resolved.");
-    await page.getByRole("button", { name: "Resolve case" }).click();
+    await actions.getByLabel(/Reason for the action/).fill("Food-safety case reviewed and resolved.");
+    await actions.getByRole("button", { name: "Resolve case" }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/reveal-customer"), "Support customer disclosure");
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/actions"), "Support case resolution");
     await context.close();
