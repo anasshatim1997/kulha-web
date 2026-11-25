@@ -586,6 +586,7 @@ async function assertSupportTimelineVisible(page, width, height) {
 }
 
 async function assertAuditExplorerLayout(page, width, height) {
+  await page.waitForURL(url => url.pathname.includes("/admin/audit-log/"));
   const metrics = await page.evaluate(() => {
     const explorer = document.querySelector('[data-testid="audit-explorer"]');
     const card = document.querySelector('[data-testid="audit-table-card"]');
@@ -1002,6 +1003,7 @@ try {
         const rows = page.getByTestId("offer-queue").getByRole("button");
         if (await rows.count() < 2) throw new Error("Offer queue requires multiple test records to verify tab switching.");
         await rows.first().click();
+        await page.waitForURL(url => url.pathname.includes("/admin/offer-moderation/"));
         await page.getByTestId("workspace-record-panel").waitFor({ state: "visible" });
         const firstRecordPath = new URL(page.url()).pathname;
         if (!/\/admin\/offer-moderation\/[^/]+$/.test(firstRecordPath)) {
@@ -1031,6 +1033,7 @@ try {
         const rows = page.getByTestId("support-case-row");
         if (await rows.count() < 2) throw new Error("Support queue requires multiple test records to verify tab switching.");
         await rows.first().click();
+        await page.waitForURL(url => url.pathname.includes("/admin/support-cases/"));
         await page.getByTestId("workspace-record-panel").waitFor({ state: "visible" });
         const firstRecordPath = new URL(page.url()).pathname;
         if (!/\/admin\/support-cases\/[^/]+$/.test(firstRecordPath)) {
