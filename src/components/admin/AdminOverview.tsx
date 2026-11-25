@@ -355,9 +355,7 @@ export function AdminOverview({ locale }: { locale: SiteLocale }) {
   const flaggedOffers = (snapshot.offers?.items ?? []).filter(
     (offer) => offer.reportedCount > 0 || offer.allergensStatus === "UNKNOWN",
   );
-  const visibleOffers = flaggedOffers.length > 0
-    ? flaggedOffers.slice(0, 4)
-    : (snapshot.offers?.items ?? []).slice(0, 4);
+  const visibleOffers = flaggedOffers.slice(0, 4);
 
   const showError = loadState === "error";
   const showPartial = loadState === "partial";
