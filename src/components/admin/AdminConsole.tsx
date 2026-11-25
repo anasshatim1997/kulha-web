@@ -497,6 +497,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             <strong>{item.visibility==="INTERNAL"?t.internal:item.authorType==="CUSTOMER"?t.customer:t.reply} · {new Intl.DateTimeFormat(loc(locale),{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(new Date(item.createdAt))}</strong>
                             <p>{item.message}</p>
                         </article>)}</div>
+                        </div>
                         <section className={styles.supportReadContext}>
                             <div className={styles.caseAssignment}>
                                 <p>{t.assignedTo}: <strong>{selectedCase.summary.assigneeName||"Unassigned"}</strong></p>
