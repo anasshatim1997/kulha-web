@@ -69,3 +69,8 @@
  .root :global([class*="actionDialogHeader"]),.root :global([class*="actionDialogBody"]),.root :global([class*="actionDialogFooter"]){padding:18px}
  .root :global([class*="actionDialogFooter"]){align-items:stretch;flex-direction:column}
 }
+
+.root :global([class*="supportReadContext"]){display:grid;gap:18px;margin-top:22px;padding:22px;border:1px solid #e6dfd1;border-radius:18px;background:#fffefa}
+.root :global([class*="supportReadContext"]) :global([class*="caseAssignment"]){margin:0;padding:0;border:0;background:transparent}
+.root :global([class*="supportReadContext"]) :global([class*="caseCustomer"]){padding:16px 18px;border:1px solid #e9e2d5;border-radius:14px;background:#faf8f1}
+.root :global([class*="supportReadContext"]) :global([class*="merchantReadActions"]){margin:0}
