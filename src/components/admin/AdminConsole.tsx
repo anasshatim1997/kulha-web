@@ -416,7 +416,7 @@ export function AdminConsole({locale,page,recordId,initialPage=0,initialFilter="
                             {value:"REPORTED",label:t.reportedFilter,count:reportedOfferCount},
                             {value:"ALLERGENS_UNKNOWN",label:t.allergensUnknown,count:unknownAllergenCount},
                             {value:"SUSPENDED",label:t.hiddenFilter,count:hiddenOfferCount}
-                        ].map(tab=><button key={tab.value||"all"} type="button" role="tab" aria-selected={offerStatus===tab.value} className={offerStatus===tab.value?styles.activeTab+" "+offerStyles.activeTab:styles.tab+" "+offerStyles.tab} onClick={()=>{setOfferStatus(tab.value);setOfferPage(0);setSelectedOffer(null);setReason("");}}>{tab.label} · {tab.count}</button>)}
+                        ].map(tab=><button key={tab.value||"all"} type="button" role="tab" aria-selected={offerStatus===tab.value} className={offerStatus===tab.value?styles.activeTab+" "+offerStyles.activeTab:styles.tab+" "+offerStyles.tab} onClick={()=>{setOfferStatus(tab.value as ""|"REPORTED"|"ALLERGENS_UNKNOWN"|"SUSPENDED");setOfferPage(0);setSelectedOffer(null);setReason("");}}>{tab.label} · {tab.count}</button>)}
                     </div>
                     <div className={styles.offerQueue} data-testid="offer-queue">
                         {offerItems.map(item=>{const d=discount(item);return <button type="button" key={item.id} aria-pressed={selectedOffer?.id===item.id} className={selectedOffer?.id===item.id?styles.offerItemSelected:styles.offerItem} onClick={event=>{offerReturnFocusRef.current=event.currentTarget;setDraft(queuePathname+"/"+encodeURIComponent(item.id),"selectedOfferRecord",item);openRecord(item.id,item.title,{page:offerPage,filter:offerStatus});setSelectedOffer(item);setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");}}>
@@ -579,7 +579,7 @@ export function AdminConsole({locale,page,recordId,initialPage=0,initialFilter="
                         {value:"SUCCESS",label:t.success},
                         {value:"DENIED",label:t.denied},
                         {value:"FAILED",label:auditUi.failed}
-                    ]} onChange={value=>{setAuditResult(value);setAuditPage(0);setAuditModalOpen(false);}}/>
+                    ]} onChange={value=>{setAuditResult(value as ""|"SUCCESS"|"DENIED"|"FAILED");setAuditPage(0);setAuditModalOpen(false);}}/>
                 </div>
             </section>
             <section className={styles.auditExplorer} aria-label={auditUi.history} data-testid="audit-explorer">
@@ -601,7 +601,7 @@ export function AdminConsole({locale,page,recordId,initialPage=0,initialFilter="
                     </div>
                     {!auditItems.length&&<p className={styles.empty}>{auditSearch?auditUi.noMatches:t.empty}</p>}
                     <div className={styles.auditPaginationBar}>
-                        <AuditSelect label={auditUi.pageSize} value={String(auditPageSize)} className={styles.auditPageSizeCustom} menuPlacement="top" options={[{value:"10",label:"10"},{value:"20",label:"20"},{value:"50",label:"50"}]} onChange={value=>{setAuditPageSize(Number(value));setAuditPage(0);setAuditModalOpen(false);}}/>
+                        <AuditSelect label={auditUi.pageSize} value={String(auditPageSize)} className={styles.auditPageSizeCustom} menuPlacement="top" options={[{value:"10",label:"10"},{value:"20",label:"20"},{value:"50",label:"50"}]} onChange={value=>{setAuditPageSize(Number(value) as 10|20|50);setAuditPage(0);setAuditModalOpen(false);}}/>
                         <AdminPagination page={auditPage} pageCount={auditPageCount} total={audit.total} size={audit.size||auditPageSize} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setAuditPage(next);setAuditModalOpen(false);setSelectedAuditId(null);}} />
                     </div>
                 </section>
