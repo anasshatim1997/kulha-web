@@ -709,7 +709,14 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     </div>
                 </section>
             {audit&&auditModalOpen&&selectedAudit&&<section className={styles.auditRecordCard} role="dialog" aria-modal="true" aria-label={auditUi.eventDetails} data-testid="audit-record-detail">
-                <div className={styles.offerDialogTopbar}><button type="button" className={styles.offerDialogClose} aria-label={t.closeReview} onClick={()=>setAuditModalOpen(false)}><X size={19}/></button></div>
+                <div className={styles.offerDialogTopbar}>
+                    <div className={styles.offerDialogPager}>
+                        <button type="button" aria-label="Previous audit event" disabled={audit.items.length<2} onClick={()=>{const index=audit.items.findIndex(item=>item.id===selectedAudit.id);setSelectedAuditId(audit.items[(index-1+audit.items.length)%audit.items.length].id);}}><ChevronLeft size={18}/></button>
+                        <span>{Math.max(0,audit.items.findIndex(item=>item.id===selectedAudit.id)+1)} / {audit.items.length}</span>
+                        <button type="button" aria-label="Next audit event" disabled={audit.items.length<2} onClick={()=>{const index=audit.items.findIndex(item=>item.id===selectedAudit.id);setSelectedAuditId(audit.items[(index+1)%audit.items.length].id);}}><ChevronRight size={18}/></button>
+                    </div>
+                    <button type="button" className={styles.offerDialogClose} aria-label={t.closeReview} onClick={()=>setAuditModalOpen(false)}><X size={19}/></button>
+                </div>
                 <>
                     <header className={styles.auditRecordHeader} data-testid="audit-record-header">
                         <div><small>{auditUi.eventDetails}</small><h2>{auditActionLabel(selectedAudit.action,locale)}</h2><code>{selectedAudit.action}</code></div>
