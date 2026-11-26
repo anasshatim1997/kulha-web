@@ -324,24 +324,33 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
         {message&&<div className={styles.notice} role="status">{message}</div>}
 
         {page==="merchant-review"&&merchants&&<>
-            <div className={styles.tabs} role="tablist" aria-label={t.merchantTitle}>{merchantStatuses.map(value=>{const n=tabCount(value);return <button key={value} role="tab" aria-selected={merchantStatus===value} className={merchantStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setMerchantStatus(value);setMerchantPage(0);setSelectedMerchant(null);setReason("");setInternalNote("");})}>{merchantLabel(value)}{typeof n==="number"?" · "+n:""}</button>;})}</div>
-            <div className={styles.merchantReviewWorkspace}>
-                <section className={styles.merchantPicker} aria-label={t.merchantTitle}>
-                    <div className={styles.list} data-testid="merchant-review-list">{merchantItems.map(item=><button key={item.id} className={selectedMerchant?.id===item.id?styles.merchantSelected:styles.merchantListItem} onClick={()=>void loadMerchant(item.id)}>
-                        <span className={styles.merchantListTop}><strong>{item.name}</strong><em className={styles.pill+" "+merchantTone(item.status)}>{merchantLabel(item.status)}</em></span>
-                        <small>{item.businessType} · {item.city}</small><small>{item.ownerEmail}</small>
-                    </button>)}</div>{!merchantItems.length&&<p className={styles.empty}>{t.empty}</p>}
-                    <AdminPagination page={merchantPage} pageCount={merchantPageCount} total={merchants.total} size={merchants.size||MERCHANT_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setMerchantPage(next);setSelectedMerchant(null);}} />
-                </section>
-                <section className={styles.card+" "+styles.merchantDetails} data-testid="merchant-review-detail-panel">
-                    {!selectedMerchant?<p className={styles.empty}>{t.empty}</p>:<>
-                        <div className={styles.detailHead}><div><small>{t.application} KLH-M-{selectedMerchant.id.slice(0,4).toUpperCase()}</small><h2>{selectedMerchant.name}</h2></div><span className={styles.pill+" "+merchantTone(selectedMerchant.status)}>{merchantLabel(selectedMerchant.status)}</span></div>
-                        <div className={styles.merchantStepper} aria-label={t.application}>
-                            <div className={styles.stepDone}><span>✓</span><strong>{t.stageApplication}</strong></div><i aria-hidden="true"/>
-                            <div className={styles.stepCurrent}><span>2</span><strong>{t.stageChecks}</strong></div><i aria-hidden="true"/>
-                            <div className={styles.stepPending}><span>3</span><strong>{t.stageDecision}</strong></div>
-                        </div>
-                        <section className={styles.merchantPreviewInfo}>
+            <div className={styles.tabs} role="tablist" aria-label={t.merchantTitle}>{merchantStatuses.map(value=>{const n=tabCount(value);return <button key={value} role="tab" aria-selected={merchantStatus===value} className={merchantStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setMerchantStatus(value);setMerchantPage(0);setSelectedMerchant(null);setMerchantDecisionOpen(false);setReason("");setInternalNote("");})}>{merchantLabel(value)}{typeof n==="number"?" · "+n:""}</button>;})}</div>
+            <section className={redesign.merchantTableCard} data-testid="merchant-review-table">
+                <div className={redesign.merchantTableWrap}><table className={redesign.merchantTable}>
+                    <thead><tr><th>{locale==="fr"?"COMMERCE":locale==="ar"?"المتجر":"MERCHANT"}</th><th>{locale==="fr"?"VILLE":locale==="ar"?"المدينة":"CITY"}</th><th>{locale==="fr"?"PROPRIÉTAIRE":locale==="ar"?"المالك":"OWNER"}</th><th>{locale==="fr"?"DEMANDE":locale==="ar"?"تاريخ الطلب":"APPLIED"}</th><th>{t.status}</th><th aria-label={t.review}/></tr></thead>
+                    <tbody>{merchantItems.map(item=><tr key={item.id} data-testid="merchant-row">
+                        <td><div className={redesign.merchantIdentity}><span className={redesign.merchantAvatar}>{item.name.trim().slice(0,2).toUpperCase()}</span><span><strong>{item.name}</strong><small>{item.businessType}</small></span></div></td>
+                        <td>{item.city}</td><td>{item.ownerEmail}</td><td>{relativeTime(item.createdAt,locale)}{locale==="en"?" ago":""}</td>
+                        <td><span className={styles.pill+" "+merchantTone(item.status)}>{merchantLabel(item.status)}</span></td>
+                        <td><button type="button" className={redesign.merchantReviewButton} onClick={()=>void loadMerchant(item.id)}>{t.review}</button></td>
+                    </tr>)}</tbody>
+                </table></div>
+                {!merchantItems.length&&<p className={styles.empty}>{t.empty}</p>}
+                <div className={redesign.merchantPagination}><AdminPagination page={merchantPage} pageCount={merchantPageCount} total={merchants.total} size={merchants.size||MERCHANT_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setMerchantPage(next);setSelectedMerchant(null);setMerchantDecisionOpen(false);}} /></div>
+            </section>
+            {merchantDecisionOpen&&selectedMerchant&&<div className={styles.actionOverlay} role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setMerchantDecisionOpen(false);}}>
+                <section className={styles.actionDialog+" "+redesign.merchantActionDialog} role="dialog" aria-modal="true" aria-labelledby="merchant-action-title" data-testid="merchant-review-action-dialog">
+                    <header className={styles.actionDialogHeader+" "+redesign.merchantDialogHeader}>
+                        <div><small>{t.application} KLH-M-{selectedMerchant.id.slice(0,4).toUpperCase()}</small><h2 id="merchant-action-title">{selectedMerchant.name}</h2><span className={styles.pill+" "+merchantTone(selectedMerchant.status)}>{merchantLabel(selectedMerchant.status)}</span></div>
+                        <div className={redesign.merchantDialogNav}><button type="button" aria-label="Previous merchant" disabled={selectedMerchantIndex<=0} onClick={()=>{const item=merchantItems[selectedMerchantIndex-1];if(item)void loadMerchant(item.id);}}>‹</button><span>{selectedMerchantIndex+1} / {merchantItems.length}</span><button type="button" aria-label="Next merchant" disabled={selectedMerchantIndex<0||selectedMerchantIndex>=merchantItems.length-1} onClick={()=>{const item=merchantItems[selectedMerchantIndex+1];if(item)void loadMerchant(item.id);}}>›</button><button type="button" aria-label={t.closeReview} onClick={()=>setMerchantDecisionOpen(false)}><X size={18}/></button></div>
+                    </header>
+                    <div className={styles.merchantStepper+" "+redesign.merchantDialogStepper} aria-label={t.application}>
+                        <div className={styles.stepDone}><span>✓</span><strong>{t.stageApplication}</strong></div><i aria-hidden="true"/>
+                        <div className={styles.stepCurrent}><span>2</span><strong>{t.stageChecks}</strong></div><i aria-hidden="true"/>
+                        <div className={styles.stepPending}><span>3</span><strong>{t.stageDecision}</strong></div>
+                    </div>
+                    <div className={styles.actionDialogBody+" "+redesign.merchantModalBody} data-testid="merchant-review-workflow">
+                        <section className={redesign.merchantFactsColumn}>
                             <h3>{t.businessDetails}</h3>
                             <dl className={styles.merchantFacts}>
                                 <div><dt>{t.business}</dt><dd>{selectedMerchant.businessType}</dd></div>
@@ -350,56 +359,27 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                 <div><dt>{t.email}</dt><dd>{selectedMerchant.ownerEmail}</dd></div>
                                 <div><dt>{t.submitted}</dt><dd>{dateTime(selectedMerchant.createdAt,locale)}</dd></div>
                             </dl>
+                            <section className={redesign.merchantDocuments}>
+                                <h3>{t.documents}</h3><div className={styles.missingDocs}><FileText size={20} aria-hidden="true"/><span><strong>{t.noDocumentsTitle}</strong><small>{t.noDocumentsBody}</small></span></div>
+                            </section>
                         </section>
-                        <div className={styles.merchantReadWorkspace} data-testid="merchant-review-workflow">
-                            <section className={styles.merchantReadSection}>
-                                <h3>{t.documents}</h3>
-                                <div className={styles.missingDocs}><FileText size={20} aria-hidden="true"/><span><strong>{t.noDocumentsTitle}</strong><small>{t.noDocumentsBody}</small></span></div>
-                            </section>
-                            <section className={styles.merchantReadSection}>
-                                <h3>{t.checklist}</h3>
-                                <ul className={styles.merchantReadChecks}>
-                                    <li><span aria-hidden="true">○</span>{t.locationChecked}</li>
-                                    <li><span aria-hidden="true">○</span>{t.phoneChecked}</li>
-                                </ul>
-                                <p className={styles.approveNote}>{t.approveUnlocks}</p>
-                            </section>
-                        </div>
-                        <div className={styles.merchantReadActions}>
-                            <p><ShieldCheck size={16} aria-hidden="true"/>{t.decisionNote}</p>
-                            <button type="button" className={styles.primary} onClick={()=>{setMerchantAction(null);setReason("");setInternalNote("");setChecks([false,false]);setMerchantDecisionOpen(true);}}>{t.openReview}</button>
-                        </div>
-                    </>}
-                </section>
-            </div>
-            {merchantDecisionOpen&&selectedMerchant&&<div className={styles.actionOverlay} role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setMerchantDecisionOpen(false);}}>
-                <section className={styles.actionDialog} role="dialog" aria-modal="true" aria-labelledby="merchant-action-title" data-testid="merchant-review-action-dialog">
-                    <header className={styles.actionDialogHeader}>
-                        <div><small>{t.decision}</small><h2 id="merchant-action-title">{selectedMerchant.name}</h2><p>{t.reviewHint}</p></div>
-                        <button type="button" className={styles.ghostBtn} onClick={()=>setMerchantDecisionOpen(false)}>{t.closeReview}</button>
-                    </header>
-                    <div className={styles.actionDialogBody}>
-                        <section className={styles.merchantModalSection}>
+                        <section className={redesign.merchantDecisionColumn} data-testid="merchant-review-decision">
                             <h3>{t.checklist}</h3>
-                            <div className={styles.checkList}>{[t.locationChecked,t.phoneChecked].map((label,i)=><label key={label}><input type="checkbox" checked={checks[i]} onChange={e=>setChecks(current=>current.map((value,index)=>index===i?e.target.checked:value))}/>{label}</label>)}</div>
-                            <p className={styles.approveNote}>{t.approveUnlocks}</p>
-                        </section>
-                        <section className={styles.merchantDecision+" "+styles.merchantModalDecision} data-testid="merchant-review-decision">
+                            <div className={styles.checkList}>{[t.locationChecked,t.phoneChecked].map((label,index)=><label key={label}><input type="checkbox" checked={checks[index]??false} onChange={event=>setChecks(current=>current.map((value,i)=>i===index?event.target.checked:value))}/>{label}</label>)}</div>
                             <h3>{t.decision}</h3>
-                            <div className={styles.segment} role="group" aria-label={t.decision}>
-                                <button type="button" aria-pressed={merchantAction==="approve"} className={styles.segApprove+" "+(merchantAction==="approve"?styles.segOn:"")} disabled={working||!MERCHANT_DOCUMENT_REVIEW_ENABLED||checks.some(value=>!value)} onClick={()=>setMerchantAction("approve")}>{t.approve}</button>
-                                <button type="button" aria-pressed={merchantAction==="request-information"} className={styles.segInfo+" "+(merchantAction==="request-information"?styles.segOn:"")} onClick={()=>setMerchantAction("request-information")}>{t.requestInfo}</button>
-                                <button type="button" aria-pressed={merchantAction==="reject"} className={styles.segReject+" "+(merchantAction==="reject"?styles.segOn:"")} onClick={()=>setMerchantAction("reject")}>{t.reject}</button>
+                            <div className={redesign.merchantDecisionChoices}>
+                                <button type="button" data-action="approve" aria-pressed={merchantAction==="approve"} disabled={!MERCHANT_DOCUMENT_REVIEW_ENABLED||checks.some(value=>!value)} className={merchantAction==="approve"?redesign.merchantChoiceApprove:redesign.merchantChoice} onClick={()=>setMerchantAction("approve")}><strong>{t.approve}</strong><small>{locale==="fr"?"Le commerce peut publier des offres.":locale==="ar"?"يمكن للمتجر نشر العروض.":"The shop can publish offers."}</small></button>
+                                <button type="button" data-action="request-information" aria-pressed={merchantAction==="request-information"} className={merchantAction==="request-information"?redesign.merchantChoiceInfo:redesign.merchantChoice} onClick={()=>setMerchantAction("request-information")}><strong>{t.requestInfo}</strong><small>{locale==="fr"?"Le propriétaire doit compléter le dossier.":locale==="ar"?"يُطلب من المالك استكمال الملف.":"The owner is asked to complete the file."}</small></button>
+                                <button type="button" data-action="reject" aria-pressed={merchantAction==="reject"} className={merchantAction==="reject"?redesign.merchantChoiceReject:redesign.merchantChoice} onClick={()=>setMerchantAction("reject")}><strong>{t.reject}</strong><small>{locale==="fr"?"La demande est clôturée.":locale==="ar"?"يتم إغلاق الطلب.":"The application is closed."}</small></button>
                             </div>
-                            <div className={styles.merchantDecisionFields}>
-                                <label className={styles.field}><span>{t.reason}</span><textarea rows={4} value={reason} onChange={e=>setReason(e.target.value)} maxLength={500}/></label>
-                                <label className={styles.field}><span>{t.internalNote} · {t.optional}</span><textarea rows={3} value={internalNote} onChange={e=>setInternalNote(e.target.value)} placeholder={t.optional}/></label>
-                            </div>
+                            <label className={styles.field}><span>{t.reason}</span><textarea rows={3} value={reason} onChange={event=>setReason(event.target.value)} maxLength={500} placeholder={locale==="fr"?"Motif communiqué au commerce…":locale==="ar"?"السبب الذي سيظهر للمتجر…":"Reason shown to the owner…"}/></label>
+                            <label className={styles.field}><span>{t.internalNote} · {t.optional}</span><textarea rows={2} value={internalNote} onChange={event=>setInternalNote(event.target.value)} maxLength={500} placeholder={t.optional}/></label>
                         </section>
                     </div>
                     <footer className={styles.actionDialogFooter} data-testid="merchant-review-footer">
                         <p><ShieldCheck size={16} aria-hidden="true"/>{t.decisionNote}</p>
-                        <button type="button" className={styles.primary} disabled={working||!merchantAction||!reason.trim()||(merchantAction==="approve"&&(!MERCHANT_DOCUMENT_REVIEW_ENABLED||checks.some(value=>!value)))} onClick={()=>void submitMerchant()}>{working?t.loading:t.save}</button>
+                        <button type="button" className={styles.ghostBtn} onClick={()=>setMerchantDecisionOpen(false)}>{t.cancel}</button>
+                        <button type="button" className={styles.primary} disabled={working||!merchantAction||!reason.trim()||(merchantAction==="approve"&&(!MERCHANT_DOCUMENT_REVIEW_ENABLED||checks.some(value=>!value)))} onClick={()=>void submitMerchant()}>{working?t.loading:merchantAction==="approve"?(locale==="fr"?"Approuver le commerce →":locale==="ar"?"اعتماد المتجر →":"Approve shop →"):merchantAction==="request-information"?(locale==="fr"?"Demander des informations →":locale==="ar"?"طلب معلومات →":"Request information →"):(locale==="fr"?"Rejeter la demande →":locale==="ar"?"رفض الطلب →":"Reject application →")}</button>
                     </footer>
                 </section>
             </div>}
