@@ -218,3 +218,32 @@
 .root :global([class*="batchResultDetails"]) strong{color:#173b2d;font-size:11px;text-align:end}
 .root :global([class*="batchSelected"]) article>button:not(:first-child){min-height:30px;padding:0 10px;border:1px solid #c9d6ca;border-radius:18px;background:#fffefa;color:#1c563b;font-size:10px;font-weight:900}
 .batchThumb{}.batchSignals{}.batchResultDetails{}
+
+
+.root :global([class*="offerActionDialog"]){width:min(100%,620px);max-height:92dvh}
+.root :global([class*="offerActionDialog"]) :global([class*="actionDialogHeader"]){align-items:center;padding:18px 22px}
+.root :global([class*="offerActionDialog"]) :global([class*="actionDialogHeader"]) small{display:inline-flex;padding:5px 9px;border-radius:20px;background:#e3f2e6;color:#236343;font-size:10px;font-weight:950}
+.root :global([class*="offerActionDialog"]) :global([class*="actionDialogHeader"]) h2{margin:6px 0 3px;font-size:20px}
+.root :global([class*="offerActionDialog"]) :global([class*="actionDialogHeader"]) p{font-size:11px}
+.root :global([class*="offerActionDialog"]) :global([class*="actionDialogBody"]){padding:18px 22px;gap:16px}
+.root :global([class*="offerActionDialog"]) :global([class*="actionDialogFooter"]){padding:13px 22px;gap:10px}
+.root :global([class*="offerActionDialog"]) :global([data-testid="offer-moderation-footer"]) button:last-child{background:#c83c30;color:#fff;min-height:42px;border-radius:22px;padding:0 18px}
+.root :global([class*="offerActionDialog"]) :global([data-testid="offer-moderation-footer"]) button:first-of-type{min-height:42px;border-radius:22px}
+.root :global([class*="batchDialog"]){width:min(100%,740px);max-height:92dvh}
+.root :global([class*="batchDialog"]) :global([class*="actionDialogHeader"]){padding:18px 22px}
+.root :global([class*="batchDialog"]) :global([class*="actionDialogHeader"]) h2{font-size:20px}
+.root :global([class*="batchDialog"]) :global([class*="actionDialogHeader"]) p{font-size:11px}
+.root :global([class*="batchDialog"]) :global([class*="actionDialogBody"]){padding:18px 22px;gap:18px}
+.root :global([class*="batchDialog"]) :global([class*="actionDialogFooter"]){padding:13px 22px}
+.root :global([class*="batchDialog"]) :global([class*="actionDialogFooter"]) button:last-child{background:#c83c30;color:#fff;min-height:42px;border-radius:22px;padding:0 18px}
+@media(max-width:760px){
+ .root :global([class*="offerActionDialog"]){width:100%;max-height:96dvh}
+ .root :global([class*="offerActionDialog"]) :global([class*="actionDialogHeader"]){padding:14px}
+ .root :global([class*="offerActionDialog"]) :global([class*="actionDialogBody"]){padding:14px}
+ .root :global([class*="offerActionDialog"]) :global([class*="actionDialogFooter"]){padding:12px;flex-wrap:wrap}
+ .root :global([class*="offerActionDialog"]) :global([class*="actionDialogFooter"]) p{flex:1 1 100%;font-size:11px}
+ .root :global([class*="batchDialog"]) :global([class*="actionDialogHeader"]){padding:14px}
+ .root :global([class*="batchDialog"]) :global([class*="actionDialogBody"]){padding:14px}
+ .root :global([class*="batchDialog"]) :global([class*="actionDialogFooter"]){padding:12px;flex-wrap:wrap}
+}
+.offerActionDialog{}
