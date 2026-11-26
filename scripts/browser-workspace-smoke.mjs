@@ -589,10 +589,14 @@ async function assertOfferDecisionAccessible(page, width, height, route) {
       decisionButtonHeights: decisionButtons.map(element => element.getBoundingClientRect().height),
       footerTextFont: font(footer?.querySelector("p")),
       actionHeight: action?.getBoundingClientRect().height ?? 0,
+      dialogWidth: preview?.getBoundingClientRect().width ?? 0,
+      decisionColumns: workflow ? getComputedStyle(workflow).gridTemplateColumns : "",
     };
   });
   const failures = [];
   const check = (ok, message) => { if (!ok) failures.push(message); };
+  check(metrics.dialogWidth <= 800 && metrics.decisionColumns.split(" ").length >= 2,
+    "Individual offer dialog should use compact two-column PDF layout (width " + metrics.dialogWidth + ", columns " + metrics.decisionColumns + ").");
   const fmt = value => Number.isFinite(value) ? value.toFixed(1) : String(value);
   check(Boolean(metrics.workspace), "workspace is missing");
   check(Boolean(metrics.picker), "offer picker is missing");
