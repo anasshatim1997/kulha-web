@@ -59,7 +59,7 @@ export function AdminOverview({ locale }: { locale: SiteLocale }) {
 
   const flagged = (snapshot?.offers.items ?? [])
     .filter(item => item.reportedCount > 0 || item.allergensStatus === "UNKNOWN")
-    .sort((a, b) => b.reportedCount - a.reportedCount);
+    .sort((a, b) => (b.reportedCount >= 3 ? 0 : b.allergensStatus === "UNKNOWN" ? 1 : 2) - (a.reportedCount >= 3 ? 0 : a.allergensStatus === "UNKNOWN" ? 1 : 2) || b.reportedCount - a.reportedCount);
   const openCases = [...(snapshot?.cases.items ?? [])].sort((a, b) => ({ HIGH: 0, MEDIUM: 1, LOW: 2 }[a.priority as "HIGH" | "MEDIUM" | "LOW"] ?? 3) - ({ HIGH: 0, MEDIUM: 1, LOW: 2 }[b.priority as "HIGH" | "MEDIUM" | "LOW"] ?? 3));
   const waitingMerchants = snapshot?.merchants.items ?? [];
   const auditRows = snapshot?.audit.items ?? [];
