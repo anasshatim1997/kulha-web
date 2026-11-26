@@ -1090,7 +1090,10 @@ try {
     const modal = page.getByTestId("batch-merchant-modal");
     await modal.waitFor({ state: "visible" });
     await page.screenshot({ path: join("artifacts/browser-screenshots", "merchant-batch-review-1366x768.png"), animations: "disabled" });
+    const confirmBatch = modal.getByRole("button", { name: "Confirm decision" });
+    if (!(await confirmBatch.isDisabled())) throw new Error("Merchant batch decision must require a reason.");
     await modal.getByLabel("One reason for all (required)").fill("Please complete the missing application details.");
+    if (await confirmBatch.isDisabled()) throw new Error("A valid merchant batch reason should enable confirmation.");
     await modal.getByRole("button", { name: "Confirm decision" }).click();
     await modal.getByText("1 / 2 processed").waitFor({ state: "visible" });
     await page.screenshot({ path: join("artifacts/browser-screenshots", "merchant-batch-partial-results-1366x768.png"), animations: "disabled" });
@@ -1114,8 +1117,11 @@ try {
     const inlineOffer = page.getByTestId("offer-moderation-workflow");
     await inlineOffer.waitFor({ state: "visible" });
     await inlineOffer.locator('[data-action="suspend"]').click();
+    const individualSubmit = page.getByTestId("offer-moderation-footer").getByRole("button", { name: "Hide offer" });
+    if (!(await individualSubmit.isDisabled())) throw new Error("Individual offer moderation must require a reason.");
     await inlineOffer.getByLabel("Reason (required)").fill("Allergen information needs verification.");
-    await page.getByTestId("offer-moderation-footer").getByRole("button", { name: "Hide offer" }).click();
+    if (await individualSubmit.isDisabled()) throw new Error("A valid offer reason should enable the decision confirmation.");
+    await individualSubmit.click();
     const confirm = page.getByTestId("offer-confirm-modal");
     await confirm.waitFor({ state: "visible" });
     await confirm.getByRole("button", { name: "Confirm" }).click();
@@ -1137,7 +1143,10 @@ try {
     await modal.waitFor({ state: "visible" });
     await page.screenshot({ path: join("artifacts/browser-screenshots", "offer-batch-review-1366x768.png"), animations: "disabled" });
     await modal.locator('button[aria-pressed]').nth(1).click();
+    const confirmBatch = modal.getByRole("button", { name: "Confirm decision" });
+    if (!(await confirmBatch.isDisabled())) throw new Error("Offer batch decision must require a reason.");
     await modal.getByLabel("One reason for all (required)").fill("Correct the missing offer information.");
+    if (await confirmBatch.isDisabled()) throw new Error("A valid batch reason should enable confirmation.");
     await modal.getByRole("button", { name: "Confirm decision" }).click();
     await modal.getByText("1 / 2 processed").waitFor({ state: "visible" });
     await page.screenshot({ path: join("artifacts/browser-screenshots", "offer-batch-partial-results-1366x768.png"), animations: "disabled" });
