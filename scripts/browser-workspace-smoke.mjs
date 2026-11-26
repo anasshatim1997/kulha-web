@@ -937,7 +937,7 @@ try {
         await assertOfferModerationLayout(page, size.width, size.height);
         const longTitle = "Family breakfast basket with assorted bakery items, fresh fruit and detailed allergen information";
         if (size.width === 1366) await page.screenshot({ path: join("artifacts/browser-screenshots", "offer-queue-default-1366x768.png"), animations: "disabled" });
-        await page.getByTestId("offer-pagination").getByRole("button", { name: "2" }).click();
+        await page.getByTestId("offer-pagination").getByRole("button", { name: "2", exact: true }).click();
         await page.getByTestId("offer-queue").getByRole("button").filter({ hasText: longTitle }).waitFor({ state: "visible" });
         await page.getByTestId("offer-queue").getByRole("button").filter({ hasText: longTitle }).click();
         await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
