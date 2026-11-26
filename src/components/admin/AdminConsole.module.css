@@ -5325,3 +5325,13 @@
 @media(max-width:899px){.adminModalBackdrop{padding:10px}}
 
 .offerWorkspace:has(.offerPreviewHeading) .offerPreviewCard{overflow:hidden}
+
+@media(max-width:899px){
+ .offerWorkspace:has(.offerPreviewHeading)::before,
+ .merchantReviewWorkspace:has(.merchantDetails .detailHead)::before,
+ .auditExplorer:has(.auditRecordCard)::before{z-index:130}
+ .offerWorkspace:has(.offerPreviewHeading) .offerPreviewCard,
+ .merchantReviewWorkspace:has(.merchantDetails .detailHead) .merchantDetails,
+ .auditExplorer .auditRecordCard,
+ .adminModalBackdrop{z-index:131}
+}
