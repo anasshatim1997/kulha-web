@@ -31,12 +31,21 @@ export function AdminOverview({ locale }: { locale: SiteLocale }) {
     setRefreshing(true);
     setError(false);
     try {
-      const [offers, merchants, cases, audit] = await Promise.all([
-        api.get<Page<Offer>>("/admin/offers?page=0&size=8"),
+      const [firstOffers, pendingMerchants, infoRequiredMerchants, cases, audit] = await Promise.all([
+        api.get<Page<Offer>>("/admin/offers?page=0&size=20"),
         api.get<Page<Merchant>>("/admin/merchants?status=PENDING&page=0&size=4"),
+        api.get<Page<Merchant>>("/admin/merchants?status=INFO_REQUIRED&page=0&size=4"),
         api.get<Page<CaseItem>>("/admin/support-cases?status=OPEN&page=0&size=4"),
         api.get<Page<AuditRow>>("/admin/audit-log?page=0&size=4")
       ]);
+      const allOffers = [...firstOffers.items];
+      for (let nextPage = 1; allOffers.length < firstOffers.total && nextPage < 100; nextPage += 1) {
+        const nextOffers = await api.get<Page<Offer>>("/admin/offers?page=" + nextPage + "&size=20");
+        if (!nextOffers.items.length) break;
+        allOffers.push(...nextOffers.items);
+      }
+      const offers = { ...firstOffers, items: allOffers };
+      const merchants = { ...pendingMerchants, items: [...pendingMerchants.items, ...infoRequiredMerchants.items], total: pendingMerchants.total + infoRequiredMerchants.total };
       setSnapshot({ offers, merchants, cases, audit });
       setRefreshedAt(new Date());
     } catch {
