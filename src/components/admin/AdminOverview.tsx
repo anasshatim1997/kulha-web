@@ -75,20 +75,20 @@ export function AdminOverview({ locale }: { locale: SiteLocale }) {
       <div className={styles.overviewLive}><span><i/>{copy.live}</span><button type="button" disabled={refreshing} onClick={()=>setReload(value=>value+1)}><RefreshCw size={15} className={refreshing?styles.overviewSpin:""}/>{copy.refresh}</button></div>
     </header>
     {error && <div className={styles.alert} role="alert">{copy.failed}<button type="button" onClick={()=>setReload(value=>value+1)}>{copy.refresh}</button></div>}
-    <section className={styles.overviewMetrics}>
+    <section className={styles.overviewMetrics} data-testid="overview-metrics">
       <Link href={localePath(locale, "/admin/offer-moderation")}><span><AlertTriangle size={19}/></span><strong>{snapshot ? flagged.length : "—"}</strong><b>{copy.offers}</b><small>{snapshot?flagged.filter(item=>item.reportedCount>0).length+" "+copy.reported+" · "+flagged.filter(item=>item.allergensStatus==="UNKNOWN").length+" "+copy.unknown:""}</small><ArrowRight size={16}/></Link>
       <Link href={localePath(locale, "/admin/merchant-review")}><span><Store size={19}/></span><strong>{snapshot?.merchants.total ?? "—"}</strong><b>{copy.merchants}</b><small>{snapshot?waitingMerchants.filter(item=>item.status==="PENDING").length+" "+copy.pending+" · "+waitingMerchants.filter(item=>item.status==="INFO_REQUIRED").length+" "+copy.info:""}</small><ArrowRight size={16}/></Link>
       <Link href={localePath(locale, "/admin/support-cases")}><span><LifeBuoy size={19}/></span><strong>{snapshot?.cases.total ?? "—"}</strong><b>{copy.cases}</b><small>{snapshot?openCases.filter(item=>item.priority==="HIGH").length+" "+copy.high+" · "+openCases.filter(item=>item.priority==="MEDIUM").length+" "+copy.medium+" · "+openCases.filter(item=>item.priority==="LOW").length+" "+copy.low:""}</small><ArrowRight size={16}/></Link>
     </section>
-    <div className={styles.overviewColumns}>
-      <section className={styles.overviewQueue}>
+    <div className={styles.overviewColumns} data-testid="overview-columns">
+      <section className={styles.overviewQueue} data-testid="overview-priority-queue">
         <div className={styles.overviewQueueHead}><h2>{copy.queue}</h2><Link href={localePath(locale, "/admin/offer-moderation")}>{copy.view} <ArrowRight size={14}/></Link></div>
         {flagged.slice(0,2).map(item => <Link className={styles.overviewOffer} key={item.id} href={localePath(locale, "/admin/offer-moderation")}><span className={styles.overviewOfferIcon}><Tag size={17}/></span><span><strong>{item.title}</strong><small>{item.shopName} · {item.city}{item.pickupStart ? " · "+timeLabel(item.pickupStart) : ""}</small></span><span className={styles.overviewSignal}>{item.reportedCount > 0 ? item.reportedCount+" "+copy.reported : copy.unknown}</span></Link>)}
         {openCases.slice(0,1).map(item=><Link className={styles.overviewOffer} key={item.reference} href={localePath(locale,"/admin/support-cases")}><span className={styles.overviewOfferIcon}><LifeBuoy size={17}/></span><span><strong>{item.reference} · {item.subject}</strong><small>{item.merchantName||"—"}</small></span><span className={styles.overviewSignal}>{priorityLabel(item.priority)}</span></Link>)}
         {waitingMerchants.slice(0,1).map(item=><Link className={styles.overviewOffer} key={item.id} href={localePath(locale,"/admin/merchant-review")}><span className={styles.overviewOfferIcon}><Store size={17}/></span><span><strong>{item.name}</strong><small>{item.businessType} · {item.city}</small></span><span className={styles.overviewPending}>{copy.pending}</span></Link>)}
         {snapshot&&flagged.length===0&&openCases.length===0&&waitingMerchants.length===0&&<p className={styles.empty}>{copy.empty}</p>}
       </section>
-      <div className={styles.overviewSide}>
+      <div className={styles.overviewSide} data-testid="overview-side-column">
         <section className={styles.overviewQueue}>
           <div className={styles.overviewQueueHead}><h2>{copy.recent}</h2><Link href={localePath(locale,"/admin/audit-log")}>{copy.view} <ArrowRight size={14}/></Link></div>
           {auditRows.length?auditRows.slice(0,4).map(item=><article className={styles.overviewActivity} key={item.id}><span className={styles.overviewActivityIcon}><Clock3 size={15}/></span><span><strong>{actionLabel(item.action)}</strong><small>{item.actorName} · {timeLabel(item.createdAt)}</small></span><em className={item.result==="SUCCESS"?styles.overviewSuccess:styles.overviewFailure}>{item.result==="SUCCESS"?<Check size={13}/>:<XCircle size={13}/>}</em></article>):<p className={styles.empty}>{snapshot?copy.noActivity:"—"}</p>}
