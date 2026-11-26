@@ -556,42 +556,29 @@ async function assertAuditExplorerLayout(page, width, height) {
     const box = element => {
       if (!element) return null;
       const rect = element.getBoundingClientRect();
-      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, width: rect.width, height: rect.height };
+      return { top:rect.top,bottom:rect.bottom,left:rect.left,right:rect.right,width:rect.width,height:rect.height };
     };
     return {
-      explorer: box(explorer), table: box(table), detail: box(detail), header: box(header),
-      direction: explorer ? getComputedStyle(explorer).direction : "missing",
-      scrollWidth: document.documentElement.scrollWidth,
-      tableViewportWidth: tableViewport?.clientWidth ?? 0,
-      tableViewportScrollWidth: tableViewport?.scrollWidth ?? 0,
-      mobileRowDisplay: firstRow ? getComputedStyle(firstRow).display : "missing",
-      mobileCells: firstRow?.querySelectorAll("td[data-label]").length ?? 0,
-      detailText: detail?.textContent ?? ""
+      explorer:box(explorer),table:box(table),detail:box(detail),header:box(header),
+      scrollWidth:document.documentElement.scrollWidth,
+      tableViewportWidth:tableViewport?.clientWidth??0,tableViewportScrollWidth:tableViewport?.scrollWidth??0,
+      mobileRowDisplay:firstRow?getComputedStyle(firstRow).display:"missing",
+      mobileCells:firstRow?.querySelectorAll("td[data-label]").length??0,
+      detailText:detail?.textContent??"",
     };
   });
-  if (!metrics.explorer || !metrics.table || !metrics.detail || !metrics.header
-      || metrics.detail.width < 220 || metrics.detailText.length < 180) {
-    throw new Error("Audit ledger and selected-record details are not both rendered at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  if(!metrics.explorer||!metrics.table||!metrics.detail||!metrics.header||metrics.detail.width<220||metrics.detailText.length<180){
+    throw new Error("Audit ledger or selected-record dialog is missing at "+width+"x"+height+": "+JSON.stringify(metrics));
   }
-  if (metrics.scrollWidth > width + 1) {
-    throw new Error("Audit explorer introduces horizontal page overflow at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  if(metrics.scrollWidth>width+1||metrics.detail.left< -1||metrics.detail.right>width+1||metrics.detail.bottom>height+1){
+    throw new Error("Audit record dialog clips at "+width+"x"+height+": "+JSON.stringify(metrics));
   }
-  if (width >= 900) {
-    const separated = metrics.direction === "rtl"
-      ? metrics.detail.right <= metrics.table.left + 2
-      : metrics.table.right <= metrics.detail.left + 2;
-    if (!separated) {
-      throw new Error("Audit selected-record panel must sit beside the ledger in " + metrics.direction + " layout at "
-        + width + "x" + height + ": " + JSON.stringify(metrics));
+  if(width>=900){
+    if(metrics.table.width<width-320||metrics.detail.width>700){
+      throw new Error("Audit ledger should remain full-width while details open on demand at "+width+"x"+height+": "+JSON.stringify(metrics));
     }
-  } else {
-    if (metrics.detail.top < metrics.table.bottom - 1) {
-      throw new Error("Audit selected-record panel must stack below the ledger on mobile at " + width + "px: " + JSON.stringify(metrics));
-    }
-    if (metrics.tableViewportScrollWidth > metrics.tableViewportWidth + 1
-        || metrics.mobileRowDisplay !== "grid" || metrics.mobileCells !== 6) {
-      throw new Error("Audit mobile events must use labeled stacked cells without horizontal scrolling at " + width + "x" + height + ": " + JSON.stringify(metrics));
-    }
+  }else if(metrics.tableViewportScrollWidth>metrics.tableViewportWidth+1||metrics.mobileRowDisplay!=="grid"||metrics.mobileCells!==6){
+    throw new Error("Audit mobile events must use labeled stacked cells without horizontal scrolling at "+width+"x"+height+": "+JSON.stringify(metrics));
   }
 }
 
@@ -796,6 +783,7 @@ try {
         const detailText = await page.getByTestId("audit-record-detail").innerText();
         if (detailText.length < 180) throw new Error(route.path + " selected audit detail did not render the long record fields.");
         if (size.width >= 900) await assertAuditExplorerLayout(page, size.width, size.height);
+        await page.getByTestId("audit-record-detail").locator("button[aria-label]").click();
       }
       await page.evaluate(() => window.scrollTo(0, 0));
       await page.screenshot({ path: join("artifacts/browser-screenshots", screenshotName), animations: "disabled" });
