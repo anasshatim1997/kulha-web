@@ -174,7 +174,7 @@ function AuditSelect({label,value,options,onChange,icon,className,menuPlacement=
 
 const merchantStatuses=["PENDING","INFO_REQUIRED","APPROVED","REJECTED"] as const;
 const MERCHANT_PAGE_SIZE=3;
-const OFFER_PAGE_SIZE=5;
+const OFFER_PAGE_SIZE=4;
 const CASE_PAGE_SIZE=4;
 const AUDIT_PAGE_SIZE=10;
 
