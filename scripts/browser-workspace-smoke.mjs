@@ -753,7 +753,8 @@ try {
         await assertOfferModerationLayout(page, size.width, size.height);
         const longTitle = "Family breakfast basket with assorted bakery items, fresh fruit and detailed allergen information";
         const longRow = page.getByTestId("offer-row").filter({ hasText: longTitle });
-        await longRow.getByRole("button", { name: "Review" }).click();
+        const reviewLabel = route.path.startsWith("/fr/") ? "Examiner" : route.path.startsWith("/ar/") ? "مراجعة" : "Review";
+        await longRow.getByRole("button", { name: reviewLabel }).click();
         const dialog = page.getByTestId("offer-action-dialog");
         await dialog.waitFor({ state: "visible" });
         await dialog.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
