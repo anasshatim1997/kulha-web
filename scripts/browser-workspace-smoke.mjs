@@ -70,7 +70,7 @@ const merchantRows = [
     ["00000000-0000-4000-8000-000000000113", "Primeur Atlas", "GROCERY", "Agadir", "owner4@kulha.test", "22 Boulevard Hassan II"],
   ].map(([id, name, businessType, city, ownerEmail, address], index) => ({
     ...merchant, id, name, businessType, city, ownerEmail, address,
-    phone: `+21260000000${index + 2}`, status: "PENDING",
+    phone: `+21260000000${index + 2}`, status: index === 0 ? "PENDING" : "INFO_REQUIRED",
     createdAt: new Date(now.getTime() - (index + 1) * 86400000).toISOString(),
   })),
 ];
@@ -81,8 +81,8 @@ const supportCases = [
   { ...supportCase, id: "00000000-0000-4000-8000-000000000123", reference: "SUP-2026-0004", category: "FOOD_SAFETY", subject: "Packaging condition reported", priority: "HIGH" },
   ...[
     ["SUP-2026-0005", "Reservation pickup time clarification", "RESERVATION", "MEDIUM", "OPEN"],
-    ["SUP-2026-0006", "Incorrect basket contents reported", "OFFER_QUALITY", "MEDIUM", "OPEN"],
-    ["SUP-2026-0007", "Shop cannot update opening hours", "MERCHANT_ACCOUNT", "LOW", "OPEN"],
+    ["SUP-2026-0006", "Incorrect basket contents reported", "OFFER_QUALITY", "MEDIUM", "WAITING_REPLY"],
+    ["SUP-2026-0007", "Shop cannot update opening hours", "MERCHANT_ACCOUNT", "LOW", "RESOLVED"],
     ["SUP-2026-0008", "Possible cold-chain concern", "FOOD_SAFETY", "HIGH", "ESCALATED"],
   ].map(([reference, subject, category, priority, status], index) => ({
     ...supportCase,
@@ -93,7 +93,7 @@ const supportCases = [
     updatedAt: new Date(now.getTime() - index * 1800000).toISOString(),
   })),
 ];
-const auditRows = Array.from({ length: 14 }, (_, index) => ({
+const auditRows = Array.from({ length: 298 }, (_, index) => ({
   id: `00000000-0000-4000-8000-${String(500 + index).padStart(12, "0")}`,
   actorUserId: actorId,
   actorName: index % 3 === 0 ? "Nadia El Amrani" : index % 3 === 1 ? "Youssef Bennani" : "Support Agent",
@@ -244,8 +244,9 @@ const backend = createServer(async (request, response) => {
     return json(response, {});
   }
   if (path === "/admin/support-cases" && method === "GET") {
-    const rows = url.searchParams.get("status") === caseStatus ? supportCases : [];
-    return json(response, page(rows));
+    const requestedStatus = url.searchParams.get("status") ?? "OPEN";
+    const rows = supportCases.map(item => item.id === supportCase.id ? { ...item, status: caseStatus } : item).filter(item => item.status === requestedStatus);
+    return json(response, page(rows, Number(url.searchParams.get("page") ?? 0), Number(url.searchParams.get("size") ?? 20)));
   }
   if (path === `/admin/support-cases/${supportCase.reference}` && method === "GET") {
     return json(response, { summary: { ...supportCase, status: caseStatus }, timeline });
