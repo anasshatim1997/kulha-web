@@ -1064,6 +1064,8 @@ try {
     if (!(await documents.isDisabled())) throw new Error("Merchant approval document check must remain disabled without backend documents.");
     const approve = inlineReview.getByRole("button", { name: "Approve" });
     if (!(await approve.isDisabled())) throw new Error("Merchant approval must remain blocked until documents are verifiable.");
+    const approvalOpacity = Number(await approve.evaluate(element => getComputedStyle(element).opacity));
+    if (approvalOpacity >= 1) throw new Error("Blocked merchant approval must be visibly disabled.");
     await inlineReview.getByRole("button", { name: "Request information" }).click();
     await inlineReview.getByLabel("Reason (required)").fill("Please provide the missing business documents.");
     await page.getByTestId("merchant-review-footer").getByRole("button", { name: "Submit decision" }).click();
