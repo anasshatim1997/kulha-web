@@ -96,14 +96,14 @@ const supportCases = [
 const auditRows = Array.from({ length: 298 }, (_, index) => ({
   id: `00000000-0000-4000-8000-${String(500 + index).padStart(12, "0")}`,
   actorUserId: actorId,
-  actorName: index % 3 === 0 ? "Nadia El Amrani" : index % 3 === 1 ? "Youssef Bennani" : "Support Agent",
-  action: index === 8 ? "SUPPORT_CUSTOMER_DETAILS_REVEALED_AFTER_FOOD_SAFETY_ESCALATION_AND_PRIVACY_REVIEW" : ["MERCHANT_APPROVED", "OFFER_SUSPENDED", "SUPPORT_CASE_RESOLVED", "SUPPORT_CUSTOMER_DETAILS_REVEALED", "AUDIT_LOG_EXPORTED"][index % 5],
-  targetType: ["MERCHANT", "OFFER", "SUPPORT_CASE", "CUSTOMER", "AUDIT_EXPORT"][index % 5],
-  targetId: index === 8 ? `support-case:${supportCase.reference}:customer:${customerId}:authorized-disclosure-review:food-safety-escalation` : [merchant.id, offer.id, supportCase.reference, customerId, "audit-export-2026-11-23"][index % 5],
+  actorName: ["A. Benali", "S. Idrissi", "A. Benali", "M. Tazi", "K. Amrani", "S. Idrissi"][index] ?? (index % 3 === 0 ? "Nadia El Amrani" : index % 3 === 1 ? "Youssef Bennani" : "Support Agent"),
+  action: index === 8 ? "SUPPORT_CUSTOMER_DETAILS_REVEALED_AFTER_FOOD_SAFETY_ESCALATION_AND_PRIVACY_REVIEW" : ["OFFER_HIDDEN", "MERCHANT_APPROVED", "SUPPORT_CASE_ESCALATED", "SUPPORT_CUSTOMER_DETAILS_REVEALED", "OFFER_RESTORED", "MERCHANT_REJECTED", "SUPPORT_CASE_RESOLVED", "AUDIT_LOG_EXPORTED"][index % 8],
+  targetType: ["OFFER", "MERCHANT", "SUPPORT_CASE", "CUSTOMER", "OFFER", "MERCHANT", "SUPPORT_CASE", "AUDIT_EXPORT"][index % 8],
+  targetId: index === 8 ? `support-case:${supportCase.reference}:customer:${customerId}:authorized-disclosure-review:food-safety-escalation` : [offer.id, merchant.id, supportCase.reference, customerId, offer.id, merchant.id, supportCase.reference, "audit-export-2026-11-23"][index % 8],
   reason: index === 8 ? "The customer disclosure was approved for a documented food-safety escalation after the assigned support agent verified the incident, confirmed the merchant response, checked the reservation history, recorded the operational purpose, and restricted disclosed contact details to the case team. This extended reason deliberately exercises wrapping in the audit ledger and selected-record panel." : index === 0 ? "Business registration, address and owner identity were checked against the submitted application." : index === 1 ? "Offer temporarily hidden while allergen declarations are verified with the merchant." : index === 2 ? "Customer received a resolution after the pickup and food-safety details were reviewed." : index === 3 ? "Authorized support disclosure for a food-safety investigation; customer details were accessed only for this case." : "Operational review completed and action recorded.",
   result: index === 4 ? "DENIED" : index === 7 ? "FAILED" : "SUCCESS",
   correlationId: index === 8 ? "kulha-admin-smoke-correlation-food-safety-disclosure-review-2026-11-23-0009" : `kulha-admin-smoke-${index + 1}`,
-  createdAt: new Date(now.getTime() - index * 17 * 60000).toISOString(),
+  createdAt: new Date(now.getTime() - ([12, 60, 120, 125, 150, 180][index] ?? index * 17) * 60000).toISOString(),
 }));
 let timeline = [{
   id: "00000000-0000-4000-8000-000000000104", authorType: "CUSTOMER",
