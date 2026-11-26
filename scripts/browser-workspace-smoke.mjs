@@ -853,7 +853,7 @@ try {
         await page.getByTestId("merchant-review-workflow").waitFor({ state: "visible" });
       }
       if (size.width === 1366 && route.path.endsWith("/admin/support-cases")) {
-        await page.getByTestId("support-case-detail").getByRole("button", { name: "Close" }).click();
+        await page.getByTestId("support-case-close").click();
         await page.getByTestId("support-case-row").first().click();
         await page.locator('[data-testid="support-case-detail"] h2').waitFor({ state: "visible" });
       }
@@ -955,10 +955,10 @@ try {
           animations: "disabled",
           fullPage: true,
         });
-        if (route.path.endsWith("/offer-moderation")) await page.getByTestId("offer-detail-panel").getByRole("button", { name: "Close" }).click();
-        if (route.path.endsWith("/merchant-review")) await page.getByTestId("merchant-review-detail-panel").getByRole("button", { name: "Close" }).click();
+        if (route.path.endsWith("/offer-moderation")) await page.getByTestId("offer-review-close").click();
+        if (route.path.endsWith("/merchant-review")) await page.getByTestId("merchant-review-close").click();
         if (route.path.endsWith("/support-cases")) await page.getByTestId("support-case-detail").getByRole("button", { name: "Close" }).click();
-        if (route.path.endsWith("/audit-log")) await page.getByTestId("audit-record-detail").getByRole("button", { name: "Close" }).click();
+        if (route.path.endsWith("/audit-log")) await page.getByTestId("audit-record-close").click();
         const search = route.path.endsWith("/audit-log")
           ? page.getByTestId("audit-search-input")
           : page.getByTestId("admin-global-search");
