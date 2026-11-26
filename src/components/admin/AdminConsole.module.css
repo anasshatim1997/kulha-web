@@ -5320,3 +5320,6 @@
 .merchantDetails .merchantInlineFooter{margin-top:8px;padding:8px 0 0}
 
 .merchantDetails .segApprove:disabled{opacity:.42;cursor:not-allowed;background:#ece9e1;color:#68736a;border-color:#d9d4c9}
+
+.adminModalBackdrop{padding-left:264px;padding-right:24px}
+@media(max-width:899px){.adminModalBackdrop{padding:10px}}
