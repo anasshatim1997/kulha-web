@@ -187,3 +187,7 @@
  .root :global([class*="batchFooterActions"]){align-items:stretch;flex-direction:column}
 }
 .batchBar{}.batchDialog{}.batchBody{}.batchSelected{}.batchDecision{}.batchResult{}.batchResultNumber{}.batchProgress{}.batchFooterActions{}
+
+
+.root :global([class*="offerDialogDiscount"]){justify-self:start;margin-top:-7px;border-radius:99px;padding:5px 8px;background:#ffc52e;color:#173b2d;font-size:10px;font-weight:950}
+.offerDialogDiscount{}
