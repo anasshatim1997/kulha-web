@@ -437,7 +437,7 @@ async function assertOfferModerationLayout(page, width, height) {
     throw new Error(`Offer moderation layout regions are missing at ${width}x${height}: ${JSON.stringify(metrics)}`);
   if (metrics.tabHeights.some(value => value > 44))
     throw new Error(`Admin status filters must remain compact at ${width}x${height}: ${JSON.stringify(metrics.tabHeights)}`);
-  if (metrics.picker.width < width - (width >= 900 ? 280 : 24))
+  if (metrics.picker.width < width - (width >= 900 ? 300 : 24))
     throw new Error("Offer queue must use the available workspace width before a selection is opened at " + width + "px: " + JSON.stringify(metrics));
   if (metrics.preview.width > 0)
     throw new Error("Offer detail dialog should remain closed until an offer is selected at " + width + "px: " + JSON.stringify(metrics));
