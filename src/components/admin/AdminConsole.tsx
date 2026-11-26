@@ -259,7 +259,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const selectedBatchOffers=selectedOfferIds.map(id=>selectedOfferRecords[id]).filter((item):item is Offer=>Boolean(item));
     function toggleOfferSelection(item:Offer,checked:boolean){
         setSelectedOfferRecords(current=>checked?{...current,[item.id]:item}:current);
-        setSelectedOfferIds(current=>checked?[...current.filter(id=>id!==item.id),item.id]:current.filter(id=>id!==item.id));
+        setSelectedOfferIds(current=>{if(checked&&current.length===0)setBatchReason("");return checked?[...current.filter(id=>id!==item.id),item.id]:current.filter(id=>id!==item.id);});
     }
     async function submitBatchOffers(idsToProcess:string[]=selectedOfferIds){
         if(!idsToProcess.length||!batchReason.trim())return;
@@ -435,7 +435,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     </table>
                 </div>
                 {!offerItems.length&&<p className={styles.empty}>{t.empty}</p>}
-                {selectedOfferIds.length>0&&!batchOpen&&<div className={redesign.batchBar} data-testid="offer-batch-bar"><strong>{selectedOfferIds.length} {locale==="fr"?"offres sélectionnées":locale==="ar"?"عروض محددة":"offers selected"}</strong><button type="button" onClick={()=>{setSelectedOfferIds([]);setSelectedOfferRecords({});setBatchResult(null);}}>Clear</button><button type="button" onClick={()=>{setBatchReason("");setBatchAction("suspend");setBatchResult(null);setBatchOpen(true);}}>Review {selectedOfferIds.length} together →</button></div>}
+                {selectedOfferIds.length>0&&!batchOpen&&<div className={redesign.batchBar} data-testid="offer-batch-bar"><strong>{selectedOfferIds.length} {locale==="fr"?"offres sélectionnées":locale==="ar"?"عروض محددة":"offers selected"}</strong><button type="button" onClick={()=>{setSelectedOfferIds([]);setSelectedOfferRecords({});setBatchResult(null);setBatchReason("");}}>Clear</button><button type="button" onClick={()=>{setBatchAction("suspend");setBatchResult(null);setBatchOpen(true);}}>Review {selectedOfferIds.length} together →</button></div>}
                 <div className={redesign.offerPagination} data-testid="offer-pagination"><AdminPagination page={offerPage} pageCount={offerPageCount} total={offers.total} size={offers.size||OFFER_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setOfferPage(next);setSelectedOffer(null);setOfferDecisionOpen(false);}} /></div>
             </section>
         </>}
@@ -476,7 +476,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                 </div>
                 <footer className={styles.actionDialogFooter} data-testid="offer-moderation-footer">
                     <p><ShieldCheck size={16} aria-hidden="true"/>{t.auditRecorded}</p>
-                    <button type="button" className={styles.ghostBtn} onClick={()=>setOfferDecisionOpen(false)}>{t.closeReview}</button>
+                    <button type="button" className={styles.ghostBtn} onClick={()=>setOfferDecisionOpen(false)}>{t.cancel}</button>
                     <button type="button" className={styles.primary} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{working?t.loading:offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
                 </footer>
             </section>
@@ -499,7 +499,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     </section>
                     <section className={redesign.batchSelected}>{[...batchResult.completed,...batchResult.failed].map(id=>{const item=selectedOfferRecords[id];const failed=batchResult.failed.includes(id);return <article key={id}><span className={redesign.batchThumb}>{item?.imageUrl?<OfferImage src={item.imageUrl} alt="" lazy/>:<ImageIcon size={18}/>}</span><div><strong>{item?.title??id}</strong><small>{item?.shopName??""}</small><em>{failed?"× Failed":batchAction==="suspend"?"✓ Hidden":"✓ Completed"}</em></div>{failed&&<button type="button" disabled={batchWorking} onClick={()=>void submitBatchOffers([id])}>Retry</button>}</article>;})}</section>
                 </div>}
-                <footer className={styles.actionDialogFooter}><p>{batchResult?batchResult.completed.length+" audit entries saved":selectedBatchOffers.length+" offers · "+new Set(selectedBatchOffers.map(item=>item.shopName)).size+" shops · saved as "+selectedBatchOffers.length+" audit entries"}</p>{!batchResult?<div className={redesign.batchFooterActions}><button type="button" className={styles.ghostBtn} onClick={()=>setBatchOpen(false)}>{t.closeReview}</button><button type="button" className={styles.primary} disabled={batchWorking||!selectedBatchOffers.length||!batchReason.trim()||(batchAction==="reinstate"&&selectedBatchOffers.some(item=>item.status!=="SUSPENDED"))} onClick={()=>void submitBatchOffers()}>{batchWorking?t.loading:(batchAction==="suspend"?t.hide:batchAction==="request-edit"?t.askEdit:t.putLive)+" "+selectedBatchOffers.length+" offers →"}</button>:<div className={redesign.batchFooterActions}><button type="button" className={styles.ghostBtn} onClick={()=>{setBatchOpen(false);setBatchResult(null);}}>{t.closeReview}</button>{batchResult.failed.length>0&&<button type="button" className={styles.primary} disabled={batchWorking} onClick={()=>void submitBatchOffers()}>{batchWorking?t.loading:"Retry "+batchResult.failed.length+" failed →"}</button>}</div>}</footer>
+                <footer className={styles.actionDialogFooter}><p>{batchResult?batchResult.completed.length+" audit entries saved":selectedBatchOffers.length+" offers · "+new Set(selectedBatchOffers.map(item=>item.shopName)).size+" shops · saved as "+selectedBatchOffers.length+" audit entries"}</p>{!batchResult?<div className={redesign.batchFooterActions}><button type="button" className={styles.ghostBtn} onClick={()=>setBatchOpen(false)}>{t.cancel}</button><button type="button" className={styles.primary} disabled={batchWorking||!selectedBatchOffers.length||!batchReason.trim()||(batchAction==="reinstate"&&selectedBatchOffers.some(item=>item.status!=="SUSPENDED"))} onClick={()=>void submitBatchOffers()}>{batchWorking?t.loading:(batchAction==="suspend"?t.hide:batchAction==="request-edit"?t.askEdit:t.putLive)+" "+selectedBatchOffers.length+" offers →"}</button>:<div className={redesign.batchFooterActions}><button type="button" className={styles.ghostBtn} onClick={()=>{setBatchOpen(false);setBatchResult(null);}}>{t.closeReview}</button>{batchResult.failed.length>0&&<button type="button" className={styles.primary} disabled={batchWorking} onClick={()=>void submitBatchOffers()}>{batchWorking?t.loading:"Retry "+batchResult.failed.length+" failed →"}</button>}</div>}</footer>
             </section>
         </div>}
 
