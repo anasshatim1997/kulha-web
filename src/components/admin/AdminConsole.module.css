@@ -5354,3 +5354,5 @@
  .offerWorkspace:has(.offerPreviewHeading) .offerPreviewCard{width:min(780px,calc(100vw - 272px));left:calc(50% + 120px);height:90vh;max-height:90vh;box-sizing:border-box;overflow:hidden}
  .offerWorkspace:has(.offerPreviewHeading) .offerInlineBody{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}
 }
+
+@media(max-width:1099px){.overviewColumns{grid-template-columns:minmax(0,1fr)}}
