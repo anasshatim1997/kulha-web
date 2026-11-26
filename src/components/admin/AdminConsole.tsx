@@ -355,6 +355,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                 <div className={redesign.merchantTableWrap}><table className={redesign.merchantTable}>
                     <thead><tr><th aria-label="Select merchants"/><th>{locale==="fr"?"COMMERCE":locale==="ar"?"المتجر":"MERCHANT"}</th><th>{locale==="fr"?"VILLE":locale==="ar"?"المدينة":"CITY"}</th><th>{locale==="fr"?"PROPRIÉTAIRE":locale==="ar"?"المالك":"OWNER"}</th><th>{locale==="fr"?"DEMANDE":locale==="ar"?"تاريخ الطلب":"APPLIED"}</th><th>{t.status}</th><th aria-label={t.review}/></tr></thead>
                     <tbody>{merchantItems.map(item=><tr key={item.id} data-testid="merchant-row">
+                        <td><input type="checkbox" aria-label={`Select ${item.name}`} checked={selectedMerchantIds.includes(item.id)} onChange={event=>toggleMerchantSelection(item,event.target.checked)}/></td>
                         <td><div className={redesign.merchantIdentity}><span className={redesign.merchantAvatar}>{item.name.trim().slice(0,2).toUpperCase()}</span><span><strong>{item.name}</strong><small>{item.businessType}</small></span></div></td>
                         <td>{item.city}</td><td>{item.ownerEmail}</td><td>{relativeTime(item.createdAt,locale)}</td>
                         <td><span className={styles.pill+" "+merchantTone(item.status)}>{merchantLabel(item.status)}</span></td>
