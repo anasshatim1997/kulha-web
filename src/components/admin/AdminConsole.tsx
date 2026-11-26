@@ -197,7 +197,7 @@ function AdminPagination({page,pageCount,total,size,labels,onChange,loading}:{pa
 
 type MerchantAction="approve"|"request-information"|"reject";
 type OfferAction="suspend"|"request-edit"|"reinstate";
-type BatchOfferResult={id:string;title:string;ok:boolean;detail:string};
+type BatchOfferResult={id:string;title:string;ok:boolean;retryable:boolean;detail:string};
 type BatchMerchantResult={id:string;name:string;ok:boolean;detail:string};
 
 export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
@@ -287,16 +287,16 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
         setBatchOfferWorking(true);setMessage("");
         const results:BatchOfferResult[]=batchOfferResults?.filter(item=>item.ok)??[];
         for(const item of selected.filter(item=>!candidates.some(candidate=>candidate.id===item.id))){
-            results.push({id:item.id,title:item.title,ok:false,detail:t.reinstateOnlyHidden});
+            results.push({id:item.id,title:item.title,ok:false,retryable:false,detail:t.reinstateOnlyHidden});
         }
         for(const item of candidates){
             try{
                 await api.post("/admin/offers/"+item.id+"/"+batchOfferAction,{reason:batchOfferReason.trim()});
-                results.push({id:item.id,title:item.title,ok:true,detail:t.success});
+                results.push({id:item.id,title:item.title,ok:true,retryable:false,detail:t.success});
                 setSelectedOffers(current=>{const next={...current};delete next[item.id];return next;});
             }catch(error){
                 const detail=error instanceof ApiError?(error.detail||error.title):t.error;
-                results.push({id:item.id,title:item.title,ok:false,detail});
+                results.push({id:item.id,title:item.title,ok:false,retryable:true,detail});
             }
         }
         setBatchOfferResults(results);setBatchOfferWorking(false);setReload(v=>v+1);
@@ -559,7 +559,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     </div>:<div className={styles.batchOfferResults}><h3>{batchOfferResults.filter(item=>item.ok).length} / {batchOfferResults.length} {b.processed}</h3><p>{b.failed}</p>{batchOfferResults.map(item=><article key={item.id}><span className={item.ok?styles.batchResultOk:styles.batchResultFail}>{item.ok?"✓":"×"}</span><span><strong>{item.title}</strong><small>{item.ok?t.success:item.detail}</small></span></article>)}</div>}
                     <footer className={styles.batchOfferFooter}>
                         <span>{batchOfferResults?batchOfferResults.filter(item=>item.ok).length+" "+b.saved:Object.keys(selectedOffers).length+" "+b.items+" · "+batchOfferReason.length+"/500"}</span>
-                        {!batchOfferResults?<><button type="button" className={styles.ghostBtn} disabled={batchOfferWorking} onClick={()=>setBatchOfferOpen(false)}>{b.cancel}</button><button type="button" className={styles.primary} disabled={batchOfferWorking||!batchOfferReason.trim()||!Object.keys(selectedOffers).length||(batchOfferAction==="reinstate"&&!Object.values(selectedOffers).some(item=>item.status==="SUSPENDED"))} onClick={()=>void runBatchOfferDecision()}>{batchOfferWorking?t.loading:b.confirm}</button></>:<><button type="button" className={styles.ghostBtn} onClick={()=>{setBatchOfferOpen(false);setBatchOfferResults(null);}}>{b.close}</button>{batchOfferResults.some(item=>!item.ok)&&<button type="button" className={styles.primary} disabled={batchOfferWorking} onClick={()=>void runBatchOfferDecision()}>{b.retry} →</button>}</>}
+                        {!batchOfferResults?<><button type="button" className={styles.ghostBtn} disabled={batchOfferWorking} onClick={()=>setBatchOfferOpen(false)}>{b.cancel}</button><button type="button" className={styles.primary} disabled={batchOfferWorking||!batchOfferReason.trim()||!Object.keys(selectedOffers).length||(batchOfferAction==="reinstate"&&!Object.values(selectedOffers).some(item=>item.status==="SUSPENDED"))} onClick={()=>void runBatchOfferDecision()}>{batchOfferWorking?t.loading:b.confirm}</button></>:<><button type="button" className={styles.ghostBtn} onClick={()=>{setBatchOfferOpen(false);setBatchOfferResults(null);}}>{b.close}</button>{batchOfferResults.some(item=>item.retryable)&&<button type="button" className={styles.primary} disabled={batchOfferWorking} onClick={()=>void runBatchOfferDecision()}>{b.retry} →</button>}</>}
                     </footer>
                 </section>
             </div>}
