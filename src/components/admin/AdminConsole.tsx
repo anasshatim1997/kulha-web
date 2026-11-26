@@ -416,18 +416,22 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         ].map(tab=><button key={tab.value||"all"} type="button" role="tab" aria-selected={offerStatus===tab.value} className={offerStatus===tab.value?styles.activeTab:styles.tab} onClick={()=>{setOfferStatus(tab.value);setOfferPage(0);setSelectedOffer(null);setReason("");}}>{tab.label} · {tab.count}</button>)}
                     </div>
                     <div className={styles.offerQueue} data-testid="offer-queue">
-                        {offerItems.map(item=>{const d=discount(item);return <button type="button" key={item.id} aria-pressed={selectedOffer?.id===item.id} className={selectedOffer?.id===item.id?styles.offerItemSelected:styles.offerItem} onClick={()=>{setSelectedOffer(item);setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");}}>
-                            <span className={styles.offerThumb}>{item.imageUrl?<OfferImage src={item.imageUrl} alt="" lazy/>:<ImageIcon size={20} aria-hidden="true"/>}</span>
-                            <span className={styles.offerCopy}><strong>{item.title}</strong><small>{item.shopName} · {item.city}</small><span className={styles.offerTags}>
-                                {item.reportedCount>0&&<em className={styles.reportTag}>{item.reportedCount} {item.reportedCount===1?t.report:t.reportsN}</em>}
-                                {item.allergensStatus==="UNKNOWN"&&<em className={styles.allergenTag}>{t.allergensUnknown}</em>}
-                                {item.status==="SUSPENDED"&&<em className={styles.hiddenTag}>{t.hiddenS}</em>}
-                            </span></span>
-                            <span className={styles.offerPrice}><strong>{amount(item.priceMinor,locale)} MAD</strong><small>{d?"−"+d+"%":""}</small></span>
-                        </button>;})}
+                        {offerItems.map(item=>{const d=discount(item);return <div key={item.id} className={selectedOffer?.id===item.id?styles.offerItemSelected:styles.offerItem}>
+                            <label className={styles.offerSelectControl}><input type="checkbox" checked={Boolean(selectedOffers[item.id])} onChange={()=>toggleOfferSelection(item)} aria-label={"Select "+item.title}/></label>
+                            <button type="button" aria-pressed={selectedOffer?.id===item.id} className={styles.offerRowOpen} onClick={()=>{setSelectedOffer(item);setReason("");setOfferAction(item.status==="SUSPENDED"?"reinstate":"suspend");}}>
+                                <span className={styles.offerThumb}>{item.imageUrl?<OfferImage src={item.imageUrl} alt="" lazy/>:<ImageIcon size={20} aria-hidden="true"/>}</span>
+                                <span className={styles.offerCopy}><strong>{item.title}</strong><small>{item.shopName} · {item.city}</small><span className={styles.offerTags}>
+                                    {item.reportedCount>0&&<em className={styles.reportTag}>{item.reportedCount} {item.reportedCount===1?t.report:t.reportsN}</em>}
+                                    {item.allergensStatus==="UNKNOWN"&&<em className={styles.allergenTag}>{t.allergensUnknown}</em>}
+                                    {item.status==="SUSPENDED"&&<em className={styles.hiddenTag}>{t.hiddenS}</em>}
+                                </span></span>
+                                <span className={styles.offerPrice}><strong>{amount(item.priceMinor,locale)} MAD</strong><small>{d?"−"+d+"%":""}</small></span>
+                            </button>
+                        </div>;})}
                     </div>
                     {!offerItems.length&&<p className={styles.empty}>{t.empty}</p>}
                     <div className={styles.offerPagination} data-testid="offer-pagination"><AdminPagination page={offerPage} pageCount={offerPageCount} total={offers.total} size={offers.size||OFFER_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setOfferPage(next);setSelectedOffer(null);}} /></div>
+                    {Object.keys(selectedOffers).length>0&&<div className={styles.offerBatchBar} data-testid="offer-batch-bar"><span><strong>{Object.keys(selectedOffers).length}</strong> offers selected</span><button type="button" className={styles.linkBtn} onClick={()=>setSelectedOffers({})}>Clear</button><button type="button" className={styles.primary} onClick={()=>{setBatchOfferOpen(true);setBatchOfferResults(null);setBatchOfferReason("");setBatchOfferAction("suspend");}}>Review together →</button></div>}
                 </section>
                 <section className={styles.offerPreviewCard} aria-label={t.selectedOffer} data-testid="offer-detail-panel">
                     {!selectedOffer?<div className={styles.offerEmpty}><Tag size={28} aria-hidden="true"/><strong>{t.selectedOffer}</strong><span>{t.empty}</span></div>:<>
