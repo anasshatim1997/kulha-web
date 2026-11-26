@@ -435,9 +435,17 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     <div className={styles.offerPagination} data-testid="offer-pagination"><AdminPagination page={offerPage} pageCount={offerPageCount} total={offers.total} size={offers.size||OFFER_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setOfferPage(next);setSelectedOffer(null);}} /></div>
                     {Object.keys(selectedOffers).length>0&&<div className={styles.offerBatchBar} data-testid="offer-batch-bar"><span><strong>{Object.keys(selectedOffers).length}</strong> offers selected</span><button type="button" className={styles.linkBtn} onClick={()=>setSelectedOffers({})}>Clear</button><button type="button" className={styles.primary} onClick={()=>{setBatchOfferOpen(true);setBatchOfferResults(null);setBatchOfferReason("");setBatchOfferAction("suspend");}}>Review together →</button></div>}
                 </section>
-                <section className={styles.offerPreviewCard} aria-label={t.selectedOffer} data-testid="offer-detail-panel">
+                <section className={styles.offerPreviewCard} role={selectedOffer?"dialog":undefined} aria-modal={selectedOffer?true:undefined} aria-label={t.selectedOffer} data-testid="offer-detail-panel">
                     {!selectedOffer?<div className={styles.offerEmpty}><Tag size={28} aria-hidden="true"/><strong>{t.selectedOffer}</strong><span>{t.empty}</span></div>:<>
                         <div className={styles.offerPreviewScroll} data-testid="offer-preview-scroll">
+                            <div className={styles.offerDialogTopbar}>
+                                <div className={styles.offerDialogPager}>
+                                    <button type="button" aria-label="Previous offer" disabled={offerItems.length<2} onClick={()=>{const index=offerItems.findIndex(item=>item.id===selectedOffer.id);setSelectedOffer(offerItems[(index-1+offerItems.length)%offerItems.length]);setReason("");}}><ChevronLeft size={18}/></button>
+                                    <span>{Math.max(0,offerItems.findIndex(item=>item.id===selectedOffer.id)+1)} / {offerItems.length}</span>
+                                    <button type="button" aria-label="Next offer" disabled={offerItems.length<2} onClick={()=>{const index=offerItems.findIndex(item=>item.id===selectedOffer.id);setSelectedOffer(offerItems[(index+1)%offerItems.length]);setReason("");}}><ChevronRight size={18}/></button>
+                                </div>
+                                <button type="button" className={styles.offerDialogClose} aria-label={t.closeReview} onClick={()=>{setSelectedOffer(null);setReason("");setOfferConfirmOpen(false);}}><X size={19}/></button>
+                            </div>
                             <div className={styles.offerPreviewHeading}>
                                 <div className={styles.offerPreviewThumb}>{selectedOffer.imageUrl?<OfferImage src={selectedOffer.imageUrl} alt={selectedOffer.title}/>:<ImageIcon size={24} aria-hidden="true"/>}</div>
                                 <div className={styles.offerPreviewTitle}>
