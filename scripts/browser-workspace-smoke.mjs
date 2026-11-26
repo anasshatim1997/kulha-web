@@ -1080,6 +1080,7 @@ try {
     merchantRows.forEach(item => { item.status = "PENDING"; });
     const context = await loginContext(browser, "admin-token");
     const page = await context.newPage();
+    await page.setViewportSize({ width: 1366, height: 768 });
     await page.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
     await page.getByTestId("merchant-review-detail-panel").getByRole("button", { name: "Close" }).click();
     const checks = page.locator('[data-testid="merchant-review-list"] input[type="checkbox"]');
@@ -1088,9 +1089,11 @@ try {
     await page.getByTestId("merchant-batch-bar").getByRole("button", { name: "Review together" }).click();
     const modal = page.getByTestId("batch-merchant-modal");
     await modal.waitFor({ state: "visible" });
+    await page.screenshot({ path: join("artifacts/browser-screenshots", "merchant-batch-review-1366x768.png"), animations: "disabled" });
     await modal.getByLabel("One reason for all (required)").fill("Please complete the missing application details.");
     await modal.getByRole("button", { name: "Confirm decision" }).click();
     await modal.getByText("1 / 2 processed").waitFor({ state: "visible" });
+    await page.screenshot({ path: join("artifacts/browser-screenshots", "merchant-batch-partial-results-1366x768.png"), animations: "disabled" });
     const successBeforeRetry = requests.filter(item => item.method === "POST" && item.path.endsWith("/request-information") && item.path.includes("000000000101")).length;
     await modal.getByRole("button", { name: "Retry failed" }).click();
     await modal.getByText("1 / 2 processed").waitFor({ state: "visible" });
@@ -1124,6 +1127,7 @@ try {
     offerStatus = "PUBLISHED";
     const context = await loginContext(browser, "admin-token");
     const page = await context.newPage();
+    await page.setViewportSize({ width: 1366, height: 768 });
     await page.goto(origin + "/en/admin/offer-moderation", { waitUntil: "networkidle" });
     const checks = page.locator('[data-testid="offer-queue"] input[type="checkbox"]');
     await checks.nth(0).check();
@@ -1131,10 +1135,12 @@ try {
     await page.getByTestId("offer-batch-bar").getByRole("button", { name: "Review together" }).click();
     const modal = page.getByTestId("batch-offer-modal");
     await modal.waitFor({ state: "visible" });
+    await page.screenshot({ path: join("artifacts/browser-screenshots", "offer-batch-review-1366x768.png"), animations: "disabled" });
     await modal.locator('button[aria-pressed]').nth(1).click();
     await modal.getByLabel("One reason for all (required)").fill("Correct the missing offer information.");
     await modal.getByRole("button", { name: "Confirm decision" }).click();
     await modal.getByText("1 / 2 processed").waitFor({ state: "visible" });
+    await page.screenshot({ path: join("artifacts/browser-screenshots", "offer-batch-partial-results-1366x768.png"), animations: "disabled" });
     const successBeforeRetry = requests.filter(item => item.method === "POST" && item.path.endsWith("/request-edit") && item.path.includes("000000000102")).length;
     await modal.getByRole("button", { name: "Retry failed" }).click();
     await modal.getByText("1 / 2 processed").waitFor({ state: "visible" });
