@@ -71,8 +71,9 @@ function relativeTime(value:string|undefined, locale:SiteLocale) {
   const minutes=Math.max(0,Math.floor((Date.now()-stamp)/60000));
   if(locale==="fr") return minutes<60?minutes+" min":minutes<1440?Math.floor(minutes/60)+" h":Math.floor(minutes/1440)+" j";
   if(locale==="ar") return minutes<60?minutes+" د":minutes<1440?Math.floor(minutes/60)+" س":Math.floor(minutes/1440)+" ي";
-  return minutes<60?minutes+" min ago":minutes<1440?Math.floor(minutes/60)+" h ago":Math.floor(minutes/1440)+" d ago";
+  return minutes<60?minutes+" min":minutes<1440?Math.floor(minutes/60)+" h":Math.floor(minutes/1440)+" d";
 }
+function relativePhrase(value:string|undefined,locale:SiteLocale){const label=relativeTime(value,locale);return locale==="fr"?"il y a "+label:locale==="ar"?"منذ "+label:label+" ago";}
 function clockTime(value:string|null,locale:SiteLocale) {
   if(!value)return "";
   const stamp=Date.parse(value);if(!Number.isFinite(stamp))return "";
@@ -133,8 +134,8 @@ export function AdminOverview({locale}:{locale:SiteLocale}) {
   const low=cases.filter(x=>x.priority==="LOW").length;
   const queue=[
     ...flagged.slice(0,2).map(x=>({id:x.id,title:x.title,subtitle:x.shopName+" · "+x.city,kind:"offer" as const,meta:x.reportedCount>0?x.reportedCount+" "+t.reported:t.allergensUnknown,href:"/admin/offer-moderation",time:x.pickupStart?t.pickup+" "+clockTime(x.pickupStart,locale):""})),
-    ...cases.slice(0,1).map(x=>({id:x.id,title:x.reference+" · "+x.subject,subtitle:x.merchantName||t.case,kind:"case" as const,meta:humanize(x.priority),href:"/admin/support-cases",time:t.updated+" "+relativeTime(x.updatedAt,locale)})),
-    ...([...merchants,...infoMerchants].slice(0,2).map(x=>({id:x.id,title:x.name,subtitle:(x.businessType||t.shop)+" · "+x.city,kind:"shop" as const,meta:x.status==="INFO_REQUIRED"?t.infoRequired:t.pending,href:"/admin/merchant-review",time:t.applied+" "+relativeTime(x.createdAt,locale)}))),
+    ...cases.slice(0,1).map(x=>({id:x.id,title:x.reference+" · "+x.subject,subtitle:x.merchantName||t.case,kind:"case" as const,meta:humanize(x.priority),href:"/admin/support-cases",time:t.updated+" "+relativePhrase(x.updatedAt,locale)})),
+    ...([...merchants,...infoMerchants].slice(0,2).map(x=>({id:x.id,title:x.name,subtitle:(x.businessType||t.shop)+" · "+x.city,kind:"shop" as const,meta:x.status==="INFO_REQUIRED"?t.infoRequired:t.pending,href:"/admin/merchant-review",time:t.applied+" "+relativePhrase(x.createdAt,locale)}))),
   ];
   const activity=snapshot.audit?.items.slice(0,3)??[];
   const updatedLabel=lastUpdatedLabel(lastUpdated,locale,t.syncing);
