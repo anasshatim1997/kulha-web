@@ -313,7 +313,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     return frame(<>
         <header className={`${styles.header} ${page==="offer-moderation"?styles.offerHeader:""}`} data-testid="admin-page-heading">
             <div className={styles.headerCopy}><h1>{title}</h1><p>{lead}</p></div>
-            
+            {topbar}
             {page==="audit-log"&&<button className={styles.ghostBtn} disabled={working} onClick={()=>void exportAudit()}><FileText size={16} aria-hidden="true"/>{auditText[locale].exportCsv}</button>}
         </header>
         {message&&<div className={styles.notice} role="status">{message}</div>}
