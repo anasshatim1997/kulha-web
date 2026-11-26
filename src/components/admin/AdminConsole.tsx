@@ -602,12 +602,14 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         <AdminPagination page={auditPage} pageCount={auditPageCount} total={audit.total} size={audit.size||auditPageSize} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setAuditPage(next);setAuditModalOpen(false);setSelectedAuditId(null);}} />
                     </div>
                 </section>
-            {audit&&<section className={styles.auditRecordCard} aria-label={auditUi.eventDetails} data-testid="audit-record-detail">
-                {!selectedAudit?<div className={styles.auditRecordEmpty}><ShieldCheck size={22} aria-hidden="true"/><strong>{auditUi.eventDetails}</strong><p>{locale==="fr"?"Sélectionnez une ligne du journal pour consulter les détails.":locale==="ar"?"اختر سجلاً من الجدول لعرض التفاصيل.":"Select an audit row to inspect its details."}</p></div>:<>
-                    <header className={styles.auditRecordHeader} data-testid="audit-record-header">
-                        <div><small>{auditUi.eventDetails}</small><h2>{auditActionLabel(selectedAudit.action,locale)}</h2><code>{selectedAudit.action}</code></div>
-                        {resultPill(selectedAudit.result)}
-                    </header>
+        </section>
+        {auditModalOpen&&selectedAudit&&<div className={redesign.actionOverlay} role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setAuditModalOpen(false);}}>
+            <section className={redesign.actionDialog+" "+redesign.auditDetailDialog} role="dialog" aria-modal="true" aria-labelledby="audit-record-title" data-testid="audit-record-detail">
+                <header className={redesign.actionDialogHeader+" "+redesign.auditDialogHeader} data-testid="audit-record-header">
+                    <div><small>{auditUi.eventDetails}</small><h2 id="audit-record-title">{auditActionLabel(selectedAudit.action,locale)}</h2><code>{selectedAudit.action}</code></div>
+                    <div>{resultPill(selectedAudit.result)}<button type="button" aria-label={t.closeReview} onClick={()=>setAuditModalOpen(false)}><X size={18}/></button></div>
+                </header>
+                <div className={redesign.actionDialogBody+" "+redesign.auditDetailBody}>
                     <section className={styles.auditRecordSection}>
                         <h3>{auditUi.adminAction}</h3>
                         <dl className={styles.auditRecordFacts}>
@@ -629,9 +631,10 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         </dl>
                     </section>
                     <p className={styles.auditRecordNotice}><Lock size={14} aria-hidden="true"/>{auditUi.immutableNotice}</p>
-                </>}
-            </section>}
+                </div>
             </section>
+        </div>}
+
         </>}
 
     </>);
