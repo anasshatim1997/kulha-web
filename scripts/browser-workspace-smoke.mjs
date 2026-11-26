@@ -732,7 +732,7 @@ try {
       }
       if (size.width === 1366 && route.path.endsWith("/admin/support-cases")) {
         await page.getByTestId("support-case-row").first().click();
-        await page.locator('[data-testid="support-case-detail"] h2').waitFor({ state: "visible" });
+        await page.locator('[data-testid="support-action-dialog"] h2').waitFor({ state: "visible" });
       }
       if (route.adminPage) await assertAdminStatusControls(page, route.path, size.width, size.height);
       if (route.path.endsWith("/admin/merchant-review") && size.width >= 1280) await assertMerchantReviewLayout(page, size.width, size.height);
@@ -975,7 +975,7 @@ try {
     await context.close();
   }
 
-  // Support: case history is read-only; customer disclosure, replies and case actions live separately.
+  // Support case: customer disclosure, reply, assignment and resolution stay in the case dialog.
   {
     caseStatus = "OPEN";
     supportCase.status = caseStatus;
@@ -983,17 +983,16 @@ try {
     const page = await context.newPage();
     await page.setViewportSize({ width: 1366, height: 768 });
     await page.goto(origin + "/en/admin/support-cases", { waitUntil: "networkidle" });
-    const detail = page.getByTestId("support-case-detail");
-    await page.getByTestId("support-case-history").waitFor({ state: "visible" });
-    if (await detail.locator("input, textarea, form").count() !== 0) {
-      throw new Error("Support case inspection must not contain write controls.");
-    }
-    await detail.getByRole("button", { name: "Review application" }).click();
     const actions = page.getByTestId("support-action-dialog");
     await actions.waitFor({ state: "visible" });
+    await page.getByTestId("support-case-table").waitFor({ state: "visible" });
     await actions.getByLabel("Reason for viewing customer details (required)").fill("Confirming a food-safety complaint.");
-    await actions.getByRole("button", { name: "Reveal" }).click();
+    await actions.getByRole("button", { name: "Reveal details" }).click();
     await page.getByText("customer@kulha.test").waitFor({ state: "visible" });
+    const composer = actions.getByTestId("support-message-composer");
+    await composer.locator("textarea").fill("We are checking the allergen information with the shop.");
+    await composer.getByRole("button", { name: "Send to customer" }).click();
+    await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/messages"), "Support customer reply");
     await actions.getByLabel(/Reason for the action/).fill("Food-safety case reviewed and resolved.");
     await actions.getByRole("button", { name: "Resolve case" }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/reveal-customer"), "Support customer disclosure");
