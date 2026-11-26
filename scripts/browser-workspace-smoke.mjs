@@ -1049,7 +1049,6 @@ try {
     await context.close();
   }
 
-  // Merchant review: missing backend document verification keeps approval disabled.
   {
     merchantStatus = "PENDING";
     merchant.status = merchantStatus;
@@ -1073,7 +1072,6 @@ try {
     await context.close();
   }
 
-  // Merchant batch review: one failed request remains selected and retry does not repeat successes.
   {
     merchantStatus = "PENDING";
     merchant.status = merchantStatus;
@@ -1120,7 +1118,6 @@ try {
     await context.close();
   }
 
-  // Offer batch review: partial failures are isolated and retry only the failed offer.
   {
     offerStatus = "PUBLISHED";
     const context = await loginContext(browser, "admin-token");
