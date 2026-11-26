@@ -1101,6 +1101,7 @@ try {
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(origin + "/en/admin/offer-moderation", { waitUntil: "networkidle" });
+    await page.getByTestId("offer-queue").getByRole("button").first().click();
     const inlineOffer = page.getByTestId("offer-moderation-workflow");
     await inlineOffer.waitFor({ state: "visible" });
     await inlineOffer.locator('[data-action="suspend"]').click();
