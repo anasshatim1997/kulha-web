@@ -85,7 +85,7 @@ export function AdminOverview({locale}:{locale:SiteLocale}) {
     const settled=await Promise.allSettled([
       api.get<Page<Merchant>>("/admin/merchants?status=PENDING&page=0&size=6"),
       api.get<Page<Merchant>>("/admin/merchants?status=INFO_REQUIRED&page=0&size=6"),
-      api.get<Page<Offer>>("/admin/offers?page=0&size=8"),
+      api.get<Page<Offer>>("/admin/offers?page=0&size=100"),
       api.get<Page<SupportCase>>("/admin/support-cases?status=OPEN&page=0&size=5"),
       api.get<Page<AuditEntry>>("/admin/audit-log?page=0&size=6"),
     ]);
