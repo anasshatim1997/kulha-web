@@ -364,10 +364,14 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
             <div className={styles.tabs} role="tablist" aria-label={t.merchantTitle}>{merchantStatuses.map(value=>{const n=tabCount(value);return <button key={value} role="tab" aria-selected={merchantStatus===value} className={merchantStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setMerchantStatus(value);setMerchantPage(0);setSelectedMerchant(null);setReason("");setInternalNote("");})}>{merchantLabel(value)}{typeof n==="number"?" · "+n:""}</button>;})}</div>
             <div className={styles.merchantReviewWorkspace}>
                 <section className={styles.merchantPicker} aria-label={t.merchantTitle}>
-                    <div className={styles.list} data-testid="merchant-review-list">{merchantItems.map(item=><button key={item.id} className={selectedMerchant?.id===item.id?styles.merchantSelected:styles.merchantListItem} onClick={()=>void loadMerchant(item.id)}>
-                        <span className={styles.merchantListTop}><strong>{item.name}</strong><em className={styles.pill+" "+merchantTone(item.status)}>{merchantLabel(item.status)}</em></span>
-                        <small>{item.businessType} · {item.city}</small><small>{item.ownerEmail}</small>
-                    </button>)}</div>{!merchantItems.length&&<p className={styles.empty}>{t.empty}</p>}
+                    <div className={styles.list} data-testid="merchant-review-list">{merchantItems.map(item=><div key={item.id} className={styles.merchantBatchRow}>
+                        <label className={styles.offerSelectControl}><input type="checkbox" checked={Boolean(selectedMerchants[item.id])} onChange={()=>setSelectedMerchants(current=>toggleBatchSelection(current,item))} aria-label={"Select "+item.name}/></label>
+                        <button type="button" className={selectedMerchant?.id===item.id?styles.merchantSelected:styles.merchantListItem} onClick={()=>void loadMerchant(item.id)}>
+                            <span className={styles.merchantListTop}><strong>{item.name}</strong><em className={styles.pill+" "+merchantTone(item.status)}>{merchantLabel(item.status)}</em></span>
+                            <small>{item.businessType} · {item.city}</small><small>{item.ownerEmail}</small>
+                        </button>
+                    </div>)}</div>{!merchantItems.length&&<p className={styles.empty}>{t.empty}</p>}
+                    {Object.keys(selectedMerchants).length>0&&<div className={styles.offerBatchBar} data-testid="merchant-batch-bar"><span><strong>{Object.keys(selectedMerchants).length}</strong> merchants selected</span><button type="button" className={styles.linkBtn} onClick={()=>setSelectedMerchants({})}>Clear</button><button type="button" className={styles.primary} onClick={()=>{setBatchMerchantOpen(true);setBatchMerchantResults(null);setBatchMerchantReason("");setBatchMerchantNote("");setBatchMerchantAction("request-information");}}>Review together →</button></div>}
                     <AdminPagination page={merchantPage} pageCount={merchantPageCount} total={merchants.total} size={merchants.size||MERCHANT_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setMerchantPage(next);setSelectedMerchant(null);}} />
                 </section>
                 <section className={styles.card+" "+styles.merchantDetails} data-testid="merchant-review-detail-panel">
