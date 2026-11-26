@@ -45,7 +45,7 @@ const moderationOffers = Array.from({ length: 48 }, (_, index) => {
     title: sample.title, shopName: sample.shopName, city: index === 1 ? "Casablanca" : "Casablanca", priceMinor: sample.priceMinor,
     originalPriceMinor: sample.originalPriceMinor, quantityTotal: sample.quantityTotal, quantityReserved: sample.quantityReserved,
     allergensStatus: sample.allergensStatus, allergens: sample.allergensStatus === "UNKNOWN" ? null : "Wheat",
-    foodNotes: "Prepared today", status: "PUBLISHED", reportedCount: sample.reportedCount,
+    foodNotes: "Prepared today", status: index >= 46 ? "SUSPENDED" : "PUBLISHED", reportedCount: sample.reportedCount,
     pickupStart: pickupStart, pickupEnd, imageUrl: null,
   };
 });
@@ -227,7 +227,7 @@ const backend = createServer(async (request, response) => {
     return json(response, {});
   }
   if (path === "/admin/offers" && method === "GET") {
-    return json(response, page(moderationOffers.map(item => ({ ...item, status: offerStatus })), Number(url.searchParams.get("page") ?? 0), Number(url.searchParams.get("size") ?? 20)));
+    return json(response, page(moderationOffers.map(item => item.id === offer.id ? { ...item, status: offerStatus } : item), Number(url.searchParams.get("page") ?? 0), Number(url.searchParams.get("size") ?? 20)));
   }
   const offerActionMatch = path.match(new RegExp("^/admin/offers/([^/]+)/(suspend|request-edit|reinstate)$"));
   if (offerActionMatch && method === "POST") {
@@ -235,12 +235,16 @@ const backend = createServer(async (request, response) => {
     if (offerActionMatch[1].endsWith("000000000103") && offerActionMatch[2] === "request-edit") {
       return json(response, { detail: "Simulated moderation conflict for partial-failure coverage." }, 409);
     }
-    if (offerActionMatch[2] === "suspend") offerStatus = "SUSPENDED";
+    const target = moderationOffers.find(item => item.id === offerActionMatch[1]);
+    if (target && offerActionMatch[2] === "suspend") target.status = "SUSPENDED";
+    if (target && offerActionMatch[2] === "reinstate") target.status = "PUBLISHED";
     return json(response, {});
   }
   if (path === `/admin/offers/${offer.id}/suspend` && method === "POST") {
     await bodyOf(request);
     offerStatus = "SUSPENDED";
+    const target = moderationOffers.find(item => item.id === offer.id);
+    if (target) target.status = "SUSPENDED";
     return json(response, {});
   }
   if (path === "/admin/support-cases" && method === "GET") {
@@ -1203,6 +1207,7 @@ try {
 
   {
     offerStatus = "PUBLISHED";
+    moderationOffers.forEach(item => { item.status = "PUBLISHED"; });
     const context = await loginContext(browser, "admin-token");
     const page = await context.newPage();
     await page.setViewportSize({ width: 1366, height: 768 });
