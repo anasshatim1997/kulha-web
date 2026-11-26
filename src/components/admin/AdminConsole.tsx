@@ -170,7 +170,7 @@ function AuditSelect({label,value,options,onChange,icon,className,menuPlacement=
 }
 
 const merchantStatuses=["PENDING","INFO_REQUIRED","APPROVED","REJECTED"] as const;
-const MERCHANT_PAGE_SIZE=3;
+const MERCHANT_PAGE_SIZE=4;
 const OFFER_PAGE_SIZE=20;
 const CASE_PAGE_SIZE=4;
 const AUDIT_PAGE_SIZE=10;
@@ -210,7 +210,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
 
     useEffect(()=>{let active=true;
         const load=async()=>{try{
-            if(page==="merchant-review"){const data=await api.get<Page<Merchant>>("/admin/merchants?status="+merchantStatus+"&page="+merchantPage+"&size="+MERCHANT_PAGE_SIZE);if(active){setMerchants(data);setFailed(false);setSelectedMerchant(data.items[0]??null);setMerchantAction(null);setMerchantDecisionOpen(false);setChecks([false,false]);setReason("");setInternalNote("");}
+            if(page==="merchant-review"){const data=await api.get<Page<Merchant>>("/admin/merchants?status="+merchantStatus+"&page="+merchantPage+"&size="+MERCHANT_PAGE_SIZE);if(active){setMerchants(data);setFailed(false);setSelectedMerchant(data.items[0]??null);setMerchantAction(data.items[0]?"approve":null);setMerchantDecisionOpen(Boolean(data.items[0]));setChecks([false,false]);setReason("");setInternalNote("");}
                 const [p,i]=await Promise.allSettled([api.get<Page<Merchant>>("/admin/merchants?status=PENDING&page=0&size=1"),api.get<Page<Merchant>>("/admin/merchants?status=INFO_REQUIRED&page=0&size=1")]);
                 if(active)setTabCounts({pending:p.status==="fulfilled"?p.value.total:null,info:i.status==="fulfilled"?i.value.total:null});}
             if(page==="offer-moderation"){const [data,summary]=await Promise.all([api.get<Page<Offer>>(`/admin/offers?page=${offerPage}&size=${OFFER_PAGE_SIZE}`),api.get<Page<Offer>>("/admin/offers?page=0&size=100")]);if(active){const lastPage=Math.max(0,Math.ceil(data.total/Math.max(1,data.size))-1);if(offerPage>lastPage){setOfferPage(lastPage);return;}setOffers(data);setOfferSummary(summary.items);setFailed(false);setSelectedOffer(data.items[0]??null);setOfferAction(data.items[0]?.status==="SUSPENDED"?"reinstate":"suspend");}}
@@ -239,7 +239,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const priorityTone=(p:string)=>p==="HIGH"?styles.toneBad:p==="MEDIUM"?styles.toneWarn:p==="LOW"?styles.toneMuted:styles.toneInfo;
     const discount=(o:Offer)=>o.originalPriceMinor&&o.originalPriceMinor>o.priceMinor?Math.round((1-o.priceMinor/o.originalPriceMinor)*100):null;
 
-    async function loadMerchant(id:string){setWorking(true);try{const data=await api.get<Merchant>("/admin/merchants/"+id);setSelectedMerchant(data);setReason("");setInternalNote("");setMerchantAction(null);setChecks([false,false]);}catch{setMessage(t.error);}finally{setWorking(false);}}
+    async function loadMerchant(id:string){setWorking(true);try{const data=await api.get<Merchant>("/admin/merchants/"+id);setSelectedMerchant(data);setReason("");setInternalNote("");setMerchantAction("approve");setChecks([false,false]);setMerchantDecisionOpen(true);}catch{setMessage(t.error);}finally{setWorking(false);}}
     async function submitMerchant(){
         if(!selectedMerchant)return;if(!merchantAction||!reason.trim()){setMessage(t.needsReason);return;}if(merchantAction==="approve"&&!MERCHANT_DOCUMENT_REVIEW_ENABLED){setMessage(t.approveUnlocks);return;}if(merchantAction==="approve"&&checks.some(value=>!value)){setMessage(t.approveUnlocks);return;}setWorking(true);setMessage("");
         try{await api.post("/admin/merchants/"+selectedMerchant.id+"/"+merchantAction,{reason:reason.trim(),internalNote:internalNote.trim()});setMessage(t.save);setReload(v=>v+1);setSelectedMerchant(null);setReason("");setInternalNote("");setMerchantAction(null);}
@@ -307,6 +307,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const caseItems=cases?.items.filter(c=>match(c.subject,c.reference,c.merchantName,c.reservationReference,c.offerTitle))??[];
     const auditItems=audit?.items.filter(a=>match(a.actorName,a.actorUserId,a.action,a.targetType,a.targetId,a.reason,a.correlationId))??[];
     const selectedAudit=auditItems.find(item=>item.id===selectedAuditId)??null;
+    const selectedMerchantIndex=selectedMerchant?merchantItems.findIndex(item=>item.id===selectedMerchant.id):-1;
     const selectedOfferIndex=selectedOffer?offerItems.findIndex(item=>item.id===selectedOffer.id):-1;
     const auditUi=auditText[locale];
     const resultLabel=(r:string)=>r==="SUCCESS"?t.success:r==="DENIED"?t.denied:r==="FAILED"?auditUi.failed:r;
