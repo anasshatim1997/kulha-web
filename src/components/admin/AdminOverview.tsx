@@ -138,11 +138,11 @@ export function AdminOverview({locale}:{locale:SiteLocale}) {
     ...([...merchants,...infoMerchants].slice(0,2).map(x=>({id:x.id,title:x.name,subtitle:(x.businessType||t.shop)+" · "+x.city,kind:"shop" as const,meta:x.status==="INFO_REQUIRED"?t.infoRequired:t.pending,href:"/admin/merchant-review",time:t.applied+" "+relativePhrase(x.createdAt,locale)}))),
   ];
   const activity=snapshot.audit?.items.slice(0,3)??[];
-  const updatedLabel=lastUpdatedLabel(lastUpdated,locale,t.syncing);
+  const updatedLabel=lastUpdatedLabel(lastUpdated,locale,t.syncing,t.refreshed);
 
   return <div className={`${styles.overview} ${redesign.root}`} data-testid="admin-overview" dir={locale==="ar"?"rtl":"ltr"}>
     <header className={styles.dashboardHeading}>
-      <div><h1 id="admin-overview-title">{t.title}</h1><p>{updatedLabel} · {t.refreshed}</p></div>
+      <div><h1 id="admin-overview-title">{t.title}</h1><p>{updatedLabel}</p></div>
       <div className={styles.dashboardActions}><span className={styles.livePill}><span/>{t.live}</span><button type="button" className={styles.refreshButton} onClick={()=>void refresh()} disabled={refreshing}><RefreshCw size={15} className={refreshing?styles.spinning:""} aria-hidden="true"/>{refreshing?t.syncing:t.refresh}</button></div>
     </header>
 
@@ -204,8 +204,10 @@ export function AdminOverview({locale}:{locale:SiteLocale}) {
   </div>;
 }
 
-function lastUpdatedLabel(value:Date|null,locale:SiteLocale,fallback:string) {
+function lastUpdatedLabel(value:Date|null,locale:SiteLocale,fallback:string,refreshed:string) {
   if(!value) return fallback;
   const tag=locale==="ar"?"ar-MA":locale==="en"?"en-MA":"fr-MA";
-  return new Intl.DateTimeFormat(tag,{timeZone:"Africa/Casablanca",weekday:"long",day:"2-digit",month:"long",hour:"2-digit",minute:"2-digit"}).format(value);
+  const date=new Intl.DateTimeFormat(tag,{timeZone:"Africa/Casablanca",weekday:"long",day:"2-digit",month:"long"}).format(value);
+  const time=new Intl.DateTimeFormat(tag,{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(value);
+  return date+" · "+refreshed+" "+time;
 }
