@@ -975,7 +975,7 @@ try {
       if (route.path.endsWith("/admin/audit-log")) {
         const events = page.getByTestId("audit-record-row");
         if (await events.count() < 7) throw new Error(route.path + " must render at least seven populated audit events.");
-        await events.last().click();
+        await events.nth(8).click();
         await page.getByTestId("audit-record-header").waitFor({ state: "visible" });
         const detailText = await page.getByTestId("audit-record-detail").innerText();
         if (detailText.length < 180) throw new Error(route.path + " selected audit detail did not render the long record fields.");
