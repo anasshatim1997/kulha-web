@@ -476,9 +476,10 @@ async function assertMerchantReviewLayout(page, width, height) {
   if (metrics.documentWidth > width + 1 || metrics.detail.left < -1 || metrics.detail.right > width + 1) {
     throw new Error("Merchant review horizontal clipping at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (metrics.scrollY > 1 || metrics.heading.top < metrics.topbar.bottom - 1
+  if (metrics.scrollY > 1 || metrics.topbar.top < metrics.heading.top - 1
+      || metrics.topbar.bottom > metrics.heading.bottom + 1
       || metrics.tabs.top < metrics.heading.bottom - 1) {
-    throw new Error("Merchant review heading, filters and topbar overlap or start scrolled at " + width + "x" + height + ": " + JSON.stringify(metrics));
+    throw new Error("Merchant review heading, search and filters overlap or start scrolled at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
   if (metrics.buttons.length !== 3 || metrics.textareas.length !== 2 || metrics.textareas.some(field => !field.visible)) {
     throw new Error("Merchant review decision controls are missing at " + width + "x" + height + ": " + JSON.stringify(metrics));
