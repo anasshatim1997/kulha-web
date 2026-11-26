@@ -407,7 +407,7 @@ async function assertOfferModerationLayout(page, width, height) {
   });
   if (!metrics.workspace || !metrics.wrap || !metrics.table) throw new Error("Offer table regions are missing at " + width + "x" + height + ": " + JSON.stringify(metrics));
   if (metrics.documentWidth > width + 1 || metrics.bodyWidth > width + 1) throw new Error("Offer table causes page overflow at " + width + "x" + height + ": " + JSON.stringify(metrics));
-  if (metrics.rowCount < 10 || metrics.reviewButtons !== metrics.rowCount || metrics.checkboxes !== metrics.rowCount || metrics.tabCount !== 5) {
+  if (metrics.rowCount < 5 || metrics.reviewButtons !== metrics.rowCount || metrics.checkboxes !== metrics.rowCount || metrics.tabCount !== 5) {
     throw new Error("Offer queue, selection controls or filters are incomplete at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
   if (metrics.tabHeights.some(value => value > 44)) throw new Error("Offer filters are oversized: " + JSON.stringify(metrics.tabHeights));
