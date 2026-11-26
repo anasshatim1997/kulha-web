@@ -5181,3 +5181,7 @@
  .offerDecisionDock{padding:0 14px 14px}
  .offerDialogTopbar{padding:8px 12px 0}
 }
+
+.merchantBatchRow{display:grid;grid-template-columns:26px minmax(0,1fr);align-items:center;gap:8px}
+.merchantBatchRow .merchantListItem,.merchantBatchRow .merchantSelected{width:100%;min-width:0}
+.merchantBatchRow .offerSelectControl{align-self:stretch}
