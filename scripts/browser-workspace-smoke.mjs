@@ -866,6 +866,11 @@ try {
         await page.getByTestId("merchant-review-workflow").waitFor({ state: "visible" });
       }
       if (size.width === 1366 && route.path.endsWith("/admin/support-cases")) {
+        await page.screenshot({ path: join("artifacts/browser-screenshots", "support-before-close-1366x768.png"), animations: "disabled" });
+        const supportCloseBounds = await page.getByTestId("support-case-close").boundingBox();
+        if (!supportCloseBounds || supportCloseBounds.top < 0 || supportCloseBounds.bottom > size.height) {
+          throw new Error("Support close control must remain inside the viewport: " + JSON.stringify(supportCloseBounds));
+        }
         await page.getByTestId("support-case-close").click();
         await page.getByTestId("support-case-row").first().click();
         await page.locator('[data-testid="support-case-detail"] h2').waitFor({ state: "visible" });
