@@ -198,7 +198,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const t={...words[locale],...more[locale]};const {state}=useSession();const actorId=state.status==="authenticated"?state.user.id:"";const roles=state.status==="authenticated"?state.user.roles:[];const isSupportOnly=roles.includes("SUPPORT")&&!roles.includes("ADMIN")&&!roles.includes("SUPER_ADMIN");
     const [loading,setLoading]=useState(true);const [failed,setFailed]=useState(false);const [reload,setReload]=useState(0);const [message,setMessage]=useState("");const [query,setQuery]=useState("");
     const [merchants,setMerchants]=useState<Page<Merchant>|null>(null);const [merchantStatus,setMerchantStatus]=useState("PENDING");const [merchantPage,setMerchantPage]=useState(0);const [selectedMerchant,setSelectedMerchant]=useState<Merchant|null>(null);const [merchantAction,setMerchantAction]=useState<MerchantAction|null>(null);const [checks,setChecks]=useState([false,false,false]);const [tabCounts,setTabCounts]=useState<{pending:number|null;info:number|null}>({pending:null,info:null});
-    const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useState("");const [offerPage,setOfferPage]=useState(0);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");
+    const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useState("");const [offerPage,setOfferPage]=useState(0);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");const [offerConfirmOpen,setOfferConfirmOpen]=useState(false);
     const [selectedOffers,setSelectedOffers]=useState<Record<string,Offer>>({});const [batchOfferOpen,setBatchOfferOpen]=useState(false);const [batchOfferAction,setBatchOfferAction]=useState<OfferAction>("suspend");const [batchOfferReason,setBatchOfferReason]=useState("");const [batchOfferResults,setBatchOfferResults]=useState<BatchOfferResult[]|null>(null);const [batchOfferWorking,setBatchOfferWorking]=useState(false);
     const [cases,setCases]=useState<Page<CaseItem>|null>(null);const [caseStatus,setCaseStatus]=useState("OPEN");const [casePage,setCasePage]=useState(0);const [selectedCase,setSelectedCase]=useState<{summary:CaseItem;timeline:Timeline[]}|null>(null);const [caseCounts,setCaseCounts]=useState<{open:number|null;escalated:number|null;waiting:number|null;resolved:number|null}>({open:null,escalated:null,waiting:null,resolved:null});
     const [audit,setAudit]=useState<AuditPage|null>(null);const [auditPage,setAuditPage]=useState(0);const [auditPageSize,setAuditPageSize]=useState(AUDIT_PAGE_SIZE);const [selectedAuditId,setSelectedAuditId]=useState<string|null>(null);const [auditModalOpen,setAuditModalOpen]=useState(false);const [auditSearch,setAuditSearch]=useState("");const [auditFrom,setAuditFrom]=useState("");const [auditTo,setAuditTo]=useState("");const [auditAction,setAuditAction]=useState("");const [auditResult,setAuditResult]=useState("");
@@ -245,7 +245,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     }
     async function submitOffer(){
         if(!selectedOffer)return;if(!reason.trim()){setMessage(t.saveReason);return;}setWorking(true);setMessage("");
-        try{await api.post("/admin/offers/"+selectedOffer.id+"/"+offerAction,{reason:reason.trim()});setMessage(t.save);setReload(v=>v+1);setSelectedOffer(null);setReason("");}
+        try{await api.post("/admin/offers/"+selectedOffer.id+"/"+offerAction,{reason:reason.trim()});setMessage(t.save);setReload(v=>v+1);setSelectedOffer(null);setReason("");setOfferConfirmOpen(false);}
         catch(error){setMessage(error instanceof ApiError?(error.detail||error.title):t.error);}finally{setWorking(false);}
     }
     function toggleOfferSelection(offer:Offer){
@@ -483,12 +483,21 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             </div>
                             <footer className={styles.offerInlineFooter} data-testid="offer-moderation-footer">
                                 <p><ShieldCheck size={15} aria-hidden="true"/>{t.auditRecorded}</p>
-                                <button className={styles.primary} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{working?t.loading:offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
+                                <button className={styles.primary} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>setOfferConfirmOpen(true)}>{working?t.loading:offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
                             </footer>
                         </div>
                     </>}
                 </section>
             </div>
+            {offerConfirmOpen&&selectedOffer&&<div className={styles.adminModalBackdrop} role="presentation">
+                <section className={styles.offerConfirmModal} role="dialog" aria-modal="true" aria-labelledby="offer-confirm-title">
+                    <h2 id="offer-confirm-title">{locale==="fr"?"Confirmer la décision":locale==="ar"?"تأكيد القرار":"Confirm moderation decision"}</h2>
+                    <p><strong>{selectedOffer.title}</strong></p>
+                    <p>{offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:t.hide}</p>
+                    <label className={styles.field}><span>{t.reason}</span><textarea rows={3} maxLength={500} value={reason} onChange={event=>setReason(event.target.value)}/></label>
+                    <footer><button type="button" className={styles.ghostBtn} disabled={working} onClick={()=>setOfferConfirmOpen(false)}>{locale==="fr"?"Annuler":"Cancel"}</button><button type="button" className={styles.primary} disabled={working||!reason.trim()} onClick={()=>void submitOffer()}>{working?t.loading:locale==="fr"?"Confirmer":locale==="ar"?"تأكيد":"Confirm"}</button></footer>
+                </section>
+            </div>}
             {batchOfferOpen&&<div className={styles.adminModalBackdrop} role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget&&!batchOfferWorking)setBatchOfferOpen(false);}}>
                 <section className={styles.batchOfferModal} role="dialog" aria-modal="true" aria-labelledby="batch-offer-title" data-testid="batch-offer-modal">
                     <header className={styles.batchOfferHeader}><div><small>{batchOfferResults?"BATCH REVIEW · DONE":"BATCH REVIEW"}</small><h2 id="batch-offer-title">{batchOfferResults?"Batch review results":"Review "+Object.keys(selectedOffers).length+" offers together"}</h2><p>Same decision and reason for all. Each offer gets its own audit entry.</p></div><button type="button" aria-label={t.closeReview} disabled={batchOfferWorking} onClick={()=>setBatchOfferOpen(false)}><X size={19}/></button></header>
