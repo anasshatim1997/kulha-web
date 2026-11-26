@@ -856,6 +856,7 @@ try {
       await assertNoHorizontalOverflow(page, route.path, size.width);
       if (route.path.endsWith("/admin/merchant-review") && size.width <= 600) {
         const merchantDialog = page.getByTestId("merchant-review-detail-panel");
+        await page.getByTestId("merchant-review-list").getByRole("button").first().click();
         await merchantDialog.locator(".offerDialogTopbar").waitFor({ state: "visible" });
         const dialogBounds = await merchantDialog.boundingBox();
         const dialogHeaderBounds = await merchantDialog.locator(".offerDialogTopbar").boundingBox();
