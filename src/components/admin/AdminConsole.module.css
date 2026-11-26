@@ -5248,3 +5248,6 @@
 .overviewSystems>div small{font-size:10px;line-height:1.45;color:#866b32}
 @media(max-width:900px){.overviewColumns{grid-template-columns:minmax(0,1fr)}.overviewSide{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.overviewLive{gap:8px}.overviewLive>span{display:none}.overviewSide{grid-template-columns:minmax(0,1fr)}.overviewMetrics>a{grid-template-columns:38px auto 1fr 16px}.overviewMetrics>a>b{font-size:12px}}
+
+.checkDisabled{opacity:.55;cursor:not-allowed}
+.checkDisabled input{cursor:not-allowed}
