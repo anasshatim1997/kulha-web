@@ -751,21 +751,20 @@ try {
       if (route.path.endsWith("/admin/merchant-review") && size.width >= 1280) await assertMerchantReviewLayout(page, size.width, size.height);
       if (route.path.endsWith("/admin/offer-moderation")) {
         await assertOfferModerationLayout(page, size.width, size.height);
-        await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
         const longTitle = "Family breakfast basket with assorted bakery items, fresh fruit and detailed allergen information";
-        await page.getByTestId("offer-queue").getByRole("button").filter({ hasText: longTitle }).click();
-        await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
-        const selectedTitle = page.getByTestId("offer-detail-panel").locator("h2").first();
-        await selectedTitle.waitFor({ state: "visible" });
+        const longRow = page.getByTestId("offer-row").filter({ hasText: longTitle });
+        await longRow.getByRole("button", { name: "Review" }).click();
+        const dialog = page.getByTestId("offer-action-dialog");
+        await dialog.waitFor({ state: "visible" });
+        await dialog.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
+        const selectedTitle = dialog.locator("h2").first();
         const renderedTitle = (await selectedTitle.innerText()).trim();
-        if (renderedTitle !== longTitle) {
-          throw new Error(`Long offer title was not selected at ${size.width}x${size.height}: ${renderedTitle}`);
-        }
+        if (renderedTitle !== longTitle) throw new Error("Long offer title was not selected at " + size.width + "x" + size.height + ": " + renderedTitle);
+        await assertOfferDecisionAccessible(page, size.width, size.height, route.path);
         await assertNoHorizontalOverflow(page, route.path, size.width);
-        if (size.width >= 1100) await assertOfferDecisionAccessible(page, size.width, size.height, route.path);
         const locale = route.path.split("/")[1];
         await page.screenshot({
-          path: join("artifacts/browser-screenshots", `offer-moderation-long-title-${locale}-${size.width}x${size.height}.png`),
+          path: join("artifacts/browser-screenshots", "offer-moderation-long-title-" + locale + "-" + size.width + "x" + size.height + ".png"),
           animations: "disabled",
         });
       }
@@ -972,12 +971,8 @@ try {
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(origin + "/en/admin/offer-moderation", { waitUntil: "networkidle" });
-    const detail = page.getByTestId("offer-detail-panel");
-    await detail.waitFor({ state: "visible" });
-    if (await detail.locator("textarea, input").count() !== 0) {
-      throw new Error("Offer inspection must be read-only.");
-    }
-    await page.getByRole("button", { name: "Open moderation" }).click();
+    const row = page.getByTestId("offer-row").first();
+    await row.getByRole("button", { name: "Review" }).click();
     const action = page.getByTestId("offer-action-dialog");
     await action.waitFor({ state: "visible" });
     await action.locator('[data-action="suspend"]').click();
