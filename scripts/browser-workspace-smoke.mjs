@@ -861,7 +861,6 @@ try {
       if (route.path.endsWith("/admin/merchant-review") && size.width >= 1280) await assertMerchantReviewLayout(page, size.width, size.height);
       if (route.path.endsWith("/admin/offer-moderation")) {
         await assertOfferModerationLayout(page, size.width, size.height);
-        await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
         const longTitle = "Family breakfast basket with assorted bakery items, fresh fruit and detailed allergen information";
         await page.getByTestId("offer-queue").getByRole("button").filter({ hasText: longTitle }).click();
         await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
