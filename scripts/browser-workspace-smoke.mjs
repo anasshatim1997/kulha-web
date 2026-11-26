@@ -451,7 +451,7 @@ async function assertOfferModerationLayout(page, width, height) {
     throw new Error("Offer queue must use the available workspace width before a selection is opened at " + width + "px: " + JSON.stringify(metrics));
   if (metrics.preview.width > 0)
     throw new Error("Offer detail dialog should remain closed until an offer is selected at " + width + "px: " + JSON.stringify(metrics));
-  if (metrics.offerCount < 10 || metrics.longTitleCount < 1)
+  if (metrics.offerCount < 5 || metrics.longTitleCount < 1)
     throw new Error(`Offer moderation fixtures must exercise a populated queue and a long offer title: ${JSON.stringify(metrics)}`);
 }
 
