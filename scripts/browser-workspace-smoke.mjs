@@ -985,7 +985,7 @@ try {
     await page.goto(origin + "/en/admin/support-cases", { waitUntil: "networkidle" });
     const actions = page.getByTestId("support-action-dialog");
     await actions.waitFor({ state: "visible" });
-    await page.getByTestId("support-case-table").waitFor({ state: "visible" });
+    await page.getByTestId("support-workspace").waitFor({ state: "visible" });
     await actions.getByLabel("Reason for viewing customer details (required)").fill("Confirming a food-safety complaint.");
     await actions.getByRole("button", { name: "Reveal details" }).click();
     await page.getByText("customer@kulha.test").waitFor({ state: "visible" });
