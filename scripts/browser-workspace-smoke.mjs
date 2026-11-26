@@ -898,7 +898,7 @@ try {
             const value = element.getBoundingClientRect();
             return { top: value.top, left: value.left, right: value.right, width: value.width, bottom: value.bottom };
           };
-          return { direction: document.documentElement.dir || document.body.dir || "ltr", metricCount: metrics?.children.length ?? 0, metricText: [...(metrics?.children ?? [])].map(item => item.innerText), metrics: rect(metrics), columns: rect(columns), queue: rect(queue), side: rect(side) };
+          return { direction: document.querySelector(".kulhaAdminShell") ? getComputedStyle(document.querySelector(".kulhaAdminShell")).direction : "ltr", metricCount: metrics?.children.length ?? 0, metricText: [...(metrics?.children ?? [])].map(item => item.innerText), metrics: rect(metrics), columns: rect(columns), queue: rect(queue), side: rect(side) };
         });
         if (overview.metricCount !== 3 || !overview.metricText[0]?.includes("4") || !overview.metricText[1]?.includes("6") || !overview.metricText[2]?.includes("5") || !overview.queue || !overview.side || overview.queue.width < 240 || overview.side.width < 220) {
           throw new Error("Overview must show three operational metrics and complete queue/activity regions: " + JSON.stringify(overview));
