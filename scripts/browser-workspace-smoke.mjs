@@ -127,7 +127,9 @@ function csv(response, filename) {
     "content-type": "text/csv; charset=utf-8",
     "content-disposition": `attachment; filename="${filename}"`,
   });
-  response.end("reference,amount\nKULHA-SMOKE-001,40.00\n");
+  response.end("reference,amount
+KULHA-SMOKE-001,40.00
+");
 }
 
 const backend = createServer(async (request, response) => {
@@ -461,6 +463,7 @@ async function assertMerchantReviewLayout(page, width, height) {
       table: box(table), heading: box(heading), topbar: box(topbar), tabs: box(tabs),
       dialog: box(dialog), body: box(body), decision: box(decision), footer: box(footer),
       rowCount: rows.length, reviewButtons: table?.querySelectorAll('[data-testid="merchant-row"] button').length ?? 0,
+      tableCheckboxes: table?.querySelectorAll('[data-testid="merchant-row"] input[type="checkbox"]').length ?? 0,
       decisionButtons: decision?.querySelectorAll('[data-action]').length ?? 0,
       textareas: decision?.querySelectorAll('textarea').length ?? 0,
       checkboxes: decision?.querySelectorAll('input[type="checkbox"]').length ?? 0,
@@ -475,7 +478,7 @@ async function assertMerchantReviewLayout(page, width, height) {
   if (metrics.documentWidth > width + 1 || metrics.dialog.left < -1 || metrics.dialog.right > width + 1) {
     throw new Error("Merchant review horizontal clipping at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (metrics.rowCount < 3 || metrics.reviewButtons !== metrics.rowCount || metrics.decisionButtons !== 3
+  if (metrics.rowCount < 3 || metrics.reviewButtons !== metrics.rowCount || metrics.tableCheckboxes !== metrics.rowCount || metrics.decisionButtons !== 3
       || metrics.textareas !== 2 || metrics.checkboxes !== 2 || metrics.approveDisabled !== true) {
     throw new Error("Merchant review table, checklist or decisions are incomplete at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
@@ -660,7 +663,8 @@ try {
       if (errors.length) throw new Error("Browser errors on /" + locale.code + "/admin/login: " + errors.join("; "));
       await context.close();
     }
-    process.stdout.write("PASS admin login: five required viewports, English and Arabic RTL, validation errors and password visibility\n");
+    process.stdout.write("PASS admin login: five required viewports, English and Arabic RTL, validation errors and password visibility
+");
   }
 
   const routes = [
@@ -840,7 +844,8 @@ try {
     }
     if (errors.length) throw new Error(`Browser errors on ${route.path}: ${errors.join("; ")}`);
     await context.close();
-    process.stdout.write(`PASS viewport matrix: ${route.path}\n`);
+    process.stdout.write(`PASS viewport matrix: ${route.path}
+`);
   }
 
   // Orders: the status filter changes the backend query, not just the selected tab.
@@ -1048,11 +1053,16 @@ try {
     await context.close();
   }
 
-  process.stdout.write("PASS merchant order filtering, staff permissions, sales download and pickup handover\n");
-  process.stdout.write("PASS admin merchant review, offer moderation, assigned support disclosure/resolution and audit download\n");
-  process.stdout.write("PASS admin login screenshots/layout at 1366x768, 1920x1080 and 390x844\n");
-  process.stdout.write("PASS moderation panels align at 1366x768 and 1920x1080; pagination anchored; populated offer queue internally scrollable; mobile stack checked\n");
-  process.stdout.write("PASS localized live admin overview, responsive workspace routes, document-gated shop approval and Arabic RTL\n");
+  process.stdout.write("PASS merchant order filtering, staff permissions, sales download and pickup handover
+");
+  process.stdout.write("PASS admin merchant review, offer moderation, assigned support disclosure/resolution and audit download
+");
+  process.stdout.write("PASS admin login screenshots/layout at 1366x768, 1920x1080 and 390x844
+");
+  process.stdout.write("PASS moderation panels align at 1366x768 and 1920x1080; pagination anchored; populated offer queue internally scrollable; mobile stack checked
+");
+  process.stdout.write("PASS localized live admin overview, responsive workspace routes, document-gated shop approval and Arabic RTL
+");
 } finally {
   await browser?.close();
   app.kill("SIGTERM");
