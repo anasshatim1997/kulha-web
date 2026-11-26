@@ -904,9 +904,12 @@ try {
           throw new Error(`Support composer escaped its detail panel at ${size.width}x${size.height}: ${JSON.stringify(supportLayout)}`);
         }
         if (size.width >= 900) await assertSupportTimelineVisible(page, size.width, size.height);
-        if (supportLayout.detailPosition !== "fixed" || supportLayout.detailTop < 0
-          || supportLayout.panelBottom > size.height + 1) {
-          throw new Error("Support case dialog must remain inside the viewport at " + size.width + "px: " + JSON.stringify(supportLayout));
+        if (size.width >= 900 && (supportLayout.detailPosition !== "fixed" || supportLayout.detailTop < 0
+          || supportLayout.panelBottom > size.height + 1)) {
+          throw new Error("Desktop support case dialog must remain inside the viewport at " + size.width + "px: " + JSON.stringify(supportLayout));
+        }
+        if (size.width < 900 && supportLayout.pickerBottom !== null && supportLayout.detailTop < supportLayout.pickerBottom - 1) {
+          throw new Error("Mobile support details must stack below the case picker at " + size.width + "px: " + JSON.stringify(supportLayout));
         }
         if (size.width >= 900 && (supportLayout.documentHeight > size.height + 1
           || supportLayout.detailOverflow !== "hidden" || supportLayout.historyOverflow !== "auto"
