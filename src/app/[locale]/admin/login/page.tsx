@@ -5,7 +5,7 @@ import { AdminLoginShell } from "@/components/admin/AdminLoginShell";
 import { LoginForm } from "@/components/auth/LoginForm";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 
-const locales: SiteLocale[] = ["en", "ar"];
+const locales: SiteLocale[] = ["fr", "en", "ar"];
 
 export function generateStaticParams() {
     return locales.map((locale) => ({ locale }));
@@ -22,10 +22,12 @@ export default async function LocalizedAdminLoginPage({ params }: { params: Prom
     const { locale } = await params;
     if (!locales.includes(locale as SiteLocale)) notFound();
     const selected = locale as SiteLocale;
-    const title = selected === "ar" ? "دخول الإدارة" : "Administrator sign in";
+    const title = selected === "ar" ? "دخول الإدارة" : selected === "fr" ? "Connexion administrateur" : "Administrator sign in";
     const lead = selected === "ar"
         ? "سجّل الدخول باستخدام حساب إدارة KULHA."
-        : "Sign in with your KULHA administrator account.";
+        : selected === "fr"
+            ? "Connectez-vous avec votre compte administrateur KULHA."
+            : "Sign in with your KULHA administrator account.";
     return (
         <AdminLoginShell locale={selected} title={title} lead={lead}>
             <Suspense><LoginForm locale={selected} adminOnly /></Suspense>
