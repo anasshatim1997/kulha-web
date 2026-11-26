@@ -853,6 +853,7 @@ try {
         await page.getByTestId("merchant-review-workflow").waitFor({ state: "visible" });
       }
       if (size.width === 1366 && route.path.endsWith("/admin/support-cases")) {
+        await page.getByTestId("support-case-detail").getByRole("button", { name: "Close" }).click();
         await page.getByTestId("support-case-row").first().click();
         await page.locator('[data-testid="support-case-detail"] h2').waitFor({ state: "visible" });
       }
