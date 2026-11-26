@@ -18,6 +18,7 @@ let merchantStatus = "PENDING";
 let offerStatus = "PUBLISHED";
 let caseStatus = "OPEN";
 let failedBatchOnce = false;
+let failedMerchantBatchOnce = false;
 
 const merchant = {
   id: "00000000-0000-4000-8000-000000000101", ownerUserId: customerId,
@@ -200,6 +201,14 @@ const backend = createServer(async (request, response) => {
     await bodyOf(request);
     merchantStatus = "APPROVED";
     merchant.status = merchantStatus;
+    return json(response, {});
+  }
+  if (path.startsWith("/admin/merchants/") && method === "POST") {
+    await bodyOf(request);
+    if (path.endsWith("/00000000-0000-4000-8000-000000000117/request-information") && !failedMerchantBatchOnce) {
+      failedMerchantBatchOnce = true;
+      return json(response, { message: "simulated first-attempt failure" }, 503);
+    }
     return json(response, {});
   }
   if (path === "/admin/offers" && method === "GET") {
@@ -916,6 +925,34 @@ try {
     if (!(await actionDialog.getByRole("button", { name: "Request information" }).isEnabled())) {
       throw new Error("Request-information decision should remain available while shop documents are unavailable.");
     }
+    await context.close();
+  }
+
+  // Merchant batch review: the reason is shared, successful actions are audited and failed shops remain retryable.
+  {
+    merchantStatus = "PENDING";
+    merchant.status = merchantStatus;
+    failedMerchantBatchOnce = false;
+    const context = await loginContext(browser, "admin-token");
+    const page = await context.newPage();
+    await page.setViewportSize({ width: 1366, height: 768 });
+    await page.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
+    const dialog = page.getByTestId("merchant-review-action-dialog");
+    await dialog.waitFor({ state: "visible" });
+    await dialog.locator('button[aria-label="Close"]').click();
+    const rows = page.getByTestId("merchant-row");
+    await rows.nth(0).locator('input[type="checkbox"]').check();
+    await rows.nth(1).locator('input[type="checkbox"]').check();
+    await page.getByTestId("merchant-batch-bar").getByRole("button", { name: "Review 2 together" }).click();
+    const batch = page.getByTestId("merchant-batch-dialog");
+    await batch.waitFor({ state: "visible" });
+    await batch.locator('[data-action="request-information"]').click();
+    await batch.getByLabel("ONE REASON FOR ALL (REQUIRED)").fill("Missing proof of business registration.");
+    await batch.getByRole("button", { name: "Request information" }).click();
+    await batch.getByText(/RESULT · 1 OF 2 DONE/).waitFor({ state: "visible" });
+    await batch.getByRole("button", { name: "Retry 1 failed" }).click();
+    await batch.getByText(/RESULT · 2 OF 2 DONE/).waitFor({ state: "visible" });
+    await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/00000000-0000-4000-8000-000000000117/request-information"), "Merchant batch retry");
     await context.close();
   }
 
