@@ -1,11 +1,13 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode, type RefObject, type SyntheticEvent } from "react";
+import Link from "next/link";
 import { api } from "@/lib/api/client";
 import { canRevealSupportCustomerDetails, SUPPORT_DISCLOSURE_REASON_MAX_LENGTH } from "@/lib/auth/admin-access";
 import { useSession } from "@/components/session/SessionProvider";
-import { AlertTriangle, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, Filter, Image as ImageIcon, Lock, Search, ShieldCheck, Tag, X } from "lucide-react";
+import { AlertTriangle, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, Eye, FileText, Filter, Image as ImageIcon, LayoutDashboard, LifeBuoy, Lock, Search, ShieldCheck, Store, Tag, Utensils, X } from "lucide-react";
 import styles from "./AdminConsole.module.css";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
+import { localePath } from "@/lib/navigation";
 
 type PageKey="merchant-review"|"offer-moderation"|"support-cases"|"audit-log";
 type Merchant={id:string;ownerUserId:string;ownerEmail:string;name:string;businessType:string;address:string;city:string;phone:string;openingHours:string;status:string;decisionReason:string|null;createdAt:string};
@@ -253,8 +255,21 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const switchTab=(apply:()=>void)=>{setLoading(true);setFailed(false);apply();};
 
     const searchPlaceholder=page==="merchant-review"?t.searchMerchant:page==="offer-moderation"?t.searchOffers:page==="support-cases"?t.searchCases:t.searchAudit;
-    const topbar=<div className={styles.topbar} data-testid="admin-console-topbar">{page!=="audit-log"&&<label className={styles.search} data-testid="admin-console-search"><Search size={17} aria-hidden="true"/><span className="sr-only">{searchPlaceholder}</span><input type="search" data-testid="admin-global-search" value={query} onChange={e=>{setQuery(e.target.value);}} placeholder={searchPlaceholder}/></label>}</div>;
-    const frame=(content:ReactNode)=><div className={`${styles.shell} kulhaAdminShell`} data-page={page} dir={locale==="ar"?"rtl":"ltr"}>{topbar}<main className={styles.page}>{content}</main></div>;
+    const navigation=[
+        {key:"overview",href:"/admin",label:locale==="fr"?"Vue d’ensemble":locale==="ar"?"نظرة عامة":"Overview",icon:LayoutDashboard},
+        {key:"offer-moderation",href:"/admin/offer-moderation",label:locale==="fr"?"Offres":locale==="ar"?"العروض":"Offers",icon:Tag},
+        {key:"merchant-review",href:"/admin/merchant-review",label:locale==="fr"?"Commerces":locale==="ar"?"المتاجر":"Merchants",icon:Store},
+        {key:"support-cases",href:"/admin/support-cases",label:locale==="fr"?"Support":locale==="ar"?"الدعم":"Support",icon:LifeBuoy},
+        {key:"audit-log",href:"/admin/audit-log",label:locale==="fr"?"Journal d’audit":locale==="ar"?"سجل التدقيق":"Audit log",icon:ClipboardList}
+    ] as const;
+    const topbar=<header className={styles.topbar} data-testid="admin-console-topbar">
+        {page!=="audit-log"&&<label className={styles.search} data-testid="admin-console-search"><Search size={17} aria-hidden="true"/><span className="sr-only">{searchPlaceholder}</span><input type="search" data-testid="admin-global-search" value={query} onChange={e=>{setQuery(e.target.value);}} placeholder={searchPlaceholder}/></label>}
+        <div className={styles.adminTopbarRight}><nav aria-label={locale==="fr"?"Langue":locale==="ar"?"اللغة":"Language"} className={styles.adminLanguages}>{(["fr","en","ar"] as const).map(value=><Link key={value} href={localePath(value,page==="merchant-review"?"/admin/merchant-review":page==="offer-moderation"?"/admin/offer-moderation":page==="support-cases"?"/admin/support-cases":"/admin/audit-log")} aria-current={locale===value?"page":undefined}>{value.toUpperCase()}</Link>)}</nav><span className={styles.adminIdentity}>{locale==="fr"?"Administration":locale==="ar"?"الإدارة":"Administrator"}</span><span className={styles.adminAvatar} aria-hidden="true">K</span></div>
+    </header>;
+    const frame=(content:ReactNode)=><div className={`${styles.shell} kulhaAdminShell`} data-page={page} dir={locale==="ar"?"rtl":"ltr"}>
+        <aside className={styles.adminSidebar}><Link href={localePath(locale,"/admin")} className={styles.adminBrand} aria-label="KULHA!"><span>Kulha<span>!</span></span></Link><nav className={styles.adminNavigation} aria-label={locale==="fr"?"Navigation principale":locale==="ar"?"التنقل الرئيسي":"Main navigation"}>{navigation.map(item=>{const Icon=item.icon;return <Link key={item.key} href={localePath(locale,item.href)} className={item.key===page?styles.adminNavActive:styles.adminNavLink} aria-current={item.key===page?"page":undefined}><Icon size={18} aria-hidden="true"/><span>{item.label}</span></Link>;})}</nav><p className={styles.adminSidebarFoot}>KULHA! · ADMIN</p></aside>
+        <div className={styles.adminMain}>{topbar}<main className={styles.page}>{content}</main></div>
+    </div>;
 
     if(loading)return frame(<><div className={styles.header}><div><div className={styles.skeleton}/><div className={styles.skeletonWide}/></div></div><div className={styles.skeletonPanel}/></>);
     if(failed)return frame(<div className={styles.alert} role="alert">{t.error}<button onClick={()=>{setLoading(true);setFailed(false);setReload(v=>v+1);}}>{t.retry}</button></div>);
