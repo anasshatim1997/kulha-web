@@ -5307,3 +5307,9 @@
  .merchantReviewWorkspace:has(.merchantDetails .detailHead) .merchantDetails{height:auto}
  .supportWorkspace:has(.caseDetail .detailHead) .caseDetail{height:auto}
 }
+
+.shell{display:block;grid-template-columns:minmax(0,1fr);min-height:100vh;background:#fbf3e5;color:#073324}
+.adminMain{width:100%;min-width:0}
+.topbar{position:static;display:flex;align-items:center;justify-content:flex-start;min-height:62px;padding:10px clamp(18px,2vw,30px);background:#fffdf8;border-bottom:1px solid #e9e0d1}
+@media(max-width:899px){.shell{padding-bottom:0}.topbar{padding:10px 18px}}
+@media(max-width:700px){.shell{padding-bottom:0}.topbar{position:static;min-height:58px;padding:8px 12px}}
