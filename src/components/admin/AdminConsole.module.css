@@ -5281,3 +5281,12 @@
  .supportWorkspace:has(.caseDetail .detailHead) .caseDetail{left:50%;width:calc(100vw - 16px)}
  .auditExplorer .auditRecordCard{left:50%;width:calc(100vw - 16px)}
 }
+
+@media(min-width:900px){
+ .supportWorkspace:has(.caseDetail .detailHead) .caseDetail{display:flex;flex-direction:column;overflow:hidden}
+ .supportWorkspace:has(.caseDetail .detailHead) .caseHistory{display:flex;flex:1 1 auto;flex-direction:column;min-height:0;max-height:none;overflow-y:auto}
+}
+@media(max-width:899px){
+ .supportWorkspace:has(.caseDetail .detailHead) .caseDetail{display:block;overflow:auto}
+ .supportWorkspace:has(.caseDetail .detailHead) .caseHistory{max-height:none;overflow:visible}
+}
