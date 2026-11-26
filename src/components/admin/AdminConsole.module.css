@@ -5251,3 +5251,16 @@
 
 .checkDisabled{opacity:.55;cursor:not-allowed}
 .checkDisabled input{cursor:not-allowed}
+
+@media(max-width:899px){
+ .shell{grid-template-columns:minmax(0,1fr);padding-bottom:68px}
+ .adminSidebar{position:fixed;z-index:50;inset:auto 0 0;width:100%;height:64px;min-height:64px;padding:6px 8px;background:#063525}
+ .adminBrand,.adminSidebarFoot{display:none}
+ .adminNavigation{display:flex;justify-content:space-around;gap:3px;height:100%}
+ .adminNavLink,.adminNavActive{flex:1;justify-content:center;flex-direction:column;gap:3px;min-width:0;min-height:50px;padding:4px 2px;font-size:10px}
+ .adminNavLink svg,.adminNavActive svg{width:17px;height:17px}
+ .adminMain{min-width:0;width:100%}
+ .topbar{display:flex;flex-direction:column;align-items:stretch;gap:8px;padding:10px 18px}
+ .adminTopbarRight{justify-content:flex-end}
+ .search{width:100%;max-width:none;min-width:0;flex:1}
+}
