@@ -190,7 +190,7 @@ const backend = createServer(async (request, response) => {
   }
   if (path === "/merchants/me/sales/export") return csv(response, "kulha-sales.csv");
 
-  const merchantActionMatch = path.match(/^\\/admin\\/merchants\\/([^/]+)\\/(request-information|reject)$/);
+  const merchantActionMatch = path.match(new RegExp("^/admin/merchants/([^/]+)/(request-information|reject)$"));
   if (merchantActionMatch && method === "POST") {
     await bodyOf(request);
     if (merchantActionMatch[1].endsWith("000000000117") && merchantActionMatch[2] === "request-information") {
@@ -220,7 +220,7 @@ const backend = createServer(async (request, response) => {
   if (path === "/admin/offers" && method === "GET") {
     return json(response, page(moderationOffers.map(item => ({ ...item, status: offerStatus }))));
   }
-  const offerActionMatch = path.match(/^\\/admin\\/offers\\/([^/]+)\\/(suspend|request-edit|reinstate)$/);
+  const offerActionMatch = path.match(new RegExp("^/admin/offers/([^/]+)/(suspend|request-edit|reinstate)$"));
   if (offerActionMatch && method === "POST") {
     await bodyOf(request);
     if (offerActionMatch[1].endsWith("000000000103") && offerActionMatch[2] === "request-edit") {
