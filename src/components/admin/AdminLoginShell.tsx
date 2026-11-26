@@ -17,19 +17,19 @@ const copy = {
         workspace: "ESPACE D’ADMINISTRATION",
         eyebrow: "Accès sécurisé",
         restricted: "Accès réservé aux administrateurs autorisés",
-        audit: "Les actions sensibles sont consignées dans le journal d’audit.",
+        audit: "Les actions sensibles sont consignées dans le journal d’audit.", headline: "La gestion de KULHA, en toute confiance.", intro: "Modérez les offres, vérifiez les commerces et accompagnez les clients.", customer: "Connexion client / commerce",
     },
     en: {
         workspace: "ADMINISTRATION",
         eyebrow: "Secure administrator access",
         restricted: "Authorized administrators only",
-        audit: "Sensitive actions are recorded in the audit log.",
+        audit: "Sensitive actions are recorded in the audit log.", headline: "KULHA operations, with confidence.", intro: "Moderate offers, review merchants and handle support cases.", customer: "Customer / shop sign in",
     },
     ar: {
         workspace: "مساحة الإدارة",
         eyebrow: "دخول إداري آمن",
         restricted: "للمسؤولين المصرح لهم فقط",
-        audit: "يتم تسجيل الإجراءات الحساسة في سجل التدقيق.",
+        audit: "يتم تسجيل الإجراءات الحساسة في سجل التدقيق.", headline: "إدارة KULHA بكل ثقة.", intro: "راجع العروض والمتاجر وطلبات دعم العملاء.", customer: "دخول العملاء والمتاجر",
     },
 } as const;
 
@@ -42,24 +42,18 @@ export function AdminLoginShell({ locale = "fr", title, lead, children }: AdminL
             dir={locale === "ar" ? "rtl" : "ltr"}
             lang={locale === "ar" ? "ar-MA" : locale}
         >
-            <header className={styles.topbar}>
-                <Link href={localePath(locale, "/admin/login")} className={styles.brand} aria-label="Kulha! Admin">
-                    <span className={styles.word} dir="ltr">KULHA<span>!</span></span>
-                    <span className={styles.brandDivider} />
-                    <small>ADMIN</small>
-                </Link>
-                <span className={styles.accessLabel}>
-                    <LockKeyhole size={14} aria-hidden="true" />
-                    {t.workspace}
-                </span>
-            </header>
-
-            <div className={styles.stage}>
-                <section
-                    className={styles.accessPanel}
-                    aria-labelledby="admin-login-title"
-                    data-testid="admin-login-access-panel"
-                >
+            <div className={styles.loginGrid}>
+                <section className={styles.identityPanel}>
+                    <Link href={localePath(locale, "/admin/login")} className={styles.identityBrand} aria-label="Kulha! Admin">
+                        <span className={styles.identityWord} dir="ltr">Kulha<span>!</span></span>
+                    </Link>
+                    <span className={styles.identityBadge}><LockKeyhole size={13} aria-hidden="true"/> {t.workspace}</span>
+                    <h2>{t.headline}</h2>
+                    <p>{t.intro}</p>
+                    <div className={styles.identityFoot}><ShieldCheck size={16} aria-hidden="true"/>{t.audit}</div>
+                </section>
+                <section className={styles.stage}>
+                    <section className={styles.accessPanel} aria-labelledby="admin-login-title" data-testid="admin-login-access-panel">
                     <div className={styles.accessCard}>
                         <div className={styles.lockTile} aria-hidden="true">
                             <ShieldCheck size={21} strokeWidth={1.9} />
@@ -69,11 +63,10 @@ export function AdminLoginShell({ locale = "fr", title, lead, children }: AdminL
                         <p className={styles.lead}>{lead}</p>
                         <div className={styles.form}>{children}</div>
                         <p className={styles.restricted}>{t.restricted}</p>
-                        <p className={styles.note}>
-                            <ShieldCheck size={15} aria-hidden="true" />
-                            {t.audit}
-                        </p>
+                        <p className={styles.note}><ShieldCheck size={15} aria-hidden="true" />{t.restricted}</p>
+                        <Link className={styles.customerLink} href={localePath(locale, "/login")}>{t.customer}</Link>
                     </div>
+                    </section>
                 </section>
             </div>
         </main>
