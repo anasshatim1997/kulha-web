@@ -434,71 +434,50 @@ async function assertAdminStatusControls(page, route, width, height) {
 
 async function assertMerchantReviewLayout(page, width, height) {
   const metrics = await page.evaluate(() => {
-    const detail = document.querySelector('[data-testid="merchant-review-detail-panel"]');
+    const table = document.querySelector('[data-testid="merchant-review-table"]');
+    const rows = [...(table?.querySelectorAll('[data-testid="merchant-row"]') ?? [])];
     const heading = document.querySelector('[data-testid="admin-page-heading"]');
     const topbar = document.querySelector('[data-testid="admin-console-topbar"]');
-    const tabs = document.querySelector('.kulhaAdminShell[data-page="merchant-review"] [role="tablist"]');
-    const workflow = document.querySelector('[data-testid="merchant-review-workflow"]');
-    const decision = document.querySelector('[data-testid="merchant-review-decision"]');
-    const footer = document.querySelector('[data-testid="merchant-review-footer"]');
+    const tabs = document.querySelector('.kulhaAdminShell [role="tablist"]');
+    const dialog = document.querySelector('[data-testid="merchant-review-action-dialog"]');
+    const body = dialog?.querySelector('[data-testid="merchant-review-workflow"]');
+    const decision = dialog?.querySelector('[data-testid="merchant-review-decision"]');
+    const footer = dialog?.querySelector('[data-testid="merchant-review-footer"]');
     const box = element => {
       if (!element) return null;
       const rect = element.getBoundingClientRect();
-      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height: rect.height };
+      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, width: rect.width, height: rect.height };
     };
-    const buttons = [...(decision?.querySelectorAll('button') ?? [])].map(button => {
-      const rect = button.getBoundingClientRect();
-      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right };
-    });
-    const textareas = [...(decision?.querySelectorAll('textarea') ?? [])].map(element => {
-      const rect = element.getBoundingClientRect();
-      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, visible: rect.width > 0 && rect.height > 0 };
-    });
-    const footerButton = footer?.querySelector('button');
-    const footerText = footer?.querySelector('p');
-    const actionRect = footerButton?.getBoundingClientRect();
-    const noteRect = footerText?.getBoundingClientRect();
     return {
-      detail: box(detail), heading: box(heading), topbar: box(topbar), tabs: box(tabs),
-      workflow: box(workflow), decision: box(decision), footer: box(footer),
+      table: box(table), heading: box(heading), topbar: box(topbar), tabs: box(tabs),
+      dialog: box(dialog), body: box(body), decision: box(decision), footer: box(footer),
+      rowCount: rows.length, reviewButtons: table?.querySelectorAll('[data-testid="merchant-row"] button').length ?? 0,
+      decisionButtons: decision?.querySelectorAll('[data-action]').length ?? 0,
+      textareas: decision?.querySelectorAll('textarea').length ?? 0,
+      checkboxes: decision?.querySelectorAll('input[type="checkbox"]').length ?? 0,
       documentWidth: document.documentElement.scrollWidth, scrollY: window.scrollY,
-      buttons, textareas,
-      footerAction: actionRect ? { top: actionRect.top, bottom: actionRect.bottom, left: actionRect.left, right: actionRect.right } : null,
-      footerNote: noteRect ? { top: noteRect.top, bottom: noteRect.bottom, left: noteRect.left, right: noteRect.right } : null,
-      selectedMerchant: detail?.textContent?.includes('Boulangerie Test') ?? false
+      approveDisabled: dialog?.querySelector('[data-action="approve"]')?.disabled ?? null,
     };
   });
-  if (!metrics.detail || !metrics.heading || !metrics.topbar || !metrics.tabs
-      || !metrics.workflow || !metrics.decision || !metrics.footer
-      || !metrics.footerAction || !metrics.footerNote || !metrics.selectedMerchant) {
-    throw new Error("Merchant review decision workspace is incomplete at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  if (!metrics.table || !metrics.heading || !metrics.topbar || !metrics.tabs || !metrics.dialog
+      || !metrics.body || !metrics.decision || !metrics.footer) {
+    throw new Error("Merchant review table or decision dialog is incomplete at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (metrics.documentWidth > width + 1 || metrics.detail.left < -1 || metrics.detail.right > width + 1) {
+  if (metrics.documentWidth > width + 1 || metrics.dialog.left < -1 || metrics.dialog.right > width + 1) {
     throw new Error("Merchant review horizontal clipping at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (metrics.scrollY > 1 || metrics.topbar.top < metrics.heading.top - 1
-      || metrics.topbar.bottom > metrics.heading.bottom + 1
-      || metrics.tabs.top < metrics.heading.bottom - 1) {
-    throw new Error("Merchant review heading, search and filters overlap or start scrolled at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  if (metrics.rowCount < 3 || metrics.reviewButtons !== metrics.rowCount || metrics.decisionButtons !== 3
+      || metrics.textareas !== 2 || metrics.checkboxes !== 2 || metrics.approveDisabled !== true) {
+    throw new Error("Merchant review table, checklist or decisions are incomplete at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (metrics.buttons.length !== 3 || metrics.textareas.length !== 2 || metrics.textareas.some(field => !field.visible)) {
-    throw new Error("Merchant review decision controls are missing at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  if (metrics.topbar.top < metrics.heading.top - 1 || metrics.topbar.bottom > metrics.heading.bottom + 1
+      || metrics.tabs.top < metrics.heading.bottom - 1 || metrics.scrollY > 1) {
+    throw new Error("Merchant heading, search and filters overlap at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  const overlaps = (a, b) => a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1;
-  for (let i = 0; i < metrics.buttons.length; i++) for (let j = i + 1; j < metrics.buttons.length; j++) {
-    if (overlaps(metrics.buttons[i], metrics.buttons[j])) {
-      throw new Error("Merchant review decision buttons overlap at " + width + "x" + height + ": " + JSON.stringify(metrics));
-    }
-  }
-  if (overlaps(metrics.footerAction, metrics.footerNote)) {
-    throw new Error("Merchant review decision note overlaps the final action at " + width + "x" + height + ": " + JSON.stringify(metrics));
-  }
-  if (width >= 900 && metrics.footer.bottom > height + 2) {
-    throw new Error("Merchant review final action is below the desktop viewport at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  if (metrics.dialog.height > height + 1 || metrics.footer.bottom > height + 1) {
+    throw new Error("Merchant review dialog footer is clipped at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
 }
-
-
 async function assertOfferDecisionAccessible(page, width, height, route) {
   const metrics = await page.evaluate(() => {
     const dialog = document.querySelector('[data-testid="offer-action-dialog"]');
@@ -861,7 +840,7 @@ try {
           await page.waitForTimeout(450);
         }
         const emptyCounts = await page.evaluate(() => ({
-          merchants: document.querySelector('[data-testid="merchant-review-list"]')?.children.length ?? null,
+          merchants: document.querySelectorAll('[data-testid="merchant-row"]').length,
           offers: document.querySelectorAll('[data-testid="offer-row"]').length,
           support: document.querySelector('[data-testid="support-case-list"]')?.children.length ?? null,
           audit: document.querySelectorAll('[data-testid="audit-record-row"]').length
