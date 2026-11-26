@@ -502,7 +502,7 @@ async function assertMerchantReviewLayout(page, width, height) {
       footerNote: noteRect ? { top: noteRect.top, bottom: noteRect.bottom, left: noteRect.left, right: noteRect.right } : null,
       selectedMerchant: detail?.textContent?.includes('Boulangerie Test') ?? false,
       detailWidth: detail?.getBoundingClientRect().width ?? 0,
-      bodyColumns: workflow ? getComputedStyle(workflow.querySelector('.merchantInlineBody')).gridTemplateColumns : ''
+      bodyColumns: workflow ? getComputedStyle(workflow).gridTemplateColumns : ''
     };
   });
   if (!metrics.detail || !metrics.heading || !metrics.topbar || !metrics.tabs
