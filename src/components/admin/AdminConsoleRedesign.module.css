@@ -255,3 +255,10 @@
  .root :global(header[data-testid="admin-page-heading"]) :global([class*="searchSlot"]){flex:1 1 100%;width:100%;max-width:none}
 }
 .searchSlot{}
+
+
+.root :global([class*="batchRemove"]){flex:0 0 auto;display:grid;place-items:center;width:28px;height:28px;border:0!important;border-radius:50%;background:transparent!important;color:#69776d!important;font-size:20px!important}
+.root :global([class*="batchRetry"]){flex:0 0 auto;min-height:32px;padding:0 11px;border:1px solid #c9d6ca;border-radius:18px;background:#fffefa;color:#1c563b;font-size:10px;font-weight:900}
+.root :global([class*="batchFailed"]){color:#a33a31!important}
+.root :global([class*="batchSuccess"]){color:#237047!important}
+.batchRemove{}.batchRetry{}.batchFailed{}.batchSuccess{}
