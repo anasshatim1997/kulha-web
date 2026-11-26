@@ -259,8 +259,8 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
         const candidates=Object.values(selectedOffers).filter(item=>batchOfferAction!=="reinstate"||item.status==="SUSPENDED");
         if(!batchOfferReason.trim()){setMessage(t.saveReason);return;}
         if(!candidates.length){setMessage(t.reinstateOnlyHidden);return;}
-        setBatchOfferWorking(true);setBatchOfferResults(null);setMessage("");
-        const results:BatchOfferResult[]=[];
+        setBatchOfferWorking(true);setMessage("");
+        const results:BatchOfferResult[]=batchOfferResults?.filter(item=>item.ok)??[];
         for(const item of candidates){
             try{
                 await api.post("/admin/offers/"+item.id+"/"+batchOfferAction,{reason:batchOfferReason.trim()});
@@ -305,7 +305,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const allOfferItems=offers?.items??[];
     const offerItems=allOfferItems.filter(o=>{
         const matchesQuery=match(o.title,o.shopName,o.city);
-        const matchesFilter=!offerStatus||(offerStatus==="REPORTED"&&o.reportedCount>0)||(offerStatus==="ALLERGENS_UNKNOWN"&&o.allergensStatus==="UNKNOWN")||(offerStatus==="SUSPENDED"&&o.status==="SUSPENDED");
+        const matchesFilter=!offerStatus||(offerStatus==="NEEDS_REVIEW"&&(o.reportedCount>0||o.allergensStatus==="UNKNOWN"))||(offerStatus==="REPORTED"&&o.reportedCount>0)||(offerStatus==="ALLERGENS_UNKNOWN"&&o.allergensStatus==="UNKNOWN")||(offerStatus==="SUSPENDED"&&o.status==="SUSPENDED");
         return matchesQuery&&matchesFilter;
     });
     const needsReviewCount=allOfferItems.filter(o=>o.reportedCount>0||o.allergensStatus==="UNKNOWN").length;
@@ -409,6 +409,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                 <section className={styles.offerPicker} aria-label={t.offersTitle} data-testid="offer-picker">
                     <div className={styles.tabs} role="tablist" aria-label={t.filter}>
                         {[
+                            {value:"NEEDS_REVIEW",label:t.needsReview,count:needsReviewCount},
                             {value:"",label:t.all,count:offers.total},
                             {value:"REPORTED",label:t.reportedFilter,count:reportedOfferCount},
                             {value:"ALLERGENS_UNKNOWN",label:t.allergensUnknown,count:unknownAllergenCount},
