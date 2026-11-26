@@ -4989,3 +4989,96 @@
         font-size: 21px;
     }
 }
+
+/* KULHA operations shell */
+.shell{display:grid;grid-template-columns:224px minmax(0,1fr);min-height:100vh;background:#fbf3e5;color:#073324}
+.adminSidebar{position:sticky;top:0;display:flex;flex-direction:column;min-height:100vh;height:100vh;padding:22px 12px 18px;background:#063525;color:#fff}
+.adminBrand{display:flex;align-items:center;min-height:54px;padding:0 13px;margin:0 0 24px;color:#fff;text-decoration:none}
+.adminBrand>span{font-size:27px;font-weight:950;letter-spacing:-1.5px}
+.adminBrand>span>span{color:#ffc629}
+.adminNavigation{display:grid;gap:7px}
+.adminNavLink,.adminNavActive{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 12px;border-radius:9px;color:#e9f1eb;text-decoration:none;font-size:14px;font-weight:800;transition:background .15s,color .15s}
+.adminNavLink:hover{background:#ffffff14}
+.adminNavActive{background:#ffc629;color:#073324}
+.adminSidebarFoot{margin:auto 12px 0;color:#b4c8ba;font-size:10px;font-weight:850;letter-spacing:.12em}
+.adminMain{min-width:0}
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:66px;padding:10px clamp(18px,2vw,30px);background:#fffdf8;border-bottom:1px solid #e9e0d1}
+.adminTopbarRight{display:flex;align-items:center;gap:14px}
+.adminLanguages{display:flex;gap:8px}
+.adminLanguages a{color:#29483b;text-decoration:none;font-size:11px;font-weight:900}
+.adminLanguages a[aria-current=page]{color:#a16b00;text-decoration:underline;text-underline-offset:4px}
+.adminIdentity{font-size:12px;font-weight:800;color:#29483b}
+.adminAvatar{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#073324;color:#ffc629;font-size:13px;font-weight:950}
+.page{max-width:none;width:100%;padding:28px clamp(18px,2vw,30px) 48px;gap:18px}
+.header h1{font-size:32px;letter-spacing:-.8px}
+.header p{font-size:14px}
+.card,.merchantDetails,.offerPreviewCard,.casePicker,.caseDetail,.auditTableCard,.auditRecordCard{border-radius:18px;box-shadow:none;background:#fff;border:1px solid #e9e0d1}
+.tabs{gap:8px}
+.tab,.activeTab{border-radius:9px;min-height:36px;font-size:12px}
+.offerWorkspace{grid-template-columns:minmax(0,1.15fr) minmax(330px,.85fr);gap:16px;align-items:start}
+.offerPicker,.offerPreviewCard{border-radius:18px;background:#fff;border:1px solid #e9e0d1;box-shadow:none}
+.offerPicker{padding:16px}
+.offerQueue{gap:0}
+.offerItem,.offerItemSelected{min-height:84px;padding:12px 8px;border-radius:0;border-bottom:1px solid #eee8dd}
+.offerThumb{width:46px;height:46px;border-radius:10px}
+.offerCopy strong{font-size:14px}
+.offerCopy small{font-size:12px}
+.offerPrice strong{font-size:13px}
+.offerPreviewCard{padding:18px}
+.offerPreviewScroll{max-height:none}
+.offerPreviewHeading{align-items:flex-start}
+.offerPreviewThumb{width:92px;height:92px;border-radius:12px}
+.offerPreviewTitle h2{font-size:21px}
+.offerPreviewFacts{grid-template-columns:repeat(2,minmax(0,1fr))}
+.merchantReviewWorkspace{grid-template-columns:minmax(270px,.8fr) minmax(0,1.2fr);gap:16px;align-items:start}
+.merchantPicker{border:1px solid #e9e0d1;border-radius:18px;background:#fff;padding:14px}
+.merchantDetails{padding:20px}
+.merchantInlineBody{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.merchantInlineFooter,.offerInlineFooter{position:static;margin-top:18px;padding:14px 0 0;border-top:1px solid #eee8dd;background:transparent;box-shadow:none}
+.supportWorkspace{grid-template-columns:minmax(280px,.72fr) minmax(0,1.28fr);gap:16px;align-items:start}
+.casePicker,.caseDetail{padding:16px}
+.caseDetail{max-height:none}
+.caseHistory{max-height:none;overflow:visible}
+.auditExplorer{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(270px,.7fr);gap:16px;align-items:start}
+.auditExplorerHeading{grid-column:1/-1}
+.auditTableCard,.auditRecordCard{padding:18px}
+.auditFilters{background:transparent;border:0;padding:0;box-shadow:none}
+.search{max-width:520px}
+.shell[dir=rtl]{direction:rtl}
+.shell[dir=rtl] .adminSidebar{direction:rtl}
+.shell[dir=rtl] .adminNavLink,.shell[dir=rtl] .adminNavActive{flex-direction:row}
+.shell[dir=rtl] .adminTopbarRight{direction:rtl}
+@media(max-width:1100px){
+ .shell{grid-template-columns:190px minmax(0,1fr)}
+ .offerWorkspace,.merchantReviewWorkspace,.supportWorkspace{grid-template-columns:minmax(0,1fr)}
+ .auditExplorer{grid-template-columns:minmax(0,1fr)}
+ .auditExplorerHeading{grid-column:auto}
+}
+@media(max-width:700px){
+ .shell{display:block;padding-bottom:68px}
+ .adminSidebar{position:fixed;z-index:50;inset:auto 0 0;width:100%;height:64px;min-height:64px;padding:6px 8px;background:#063525}
+ .adminBrand,.adminSidebarFoot{display:none}
+ .adminNavigation{display:flex;justify-content:space-around;gap:3px;height:100%}
+ .adminNavLink,.adminNavActive{flex:1;justify-content:center;flex-direction:column;gap:3px;min-width:0;min-height:50px;padding:4px 2px;font-size:10px}
+ .adminNavLink svg,.adminNavActive svg{width:17px;height:17px}
+ .adminMain{min-width:0}
+ .topbar{position:static;min-height:58px;padding:8px 12px}
+ .search{height:38px;min-width:0;flex:1}
+ .adminTopbarRight{gap:8px}
+ .adminIdentity{display:none}
+ .adminAvatar{width:30px;height:30px}
+ .page{padding:20px 12px 28px;gap:14px}
+ .header h1{font-size:26px}
+ .merchantInlineBody{grid-template-columns:minmax(0,1fr)}
+ .offerPreviewFacts{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .auditFilters{display:grid;gap:12px}
+ .auditFilterTopRow,.auditFilterBottomRow{display:grid;grid-template-columns:minmax(0,1fr)}
+ .auditDateRange{flex-wrap:wrap}
+}
+@media(max-width:420px){
+ .adminNavLink,.adminNavActive{font-size:9px}
+ .adminLanguages{gap:5px}
+ .adminLanguages a{font-size:10px}
+ .offerItem,.offerItemSelected{gap:8px}
+ .offerPrice{display:none}
+}
