@@ -31,15 +31,24 @@ const offer = {
   foodNotes: "Prepared today", status: offerStatus, reportedCount: 2,
   pickupStart, pickupEnd, imageUrl: null,
 };
-const moderationOffers = Array.from({ length: 14 }, (_, index) => ({
-  id: `00000000-0000-4000-8000-${String(102 + index).padStart(12, "0")}`,
-  title: index === 0 ? "Panier du fournil" : index === 1 ? "Family breakfast basket with assorted bakery items, fresh fruit and detailed allergen information" : `Basket selection ${index + 1}`,
-  shopName: "Boulangerie Test", city: "Casablanca", priceMinor: 4000 + index * 100,
-  originalPriceMinor: 8000 + index * 100, quantityTotal: 10, quantityReserved: 2,
-  allergensStatus: index % 3 === 0 || index === 1 ? "UNKNOWN" : "DECLARED", allergens: index % 3 === 0 || index === 1 ? null : "Wheat",
-  foodNotes: "Prepared today", status: "PUBLISHED", reportedCount: index % 3 === 0 ? 2 : 0,
-  pickupStart, pickupEnd, imageUrl: null,
-}));
+const moderationOffers = Array.from({ length: 48 }, (_, index) => {
+  const sample = [
+    { title: "Panier surprise pâtisserie", shopName: "Pâtisserie Maârif", reportedCount: 3, allergensStatus: "UNKNOWN", priceMinor: 4500, originalPriceMinor: 9000, quantityTotal: 10, quantityReserved: 4, pickupHour: 18 },
+    { title: "Tajine poulet citron", shopName: "Dar Zitoun", reportedCount: 0, allergensStatus: "UNKNOWN", priceMinor: 3800, originalPriceMinor: null, quantityTotal: 8, quantityReserved: 2, pickupHour: 20 },
+    { title: "Pain complet ×6", shopName: "Boulangerie Atlas", reportedCount: 1, allergensStatus: "DECLARED", priceMinor: 1200, originalPriceMinor: null, quantityTotal: 12, quantityReserved: 5, pickupHour: 19 },
+    { title: "Salade composée", shopName: "Green Corner", reportedCount: 2, allergensStatus: "DECLARED", priceMinor: 2900, originalPriceMinor: null, quantityTotal: 6, quantityReserved: 3, pickupHour: 19 },
+    { title: "Family breakfast basket with assorted bakery items, fresh fruit and detailed allergen information", shopName: "Boulangerie Test", reportedCount: 0, allergensStatus: "DECLARED", priceMinor: 4000, originalPriceMinor: 8000, quantityTotal: 10, quantityReserved: 2, pickupHour: 20 },
+  ][index] ?? { title: `Offer ${index + 1}`, shopName: "Boulangerie Test", reportedCount: 0, allergensStatus: "DECLARED", priceMinor: 4000 + index * 100, originalPriceMinor: null, quantityTotal: 10, quantityReserved: 2, pickupHour: 18 };
+  const pickup = new Date(now.getTime() + (sample.pickupHour - now.getHours()) * 60 * 60 * 1000);
+  return {
+    id: `00000000-0000-4000-8000-${String(102 + index).padStart(12, "0")}`,
+    title: sample.title, shopName: sample.shopName, city: index === 1 ? "Casablanca" : "Casablanca", priceMinor: sample.priceMinor,
+    originalPriceMinor: sample.originalPriceMinor, quantityTotal: sample.quantityTotal, quantityReserved: sample.quantityReserved,
+    allergensStatus: sample.allergensStatus, allergens: sample.allergensStatus === "UNKNOWN" ? null : "Wheat",
+    foodNotes: "Prepared today", status: "PUBLISHED", reportedCount: sample.reportedCount,
+    pickupStart: pickupStart, pickupEnd, imageUrl: null,
+  };
+});
 
 const supportCase = {
   id: "00000000-0000-4000-8000-000000000103", reference: "SUP-2026-0001",
@@ -106,7 +115,7 @@ function json(response, value, status = 200) {
   response.writeHead(status, { "content-type": "application/json; charset=utf-8" });
   response.end(JSON.stringify(value));
 }
-function page(items) { return { items, page: 0, size: 20, total: items.length }; }
+function page(items, pageNumber = 0, size = 20) { const start = pageNumber * size; return { items: items.slice(start, start + size), page: pageNumber, size, total: items.length }; }
 async function waitForBackendRequest(predicate, description) {
   for (let attempt = 0; attempt < 50; attempt += 1) {
     const match = requests.find(predicate);
@@ -202,7 +211,7 @@ const backend = createServer(async (request, response) => {
   }
   if (path === "/admin/merchants" && method === "GET") {
     const rows = url.searchParams.get("status") === "PENDING" && merchantStatus === "PENDING" ? merchantRows.filter(item => item.status === "PENDING") : merchantRows.filter(item => item.status === url.searchParams.get("status"));
-    return json(response, page(rows));
+    return json(response, page(rows, Number(url.searchParams.get("page") ?? 0), Number(url.searchParams.get("size") ?? 20)));
   }
   if (path === `/admin/merchants/${merchant.id}` && method === "GET") return json(response, merchant);
   if (path === `/admin/merchants/${merchant.id}/request-information` && method === "POST") {
@@ -218,7 +227,7 @@ const backend = createServer(async (request, response) => {
     return json(response, {});
   }
   if (path === "/admin/offers" && method === "GET") {
-    return json(response, page(moderationOffers.map(item => ({ ...item, status: offerStatus }))));
+    return json(response, page(moderationOffers.map(item => ({ ...item, status: offerStatus })), Number(url.searchParams.get("page") ?? 0), Number(url.searchParams.get("size") ?? 20)));
   }
   const offerActionMatch = path.match(new RegExp("^/admin/offers/([^/]+)/(suspend|request-edit|reinstate)$"));
   if (offerActionMatch && method === "POST") {
@@ -261,7 +270,7 @@ const backend = createServer(async (request, response) => {
     supportCase.status = caseStatus;
     return json(response, {});
   }
-  if (path === "/admin/audit-log" && method === "GET") return json(response, page(auditRows));
+  if (path === "/admin/audit-log" && method === "GET") return json(response, page(auditRows, Number(url.searchParams.get("page") ?? 0), Number(url.searchParams.get("size") ?? 20)));
   if (path === "/admin/audit-log/export") return csv(response, "kulha-audit-log.csv");
 
   if (path === "/reservations" && method === "GET") return json(response, page([]));
