@@ -982,7 +982,7 @@ try {
         });
         if (route.path.endsWith("/offer-moderation")) await page.getByTestId("offer-review-close").click();
         if (route.path.endsWith("/merchant-review")) await page.getByTestId("merchant-review-close").click();
-        if (route.path.endsWith("/support-cases")) await page.getByTestId("support-case-detail").getByRole("button", { name: "Close" }).click();
+        if (route.path.endsWith("/support-cases")) await page.getByTestId("support-case-close").click();
         if (route.path.endsWith("/audit-log")) await page.getByTestId("audit-record-close").click();
         const search = route.path.endsWith("/audit-log")
           ? page.getByTestId("audit-search-input")
@@ -1110,7 +1110,7 @@ try {
     const page = await context.newPage();
     await page.setViewportSize({ width: 1366, height: 768 });
     await page.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
-    await page.getByTestId("merchant-review-detail-panel").getByRole("button", { name: "Close" }).click();
+    await page.getByTestId("merchant-review-close").click();
     const checks = page.locator('[data-testid="merchant-review-list"] input[type="checkbox"]');
     await checks.nth(0).check();
     await checks.nth(1).check();
