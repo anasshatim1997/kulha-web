@@ -955,6 +955,10 @@ try {
           animations: "disabled",
           fullPage: true,
         });
+        if (route.path.endsWith("/offer-moderation")) await page.getByTestId("offer-detail-panel").getByRole("button", { name: "Close" }).click();
+        if (route.path.endsWith("/merchant-review")) await page.getByTestId("merchant-review-detail-panel").getByRole("button", { name: "Close" }).click();
+        if (route.path.endsWith("/support-cases")) await page.getByTestId("support-case-detail").getByRole("button", { name: "Close" }).click();
+        if (route.path.endsWith("/audit-log")) await page.getByTestId("audit-record-detail").getByRole("button", { name: "Close" }).click();
         const search = route.path.endsWith("/audit-log")
           ? page.getByTestId("audit-search-input")
           : page.getByTestId("admin-global-search");
