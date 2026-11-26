@@ -412,14 +412,10 @@ async function assertOfferModerationLayout(page, width, height) {
     throw new Error(`Offer moderation layout regions are missing at ${width}x${height}: ${JSON.stringify(metrics)}`);
   if (metrics.tabHeights.some(value => value > 44))
     throw new Error(`Admin status filters must remain compact at ${width}x${height}: ${JSON.stringify(metrics.tabHeights)}`);
-  if (width >= 900) {
-    const wrongSide = metrics.direction === "rtl"
-      ? metrics.picker.left <= metrics.preview.left
-      : metrics.picker.left >= metrics.preview.left;
-    if (wrongSide) throw new Error(`Offer queue must remain beside its detail panel in ${metrics.direction} layout at ${width}px: ${JSON.stringify(metrics)}`);
-  }
-  if (width < 900 && metrics.picker.bottom > metrics.preview.top + 2)
-    throw new Error(`Mobile offer panels must stack naturally at ${width}px: ${JSON.stringify(metrics)}`);
+  if (metrics.picker.width < width - (width >= 900 ? 280 : 24))
+    throw new Error("Offer queue must use the available workspace width before a selection is opened at " + width + "px: " + JSON.stringify(metrics));
+  if (metrics.preview.width > 0)
+    throw new Error("Offer detail dialog should remain closed until an offer is selected at " + width + "px: " + JSON.stringify(metrics));
   if (metrics.offerCount < 10 || metrics.longTitleCount < 1)
     throw new Error(`Offer moderation fixtures must exercise a populated queue and a long offer title: ${JSON.stringify(metrics)}`);
 }
@@ -793,6 +789,7 @@ try {
     { path: "/en/merchant/reservations/scan", token: "merchant-token", heading: "Validate a pickup" , compact: true },
     { path: "/en/merchant/staff", token: "merchant-token", heading: "Staff" , compact: true },
     { path: "/en/merchant/sales", token: "merchant-token", heading: "Sales" , compact: true },
+    { path: "/en/admin", token: "admin-token", heading: "Today at Kulha!" },
     { path: "/en/admin/merchant-review", token: "admin-token", heading: "Merchant review", adminPage: true },
     { path: "/fr/admin/merchant-review", token: "admin-token", heading: "Revue des commerces", adminPage: true },
     { path: "/ar/admin/merchant-review", token: "admin-token", heading: "مراجعة المتاجر", direction: "rtl", adminPage: true },
@@ -1028,7 +1025,7 @@ try {
     await context.close();
   }
 
-  // Merchant review: checklist gates approval; the decision is submitted with a reason.
+  // Merchant review: missing backend document verification keeps approval disabled.
   {
     merchantStatus = "PENDING";
     merchant.status = merchantStatus;
@@ -1040,11 +1037,15 @@ try {
     await inlineReview.waitFor({ state: "visible" });
     await inlineReview.getByLabel("Address and location checked").check();
     await inlineReview.getByLabel("Phone number reachable").check();
-    await inlineReview.getByLabel("Documents readable and valid").check();
-    await inlineReview.getByRole("button", { name: "Approve" }).click();
-    await inlineReview.getByLabel("Reason (required)").fill("Verified during browser workflow test.");
+    const documents = inlineReview.getByLabel("Documents readable and valid");
+    if (!(await documents.isDisabled())) throw new Error("Merchant approval document check must remain disabled without backend documents.");
+    const approve = inlineReview.getByRole("button", { name: "Approve" });
+    if (!(await approve.isDisabled())) throw new Error("Merchant approval must remain blocked until documents are verifiable.");
+    await inlineReview.getByRole("button", { name: "Request information" }).click();
+    await inlineReview.getByLabel("Reason (required)").fill("Please provide the missing business documents.");
     await page.getByTestId("merchant-review-footer").getByRole("button", { name: "Submit decision" }).click();
-    await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/approve"), "Merchant approval");
+    await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/request-information"), "Merchant request-information action");
+    if (requests.some(item => item.method === "POST" && item.path.endsWith("/approve"))) throw new Error("A blocked merchant approval reached the backend.");
     await context.close();
   }
 
@@ -1060,6 +1061,9 @@ try {
     await inlineOffer.locator('[data-action="suspend"]').click();
     await inlineOffer.getByLabel("Reason (required)").fill("Allergen information needs verification.");
     await page.getByTestId("offer-moderation-footer").getByRole("button", { name: "Hide offer" }).click();
+    const confirm = page.getByTestId("offer-confirm-modal");
+    await confirm.waitFor({ state: "visible" });
+    await confirm.getByRole("button", { name: "Confirm" }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/suspend"), "Offer moderation action");
     await context.close();
   }
