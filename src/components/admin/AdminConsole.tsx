@@ -381,7 +381,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                 <span>{Math.max(0,merchantItems.findIndex(item=>item.id===selectedMerchant.id)+1)} / {merchantItems.length}</span>
                                 <button type="button" aria-label="Next merchant" disabled={merchantItems.length<2} onClick={()=>{const index=merchantItems.findIndex(item=>item.id===selectedMerchant.id);void loadMerchant(merchantItems[(index+1)%merchantItems.length].id);}}><ChevronRight size={18}/></button>
                             </div>
-                            <button type="button" className={styles.offerDialogClose} aria-label={t.closeReview} onClick={()=>setSelectedMerchant(null)}><X size={19}/></button>
+                            <button type="button" className={styles.offerDialogClose} aria-label={t.closeReview} data-testid="audit-record-close" data-testid="support-case-close" data-testid="offer-review-close" data-testid="merchant-review-close" onClick={()=>setSelectedMerchant(null)}><X size={19}/></button>
                         </div>
                         <div className={styles.detailHead}><div><small>{t.application} KLH-M-{selectedMerchant.id.slice(0,4).toUpperCase()}</small><h2>{selectedMerchant.name}</h2></div><span className={styles.pill+" "+merchantTone(selectedMerchant.status)}>{merchantLabel(selectedMerchant.status)}</span></div>
                         <div className={styles.merchantStepper} aria-label={t.application}>
