@@ -456,7 +456,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             {selectedOffer.allergensStatus==="UNKNOWN"&&<em className={styles.allergenTag}>{t.allergensUnknown}</em>}
                         </div>
                         <div className={redesign.offerDialogStock}>{t.stock}: {selectedOffer.quantityReserved} / {selectedOffer.quantityTotal} {t.reserved}</div>
-                        {selectedOffer.allergensStatus==="UNKNOWN"&&<div className={styles.offerPreviewAlert}><AlertTriangle size={17}/><span><strong>{t.foodSafetyTitle}</strong><small>{t.foodSafetyBody}</small></span></div>}
+                        {selectedOffer.allergensStatus==="UNKNOWN"&&<div className={styles.offerPreviewAlert} data-testid="offer-food-safety-alert"><AlertTriangle size={17}/><span><strong>{t.foodSafetyTitle}</strong><small>{t.foodSafetyBody}</small></span></div>}
                         {selectedOffer.reportedCount>0&&<p className={redesign.offerDialogNotes}>{locale==="fr"?"Le texte des signalements n’est pas encore disponible dans l’API, seul le nombre est fourni.":locale==="ar"?"نص البلاغات غير متاح في الواجهة البرمجية حالياً، والمتاح هو العدد فقط.":"Report text isn’t available in the API yet, only the count."}</p>}
                         {selectedOffer.foodNotes&&<p className={redesign.offerDialogNotes}>{selectedOffer.foodNotes}</p>}
                     </section>
