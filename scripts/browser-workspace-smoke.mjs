@@ -840,6 +840,19 @@ try {
         throw new Error(`Workspace did not render ${route.path}; current URL=${page.url()}; body=${bodyText}; backend requests=${JSON.stringify(requests.slice(-12))}`);
       }
       await page.evaluate(() => window.scrollTo(0, 0));
+      if (route.path.includes("/admin") && !route.path.includes("/admin/login")) {
+        const adminLinks = page.locator(".ws-sidebar-admin .ws-nav-link");
+        if (await adminLinks.count() !== 5) throw new Error("Administrator navigation must expose all five workspaces.");
+        if (size.width <= 600) {
+          const navBounds = await adminLinks.evaluateAll(links => links.map(link => {
+            const rect = link.getBoundingClientRect();
+            return { left: rect.left, right: rect.right, width: rect.width };
+          }));
+          if (navBounds.some(rect => rect.width < 44 || rect.left < 0 || rect.right > size.width)) {
+            throw new Error("All administrator navigation items must fit the mobile viewport: " + JSON.stringify(navBounds));
+          }
+        }
+      }
       await assertNoHorizontalOverflow(page, route.path, size.width);
       if (route.adminPage && !route.path.endsWith("/admin/audit-log")) {
         const search = page.getByTestId("admin-console-search");
