@@ -883,6 +883,29 @@ try {
           throw new Error("Mobile merchant review must keep its dialog header visible: " + JSON.stringify({ dialogBounds, dialogHeaderBounds }));
         }
       }
+      if (route.path.endsWith("/admin") && size.width >= 900) {
+        const overview = await page.evaluate(() => {
+          const metrics = document.querySelector(".overviewMetrics");
+          const columns = document.querySelector(".overviewColumns");
+          const queue = document.querySelector(".overviewQueue");
+          const side = document.querySelector(".overviewSide");
+          const rect = element => {
+            if (!element) return null;
+            const value = element.getBoundingClientRect();
+            return { top: value.top, left: value.left, right: value.right, width: value.width, bottom: value.bottom };
+          };
+          return { metricCount: metrics?.children.length ?? 0, metrics: rect(metrics), columns: rect(columns), queue: rect(queue), side: rect(side) };
+        });
+        if (overview.metricCount !== 3 || !overview.queue || !overview.side || overview.queue.width < 240 || overview.side.width < 220) {
+          throw new Error("Overview must show three operational metrics and complete queue/activity regions: " + JSON.stringify(overview));
+        }
+        if (size.width < 1100 && overview.side.top < overview.queue.bottom - 1) {
+          throw new Error("Overview activity must stack below the priority queue below 1100px: " + JSON.stringify(overview));
+        }
+        if (size.width >= 1100 && overview.side.left < overview.queue.right - 1) {
+          throw new Error("Overview activity must remain in a right column at 1100px and wider: " + JSON.stringify(overview));
+        }
+      }
       if (route.adminPage && !route.path.endsWith("/admin/audit-log")) {
         const search = page.getByTestId("admin-console-search");
         await search.getByTestId("admin-global-search").waitFor({ state: "visible" });
