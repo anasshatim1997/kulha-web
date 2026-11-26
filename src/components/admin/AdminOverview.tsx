@@ -84,6 +84,7 @@ export function AdminOverview({locale}:{locale:SiteLocale}) {
     setRefreshing(true);
     const settled=await Promise.allSettled([
       api.get<Page<Merchant>>("/admin/merchants?status=PENDING&page=0&size=6"),
+      api.get<Page<Merchant>>("/admin/merchants?status=INFO_REQUIRED&page=0&size=6"),
       api.get<Page<Offer>>("/admin/offers?page=0&size=8"),
       api.get<Page<SupportCase>>("/admin/support-cases?status=OPEN&page=0&size=5"),
       api.get<Page<AuditEntry>>("/admin/audit-log?page=0&size=6"),
@@ -91,9 +92,10 @@ export function AdminOverview({locale}:{locale:SiteLocale}) {
     if(!mounted.current) return;
     const next:Snapshot={
       merchants:settled[0].status==="fulfilled"?settled[0].value:null,
-      offers:settled[1].status==="fulfilled"?settled[1].value:null,
-      cases:settled[2].status==="fulfilled"?settled[2].value:null,
-      audit:settled[3].status==="fulfilled"?settled[3].value:null,
+      infoMerchants:settled[1].status==="fulfilled"?settled[1].value:null,
+      offers:settled[2].status==="fulfilled"?settled[2].value:null,
+      cases:settled[3].status==="fulfilled"?settled[3].value:null,
+      audit:settled[4].status==="fulfilled"?settled[4].value:null,
     };
     const available=settled.filter(x=>x.status==="fulfilled").length;
     setSnapshot(next); setLoadState(available===0?"error":available===5?"ready":"partial");
@@ -115,7 +117,8 @@ export function AdminOverview({locale}:{locale:SiteLocale}) {
   const reported=offers.filter(x=>x.reportedCount>0).length;
   const unknown=offers.filter(x=>x.allergensStatus==="UNKNOWN").length;
   const merchants=snapshot.merchants?.items??[];
-  const infoRequired=merchants.filter(x=>x.status==="INFO_REQUIRED").length;
+  const infoMerchants=snapshot.infoMerchants?.items??[];
+  const infoRequired=snapshot.infoMerchants?.total??0;
   const cases=snapshot.cases?.items??[];
   const high=cases.filter(x=>x.priority==="HIGH").length;
   const medium=cases.filter(x=>x.priority==="MEDIUM").length;
