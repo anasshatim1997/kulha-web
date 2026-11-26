@@ -685,9 +685,9 @@ try {
     { path: "/en/merchant/reservations/scan", token: "merchant-token", heading: "Validate a pickup" , compact: true },
     { path: "/en/merchant/staff", token: "merchant-token", heading: "Staff" , compact: true },
     { path: "/en/merchant/sales", token: "merchant-token", heading: "Sales" , compact: true },
-    { path: "/en/admin", token: "admin-token", heading: "Run KULHA! from one clear workspace.", overviewPage: true },
-    { path: "/fr/admin", token: "admin-token", heading: "Pilotez KULHA! depuis un seul endroit.", overviewPage: true },
-    { path: "/ar/admin", token: "admin-token", heading: "أدر KULHA! من مساحة عمل واحدة.", direction: "rtl", directionSelector: '[data-testid="admin-overview"]', overviewPage: true },
+    { path: "/en/admin", token: "admin-token", heading: "Today at Kulha!", overviewPage: true },
+    { path: "/fr/admin", token: "admin-token", heading: "Aujourd’hui chez Kulha !", overviewPage: true },
+    { path: "/ar/admin", token: "admin-token", heading: "اليوم في Kulha!", direction: "rtl", directionSelector: '[data-testid="admin-overview"]', overviewPage: true },
     { path: "/en/admin/merchant-review", token: "admin-token", heading: "Merchant review", adminPage: true },
     { path: "/fr/admin/merchant-review", token: "admin-token", heading: "Revue des commerces", adminPage: true },
     { path: "/ar/admin/merchant-review", token: "admin-token", heading: "مراجعة المتاجر", direction: "rtl", adminPage: true },
@@ -724,9 +724,9 @@ try {
       }
       if (route.overviewPage) {
         await page.getByTestId("admin-overview").waitFor({ state: "visible" });
-        const metrics = page.locator('[data-testid="admin-overview-metrics"] > article');
-        if (await metrics.count() !== 4) {
-          throw new Error(route.path + " must render all four live overview metrics.");
+        const metrics = page.locator('[data-testid="admin-overview-metrics"] > a');
+        if (await metrics.count() !== 3) {
+          throw new Error(route.path + " must render the three PDF overview metrics.");
         }
         await page.getByTestId("admin-overview-document-warning").waitFor({ state: "visible" });
       }
@@ -852,7 +852,7 @@ try {
         }
         const emptyCounts = await page.evaluate(() => ({
           merchants: document.querySelector('[data-testid="merchant-review-list"]')?.children.length ?? null,
-          offers: document.querySelector('[data-testid="offer-queue"]')?.children.length ?? null,
+          offers: document.querySelectorAll('[data-testid="offer-row"]').length,
           support: document.querySelector('[data-testid="support-case-list"]')?.children.length ?? null,
           audit: document.querySelectorAll('[data-testid="audit-record-row"]').length
         }));
