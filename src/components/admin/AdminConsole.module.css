@@ -5298,3 +5298,12 @@
 .offerConfirmReason{display:grid;gap:7px;margin-top:16px;padding:13px 14px;border:1px solid #e9e0d1;border-radius:11px;background:#f8f4eb}
 .offerConfirmReason strong{font-size:11px;color:#6c756d}
 .offerConfirmReason p{margin:0;color:#173b29;font-size:13px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+
+.offerWorkspace:has(.offerPreviewHeading) .offerPreviewCard{height:90vh;box-sizing:border-box}
+.merchantReviewWorkspace:has(.merchantDetails .detailHead) .merchantDetails{height:90vh;box-sizing:border-box}
+.supportWorkspace:has(.caseDetail .detailHead) .caseDetail{height:90vh;box-sizing:border-box}
+.auditExplorer .auditRecordCard{height:88vh;box-sizing:border-box}
+@media(max-width:899px){
+ .merchantReviewWorkspace:has(.merchantDetails .detailHead) .merchantDetails{height:auto}
+ .supportWorkspace:has(.caseDetail .detailHead) .caseDetail{height:auto}
+}
