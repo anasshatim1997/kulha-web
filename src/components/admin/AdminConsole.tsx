@@ -369,7 +369,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
             <div className={styles.merchantReviewWorkspace}>
                 <section className={styles.merchantPicker} aria-label={t.merchantTitle}>
                     <div className={styles.list} data-testid="merchant-review-list">{merchantItems.map(item=><div key={item.id} className={styles.merchantBatchRow}>
-                        <label className={styles.offerSelectControl}><input type="checkbox" checked={Boolean(selectedMerchants[item.id])} onChange={()=>setSelectedMerchants(current=>toggleBatchSelection(current,item))} aria-label={"Select "+item.name}/></label>
+                        <label className={styles.offerSelectControl}><input type="checkbox" checked={Boolean(selectedMerchants[item.id])} disabled={item.status!=="PENDING"&&item.status!=="INFO_REQUIRED"} onChange={()=>setSelectedMerchants(current=>{const next=toggleBatchSelection(current,item);if(next===current&&Object.keys(current).length>=20&&!current[item.id])setMessage("A batch is limited to 20 merchants.");return next;})} aria-label={"Select "+item.name}/></label>
                         <button type="button" className={selectedMerchant?.id===item.id?styles.merchantSelected:styles.merchantListItem} onClick={()=>void loadMerchant(item.id)}>
                             <span className={styles.merchantListTop}><strong>{item.name}</strong><em className={styles.pill+" "+merchantTone(item.status)}>{merchantLabel(item.status)}</em></span>
                             <small>{item.businessType} · {item.city}</small><small>{item.ownerEmail}</small>
