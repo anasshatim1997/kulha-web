@@ -138,7 +138,7 @@ export function AdminOverview({locale}:{locale:SiteLocale}) {
     ...([...merchants,...infoMerchants].slice(0,2).map(x=>({id:x.id,title:x.name,subtitle:(x.businessType||t.shop)+" · "+x.city,kind:"shop" as const,meta:x.status==="INFO_REQUIRED"?t.infoRequired:t.pending,href:"/admin/merchant-review",time:t.applied+" "+relativePhrase(x.createdAt,locale)}))),
   ];
   const activity=snapshot.audit?.items.slice(0,3)??[];
-  const updatedLabel=lastUpdatedLabel(lastUpdated,locale,t.syncing,t.refreshed);
+  const queueTotal=flagged.length+(snapshot.cases?.total??0)+(snapshot.merchants?.total??0)+(snapshot.infoMerchants?.total??0);\n  const updatedLabel=lastUpdatedLabel(lastUpdated,locale,t.syncing,t.refreshed);
 
   return <div className={`${styles.overview} ${redesign.root}`} data-testid="admin-overview" dir={locale==="ar"?"rtl":"ltr"}>
     <header className={styles.dashboardHeading}>
