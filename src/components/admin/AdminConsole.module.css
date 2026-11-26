@@ -5264,3 +5264,20 @@
  .adminTopbarRight{justify-content:flex-end}
  .search{width:100%;max-width:none;min-width:0;flex:1}
 }
+
+.offerWorkspace:has(.offerPreviewHeading) .offerPreviewCard{left:calc(50% + 112px);width:min(960px,calc(100vw - 272px))}
+.merchantReviewWorkspace:has(.merchantDetails .detailHead) .merchantDetails{left:calc(50% + 112px);width:min(940px,calc(100vw - 272px))}
+.supportWorkspace:has(.caseDetail .detailHead) .caseDetail{left:calc(50% + 112px);width:min(1020px,calc(100vw - 272px))}
+.auditExplorer .auditRecordCard{left:calc(50% + 112px);width:min(760px,calc(100vw - 272px))}
+@media(min-width:900px) and (max-width:1100px){
+ .offerWorkspace:has(.offerPreviewHeading) .offerPreviewCard{left:calc(50% + 95px);width:calc(100vw - 230px)}
+ .merchantReviewWorkspace:has(.merchantDetails .detailHead) .merchantDetails{left:calc(50% + 95px);width:calc(100vw - 230px)}
+ .supportWorkspace:has(.caseDetail .detailHead) .caseDetail{left:calc(50% + 95px);width:calc(100vw - 230px)}
+ .auditExplorer .auditRecordCard{left:calc(50% + 95px);width:calc(100vw - 230px)}
+}
+@media(max-width:899px){
+ .offerWorkspace:has(.offerPreviewHeading) .offerPreviewCard{left:50%;width:calc(100vw - 16px)}
+ .merchantReviewWorkspace:has(.merchantDetails .detailHead) .merchantDetails{left:50%;width:calc(100vw - 16px)}
+ .supportWorkspace:has(.caseDetail .detailHead) .caseDetail{left:50%;width:calc(100vw - 16px)}
+ .auditExplorer .auditRecordCard{left:50%;width:calc(100vw - 16px)}
+}
