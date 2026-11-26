@@ -473,3 +473,6 @@
  .root :global([class*="merchantBatchFooter"])>div{flex-direction:column}
 }
 .merchantBatchBar{}.merchantBatchDialog{}.merchantBatchHeader{}.merchantBatchBody{}.merchantBatchSelected{}.merchantBatchDecision{}.merchantBatchChoices{}.merchantBatchResult{}.merchantBatchResultNumber{}.merchantBatchProgress{}.merchantBatchResultDetails{}.merchantBatchFooter{}
+
+
+.root :global([class*="merchantActionDialog"]){grid-template-rows:auto auto minmax(0,1fr) auto}
