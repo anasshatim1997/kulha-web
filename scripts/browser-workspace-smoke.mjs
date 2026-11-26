@@ -17,6 +17,7 @@ let staff = [];
 let merchantStatus = "PENDING";
 let offerStatus = "PUBLISHED";
 let caseStatus = "OPEN";
+let failedBatchOnce = false;
 
 const merchant = {
   id: "00000000-0000-4000-8000-000000000101", ownerUserId: customerId,
@@ -207,6 +208,14 @@ const backend = createServer(async (request, response) => {
   if (path === `/admin/offers/${offer.id}/suspend` && method === "POST") {
     await bodyOf(request);
     offerStatus = "SUSPENDED";
+    return json(response, {});
+  }
+  if (path.startsWith("/admin/offers/") && method === "POST") {
+    await bodyOf(request);
+    if (path.endsWith("/00000000-0000-4000-8000-000000000105/suspend") && !failedBatchOnce) {
+      failedBatchOnce = true;
+      return json(response, { message: "simulated first-attempt failure" }, 503);
+    }
     return json(response, {});
   }
   if (path === "/admin/support-cases" && method === "GET") {
@@ -980,6 +989,32 @@ try {
     await action.getByLabel("Reason (required)").fill("Allergen information needs verification.");
     await action.getByTestId("offer-moderation-footer").getByRole("button", { name: "Hide offer" }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/suspend"), "Offer moderation action");
+    await context.close();
+  }
+
+
+  // Offer batch review: selection persists, successful items are recorded and failures remain retryable.
+  {
+    offerStatus = "PUBLISHED";
+    failedBatchOnce = false;
+    const context = await loginContext(browser, "admin-token");
+    const page = await context.newPage();
+    await page.setViewportSize({ width: 1366, height: 768 });
+    await page.goto(origin + "/en/admin/offer-moderation", { waitUntil: "networkidle" });
+    const rows = page.getByTestId("offer-row");
+    await rows.nth(0).locator('input[type="checkbox"]').check();
+    await rows.nth(1).locator('input[type="checkbox"]').check();
+    await rows.nth(2).locator('input[type="checkbox"]').check();
+    await page.getByTestId("offer-batch-bar").getByRole("button", { name: "Review 3 together" }).click();
+    const batch = page.getByTestId("offer-batch-dialog");
+    await batch.waitFor({ state: "visible" });
+    await batch.locator('[class*="batchDecision"] button').first().click();
+    await batch.getByLabel("ONE REASON FOR ALL (REQUIRED)").fill("Missing allergen information.");
+    await batch.getByRole("button", { name: "Hide 3 offers" }).click();
+    await batch.getByText(/RESULT · 2 OF 3 DONE/).waitFor({ state: "visible" });
+    await batch.getByRole("button", { name: "Retry 1 failed" }).click();
+    await batch.getByText(/RESULT · 3 OF 3 DONE/).waitFor({ state: "visible" });
+    await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/00000000-0000-4000-8000-000000000105/suspend"), "Batch retry action");
     await context.close();
   }
 
