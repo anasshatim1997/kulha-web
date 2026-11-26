@@ -331,7 +331,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     <thead><tr><th>{locale==="fr"?"COMMERCE":locale==="ar"?"المتجر":"MERCHANT"}</th><th>{locale==="fr"?"VILLE":locale==="ar"?"المدينة":"CITY"}</th><th>{locale==="fr"?"PROPRIÉTAIRE":locale==="ar"?"المالك":"OWNER"}</th><th>{locale==="fr"?"DEMANDE":locale==="ar"?"تاريخ الطلب":"APPLIED"}</th><th>{t.status}</th><th aria-label={t.review}/></tr></thead>
                     <tbody>{merchantItems.map(item=><tr key={item.id} data-testid="merchant-row">
                         <td><div className={redesign.merchantIdentity}><span className={redesign.merchantAvatar}>{item.name.trim().slice(0,2).toUpperCase()}</span><span><strong>{item.name}</strong><small>{item.businessType}</small></span></div></td>
-                        <td>{item.city}</td><td>{item.ownerEmail}</td><td>{relativeTime(item.createdAt,locale)}{locale==="en"?" ago":""}</td>
+                        <td>{item.city}</td><td>{item.ownerEmail}</td><td>{relativeTime(item.createdAt,locale)}</td>
                         <td><span className={styles.pill+" "+merchantTone(item.status)}>{merchantLabel(item.status)}</span></td>
                         <td><button type="button" className={redesign.merchantReviewButton} onClick={()=>void loadMerchant(item.id)}>{t.review}</button></td>
                     </tr>)}</tbody>
