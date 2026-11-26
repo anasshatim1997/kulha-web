@@ -420,6 +420,11 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             <div className={styles.merchantModalColumn}>
                                 <section className={styles.merchantModalSection}>
                                     <h3>{t.checklist}</h3>
+                                    <div className={styles.checkList}>
+                                        <label><input type="checkbox" checked={checks[0]} onChange={event=>setChecks(current=>current.map((value,index)=>index===0?event.target.checked:value))}/>{t.locationChecked}</label>
+                                        <label><input type="checkbox" checked={checks[1]} onChange={event=>setChecks(current=>current.map((value,index)=>index===1?event.target.checked:value))}/>{t.phoneChecked}</label>
+                                        <label className={styles.checkDisabled}><input type="checkbox" checked={false} disabled/>{t.docsChecked}</label>
+                                    </div>
                                     <div className={styles.missingDocs}><Lock size={18} aria-hidden="true"/><span><strong>{t.noDocumentsTitle}</strong><small>{t.noDocumentsBody}</small></span></div>
                                     <p className={styles.approveNote}>Approval remains blocked until document verification is enforced by the backend.</p>
                                 </section>
