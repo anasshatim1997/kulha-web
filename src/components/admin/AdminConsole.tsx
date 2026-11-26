@@ -597,8 +597,16 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     </button>)}</div>{!caseItems.length&&<p className={styles.empty}>{t.empty}</p>}
                     <AdminPagination page={casePage} pageCount={casePageCount} total={cases.total} size={cases.size||CASE_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setCasePage(next);setSelectedCase(null);}} />
                 </section>
-                <section className={styles.caseDetail} data-testid="support-case-detail">
+                <section className={styles.caseDetail} role={selectedCase?"dialog":undefined} aria-modal={selectedCase?true:undefined} data-testid="support-case-detail">
                     {!selectedCase?<p className={styles.empty}>{t.empty}</p>:<>
+                        <div className={styles.offerDialogTopbar}>
+                            <div className={styles.offerDialogPager}>
+                                <button type="button" aria-label="Previous case" disabled={caseItems.length<2} onClick={()=>{const index=caseItems.findIndex(item=>item.reference===selectedCase.summary.reference);void loadCase(caseItems[(index-1+caseItems.length)%caseItems.length].reference);}}><ChevronLeft size={18}/></button>
+                                <span>{Math.max(0,caseItems.findIndex(item=>item.reference===selectedCase.summary.reference)+1)} / {caseItems.length}</span>
+                                <button type="button" aria-label="Next case" disabled={caseItems.length<2} onClick={()=>{const index=caseItems.findIndex(item=>item.reference===selectedCase.summary.reference);void loadCase(caseItems[(index+1)%caseItems.length].reference);}}><ChevronRight size={18}/></button>
+                            </div>
+                            <button type="button" className={styles.offerDialogClose} aria-label={t.closeReview} onClick={()=>setSelectedCase(null)}><X size={19}/></button>
+                        </div>
                         <div className={styles.detailHead}><div><small>{t.record} {selectedCase.summary.reference} · {selectedCase.summary.category}</small><h2>{selectedCase.summary.subject}</h2></div><span className={styles.pill+" "+priorityTone(selectedCase.summary.priority)}>{priorityLabel(selectedCase.summary.priority)}</span></div>
                         <div className={styles.caseHistory} data-testid="support-case-history">
                         <div className={styles.caseReferenceCards}>
