@@ -709,8 +709,9 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         <AdminPagination page={auditPage} pageCount={auditPageCount} total={audit.total} size={audit.size||auditPageSize} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setAuditPage(next);setAuditModalOpen(false);setSelectedAuditId(null);}} />
                     </div>
                 </section>
-            {audit&&<section className={styles.auditRecordCard} aria-label={auditUi.eventDetails} data-testid="audit-record-detail">
-                {!selectedAudit?<div className={styles.auditRecordEmpty}><ShieldCheck size={22} aria-hidden="true"/><strong>{auditUi.eventDetails}</strong><p>{locale==="fr"?"Sélectionnez une ligne du journal pour consulter les détails.":locale==="ar"?"اختر سجلاً من الجدول لعرض التفاصيل.":"Select an audit row to inspect its details."}</p></div>:<>
+            {audit&&auditModalOpen&&selectedAudit&&<section className={styles.auditRecordCard} role="dialog" aria-modal="true" aria-label={auditUi.eventDetails} data-testid="audit-record-detail">
+                <div className={styles.offerDialogTopbar}><button type="button" className={styles.offerDialogClose} aria-label={t.closeReview} onClick={()=>setAuditModalOpen(false)}><X size={19}/></button></div>
+                <>
                     <header className={styles.auditRecordHeader} data-testid="audit-record-header">
                         <div><small>{auditUi.eventDetails}</small><h2>{auditActionLabel(selectedAudit.action,locale)}</h2><code>{selectedAudit.action}</code></div>
                         {resultPill(selectedAudit.result)}
@@ -736,7 +737,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         </dl>
                     </section>
                     <p className={styles.auditRecordNotice}><Lock size={14} aria-hidden="true"/>{auditUi.immutableNotice}</p>
-                </>}
+                </>
             </section>}
             </section>
         </>}
