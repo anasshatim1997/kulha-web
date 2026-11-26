@@ -188,6 +188,7 @@ export function SiteHeader() {
       : l("مدير", "Admin", "Administrateur");
     type WsLink = readonly [string, string, boolean, typeof Store, number];
     const adminLinks: WsLink[] = [
+      [l("نظرة عامة", "Overview", "Vue d’ensemble"), localePath(locale, "/admin"), /\/admin\/?$/.test(pathname), LayoutDashboard, 0],
       [l("مراقبة العروض", "Offers", "Offres"), localePath(locale, "/admin/offer-moderation"), /\/admin\/offer-moderation(?:\/|$)/.test(pathname), Tag, 0],
       [l("مراجعة المتاجر", "Merchants", "Commerces"), localePath(locale, "/admin/merchant-review"), /\/admin\/merchant-review(?:\/|$)/.test(pathname), Store, shellInfo.pendingMerchants],
       [l("حالات الدعم", "Support", "Support"), localePath(locale, "/admin/support-cases"), /\/admin\/support-cases(?:\/|$)/.test(pathname), Flag, shellInfo.openCases],
@@ -212,7 +213,7 @@ export function SiteHeader() {
     return (
       <>
         <aside className={`ws-sidebar ${isAdminWorkspace ? "ws-sidebar-admin" : "ws-sidebar-merchant"}`} dir={copy.dir}>
-          <Link href={isAdminWorkspace ? localePath(locale, "/admin/merchant-review") : localePath(locale, "/merchant/dashboard")} aria-label="Kulha!" className="ws-brand">
+          <Link href={isAdminWorkspace ? localePath(locale, "/admin") : localePath(locale, "/merchant/dashboard")} aria-label="Kulha!" className="ws-brand">
             <span className="ws-brand-word">KULHA<span>!</span></span>
             <small>{isAdminWorkspace ? "ADMIN" : "SHOP SPACE"}</small>
           </Link>
