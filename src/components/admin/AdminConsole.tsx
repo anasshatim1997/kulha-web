@@ -237,7 +237,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
 
     async function loadMerchant(id:string){setWorking(true);try{const data=await api.get<Merchant>("/admin/merchants/"+id);setSelectedMerchant(data);setReason("");setInternalNote("");setMerchantAction(null);setChecks([false,false,false]);}catch{setMessage(t.error);}finally{setWorking(false);}}
     async function submitMerchant(){
-        if(!selectedMerchant)return;if(!merchantAction||!reason.trim()){setMessage(t.needsReason);return;}if(merchantAction==="approve"&&checks.some(value=>!value)){setMessage(t.approveUnlocks);return;}setWorking(true);setMessage("");
+        if(!selectedMerchant)return;if(!merchantAction||!reason.trim()){setMessage(t.needsReason);return;}if(merchantAction==="approve"){setMessage("Approval is unavailable: documents cannot be verified by the current system.");return;}setWorking(true);setMessage("");
         try{await api.post("/admin/merchants/"+selectedMerchant.id+"/"+merchantAction,{reason:reason.trim(),internalNote:internalNote.trim()});setMessage(t.save);setReload(v=>v+1);setSelectedMerchant(null);setReason("");setInternalNote("");setMerchantAction(null);}
         catch{setMessage(t.error);}finally{setWorking(false);}
     }
@@ -351,13 +351,13 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                             <div className={styles.merchantModalColumn}>
                                 <section className={styles.merchantModalSection}>
                                     <h3>{t.checklist}</h3>
-                                    <div className={styles.checkList}>{[t.locationChecked,t.phoneChecked,t.docsChecked].map((label,i)=><label key={label}><input type="checkbox" checked={checks[i]} onChange={e=>setChecks(current=>current.map((value,index)=>index===i?e.target.checked:value))}/>{label}</label>)}</div>
-                                    <p className={styles.approveNote}>{t.approveUnlocks}</p>
+                                    <div className={styles.missingDocs}><Lock size={18} aria-hidden="true"/><span><strong>{t.noDocumentsTitle}</strong><small>{t.noDocumentsBody}</small></span></div>
+                                    <p className={styles.approveNote}>Approval remains blocked until document verification is enforced by the backend.</p>
                                 </section>
                                 <section className={styles.merchantDecision+" "+styles.merchantModalDecision} data-testid="merchant-review-decision">
                                     <h3>{t.decision}</h3>
                                     <div className={styles.segment} role="group" aria-label={t.decision}>
-                                        <button type="button" aria-pressed={merchantAction==="approve"} className={styles.segApprove+" "+(merchantAction==="approve"?styles.segOn:"")} disabled={working||checks.some(value=>!value)} onClick={()=>setMerchantAction("approve")}>{t.approve}</button>
+                                        <button type="button" aria-pressed={merchantAction==="approve"} className={styles.segApprove+" "+(merchantAction==="approve"?styles.segOn:"")} disabled={true} onClick={()=>setMerchantAction("approve")}>{t.approve}</button>
                                         <button type="button" aria-pressed={merchantAction==="request-information"} className={styles.segInfo+" "+(merchantAction==="request-information"?styles.segOn:"")} onClick={()=>setMerchantAction("request-information")}>{t.requestInfo}</button>
                                         <button type="button" aria-pressed={merchantAction==="reject"} className={styles.segReject+" "+(merchantAction==="reject"?styles.segOn:"")} onClick={()=>setMerchantAction("reject")}>{t.reject}</button>
                                     </div>
@@ -370,7 +370,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         </div>
                         <footer className={styles.merchantInlineFooter} data-testid="merchant-review-footer">
                             <p><ShieldCheck size={15} aria-hidden="true"/>{t.decisionNote}</p>
-                            <button className={styles.primary} disabled={working||!merchantAction||!reason.trim()||(merchantAction==="approve"&&checks.some(value=>!value))} onClick={()=>void submitMerchant()}>{working?t.loading:t.save}</button>
+                            <button className={styles.primary} disabled={working||!merchantAction||!reason.trim()||merchantAction==="approve"} onClick={()=>void submitMerchant()}>{working?t.loading:t.save}</button>
                         </footer>
                     </>}
                 </section>
