@@ -206,3 +206,15 @@
  .root :global(header[data-testid="admin-page-heading"]){align-items:stretch;flex-wrap:wrap;gap:12px}
  .root :global(header[data-testid="admin-page-heading"]) :global(label[class*="search"]){flex:1 1 100%;width:100%;max-width:none}
 }
+
+
+.root :global([class*="batchThumb"]){display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;overflow:hidden;border-radius:10px;background:#f3dfb6;color:#92733c}
+.root :global([class*="batchThumb"]) img{width:100%;height:100%;object-fit:cover}
+.root :global([class*="batchSignals"]){display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
+.root :global([class*="batchSignals"]) i{border-radius:20px;padding:3px 6px;background:#f8e9c8;color:#755714;font-size:9px;font-style:normal;font-weight:850}
+.root :global([class*="batchResultDetails"]){display:grid;gap:8px;margin-top:18px}
+.root :global([class*="batchResultDetails"]) div{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid #e8e0d3}
+.root :global([class*="batchResultDetails"]) span{color:#778277;font-size:11px}
+.root :global([class*="batchResultDetails"]) strong{color:#173b2d;font-size:11px;text-align:end}
+.root :global([class*="batchSelected"]) article>button:not(:first-child){min-height:30px;padding:0 10px;border:1px solid #c9d6ca;border-radius:18px;background:#fffefa;color:#1c563b;font-size:10px;font-weight:900}
+.batchThumb{}.batchSignals{}.batchResultDetails{}
