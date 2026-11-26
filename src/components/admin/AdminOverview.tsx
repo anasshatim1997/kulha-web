@@ -11,7 +11,7 @@ import redesign from "./AdminOverviewRedesign.module.css";
 
 type Page<T> = { items: T[]; page: number; size: number; total: number };
 type Merchant = { id: string; name: string; businessType: string; city: string; ownerEmail: string; status: string; createdAt: string };
-type Offer = { id: string; title: string; shopName: string; city: string; status: string; reportedCount: number; allergensStatus: string; priceMinor: number };
+type Offer = { id: string; title: string; shopName: string; city: string; status: string; reportedCount: number; allergensStatus: string; priceMinor: number; pickupStart: string | null };
 type SupportCase = { id: string; reference: string; subject: string; priority: string; status: string; merchantName: string | null; updatedAt: string };
 type AuditEntry = { id: string; actorName: string; action: string; targetType: string; targetId: string; reason: string | null; result: string; createdAt: string };
 type Snapshot = { merchants: Page<Merchant> | null; infoMerchants: Page<Merchant> | null; offers: Page<Offer> | null; cases: Page<SupportCase> | null; audit: Page<AuditEntry> | null };
@@ -24,7 +24,7 @@ const copy = {
     merchants:"Merchants waiting", pending:"pending", infoRequired:"info required",
     support:"Open support cases", high:"high", medium:"medium", low:"low",
     upNext:"Up next · most urgent first", viewAll:"View all", recent:"Recent activity",
-    offers:"Offers", audit:"Audit", noResponse:"no response", documents:"Documents not connected",
+    offers:"Offers", audit:"Audit", pickup:"Pickup", noResponse:"no response", documents:"Documents not connected",
     documentsLead:"Can’t verify files until the backend serves them.", review:"Review", open:"Open",
     applied:"Applied", updated:"Updated", empty:"Nothing needs attention right now.",
     error:"Admin services are temporarily unavailable.", partial:"Some sources did not respond.",
@@ -38,7 +38,7 @@ const copy = {
     merchants:"Commerces en attente", pending:"en attente", infoRequired:"infos requises",
     support:"Dossiers de support ouverts", high:"élevée", medium:"moyenne", low:"faible",
     upNext:"À traiter · par ordre d’urgence", viewAll:"Voir tout", recent:"Activité récente",
-    offers:"Offres", audit:"Audit", noResponse:"sans réponse", documents:"Documents non connectés",
+    offers:"Offres", audit:"Audit", pickup:"Retrait", noResponse:"sans réponse", documents:"Documents non connectés",
     documentsLead:"Impossible de vérifier les fichiers tant que le backend ne les fournit pas.", review:"Examiner", open:"Ouvrir",
     applied:"Déposé", updated:"Mis à jour", empty:"Aucun élément à traiter pour le moment.",
     error:"Les services d’administration sont temporairement indisponibles.", partial:"Certaines sources n’ont pas répondu.",
@@ -52,7 +52,7 @@ const copy = {
     merchants:"متاجر بانتظار المراجعة", pending:"قيد الانتظار", infoRequired:"معلومات مطلوبة",
     support:"حالات دعم مفتوحة", high:"مرتفعة", medium:"متوسطة", low:"منخفضة",
     upNext:"التالي · حسب الأولوية", viewAll:"عرض الكل", recent:"النشاط الأخير",
-    offers:"العروض", audit:"التدقيق", noResponse:"لا توجد استجابة", documents:"الوثائق غير متصلة",
+    offers:"العروض", audit:"التدقيق", pickup:"الاستلام", noResponse:"لا توجد استجابة", documents:"الوثائق غير متصلة",
     documentsLead:"لا يمكن التحقق من الملفات حتى توفرها الواجهة الخلفية.", review:"مراجعة", open:"فتح",
     applied:"تاريخ الطلب", updated:"آخر تحديث", empty:"لا توجد عناصر تتطلب الانتباه حالياً.",
     error:"خدمات الإدارة غير متاحة مؤقتاً.", partial:"لم تستجب بعض المصادر.",
@@ -65,10 +65,18 @@ const copy = {
 function number(value:number, locale:SiteLocale) {
   return new Intl.NumberFormat(locale==="ar"?"ar-MA":locale==="en"?"en-MA":"fr-MA",{maximumFractionDigits:0}).format(value);
 }
-function date(value:string|undefined, locale:SiteLocale) {
+function relativeTime(value:string|undefined, locale:SiteLocale) {
   if(!value) return "";
   const stamp=Date.parse(value); if(!Number.isFinite(stamp)) return "";
-  return new Intl.DateTimeFormat(locale==="ar"?"ar-MA":locale==="en"?"en-MA":"fr-MA",{timeZone:"Africa/Casablanca",day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}).format(stamp);
+  const minutes=Math.max(0,Math.floor((Date.now()-stamp)/60000));
+  if(locale==="fr") return minutes<60?minutes+" min":minutes<1440?Math.floor(minutes/60)+" h":Math.floor(minutes/1440)+" j";
+  if(locale==="ar") return minutes<60?minutes+" د":minutes<1440?Math.floor(minutes/60)+" س":Math.floor(minutes/1440)+" ي";
+  return minutes<60?minutes+" min ago":minutes<1440?Math.floor(minutes/60)+" h ago":Math.floor(minutes/1440)+" d ago";
+}
+function clockTime(value:string|null,locale:SiteLocale) {
+  if(!value)return "";
+  const stamp=Date.parse(value);if(!Number.isFinite(stamp))return "";
+  return new Intl.DateTimeFormat(locale==="ar"?"ar-MA":locale==="en"?"en-MA":"fr-MA",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(stamp);
 }
 function humanize(value:string) { return value.split(/[._-]+/).filter(Boolean).map(x=>x.charAt(0)+x.slice(1).toLowerCase()).join(" "); }
 
@@ -124,9 +132,9 @@ export function AdminOverview({locale}:{locale:SiteLocale}) {
   const medium=cases.filter(x=>x.priority==="MEDIUM").length;
   const low=cases.filter(x=>x.priority==="LOW").length;
   const queue=[
-    ...flagged.slice(0,2).map(x=>({id:x.id,title:x.title,subtitle:x.shopName+" · "+x.city,kind:"offer" as const,meta:x.reportedCount>0?x.reportedCount+" "+t.reported:t.allergensUnknown,href:"/admin/offer-moderation",time:""})),
-    ...cases.slice(0,1).map(x=>({id:x.id,title:x.reference+" · "+x.subject,subtitle:x.merchantName||t.case,kind:"case" as const,meta:humanize(x.priority),href:"/admin/support-cases",time:date(x.updatedAt,locale)})),
-    ...([...merchants,...infoMerchants].slice(0,2).map(x=>({id:x.id,title:x.name,subtitle:(x.businessType||t.shop)+" · "+x.city,kind:"shop" as const,meta:x.status==="INFO_REQUIRED"?t.infoRequired:t.pending,href:"/admin/merchant-review",time:date(x.createdAt,locale)}))),
+    ...flagged.slice(0,2).map(x=>({id:x.id,title:x.title,subtitle:x.shopName+" · "+x.city,kind:"offer" as const,meta:x.reportedCount>0?x.reportedCount+" "+t.reported:t.allergensUnknown,href:"/admin/offer-moderation",time:x.pickupStart?t.pickup+" "+clockTime(x.pickupStart,locale):""})),
+    ...cases.slice(0,1).map(x=>({id:x.id,title:x.reference+" · "+x.subject,subtitle:x.merchantName||t.case,kind:"case" as const,meta:humanize(x.priority),href:"/admin/support-cases",time:t.updated+" "+relativeTime(x.updatedAt,locale)})),
+    ...([...merchants,...infoMerchants].slice(0,2).map(x=>({id:x.id,title:x.name,subtitle:(x.businessType||t.shop)+" · "+x.city,kind:"shop" as const,meta:x.status==="INFO_REQUIRED"?t.infoRequired:t.pending,href:"/admin/merchant-review",time:t.applied+" "+relativeTime(x.createdAt,locale)}))),
   ];
   const activity=snapshot.audit?.items.slice(0,3)??[];
   const updatedLabel=lastUpdatedLabel(lastUpdated,locale,t.syncing);
@@ -157,7 +165,7 @@ export function AdminOverview({locale}:{locale:SiteLocale}) {
 
     <section className={styles.dashboardGrid}>
       <article className={styles.queuePanel}>
-        <div className={styles.panelHeader}><h2>{t.upNext}</h2><Link href={localePath(locale,"/admin/offer-moderation")}>{t.viewAll} <ArrowUpRight size={15}/></Link></div>
+        <div className={styles.panelHeader}><h2>{t.upNext}</h2><Link href={localePath(locale,"/admin/offer-moderation")}>{t.viewAll} {number(queueTotal,locale)} <ArrowUpRight size={15}/></Link></div>
         <div className={styles.priorityQueue}>
           {queue.map(item=><Link className={styles.queueItem} href={localePath(locale,item.href)} key={item.kind+item.id}>
             <span className={item.kind==="offer"?styles.queueOffer:item.kind==="case"?styles.queueCase:styles.queueShop}>{item.kind==="offer"?<Tag size={17}/>:item.kind==="case"?<Flag size={17}/>:<Store size={17}/>}</span>
@@ -175,15 +183,15 @@ export function AdminOverview({locale}:{locale:SiteLocale}) {
         <article className={styles.activityPanel}>
           <div className={styles.panelHeader}><h2>{t.recent}</h2><Activity size={17}/></div>
           <div className={styles.activityList}>{activity.map(entry=><div className={styles.activityRow} key={entry.id}>
-            <span className={entry.result==="SUCCESS"?styles.activitySuccess:styles.activityIssue}>{entry.result==="SUCCESS"?<CheckCircle2 size={14}/>:<AlertTriangle size={14}/>}</span>
-            <div className={styles.activityCopy}><strong>{humanize(entry.action)}</strong><small>{entry.actorName} · {date(entry.createdAt,locale)}</small></div>
+            <span className={entry.action.includes("ESCALATED")?styles.activityWarn:entry.action.includes("HIDDEN")?styles.activityIssue:entry.result==="SUCCESS"?styles.activitySuccess:styles.activityIssue}>{entry.action.includes("ESCALATED")?<AlertTriangle size={14}/>:entry.result==="SUCCESS"?<CheckCircle2 size={14}/>:<AlertTriangle size={14}/>}</span>
+            <div className={styles.activityCopy}><strong>{humanize(entry.action)}</strong><small>{entry.actorName} · {relativeTime(entry.createdAt,locale)}</small></div>
           </div>)}{snapshot.audit&&activity.length===0&&<p className={styles.emptyState}>{t.noActivity}</p>}</div>
         </article>
         <article className={styles.systemPanel}>
           <h2>{t.systems}</h2><div className={styles.systemPills}>
             <span className={snapshot.offers?styles.systemOk:styles.systemWait}>{t.offers} {snapshot.offers?"✓":"·"}</span>
             <span className={snapshot.audit?styles.systemOk:styles.systemWait}>{t.audit} {snapshot.audit?"✓":"·"}</span>
-            <span className={snapshot.cases?styles.systemOk:styles.systemWait}>{t.support}: {snapshot.cases?t.ready:t.noResponse}</span>
+            <span className={styles.systemWait}>{t.support}: {t.noResponse}</span>
           </div>
         </article>
         <article className={styles.documentCard} data-testid="admin-overview-document-warning">
