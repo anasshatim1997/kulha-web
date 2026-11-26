@@ -4,7 +4,7 @@ import { AdminLoginShell } from "@/components/admin/AdminLoginShell";
 import { LoginForm } from "@/components/auth/LoginForm";
 
 export const metadata: Metadata = {
-    title: "Administration | KULHA",
+    title: "Connexion administrateur | KULHA",
     robots: {
         index: false,
         follow: false,
@@ -15,7 +15,7 @@ export default function AdminLoginPage() {
     return (
         <AdminLoginShell
             locale="fr"
-            title="Accès administration"
+            title="Connexion administrateur"
             lead="Connectez-vous avec votre compte administrateur KULHA."
         >
             <Suspense>
