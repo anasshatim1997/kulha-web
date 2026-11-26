@@ -63,7 +63,6 @@ export function AdminLoginShell({ locale = "fr", title, lead, children }: AdminL
                         <p className={styles.lead}>{lead}</p>
                         <div className={styles.form}>{children}</div>
                         <p className={styles.restricted}>{t.restricted}</p>
-                        <p className={styles.note}><ShieldCheck size={15} aria-hidden="true" />{t.restricted}</p>
                         <Link className={styles.customerLink} href={localePath(locale, "/login")}>{t.customer}</Link>
                     </div>
                     </section>
