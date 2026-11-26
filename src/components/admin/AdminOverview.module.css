@@ -881,3 +881,6 @@
 @media(max-width:1100px){.dashboardGrid{grid-template-columns:minmax(0,1fr)}.dashboardAside{grid-template-columns:repeat(2,minmax(0,1fr))}.documentCard{grid-column:1/-1}}
 @media(max-width:720px){.overview{padding:16px 12px 28px}.dashboardHeading{align-items:flex-start}.dashboardHeading h1{font-size:25px}.dashboardActions{gap:7px}.dashboardActions .livePill{display:none}.metrics{grid-template-columns:1fr}.metricCard{min-height:82px}.dashboardAside{grid-template-columns:1fr}.documentCard{grid-column:auto}.queueItem{grid-template-columns:30px minmax(0,1fr) auto;gap:8px}.queueMeta{grid-column:2;justify-self:start}.queueItem time{grid-column:2}.queueAction{grid-column:3;grid-row:1/3}.queueCopy strong{white-space:normal}}
 @media(prefers-reduced-motion:reduce){.metricCard{transition:none}}
+
+
+.activityWarn{width:8px;height:8px;margin-top:4px;border-radius:50%;background:#e8b63f}
