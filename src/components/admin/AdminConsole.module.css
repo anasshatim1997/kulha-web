@@ -5313,3 +5313,5 @@
 .topbar{position:static;display:flex;align-items:center;justify-content:flex-start;min-height:62px;padding:10px clamp(18px,2vw,30px);background:#fffdf8;border-bottom:1px solid #e9e0d1}
 @media(max-width:899px){.shell{padding-bottom:0}.topbar{padding:10px 18px}}
 @media(max-width:700px){.shell{padding-bottom:0}.topbar{position:static;min-height:58px;padding:8px 12px}}
+
+.topbar .search{width:100%;max-width:none;flex:1}
