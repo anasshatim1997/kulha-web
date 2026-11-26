@@ -46,7 +46,7 @@ const moderationOffers = Array.from({ length: 48 }, (_, index) => {
     originalPriceMinor: sample.originalPriceMinor, quantityTotal: sample.quantityTotal, quantityReserved: sample.quantityReserved,
     allergensStatus: sample.allergensStatus, allergens: sample.allergensStatus === "UNKNOWN" ? null : "Wheat",
     foodNotes: "Prepared today", status: index >= 46 ? "SUSPENDED" : "PUBLISHED", reportedCount: sample.reportedCount,
-    pickupStart: pickupStart, pickupEnd, imageUrl: null,
+    pickupStart: pickup.toISOString(), pickupEnd: new Date(pickup.getTime() + 60 * 60 * 1000).toISOString(), imageUrl: null,
   };
 });
 
