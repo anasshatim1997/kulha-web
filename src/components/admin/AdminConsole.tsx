@@ -83,7 +83,7 @@ function useDismiss(open:boolean,ref:RefObject<HTMLElement|null>,setOpen:(open:b
  *  whitelisted in next.config (images.remotePatterns), so a plain <img> is used on purpose here. */
 function OfferImage({src,alt,lazy=false}:{src:string;alt:string;lazy?:boolean}){
     const [failed,setFailed]=useState(false);
-    if(failed)return <span className={styles.offerImageFallback} role="img" aria-label={alt||"Offer image unavailable"}><ImageIcon size={22} aria-hidden="true"/></span>;
+    if(failed)return <span className={redesign.offerImageFallback} role="img" aria-label={alt||"Offer image unavailable"}><ImageIcon size={22} aria-hidden="true"/></span>;
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={src} alt={alt} loading={lazy?"lazy":undefined} onError={()=>setFailed(true)}/>;
 }
