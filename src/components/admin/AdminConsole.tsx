@@ -276,11 +276,15 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
         });
     }
     async function runBatchOfferDecision(){
-        const candidates=eligibleOfferBatchItems(Object.values(selectedOffers),batchOfferAction);
+        const selected=Object.values(selectedOffers);
+        const candidates=eligibleOfferBatchItems(selected,batchOfferAction);
         if(!batchOfferReason.trim()){setMessage(t.saveReason);return;}
-        if(!candidates.length){setMessage(t.reinstateOnlyHidden);return;}
+        if(!selected.length)return;
         setBatchOfferWorking(true);setMessage("");
         const results:BatchOfferResult[]=batchOfferResults?.filter(item=>item.ok)??[];
+        for(const item of selected.filter(item=>!candidates.some(candidate=>candidate.id===item.id))){
+            results.push({id:item.id,title:item.title,ok:false,detail:t.reinstateOnlyHidden});
+        }
         for(const item of candidates){
             try{
                 await api.post("/admin/offers/"+item.id+"/"+batchOfferAction,{reason:batchOfferReason.trim()});
