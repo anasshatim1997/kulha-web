@@ -5356,3 +5356,5 @@
 }
 
 @media(max-width:1099px){.overviewColumns{grid-template-columns:minmax(0,1fr)}}
+
+.offerPreviewCard:not(:has(.offerPreviewHeading)){display:none!important}
