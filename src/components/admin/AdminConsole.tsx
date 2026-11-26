@@ -574,7 +574,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         <section className={redesign.supportTimelineColumn}>
                             <div className={styles.caseTimeline+" "+redesign.supportTimeline} data-testid="support-case-history">
                                 {selectedCase.timeline.map(item=><article key={item.id} className={item.visibility==="INTERNAL"?styles.timelineInternal:item.authorType==="CUSTOMER"?styles.timelineCustomer:styles.timelineAgent}>
-                                    <strong>{item.visibility==="INTERNAL"?t.internal:item.authorType==="CUSTOMER"?t.customer:t.reply} · {item.authorName||item.authorType} · {new Intl.DateTimeFormat(loc(locale),{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(new Date(item.createdAt))}</strong><p>{item.message}</p>
+                                    <strong>{item.visibility==="INTERNAL"?t.internal:item.authorType==="CUSTOMER"?t.customer:t.reply} · {item.authorType==="CUSTOMER"?t.customer:(selectedCase.summary.assigneeName||item.authorType)} · {new Intl.DateTimeFormat(loc(locale),{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(new Date(item.createdAt))}</strong><p>{item.message}</p>
                                 </article>)}
                             </div>
                             <section className={styles.messageComposer+" "+redesign.supportComposer} data-testid="support-message-composer">
