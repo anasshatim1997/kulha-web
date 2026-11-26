@@ -5157,3 +5157,8 @@
  .batchOfferFooter>span{width:100%}
  .batchOfferFooter button{flex:1}
 }
+
+.offerConfirmModal{width:min(100%,480px);padding:26px;border:1px solid #e8dfce;border-radius:18px;background:#fffdf8;box-shadow:0 24px 80px #0004}
+.offerConfirmModal h2{margin:0 0 12px;color:#073324;font-size:22px}
+.offerConfirmModal p{margin:7px 0;color:#56695d;font-size:13px}
+.offerConfirmModal footer{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;padding-top:14px;border-top:1px solid #eee7da}
