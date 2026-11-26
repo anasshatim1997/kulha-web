@@ -489,7 +489,26 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     </>}
                 </section>
             </div>
-            
+            {batchOfferOpen&&<div className={styles.adminModalBackdrop} role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget&&!batchOfferWorking)setBatchOfferOpen(false);}}>
+                <section className={styles.batchOfferModal} role="dialog" aria-modal="true" aria-labelledby="batch-offer-title" data-testid="batch-offer-modal">
+                    <header className={styles.batchOfferHeader}><div><small>{batchOfferResults?"BATCH REVIEW · DONE":"BATCH REVIEW"}</small><h2 id="batch-offer-title">{batchOfferResults?"Batch review results":"Review "+Object.keys(selectedOffers).length+" offers together"}</h2><p>Same decision and reason for all. Each offer gets its own audit entry.</p></div><button type="button" aria-label={t.closeReview} disabled={batchOfferWorking} onClick={()=>setBatchOfferOpen(false)}><X size={19}/></button></header>
+                    {!batchOfferResults?<div className={styles.batchOfferBody}>
+                        <section><h3>Selected · {Object.keys(selectedOffers).length}</h3><ul className={styles.batchOfferList}>{Object.values(selectedOffers).map(item=><li key={item.id}><span><strong>{item.title}</strong><small>{item.shopName} · {item.city}</small></span><button type="button" aria-label={"Remove "+item.title} onClick={()=>setSelectedOffers(current=>{const next={...current};delete next[item.id];return next;})}>×</button></li>)}</ul></section>
+                        <section className={styles.batchOfferDecision}><h3>Your decision · applies to all</h3>
+                            <div className={styles.batchOfferActions}>
+                                <button type="button" aria-pressed={batchOfferAction==="suspend"} onClick={()=>setBatchOfferAction("suspend")} className={batchOfferAction==="suspend"?styles.batchActionActive:styles.batchAction}><strong>{t.hide}</strong><small>Remove selected offers from the marketplace.</small></button>
+                                <button type="button" aria-pressed={batchOfferAction==="request-edit"} onClick={()=>setBatchOfferAction("request-edit")} className={batchOfferAction==="request-edit"?styles.batchActionActive:styles.batchAction}><strong>{t.askEdit}</strong><small>Ask each shop to correct its offer.</small></button>
+                                <button type="button" aria-pressed={batchOfferAction==="reinstate"} onClick={()=>setBatchOfferAction("reinstate")} className={batchOfferAction==="reinstate"?styles.batchActionActive:styles.batchAction}><strong>{t.putLive}</strong><small>{t.reinstateOnlyHidden} {Object.values(selectedOffers).filter(item=>item.status==="SUSPENDED").length} / {Object.keys(selectedOffers).length} eligible.</small></button>
+                            </div>
+                            <label className={styles.field}><span>One reason for all (required)</span><textarea rows={3} maxLength={500} value={batchOfferReason} onChange={event=>setBatchOfferReason(event.target.value)}/></label>
+                        </section>
+                    </div>:<div className={styles.batchOfferResults}><h3>{batchOfferResults.filter(item=>item.ok).length} / {batchOfferResults.length} processed</h3><p>Failed items stay selected. Your decision and reason are kept so you can retry without retyping.</p>{batchOfferResults.map(item=><article key={item.id}><span className={item.ok?styles.batchResultOk:styles.batchResultFail}>{item.ok?"✓":"×"}</span><span><strong>{item.title}</strong><small>{item.ok?t.success:item.detail}</small></span></article>)}</div>}
+                    <footer className={styles.batchOfferFooter}>
+                        <span>{batchOfferResults?batchOfferResults.filter(item=>item.ok).length+" audit entries saved":Object.keys(selectedOffers).length+" offers selected · "+batchOfferReason.length+"/500"}</span>
+                        {!batchOfferResults?<><button type="button" className={styles.ghostBtn} disabled={batchOfferWorking} onClick={()=>setBatchOfferOpen(false)}>Cancel</button><button type="button" className={styles.primary} disabled={batchOfferWorking||!batchOfferReason.trim()||!Object.keys(selectedOffers).length||(batchOfferAction==="reinstate"&&!Object.values(selectedOffers).some(item=>item.status==="SUSPENDED"))} onClick={()=>void runBatchOfferDecision()}>{batchOfferWorking?t.loading:"Confirm decision"}</button></>:<><button type="button" className={styles.ghostBtn} onClick={()=>{setBatchOfferOpen(false);setBatchOfferResults(null);}}>Close</button>{batchOfferResults.some(item=>!item.ok)&&<button type="button" className={styles.primary} disabled={batchOfferWorking} onClick={()=>void runBatchOfferDecision()}>Retry failed →</button>}</>}
+                    </footer>
+                </section>
+            </div>}
         </>}
 
         {page==="support-cases"&&cases&&<>
