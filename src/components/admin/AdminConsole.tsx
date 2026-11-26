@@ -373,7 +373,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     {Object.keys(selectedMerchants).length>0&&<div className={styles.offerBatchBar} data-testid="merchant-batch-bar"><span><strong>{Object.keys(selectedMerchants).length}</strong> merchants selected</span><button type="button" className={styles.linkBtn} onClick={()=>setSelectedMerchants({})}>Clear</button><button type="button" className={styles.primary} onClick={()=>{setBatchMerchantOpen(true);setBatchMerchantResults(null);setBatchMerchantReason("");setBatchMerchantNote("");setBatchMerchantAction("request-information");}}>Review together →</button></div>}
                     <AdminPagination page={merchantPage} pageCount={merchantPageCount} total={merchants.total} size={merchants.size||MERCHANT_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setMerchantPage(next);setSelectedMerchant(null);}} />
                 </section>
-                <section className={styles.card+" "+styles.merchantDetails} role={selectedMerchant?"dialog":undefined} aria-modal={selectedMerchant?true:undefined} data-testid="merchant-review-detail-panel">
+                <section className={styles.card+" "+styles.merchantDetails} role={selectedMerchant?"dialog":undefined} aria-modal={selectedMerchant?true:undefined} aria-label={selectedMerchant?selectedMerchant.name:undefined} data-testid="merchant-review-detail-panel">
                     {!selectedMerchant?<p className={styles.empty}>{t.empty}</p>:<>
                         <div className={styles.offerDialogTopbar}>
                             <div className={styles.offerDialogPager}>
@@ -597,7 +597,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     </button>)}</div>{!caseItems.length&&<p className={styles.empty}>{t.empty}</p>}
                     <AdminPagination page={casePage} pageCount={casePageCount} total={cases.total} size={cases.size||CASE_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setCasePage(next);setSelectedCase(null);}} />
                 </section>
-                <section className={styles.caseDetail} role={selectedCase?"dialog":undefined} aria-modal={selectedCase?true:undefined} data-testid="support-case-detail">
+                <section className={styles.caseDetail} role={selectedCase?"dialog":undefined} aria-modal={selectedCase?true:undefined} aria-label={selectedCase?t.record+" "+selectedCase.summary.reference:undefined} data-testid="support-case-detail">
                     {!selectedCase?<p className={styles.empty}>{t.empty}</p>:<>
                         <div className={styles.offerDialogTopbar}>
                             <div className={styles.offerDialogPager}>
