@@ -885,10 +885,10 @@ try {
       }
       if (route.path.endsWith("/admin") && size.width >= 900) {
         const overview = await page.evaluate(() => {
-          const metrics = document.querySelector(".overviewMetrics");
-          const columns = document.querySelector(".overviewColumns");
-          const queue = document.querySelector(".overviewQueue");
-          const side = document.querySelector(".overviewSide");
+          const metrics = document.querySelector('[data-testid="overview-metrics"]');
+          const columns = document.querySelector('[data-testid="overview-columns"]');
+          const queue = document.querySelector('[data-testid="overview-priority-queue"]');
+          const side = document.querySelector('[data-testid="overview-side-column"]');
           const rect = element => {
             if (!element) return null;
             const value = element.getBoundingClientRect();
