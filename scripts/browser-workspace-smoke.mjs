@@ -1067,8 +1067,11 @@ try {
     const approvalOpacity = Number(await approve.evaluate(element => getComputedStyle(element).opacity));
     if (approvalOpacity >= 1) throw new Error("Blocked merchant approval must be visibly disabled.");
     await inlineReview.getByRole("button", { name: "Request information" }).click();
+    const merchantSubmit = page.getByTestId("merchant-review-footer").getByRole("button", { name: "Submit decision" });
+    if (!(await merchantSubmit.isDisabled())) throw new Error("Merchant decisions must require a reason.");
     await inlineReview.getByLabel("Reason (required)").fill("Please provide the missing business documents.");
-    await page.getByTestId("merchant-review-footer").getByRole("button", { name: "Submit decision" }).click();
+    if (await merchantSubmit.isDisabled()) throw new Error("A valid merchant reason should enable the decision.");
+    await merchantSubmit.click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/request-information"), "Merchant request-information action");
     if (requests.some(item => item.method === "POST" && item.path.endsWith("/approve"))) throw new Error("A blocked merchant approval reached the backend.");
     await context.close();
