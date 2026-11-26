@@ -387,44 +387,31 @@ async function assertAdminLoginLayout(page, width, height) {
 async function assertOfferModerationLayout(page, width, height) {
   const metrics = await page.evaluate(() => {
     const workspace = document.querySelector('[data-testid="offer-workspace"]');
-    const picker = document.querySelector('[data-testid="offer-picker"]');
-    const preview = document.querySelector('[data-testid="offer-detail-panel"]');
-    const tabs = [...document.querySelectorAll('[role="tablist"] button')];
+    const wrap = workspace?.querySelector('[class*="offerTableWrap"]');
+    const table = workspace?.querySelector("table");
+    const rows = [...(workspace?.querySelectorAll('[data-testid="offer-row"]') ?? [])];
+    const tabs = [...(workspace?.querySelectorAll('[role="tablist"] button') ?? [])];
     const box = element => {
       if (!element) return null;
       const rect = element.getBoundingClientRect();
-      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, height: rect.height };
+      return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right, width: rect.width, height: rect.height };
     };
     return {
-      documentWidth: document.documentElement.scrollWidth,
-      bodyWidth: document.body.scrollWidth,
-      workspace: box(workspace), picker: box(picker), preview: box(preview),
-      direction: workspace ? getComputedStyle(workspace).direction : "missing",
-      tabHeights: tabs.map(tab => Math.round(tab.getBoundingClientRect().height)),
-      offerCount: document.querySelectorAll('[data-testid="offer-queue"] > *').length,
-      longTitleCount: [...document.querySelectorAll('[data-testid="offer-queue"] strong')].filter(element => (element.textContent ?? "").trim().length > 48).length,
-      columns: workspace ? getComputedStyle(workspace).gridTemplateColumns : "",
+      workspace: box(workspace), wrap: box(wrap), table: box(table),
+      documentWidth: document.documentElement.scrollWidth, bodyWidth: document.body.scrollWidth,
+      rowCount: rows.length, reviewButtons: workspace?.querySelectorAll('[data-testid="offer-row"] button').length ?? 0,
+      checkboxes: workspace?.querySelectorAll('[data-testid="offer-row"] input[type="checkbox"]').length ?? 0,
+      tabCount: tabs.length, tabHeights: tabs.map(tab => Math.round(tab.getBoundingClientRect().height)),
+      tableScrollWidth: wrap?.scrollWidth ?? 0, tableClientWidth: wrap?.clientWidth ?? 0,
     };
   });
-  if (metrics.documentWidth > width + 1 || metrics.bodyWidth > width + 1)
-    throw new Error(`Offer moderation horizontal overflow at ${width}x${height}: ${JSON.stringify(metrics)}`);
-  if (!metrics.workspace || !metrics.picker || !metrics.preview)
-    throw new Error(`Offer moderation layout regions are missing at ${width}x${height}: ${JSON.stringify(metrics)}`);
-  if (metrics.tabHeights.some(value => value > 44))
-    throw new Error(`Admin status filters must remain compact at ${width}x${height}: ${JSON.stringify(metrics.tabHeights)}`);
-  if (width >= 900) {
-    const wrongSide = metrics.direction === "rtl"
-      ? metrics.picker.left <= metrics.preview.left
-      : metrics.picker.left >= metrics.preview.left;
-    if (wrongSide) throw new Error(`Offer queue must remain beside its detail panel in ${metrics.direction} layout at ${width}px: ${JSON.stringify(metrics)}`);
+  if (!metrics.workspace || !metrics.wrap || !metrics.table) throw new Error("Offer table regions are missing at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  if (metrics.documentWidth > width + 1 || metrics.bodyWidth > width + 1) throw new Error("Offer table causes page overflow at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  if (metrics.rowCount < 10 || metrics.reviewButtons !== metrics.rowCount || metrics.checkboxes !== metrics.rowCount || metrics.tabCount !== 5) {
+    throw new Error("Offer queue, selection controls or filters are incomplete at " + width + "x" + height + ": " + JSON.stringify(metrics));
   }
-  if (width < 900 && metrics.picker.bottom > metrics.preview.top + 2)
-    throw new Error(`Mobile offer panels must stack naturally at ${width}px: ${JSON.stringify(metrics)}`);
-  if (metrics.offerCount < 10 || metrics.longTitleCount < 1)
-    throw new Error(`Offer moderation fixtures must exercise a populated queue and a long offer title: ${JSON.stringify(metrics)}`);
+  if (metrics.tabHeights.some(value => value > 44)) throw new Error("Offer filters are oversized: " + JSON.stringify(metrics.tabHeights));
 }
-
-
 async function assertAdminStatusControls(page, route, width, height) {
   const controls = await page.evaluate(() => [...document.querySelectorAll('[role="tablist"] button')].map(button => {
     const rect = button.getBoundingClientRect();
