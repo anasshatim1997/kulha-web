@@ -5290,3 +5290,8 @@
  .supportWorkspace:has(.caseDetail .detailHead) .caseDetail{display:block;overflow:auto}
  .supportWorkspace:has(.caseDetail .detailHead) .caseHistory{max-height:none;overflow:visible}
 }
+@media(max-width:899px){
+ .supportWorkspace:has(.caseDetail .detailHead)::before{display:none}
+ .supportWorkspace:has(.caseDetail .detailHead) .caseDetail{position:static;top:auto;left:auto;transform:none;width:100%;max-height:none;margin-top:14px;padding:14px;border-radius:14px;overflow:visible;box-shadow:none}
+ .supportWorkspace:has(.caseDetail .detailHead) .caseHistory{display:block;max-height:none;overflow:visible}
+}
