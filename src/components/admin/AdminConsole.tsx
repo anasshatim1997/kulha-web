@@ -32,7 +32,8 @@ const more={
 } as const;
 
 const loc=(l:SiteLocale)=>l==="ar"?"ar-MA":l==="en"?"en-MA":"fr-MA";
-function clockTime(value:string|null|undefined,l:SiteLocale){if(!value)return "—";const stamp=Date.parse(value);if(!Number.isFinite(stamp))return "—";return new Intl.DateTimeFormat(loc(l),{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(stamp);}\nfunction amount(minor:number,l:SiteLocale){return new Intl.NumberFormat(loc(l),{maximumFractionDigits:2}).format(minor/100);}
+function clockTime(value:string|null|undefined,l:SiteLocale){if(!value)return "—";const stamp=Date.parse(value);if(!Number.isFinite(stamp))return "—";return new Intl.DateTimeFormat(loc(l),{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(stamp);}
+function amount(minor:number,l:SiteLocale){return new Intl.NumberFormat(loc(l),{maximumFractionDigits:2}).format(minor/100);}
 function dateTime(value:string,l:SiteLocale){return new Intl.DateTimeFormat(loc(l),{timeZone:"Africa/Casablanca",weekday:"short",day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}).format(new Date(value));}
 function shortDateTime(value:string,l:SiteLocale){return new Intl.DateTimeFormat(loc(l),{timeZone:"Africa/Casablanca",day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}).format(new Date(value));}
 
