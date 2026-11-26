@@ -546,7 +546,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                 </section>
             </div>
             {offerConfirmOpen&&selectedOffer&&<div className={styles.adminModalBackdrop} role="presentation">
-                <section className={styles.offerConfirmModal} role="dialog" aria-modal="true" aria-labelledby="offer-confirm-title">
+                <section className={styles.offerConfirmModal} role="dialog" aria-modal="true" aria-labelledby="offer-confirm-title" data-testid="offer-confirm-modal">
                     <h2 id="offer-confirm-title">{locale==="fr"?"Confirmer la décision":locale==="ar"?"تأكيد القرار":"Confirm moderation decision"}</h2>
                     <p><strong>{selectedOffer.title}</strong></p>
                     <p>{offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:t.hide}</p>
