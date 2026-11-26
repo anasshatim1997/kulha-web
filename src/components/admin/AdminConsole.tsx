@@ -378,8 +378,16 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     {Object.keys(selectedMerchants).length>0&&<div className={styles.offerBatchBar} data-testid="merchant-batch-bar"><span><strong>{Object.keys(selectedMerchants).length}</strong> merchants selected</span><button type="button" className={styles.linkBtn} onClick={()=>setSelectedMerchants({})}>Clear</button><button type="button" className={styles.primary} onClick={()=>{setBatchMerchantOpen(true);setBatchMerchantResults(null);setBatchMerchantReason("");setBatchMerchantNote("");setBatchMerchantAction("request-information");}}>Review together →</button></div>}
                     <AdminPagination page={merchantPage} pageCount={merchantPageCount} total={merchants.total} size={merchants.size||MERCHANT_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setMerchantPage(next);setSelectedMerchant(null);}} />
                 </section>
-                <section className={styles.card+" "+styles.merchantDetails} data-testid="merchant-review-detail-panel">
+                <section className={styles.card+" "+styles.merchantDetails} role={selectedMerchant?"dialog":undefined} aria-modal={selectedMerchant?true:undefined} data-testid="merchant-review-detail-panel">
                     {!selectedMerchant?<p className={styles.empty}>{t.empty}</p>:<>
+                        <div className={styles.offerDialogTopbar}>
+                            <div className={styles.offerDialogPager}>
+                                <button type="button" aria-label="Previous merchant" disabled={merchantItems.length<2} onClick={()=>{const index=merchantItems.findIndex(item=>item.id===selectedMerchant.id);void loadMerchant(merchantItems[(index-1+merchantItems.length)%merchantItems.length].id);}}><ChevronLeft size={18}/></button>
+                                <span>{Math.max(0,merchantItems.findIndex(item=>item.id===selectedMerchant.id)+1)} / {merchantItems.length}</span>
+                                <button type="button" aria-label="Next merchant" disabled={merchantItems.length<2} onClick={()=>{const index=merchantItems.findIndex(item=>item.id===selectedMerchant.id);void loadMerchant(merchantItems[(index+1)%merchantItems.length].id);}}><ChevronRight size={18}/></button>
+                            </div>
+                            <button type="button" className={styles.offerDialogClose} aria-label={t.closeReview} onClick={()=>setSelectedMerchant(null)}><X size={19}/></button>
+                        </div>
                         <div className={styles.detailHead}><div><small>{t.application} KLH-M-{selectedMerchant.id.slice(0,4).toUpperCase()}</small><h2>{selectedMerchant.name}</h2></div><span className={styles.pill+" "+merchantTone(selectedMerchant.status)}>{merchantLabel(selectedMerchant.status)}</span></div>
                         <div className={styles.merchantStepper} aria-label={t.application}>
                             <div className={styles.stepDone}><span>✓</span><strong>{t.stageApplication}</strong></div><i aria-hidden="true"/>
