@@ -745,6 +745,7 @@ try {
   {
     const loginSizes = sizes.filter(size => [1920, 1440, 1366, 1280, 1279, 1100, 390].includes(size.width));
     for (const locale of [
+      { code: "fr", heading: "Connexion administrateur", direction: "ltr" },
       { code: "en", heading: "Administrator sign in", direction: "ltr" },
       { code: "ar", heading: "دخول الإدارة", direction: "rtl" }
     ]) {
@@ -801,7 +802,9 @@ try {
     { path: "/en/merchant/reservations/scan", token: "merchant-token", heading: "Validate a pickup" , compact: true },
     { path: "/en/merchant/staff", token: "merchant-token", heading: "Staff" , compact: true },
     { path: "/en/merchant/sales", token: "merchant-token", heading: "Sales" , compact: true },
+    { path: "/fr/admin", token: "admin-token", heading: "Aujourd’hui chez Kulha!" },
     { path: "/en/admin", token: "admin-token", heading: "Today at Kulha!" },
+    { path: "/ar/admin", token: "admin-token", heading: "اليوم في KULHA!", direction: "rtl" },
     { path: "/en/admin/merchant-review", token: "admin-token", heading: "Merchant review", adminPage: true },
     { path: "/fr/admin/merchant-review", token: "admin-token", heading: "Revue des commerces", adminPage: true },
     { path: "/ar/admin/merchant-review", token: "admin-token", heading: "مراجعة المتاجر", direction: "rtl", adminPage: true },
