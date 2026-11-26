@@ -550,7 +550,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     <h2 id="offer-confirm-title">{locale==="fr"?"Confirmer la décision":locale==="ar"?"تأكيد القرار":"Confirm moderation decision"}</h2>
                     <p><strong>{selectedOffer.title}</strong></p>
                     <p>{offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:t.hide}</p>
-                    <label className={styles.field}><span>{t.reason}</span><textarea rows={3} maxLength={500} value={reason} onChange={event=>setReason(event.target.value)}/></label>
+                    <div className={styles.offerConfirmReason}><strong>{t.reason}</strong><p>{reason}</p></div>
                     <footer><button type="button" className={styles.ghostBtn} disabled={working} onClick={()=>setOfferConfirmOpen(false)}>{locale==="fr"?"Annuler":"Cancel"}</button><button type="button" className={styles.primary} disabled={working||!reason.trim()} onClick={()=>void submitOffer()}>{working?t.loading:locale==="fr"?"Confirmer":locale==="ar"?"تأكيد":"Confirm"}</button></footer>
                 </section>
             </div>}
