@@ -415,6 +415,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     <table className={redesign.offerTable}>
                         <thead><tr><th aria-label="Select offers"/><th>{t.offer}</th><th>{t.reports}</th><th>{t.price}</th><th>{t.stock}</th><th>{t.pickup}</th><th aria-label={t.review}/></tr></thead>
                         <tbody>{offerItems.map(item=><tr key={item.id} data-testid="offer-row">
+                            <td><input type="checkbox" aria-label={`Select ${item.title}`} checked={selectedOfferIds.includes(item.id)} onChange={event=>toggleOfferSelection(item,event.target.checked)}/></td>
                             <td><div className={redesign.offerTableIdentity}>
                                 <span className={redesign.offerTableThumb}>{item.imageUrl?<OfferImage src={item.imageUrl} alt="" lazy/>:<ImageIcon size={20}/>}</span>
                                 <span><strong>{item.title}</strong><small>{item.shopName} · {item.city}</small></span>
