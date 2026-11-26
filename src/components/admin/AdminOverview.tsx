@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, Check, Clock3, FileText, LifeBuoy, RefreshCw, Store, Tag, XCircle } from "lucide-react";
+import { AlertTriangle, ArrowRight, Check, ClipboardList, Clock3, FileText, LayoutDashboard, LifeBuoy, RefreshCw, Store, Tag, XCircle } from "lucide-react";
 import { api } from "@/lib/api/client";
 import { localePath } from "@/lib/navigation";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
@@ -58,7 +58,19 @@ export function AdminOverview({ locale }: { locale: SiteLocale }) {
   const timeLabel = (value: string) => new Intl.DateTimeFormat(locale === "ar" ? "ar-MA" : locale === "en" ? "en-MA" : "fr-MA", { timeZone: "Africa/Casablanca", hour: "2-digit", minute: "2-digit" }).format(new Date(value));
   const actionLabel = (value: string) => value.split(/[._-]+/).filter(Boolean).map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()).join(" ");
 
-  return <div className={styles.adminOverview}>
+  const navigation=[
+    {key:"overview",href:"/admin",label:locale==="fr"?"Vue d’ensemble":locale==="ar"?"نظرة عامة":"Overview",icon:LayoutDashboard},
+    {key:"offer-moderation",href:"/admin/offer-moderation",label:locale==="fr"?"Offres":locale==="ar"?"العروض":"Offers",icon:Tag},
+    {key:"merchant-review",href:"/admin/merchant-review",label:locale==="fr"?"Commerces":locale==="ar"?"المتاجر":"Merchants",icon:Store},
+    {key:"support-cases",href:"/admin/support-cases",label:locale==="fr"?"Support":locale==="ar"?"الدعم":"Support",icon:LifeBuoy},
+    {key:"audit-log",href:"/admin/audit-log",label:locale==="fr"?"Journal d’audit":locale==="ar"?"سجل التدقيق":"Audit log",icon:ClipboardList}
+  ] as const;
+  return <div className={styles.shell+" kulhaAdminShell"} data-page="overview" dir={locale==="ar"?"rtl":"ltr"}>
+    <aside className={styles.adminSidebar}><Link href={localePath(locale,"/admin")} className={styles.adminBrand} aria-label="KULHA!"><span>Kulha<span>!</span></span></Link><nav className={styles.adminNavigation} aria-label={locale==="fr"?"Navigation principale":locale==="ar"?"التنقل الرئيسي":"Main navigation"}>{navigation.map(item=>{const Icon=item.icon;return <Link key={item.key} href={localePath(locale,item.href)} className={item.key==="overview"?styles.adminNavActive:styles.adminNavLink} aria-current={item.key==="overview"?"page":undefined}><Icon size={18} aria-hidden="true"/><span>{item.label}</span></Link>;})}</nav><p className={styles.adminSidebarFoot}>KULHA! · ADMIN</p></aside>
+    <div className={styles.adminMain}>
+      <header className={styles.topbar}><div className={styles.adminTopbarRight}><nav aria-label={locale==="fr"?"Langue":locale==="ar"?"اللغة":"Language"} className={styles.adminLanguages}>{(["fr","en","ar"] as const).map(value=><Link key={value} href={localePath(value,"/admin")} aria-current={locale===value?"page":undefined}>{value.toUpperCase()}</Link>)}</nav><span className={styles.adminIdentity}>{locale==="fr"?"Administration":locale==="ar"?"الإدارة":"Administrator"}</span><span className={styles.adminAvatar} aria-hidden="true">K</span></div></header>
+      <main className={styles.page}>
+  <div className={styles.adminOverview}>
     <header className={styles.header}>
       <div><h1>{copy.title}</h1><p>{copy.lead}{refreshedAt ? " · "+copy.updated+" "+timeLabel(refreshedAt.toISOString()) : ""}</p></div>
       <div className={styles.overviewLive}><span><i/>{copy.live}</span><button type="button" disabled={refreshing} onClick={()=>setReload(value=>value+1)}><RefreshCw size={15} className={refreshing?styles.overviewSpin:""}/>{copy.refresh}</button></div>
@@ -90,6 +102,9 @@ export function AdminOverview({ locale }: { locale: SiteLocale }) {
           <div><FileText size={17}/><span><strong>{copy.documents}</strong><small>{copy.docsHelp}</small></span></div>
         </section>
       </div>
+    </div>
+  </div>
+      </main>
     </div>
   </div>;
 }
