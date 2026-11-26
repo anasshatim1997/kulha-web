@@ -247,3 +247,11 @@
  .root :global([class*="batchDialog"]) :global([class*="actionDialogFooter"]){padding:12px;flex-wrap:wrap}
 }
 .offerActionDialog{}
+
+
+.root :global(header[data-testid="admin-page-heading"]) :global([class*="searchSlot"]){flex:0 0 220px;width:220px;max-width:220px;margin-inline-start:auto}
+.root :global(header[data-testid="admin-page-heading"]) :global([class*="searchSlot"]) :global(label[class*="search"]){width:100%;max-width:none;height:40px}
+@media(max-width:760px){
+ .root :global(header[data-testid="admin-page-heading"]) :global([class*="searchSlot"]){flex:1 1 100%;width:100%;max-width:none}
+}
+.searchSlot{}
