@@ -201,7 +201,7 @@ type OfferAction="suspend"|"request-edit"|"reinstate";
 export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const t={...words[locale],...more[locale]};const {state}=useSession();const actorId=state.status==="authenticated"?state.user.id:"";const roles=state.status==="authenticated"?state.user.roles:[];const isSupportOnly=roles.includes("SUPPORT")&&!roles.includes("ADMIN")&&!roles.includes("SUPER_ADMIN");
     const [loading,setLoading]=useState(true);const [failed,setFailed]=useState(false);const [reload,setReload]=useState(0);const [message,setMessage]=useState("");const [query,setQuery]=useState("");
-    const [merchants,setMerchants]=useState<Page<Merchant>|null>(null);const [merchantStatus,setMerchantStatus]=useState("PENDING");const [merchantPage,setMerchantPage]=useState(0);const [selectedMerchant,setSelectedMerchant]=useState<Merchant|null>(null);const [merchantAction,setMerchantAction]=useState<MerchantAction|null>(null);const [merchantDecisionOpen,setMerchantDecisionOpen]=useState(false);const [checks,setChecks]=useState([false,false,false]);const [tabCounts,setTabCounts]=useState<{pending:number|null;info:number|null}>({pending:null,info:null});
+    const [merchants,setMerchants]=useState<Page<Merchant>|null>(null);const [merchantStatus,setMerchantStatus]=useState("PENDING");const [merchantPage,setMerchantPage]=useState(0);const [selectedMerchant,setSelectedMerchant]=useState<Merchant|null>(null);const [merchantAction,setMerchantAction]=useState<MerchantAction|null>(null);const [merchantDecisionOpen,setMerchantDecisionOpen]=useState(false);const [checks,setChecks]=useState([false,false,false]);const [tabCounts,setTabCounts]=useState<{pending:number|null;info:number|null}>({pending:null,info:null});const [selectedMerchantIds,setSelectedMerchantIds]=useState<string[]>([]);const [selectedMerchantRecords,setSelectedMerchantRecords]=useState<Record<string,Merchant>>({});const [merchantBatchOpen,setMerchantBatchOpen]=useState(false);const [merchantBatchAction,setMerchantBatchAction]=useState<MerchantAction|null>("approve");const [merchantBatchReason,setMerchantBatchReason]=useState("");const [merchantBatchInternalNote,setMerchantBatchInternalNote]=useState("");const [merchantBatchWorking,setMerchantBatchWorking]=useState(false);const [merchantBatchResult,setMerchantBatchResult]=useState<{completed:string[];failed:string[];total:number}|null>(null);
     const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerSummary,setOfferSummary]=useState<Offer[]>([]);const [offerStatus,setOfferStatus]=useState("NEEDS_REVIEW");const [offerPage,setOfferPage]=useState(0);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");const [offerDecisionOpen,setOfferDecisionOpen]=useState(false);const [selectedOfferIds,setSelectedOfferIds]=useState<string[]>([]);const [selectedOfferRecords,setSelectedOfferRecords]=useState<Record<string,Offer>>({});const [batchOpen,setBatchOpen]=useState(false);const [batchAction,setBatchAction]=useState<OfferAction>("suspend");const [batchReason,setBatchReason]=useState("");const [batchWorking,setBatchWorking]=useState(false);const [batchResult,setBatchResult]=useState<{completed:string[];failed:string[];total:number}|null>(null);
     const [cases,setCases]=useState<Page<CaseItem>|null>(null);const [caseStatus,setCaseStatus]=useState("OPEN");const [casePage,setCasePage]=useState(0);const [selectedCase,setSelectedCase]=useState<{summary:CaseItem;timeline:Timeline[]}|null>(null);const [supportActionOpen,setSupportActionOpen]=useState(false);const [caseCounts,setCaseCounts]=useState<{open:number|null;escalated:number|null;waiting:number|null;resolved:number|null}>({open:null,escalated:null,waiting:null,resolved:null});
     const [audit,setAudit]=useState<AuditPage|null>(null);const [auditPage,setAuditPage]=useState(0);const [auditPageSize,setAuditPageSize]=useState(AUDIT_PAGE_SIZE);const [selectedAuditId,setSelectedAuditId]=useState<string|null>(null);const [auditModalOpen,setAuditModalOpen]=useState(false);const [auditSearch,setAuditSearch]=useState("");const [auditFrom,setAuditFrom]=useState("");const [auditTo,setAuditTo]=useState("");const [auditAction,setAuditAction]=useState("");const [auditResult,setAuditResult]=useState("");
@@ -259,6 +259,30 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     function exportAudit(){const p=new URLSearchParams();if(auditFrom)p.set("from",auditFrom);if(auditTo)p.set("to",auditTo);if(auditAction)p.set("action",auditAction);if(auditResult)p.set("result",auditResult);if(auditSearch)p.set("q",auditSearch);const a=document.createElement("a");a.href="/api/bff/admin/audit-log/export?"+p.toString();a.download="kulha-audit-log.csv";a.click();}
     const switchTab=(apply:()=>void)=>{setLoading(true);setFailed(false);apply();};
     const selectedBatchOffers=selectedOfferIds.map(id=>selectedOfferRecords[id]).filter((item):item is Offer=>Boolean(item));
+    const selectedBatchMerchants=selectedMerchantIds.map(id=>selectedMerchantRecords[id]).filter((item):item is Merchant=>Boolean(item));
+    function toggleMerchantSelection(item:Merchant,checked:boolean){
+        if(checked&&selectedMerchantIds.length===0){setMerchantBatchReason("");setMerchantBatchInternalNote("");}
+        setSelectedMerchantRecords(current=>checked?{...current,[item.id]:item}:current);
+        setSelectedMerchantIds(current=>checked?[...current.filter(id=>id!==item.id),item.id]:current.filter(id=>id!==item.id));
+    }
+    async function submitMerchantBatch(idsToProcess:string[]=selectedMerchantIds){
+        if(!idsToProcess.length||!merchantBatchAction||!merchantBatchReason.trim())return;
+        if(merchantBatchAction==="approve"&&!MERCHANT_DOCUMENT_REVIEW_ENABLED)return;
+        setMerchantBatchWorking(true);
+        const priorCompleted=merchantBatchResult?.completed??[];
+        const total=merchantBatchResult?.total??selectedMerchantIds.length;
+        const remaining=selectedMerchantIds.filter(id=>!idsToProcess.includes(id));
+        const completed:string[]=[];const failedIds:string[]=[];
+        for(const id of idsToProcess){
+            if(!selectedMerchantRecords[id]){failedIds.push(id);continue;}
+            try{await api.post("/admin/merchants/"+id+"/"+merchantBatchAction,{reason:merchantBatchReason.trim(),internalNote:merchantBatchInternalNote.trim()});completed.push(id);}
+            catch{failedIds.push(id);}
+        }
+        const allFailed=[...remaining,...failedIds];
+        setMerchantBatchResult({completed:[...priorCompleted,...completed],failed:allFailed,total});
+        setSelectedMerchantIds(allFailed);setReload(v=>v+1);setMerchantBatchWorking(false);
+    }
+
     function toggleOfferSelection(item:Offer,checked:boolean){
         if(checked&&selectedOfferIds.length===0)setBatchReason("");
         setSelectedOfferRecords(current=>checked?{...current,[item.id]:item}:current);
