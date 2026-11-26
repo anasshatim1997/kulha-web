@@ -227,7 +227,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     },[page,reload,merchantStatus,merchantPage,caseStatus,casePage,auditFrom,auditTo,auditAction,auditResult,auditPage,auditPageSize,auditSearch,offerPage]);
 
     const title=page==="merchant-review"?t.merchantTitle:page==="offer-moderation"?t.offersTitle:page==="support-cases"?t.casesTitle:t.auditTitle;
-    const lead=page==="merchant-review"?t.merchantLead:page==="offer-moderation"?t.offersLead:page==="support-cases"?t.casesLead:t.auditLead;
+    const lead=page==="offer-moderation"&&selectedOfferIds.length>0?(locale==="fr"?"Cochez plusieurs offres pour prendre une décision groupée.":locale==="ar"?"حدد عدة عروض لاتخاذ قرار بشأنها معاً.":"Tick several offers to decide on them together."):page==="merchant-review"?t.merchantLead:page==="offer-moderation"?t.offersLead:page==="support-cases"?t.casesLead:t.auditLead;
     const q=query.trim().toLocaleLowerCase(locale);
     const match=(...values:(string|null|undefined)[])=>!q||values.some(v=>(v||"").toLocaleLowerCase(locale).includes(q));
     const merchantLabel=(s:string)=>s==="PENDING"?t.pending:s==="INFO_REQUIRED"?t.info:s==="APPROVED"?t.approved:t.rejected;
