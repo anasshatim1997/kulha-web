@@ -476,6 +476,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                 </div>
                 <footer className={styles.actionDialogFooter} data-testid="offer-moderation-footer">
                     <p><ShieldCheck size={16} aria-hidden="true"/>{t.auditRecorded}</p>
+                    <button type="button" className={styles.ghostBtn} onClick={()=>setOfferDecisionOpen(false)}>{t.closeReview}</button>
                     <button type="button" className={styles.primary} disabled={working||!reason.trim()||(offerAction==="reinstate"&&selectedOffer.status!=="SUSPENDED")} onClick={()=>void submitOffer()}>{working?t.loading:offerAction==="reinstate"?t.putLive:offerAction==="request-edit"?t.askEdit:selectedOffer.status==="SUSPENDED"?t.keepHidden:t.hide}</button>
                 </footer>
             </section>
