@@ -151,3 +151,39 @@
 .offerChoiceDisabled{}
 .offerDialogNotes{}
 .offerPagination{}
+
+
+/* PDF pages 8–10 — persistent multi-select, batch decision and partial retry */
+.root :global([class*="batchBar"]){position:sticky;z-index:30;bottom:20px;display:flex;align-items:center;justify-content:center;gap:18px;width:max-content;max-width:calc(100% - 24px);margin:18px auto 0;padding:12px 16px;border-radius:18px;background:#073b2b;color:#fff;box-shadow:0 12px 34px rgba(7,59,43,.24)}
+.root :global([class*="batchBar"]) strong{font-size:13px}
+.root :global([class*="batchBar"]) button{border:0;background:transparent;color:#fff;text-decoration:underline;font-size:12px;font-weight:850}
+.root :global([class*="batchBar"]) button:last-child{min-height:40px;padding:0 16px;border-radius:22px;background:#ffc52e;color:#173b2d;text-decoration:none}
+.root :global([class*="offerTable"]) td:first-child{width:42px;text-align:center}
+.root :global([class*="offerTable"]) input[type="checkbox"]{width:17px;height:17px;accent-color:#073b2b;cursor:pointer}
+.root :global([class*="offerTable"]) tr:has(input:checked){background:#e8f3e9}
+.root :global([class*="batchDialog"]){width:min(100%,1040px)}
+.root :global([class*="batchBody"]){grid-template-columns:minmax(260px,.78fr) minmax(0,1.22fr);align-items:start;gap:20px}
+.root :global([class*="batchSelected"]),.root :global([class*="batchDecision"]){display:grid;align-content:start;gap:10px;min-width:0}
+.root :global([class*="batchSelected"]) h3,.root :global([class*="batchDecision"]) h3,.root :global([class*="batchResult"]) h3{margin:0 0 4px;color:#647368;font-size:10px;font-weight:950;letter-spacing:.08em}
+.root :global([class*="batchSelected"]) article{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px;border-radius:13px;background:#faf3e6}
+.root :global([class*="batchSelected"]) article>div{display:grid;gap:4px;min-width:0}
+.root :global([class*="batchSelected"]) article strong{color:#173b2d;font-size:12px}
+.root :global([class*="batchSelected"]) article small{color:#7e897f;font-size:10px}
+.root :global([class*="batchSelected"]) article em{color:#39704e;font-size:10px;font-style:normal;font-weight:850}
+.root :global([class*="batchSelected"]) article>button{flex:0 0 auto;border:0;background:transparent;color:#647368;font-size:22px}
+.root :global([class*="batchDecision"]){gap:13px}
+.root :global([class*="batchResult"]){grid-template-columns:minmax(0,1fr) minmax(240px,.9fr);align-items:center;gap:24px}
+.root :global([class*="batchResultNumber"]){display:block;margin-top:12px;color:#073b2b;font-size:52px;line-height:1;font-weight:950}
+.root :global([class*="batchResult"]) p{margin:5px 0 14px;color:#5e6d61;font-size:13px}
+.root :global([class*="batchProgress"]){display:flex;overflow:hidden;height:9px;border-radius:20px;background:#eee7d9}
+.root :global([class*="batchProgress"]) span{display:block;border-radius:20px;background:#19744c}
+.root :global([class*="batchFooterActions"]){display:flex;align-items:center;gap:10px}
+@media(max-width:760px){
+ .root :global([class*="batchBar"]){position:fixed;bottom:12px;left:12px;right:12px;width:auto;max-width:none;justify-content:space-between;gap:8px;padding:10px 12px}
+ .root :global([class*="batchBar"]) strong{font-size:11px}
+ .root :global([class*="batchBar"]) button{font-size:10px}
+ .root :global([class*="batchBody"]),.root :global([class*="batchResult"]){grid-template-columns:1fr}
+ .root :global([class*="batchResultNumber"]){font-size:42px}
+ .root :global([class*="batchFooterActions"]){align-items:stretch;flex-direction:column}
+}
+.batchBar{}.batchDialog{}.batchBody{}.batchSelected{}.batchDecision{}.batchResult{}.batchResultNumber{}.batchProgress{}.batchFooterActions{}
