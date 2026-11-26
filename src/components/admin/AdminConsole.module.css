@@ -5210,3 +5210,6 @@
 @media(max-width:720px){
  .auditExplorer .auditRecordCard{width:calc(100vw - 16px);max-height:94vh;padding:14px;border-radius:14px}
 }
+
+.batchOfferDecision{min-width:0}
+.batchOfferDecision .field{margin-top:14px}
