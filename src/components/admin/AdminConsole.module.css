@@ -5344,3 +5344,8 @@
 @media(max-width:899px){
  .merchantReviewWorkspace:has(.merchantDetails .detailHead) .merchantDetails{height:94vh;min-height:0;max-height:94vh;box-sizing:border-box;overflow-y:auto}
 }
+
+@media(min-width:900px){
+ .merchantReviewWorkspace:has(.merchantDetails .detailHead) .merchantDetails{width:min(780px,calc(100vw - 272px));left:calc(50% + 120px);height:auto;max-height:94vh;overflow:auto;padding:18px 22px}
+ .merchantReviewWorkspace:has(.merchantDetails .detailHead) .merchantInlineBody{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:14px}
+}
