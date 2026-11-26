@@ -329,3 +329,67 @@
  .root :global([class*="merchantActionDialog"]) :global([class*="actionDialogFooter"]) p{flex:1 1 100%;font-size:11px}
 }
 .merchantTableCard{}.merchantTableWrap{}.merchantTable{}.merchantIdentity{}.merchantAvatar{}.merchantReviewButton{}.merchantPagination{}.merchantActionDialog{}.merchantDialogHeader{}.merchantDialogNav{}.merchantDialogStepper{}.merchantModalBody{}.merchantFactsColumn{}.merchantDocuments{}.merchantDecisionColumn{}.merchantDecisionChoices{}.merchantChoiceApprove{}.merchantChoiceInfo{}.merchantChoiceReject{}.merchantChoice{};
+
+
+/* PDF page 5 — support case queue and customer-support workspace dialog */
+.root :global([class*="supportTableCard"]){display:grid;overflow:hidden;border:1px solid #e8e0d3;border-radius:18px;background:#fffefa}
+.root :global([class*="supportTableWrap"]){overflow-x:auto}
+.root :global([class*="supportTable"]){width:100%;min-width:920px;border-collapse:collapse;text-align:start}
+.root :global([class*="supportTable"]) th{height:42px;padding:10px 14px;border-bottom:1px solid #e8e0d3;color:#778278;font-size:10px;font-weight:950;letter-spacing:.07em;text-align:start}
+.root :global([class*="supportTable"]) td{height:65px;padding:10px 14px;border-bottom:1px solid #eee9df;color:#254333;font-size:11px;font-weight:700;white-space:nowrap}
+.root :global([class*="supportTable"]) td:nth-child(2){max-width:240px;overflow:hidden;text-overflow:ellipsis}
+.root :global([class*="supportTable"]) td:nth-child(2) strong{color:#173b2d;font-weight:900}
+.root :global([class*="supportTable"]) tr{cursor:pointer}
+.root :global([class*="supportTable"]) tr:hover, .root :global([class*="supportTable"]) tr[class*="supportSelectedRow"]{background:#f1f6ef}
+.root :global(button[class*="supportOpenButton"]){min-width:64px;min-height:34px;padding:0 12px;border:0;border-radius:20px;background:#073b2b;color:#fff;font-size:10px;font-weight:900}
+.root :global([class*="supportPagination"]){padding:12px 16px;border-top:1px solid #eee9df}
+.root :global([class*="supportActionDialog"]){width:min(100%,880px);max-height:92dvh}
+.root :global([class*="supportDialogHeader"]){align-items:center;padding:18px 22px}
+.root :global([class*="supportDialogHeader"]) small{color:#718074;font-size:10px;font-weight:950;letter-spacing:.07em}
+.root :global([class*="supportDialogHeader"]) h2{margin:6px 0 8px;font-size:21px}
+.root :global([class*="supportHeaderPills"]){display:flex;gap:7px}
+.root :global([class*="supportDialogNav"]){display:flex;align-items:center;gap:7px}
+.root :global([class*="supportDialogNav"]) button{display:grid;place-items:center;min-width:34px;height:34px;border:1px solid #e8e0d3;border-radius:50%;background:#fffefa;color:#173b2d;font-size:17px}
+.root :global([class*="supportDialogNav"]) button:disabled{opacity:.35;cursor:not-allowed}
+.root :global([class*="supportDialogNav"]) span{color:#6d796e;font-size:10px;font-weight:900;white-space:nowrap}
+.root :global([class*="supportModalBody"]){grid-template-columns:minmax(230px,.72fr) minmax(0,1.28fr);gap:20px;padding:18px 22px}
+.root :global([class*="supportFactsColumn"]),.root :global([class*="supportTimelineColumn"]){display:grid;align-content:start;gap:13px;min-width:0}
+.root :global([class*="supportFactList"]){display:grid;gap:0}
+.root :global([class*="supportFactList"]) div{display:grid;gap:4px;padding:9px 0;border-bottom:1px solid #eee9df}
+.root :global([class*="supportFactList"]) span,.root :global([class*="supportInfoCard"]) h3{color:#7b867b;font-size:10px;font-weight:850}
+.root :global([class*="supportFactList"]) strong{color:#193b2c;font-size:12px;font-weight:950}
+.root :global([class*="supportInfoCard"]){display:grid;gap:8px;padding:12px;border:1px solid #e9e2d5;border-radius:12px;background:#fffefa}
+.root :global([class*="supportInfoCard"]) h3{margin:0}
+.root :global([class*="supportInfoCard"])>div{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.root :global([class*="supportInfoCard"])>strong{color:#173b2d;font-size:12px}
+.root :global([class*="supportInfoCard"]) p{display:flex;align-items:center;gap:6px;margin:0;color:#758176;font-size:10px}
+.root :global([class*="supportInfoCard"]) small{color:#647267;font-size:10px;overflow-wrap:anywhere}
+.root :global([class*="supportInfoCard"]) :global([class*="field"]) input{min-height:34px;font-size:11px}
+.root :global([class*="supportTimeline"]){display:grid;gap:10px;max-height:310px;overflow-y:auto;padding:2px 4px 2px 0}
+.root :global([class*="supportTimeline"]) article{padding:11px 13px;border-radius:12px;background:#f6f3eb}
+.root :global([class*="supportTimeline"]) article[class*="timelineCustomer"]{background:#f3f1e9}
+.root :global([class*="supportTimeline"]) article[class*="timelineAgent"]{background:#e7f2e9}
+.root :global([class*="supportTimeline"]) article[class*="timelineInternal"]{background:#fff1cf}
+.root :global([class*="supportTimeline"]) strong{color:#586b5c;font-size:10px;font-weight:950}
+.root :global([class*="supportTimeline"]) p{margin:6px 0 0;color:#284432;font-size:12px;line-height:1.45}
+.root :global([class*="supportComposer"]){display:grid;gap:8px;padding:13px;border:1px solid #e8e0d3;border-radius:13px;background:#fffefa}
+.root :global([class*="supportComposer"]) h3{margin:0;color:#173b2d;font-size:12px;font-weight:950}
+.root :global([class*="supportComposer"]) :global([class*="messageModes"]){display:flex;gap:6px}
+.root :global([class*="supportComposer"]) :global([class*="messageModes"]) button{min-height:31px;padding:0 10px;border-radius:18px;font-size:10px}
+.root :global([class*="supportComposer"]) textarea{min-height:74px;font-size:12px}
+.root :global([class*="supportComposer"]) :global([class*="composerFoot"]){display:flex;align-items:center;justify-content:space-between;gap:10px}
+.root :global([class*="supportComposer"]) :global([class*="composerFoot"]) p{margin:0;color:#7c877d;font-size:9px}
+.root :global([class*="supportComposer"]) :global([class*="composerFoot"]) button{min-height:36px;padding:0 14px;border-radius:20px;font-size:10px}
+.root :global([class*="supportDialogFooter"]){display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:end;gap:10px;padding:12px 22px}
+.root :global([class*="supportDialogFooter"]) :global([class*="field"]){gap:5px}
+.root :global([class*="supportDialogFooter"]) :global([class*="field"]) input{min-height:38px;font-size:11px}
+.root :global([class*="supportDialogFooter"]) button{min-height:40px;padding:0 15px;border-radius:22px;font-size:11px}
+@media(max-width:760px){
+ .root :global([class*="supportActionDialog"]){width:100%;max-height:96dvh}
+ .root :global([class*="supportDialogHeader"]){padding:14px}
+ .root :global([class*="supportModalBody"]){grid-template-columns:1fr;padding:14px;gap:14px}
+ .root :global([class*="supportTimeline"]){max-height:230px}
+ .root :global([class*="supportDialogFooter"]){grid-template-columns:1fr 1fr;padding:12px}
+ .root :global([class*="supportDialogFooter"]) :global([class*="field"]){grid-column:1/-1}
+}
+.supportTableCard{}.supportTableWrap{}.supportTable{}.supportSelectedRow{}.supportOpenButton{}.supportPagination{}.supportActionDialog{}.supportDialogHeader{}.supportHeaderPills{}.supportDialogNav{}.supportModalBody{}.supportFactsColumn{}.supportFactList{}.supportInfoCard{}.supportTimelineColumn{}.supportTimeline{}.supportComposer{}.supportDialogFooter{}
