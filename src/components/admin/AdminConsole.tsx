@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode, type RefObject, type SyntheticEvent } from "react";
 import Link from "next/link";
-import { api } from "@/lib/api/client";
+import { api, ApiError } from "@/lib/api/client";
 import { canRevealSupportCustomerDetails, SUPPORT_DISCLOSURE_REASON_MAX_LENGTH } from "@/lib/auth/admin-access";
 import { useSession } from "@/components/session/SessionProvider";
 import { AlertTriangle, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, Eye, FileText, Filter, Image as ImageIcon, LayoutDashboard, LifeBuoy, Lock, Search, ShieldCheck, Store, Tag, Utensils, X } from "lucide-react";
@@ -192,12 +192,14 @@ function AdminPagination({page,pageCount,total,size,labels,onChange,loading}:{pa
 
 type MerchantAction="approve"|"request-information"|"reject";
 type OfferAction="suspend"|"request-edit"|"reinstate";
+type BatchOfferResult={id:string;title:string;ok:boolean;detail:string};
 
 export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const t={...words[locale],...more[locale]};const {state}=useSession();const actorId=state.status==="authenticated"?state.user.id:"";const roles=state.status==="authenticated"?state.user.roles:[];const isSupportOnly=roles.includes("SUPPORT")&&!roles.includes("ADMIN")&&!roles.includes("SUPER_ADMIN");
     const [loading,setLoading]=useState(true);const [failed,setFailed]=useState(false);const [reload,setReload]=useState(0);const [message,setMessage]=useState("");const [query,setQuery]=useState("");
     const [merchants,setMerchants]=useState<Page<Merchant>|null>(null);const [merchantStatus,setMerchantStatus]=useState("PENDING");const [merchantPage,setMerchantPage]=useState(0);const [selectedMerchant,setSelectedMerchant]=useState<Merchant|null>(null);const [merchantAction,setMerchantAction]=useState<MerchantAction|null>(null);const [checks,setChecks]=useState([false,false,false]);const [tabCounts,setTabCounts]=useState<{pending:number|null;info:number|null}>({pending:null,info:null});
     const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useState("");const [offerPage,setOfferPage]=useState(0);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");
+    const [selectedOffers,setSelectedOffers]=useState<Record<string,Offer>>({});const [batchOfferOpen,setBatchOfferOpen]=useState(false);const [batchOfferAction,setBatchOfferAction]=useState<OfferAction>("suspend");const [batchOfferReason,setBatchOfferReason]=useState("");const [batchOfferResults,setBatchOfferResults]=useState<BatchOfferResult[]|null>(null);const [batchOfferWorking,setBatchOfferWorking]=useState(false);
     const [cases,setCases]=useState<Page<CaseItem>|null>(null);const [caseStatus,setCaseStatus]=useState("OPEN");const [casePage,setCasePage]=useState(0);const [selectedCase,setSelectedCase]=useState<{summary:CaseItem;timeline:Timeline[]}|null>(null);const [caseCounts,setCaseCounts]=useState<{open:number|null;escalated:number|null;waiting:number|null;resolved:number|null}>({open:null,escalated:null,waiting:null,resolved:null});
     const [audit,setAudit]=useState<AuditPage|null>(null);const [auditPage,setAuditPage]=useState(0);const [auditPageSize,setAuditPageSize]=useState(AUDIT_PAGE_SIZE);const [selectedAuditId,setSelectedAuditId]=useState<string|null>(null);const [auditModalOpen,setAuditModalOpen]=useState(false);const [auditSearch,setAuditSearch]=useState("");const [auditFrom,setAuditFrom]=useState("");const [auditTo,setAuditTo]=useState("");const [auditAction,setAuditAction]=useState("");const [auditResult,setAuditResult]=useState("");
     const [reason,setReason]=useState("");const [disclosureReason,setDisclosureReason]=useState("");const [internalNote,setInternalNote]=useState("");const [draftMessage,setDraftMessage]=useState("");const [sendToCustomer,setSendToCustomer]=useState(true);const [revealed,setRevealed]=useState<{fullName:string;email:string;phone:string|null}|null>(null);const [working,setWorking]=useState(false);
@@ -244,7 +246,32 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     async function submitOffer(){
         if(!selectedOffer)return;if(!reason.trim()){setMessage(t.saveReason);return;}setWorking(true);setMessage("");
         try{await api.post("/admin/offers/"+selectedOffer.id+"/"+offerAction,{reason:reason.trim()});setMessage(t.save);setReload(v=>v+1);setSelectedOffer(null);setReason("");}
-        catch{setMessage(t.error);}finally{setWorking(false);}
+        catch(error){setMessage(error instanceof ApiError?(error.detail||error.title):t.error);}finally{setWorking(false);}
+    }
+    function toggleOfferSelection(offer:Offer){
+        setSelectedOffers(current=>{
+            if(current[offer.id]){const next={...current};delete next[offer.id];return next;}
+            if(Object.keys(current).length>=20){setMessage("A batch is limited to 20 offers.");return current;}
+            return {...current,[offer.id]:offer};
+        });
+    }
+    async function runBatchOfferDecision(){
+        const candidates=Object.values(selectedOffers).filter(item=>batchOfferAction!=="reinstate"||item.status==="SUSPENDED");
+        if(!batchOfferReason.trim()){setMessage(t.saveReason);return;}
+        if(!candidates.length){setMessage(t.reinstateOnlyHidden);return;}
+        setBatchOfferWorking(true);setBatchOfferResults(null);setMessage("");
+        const results:BatchOfferResult[]=[];
+        for(const item of candidates){
+            try{
+                await api.post("/admin/offers/"+item.id+"/"+batchOfferAction,{reason:batchOfferReason.trim()});
+                results.push({id:item.id,title:item.title,ok:true,detail:t.success});
+                setSelectedOffers(current=>{const next={...current};delete next[item.id];return next;});
+            }catch(error){
+                const detail=error instanceof ApiError?(error.detail||error.title):t.error;
+                results.push({id:item.id,title:item.title,ok:false,detail});
+            }
+        }
+        setBatchOfferResults(results);setBatchOfferWorking(false);setReload(v=>v+1);
     }
     async function loadCase(reference:string){setWorking(true);setRevealed(null);setDisclosureReason("");try{const d=await api.get<{summary:CaseItem;timeline:Timeline[]}>("/admin/support-cases/"+reference);setSelectedCase(d);setReason("");}catch{setMessage(t.error);}finally{setWorking(false);}}
     async function caseAction(action:string){if(!selectedCase)return;if(!reason.trim()){setMessage(t.saveReason);return;}setWorking(true);try{await api.post("/admin/support-cases/"+selectedCase.summary.reference+"/actions",{action,reason:reason.trim()});setMessage(t.save);await loadCase(selectedCase.summary.reference);setReload(v=>v+1);}catch{setMessage(t.error);}finally{setWorking(false);}}
