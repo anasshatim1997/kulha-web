@@ -987,7 +987,7 @@ try {
     await actions.waitFor({ state: "visible" });
     await page.getByTestId("support-workspace").waitFor({ state: "visible" });
     await actions.getByLabel("Reason for viewing customer details (required)").fill("Confirming a food-safety complaint.");
-    await actions.getByRole("button", { name: "Reveal details" }).click();
+    await actions.getByRole("button", { name: "Reveal" }).click();
     await page.getByText("customer@kulha.test").waitFor({ state: "visible" });
     const composer = actions.getByTestId("support-message-composer");
     await composer.locator("textarea").fill("We are checking the allergen information with the shop.");
