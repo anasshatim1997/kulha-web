@@ -5323,3 +5323,5 @@
 
 .adminModalBackdrop{padding-left:264px;padding-right:24px}
 @media(max-width:899px){.adminModalBackdrop{padding:10px}}
+
+.offerWorkspace:has(.offerPreviewHeading) .offerPreviewCard{overflow:hidden}
