@@ -854,6 +854,14 @@ try {
         }
       }
       await assertNoHorizontalOverflow(page, route.path, size.width);
+      if (route.path.endsWith("/admin/merchant-review") && size.width <= 600) {
+        const merchantDialog = page.getByTestId("merchant-review-detail-panel");
+        const dialogBounds = await merchantDialog.boundingBox();
+        const dialogHeaderBounds = await merchantDialog.locator(".offerDialogTopbar").boundingBox();
+        if (!dialogBounds || !dialogHeaderBounds || dialogHeaderBounds.top < 0 || dialogHeaderBounds.bottom > size.height) {
+          throw new Error("Mobile merchant review must keep its dialog header visible: " + JSON.stringify({ dialogBounds, dialogHeaderBounds }));
+        }
+      }
       if (route.adminPage && !route.path.endsWith("/admin/audit-log")) {
         const search = page.getByTestId("admin-console-search");
         await search.getByTestId("admin-global-search").waitFor({ state: "visible" });
