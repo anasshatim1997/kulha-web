@@ -190,6 +190,16 @@ const backend = createServer(async (request, response) => {
   }
   if (path === "/merchants/me/sales/export") return csv(response, "kulha-sales.csv");
 
+  const merchantActionMatch = path.match(/^\\/admin\\/merchants\\/([^/]+)\\/(request-information|reject)$/);
+  if (merchantActionMatch && method === "POST") {
+    await bodyOf(request);
+    if (merchantActionMatch[1].endsWith("000000000117") && merchantActionMatch[2] === "request-information") {
+      return json(response, { detail: "Simulated merchant conflict for partial-failure coverage." }, 409);
+    }
+    const target = merchantRows.find(item => item.id === merchantActionMatch[1]);
+    if (target) target.status = merchantActionMatch[2] === "reject" ? "REJECTED" : "INFO_REQUIRED";
+    return json(response, {});
+  }
   if (path === "/admin/merchants" && method === "GET") {
     const rows = url.searchParams.get("status") === "PENDING" && merchantStatus === "PENDING" ? merchantRows.filter(item => item.status === "PENDING") : merchantRows.filter(item => item.status === url.searchParams.get("status"));
     return json(response, page(rows));
@@ -209,6 +219,15 @@ const backend = createServer(async (request, response) => {
   }
   if (path === "/admin/offers" && method === "GET") {
     return json(response, page(moderationOffers.map(item => ({ ...item, status: offerStatus }))));
+  }
+  const offerActionMatch = path.match(/^\\/admin\\/offers\\/([^/]+)\\/(suspend|request-edit|reinstate)$/);
+  if (offerActionMatch && method === "POST") {
+    await bodyOf(request);
+    if (offerActionMatch[1].endsWith("000000000103") && offerActionMatch[2] === "request-edit") {
+      return json(response, { detail: "Simulated moderation conflict for partial-failure coverage." }, 409);
+    }
+    if (offerActionMatch[2] === "suspend") offerStatus = "SUSPENDED";
+    return json(response, {});
   }
   if (path === `/admin/offers/${offer.id}/suspend` && method === "POST") {
     await bodyOf(request);
@@ -1043,6 +1062,32 @@ try {
     await context.close();
   }
 
+  // Merchant batch review: one failed request remains selected and retry does not repeat successes.
+  {
+    merchantStatus = "PENDING";
+    merchant.status = merchantStatus;
+    merchantRows.forEach(item => { item.status = "PENDING"; });
+    const context = await loginContext(browser, "admin-token");
+    const page = await context.newPage();
+    await page.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
+    const checks = page.locator('[data-testid="merchant-review-list"] input[type="checkbox"]');
+    await checks.nth(0).check();
+    await checks.nth(1).check();
+    await page.getByTestId("merchant-batch-bar").getByRole("button", { name: "Review together" }).click();
+    const modal = page.getByTestId("batch-merchant-modal");
+    await modal.waitFor({ state: "visible" });
+    await modal.getByLabel("One reason for all (required)").fill("Please complete the missing application details.");
+    await modal.getByRole("button", { name: "Confirm decision" }).click();
+    await modal.getByText("1 / 2 processed").waitFor({ state: "visible" });
+    const successBeforeRetry = requests.filter(item => item.method === "POST" && item.path.endsWith("/request-information") && item.path.includes("000000000101")).length;
+    await modal.getByRole("button", { name: "Retry failed" }).click();
+    await modal.getByText("1 / 2 processed").waitFor({ state: "visible" });
+    const successAfterRetry = requests.filter(item => item.method === "POST" && item.path.endsWith("/request-information") && item.path.includes("000000000101")).length;
+    const failedAfterRetry = requests.filter(item => item.method === "POST" && item.path.endsWith("/request-information") && item.path.includes("000000000117")).length;
+    if (successAfterRetry !== successBeforeRetry || failedAfterRetry !== 2) throw new Error("Merchant batch retry repeated a successful action or did not retry the failed merchant.");
+    await context.close();
+  }
+
   // Offer moderation: the selected action and mandatory reason are submitted.
   {
     offerStatus = "PUBLISHED";
@@ -1059,6 +1104,31 @@ try {
     await confirm.waitFor({ state: "visible" });
     await confirm.getByRole("button", { name: "Confirm" }).click();
     await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/suspend"), "Offer moderation action");
+    await context.close();
+  }
+
+  // Offer batch review: partial failures are isolated and retry only the failed offer.
+  {
+    offerStatus = "PUBLISHED";
+    const context = await loginContext(browser, "admin-token");
+    const page = await context.newPage();
+    await page.goto(origin + "/en/admin/offer-moderation", { waitUntil: "networkidle" });
+    const checks = page.locator('[data-testid="offer-queue"] input[type="checkbox"]');
+    await checks.nth(0).check();
+    await checks.nth(1).check();
+    await page.getByTestId("offer-batch-bar").getByRole("button", { name: "Review together" }).click();
+    const modal = page.getByTestId("batch-offer-modal");
+    await modal.waitFor({ state: "visible" });
+    await modal.locator('button[aria-pressed]').nth(1).click();
+    await modal.getByLabel("One reason for all (required)").fill("Correct the missing offer information.");
+    await modal.getByRole("button", { name: "Confirm decision" }).click();
+    await modal.getByText("1 / 2 processed").waitFor({ state: "visible" });
+    const successBeforeRetry = requests.filter(item => item.method === "POST" && item.path.endsWith("/request-edit") && item.path.includes("000000000102")).length;
+    await modal.getByRole("button", { name: "Retry failed" }).click();
+    await modal.getByText("1 / 2 processed").waitFor({ state: "visible" });
+    const successAfterRetry = requests.filter(item => item.method === "POST" && item.path.endsWith("/request-edit") && item.path.includes("000000000102")).length;
+    const failedAfterRetry = requests.filter(item => item.method === "POST" && item.path.endsWith("/request-edit") && item.path.includes("000000000103")).length;
+    if (successAfterRetry !== successBeforeRetry || failedAfterRetry !== 2) throw new Error("Offer batch retry repeated a successful action or did not retry the failed offer.");
     await context.close();
   }
 
