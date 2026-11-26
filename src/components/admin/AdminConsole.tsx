@@ -381,7 +381,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                 <span>{Math.max(0,merchantItems.findIndex(item=>item.id===selectedMerchant.id)+1)} / {merchantItems.length}</span>
                                 <button type="button" aria-label="Next merchant" disabled={merchantItems.length<2} onClick={()=>{const index=merchantItems.findIndex(item=>item.id===selectedMerchant.id);void loadMerchant(merchantItems[(index+1)%merchantItems.length].id);}}><ChevronRight size={18}/></button>
                             </div>
-                            <button type="button" className={styles.offerDialogClose} aria-label={t.closeReview} data-testid="audit-record-close" data-testid="support-case-close" data-testid="offer-review-close" data-testid="merchant-review-close" onClick={()=>setSelectedMerchant(null)}><X size={19}/></button>
+                            <button type="button" className={styles.offerDialogClose} aria-label={t.closeReview} data-testid="merchant-review-close" onClick={()=>setSelectedMerchant(null)}><X size={19}/></button>
                         </div>
                         <div className={styles.detailHead}><div><small>{t.application} KLH-M-{selectedMerchant.id.slice(0,4).toUpperCase()}</small><h2>{selectedMerchant.name}</h2></div><span className={styles.pill+" "+merchantTone(selectedMerchant.status)}>{merchantLabel(selectedMerchant.status)}</span></div>
                         <div className={styles.merchantStepper} aria-label={t.application}>
@@ -478,7 +478,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                     <span>{Math.max(0,offerItems.findIndex(item=>item.id===selectedOffer.id)+1)} / {offerItems.length}</span>
                                     <button type="button" aria-label="Next offer" disabled={offerItems.length<2} onClick={()=>{const index=offerItems.findIndex(item=>item.id===selectedOffer.id);setSelectedOffer(offerItems[(index+1)%offerItems.length]);setReason("");}}><ChevronRight size={18}/></button>
                                 </div>
-                                <button type="button" className={styles.offerDialogClose} aria-label={t.closeReview} onClick={()=>{setSelectedOffer(null);setReason("");setOfferConfirmOpen(false);}}><X size={19}/></button>
+                                <button type="button" className={styles.offerDialogClose} aria-label={t.closeReview} data-testid="offer-review-close" onClick={()=>{setSelectedOffer(null);setReason("");setOfferConfirmOpen(false);}}><X size={19}/></button>
                             </div>
                             <div className={styles.offerPreviewHeading}>
                                 <div className={styles.offerPreviewThumb}>{selectedOffer.imageUrl?<OfferImage src={selectedOffer.imageUrl} alt={selectedOffer.title}/>:<ImageIcon size={24} aria-hidden="true"/>}</div>
@@ -604,7 +604,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                 <span>{Math.max(0,caseItems.findIndex(item=>item.reference===selectedCase.summary.reference)+1)} / {caseItems.length}</span>
                                 <button type="button" aria-label="Next case" disabled={caseItems.length<2} onClick={()=>{const index=caseItems.findIndex(item=>item.reference===selectedCase.summary.reference);void loadCase(caseItems[(index+1)%caseItems.length].reference);}}><ChevronRight size={18}/></button>
                             </div>
-                            <button type="button" className={styles.offerDialogClose} aria-label={t.closeReview} onClick={()=>setSelectedCase(null)}><X size={19}/></button>
+                            <button type="button" className={styles.offerDialogClose} aria-label={t.closeReview} data-testid="support-case-close" onClick={()=>setSelectedCase(null)}><X size={19}/></button>
                         </div>
                         <div className={styles.detailHead}><div><small>{t.record} {selectedCase.summary.reference} · {selectedCase.summary.category}</small><h2>{selectedCase.summary.subject}</h2></div><span className={styles.pill+" "+priorityTone(selectedCase.summary.priority)}>{priorityLabel(selectedCase.summary.priority)}</span></div>
                         <div className={styles.caseHistory} data-testid="support-case-history">
@@ -715,7 +715,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                         <span>{Math.max(0,audit.items.findIndex(item=>item.id===selectedAudit.id)+1)} / {audit.items.length}</span>
                         <button type="button" aria-label="Next audit event" disabled={audit.items.length<2} onClick={()=>{const index=audit.items.findIndex(item=>item.id===selectedAudit.id);setSelectedAuditId(audit.items[(index+1)%audit.items.length].id);}}><ChevronRight size={18}/></button>
                     </div>
-                    <button type="button" className={styles.offerDialogClose} aria-label={t.closeReview} onClick={()=>setAuditModalOpen(false)}><X size={19}/></button>
+                    <button type="button" className={styles.offerDialogClose} aria-label={t.closeReview} data-testid="audit-record-close" onClick={()=>setAuditModalOpen(false)}><X size={19}/></button>
                 </div>
                 <>
                     <header className={styles.auditRecordHeader} data-testid="audit-record-header">
