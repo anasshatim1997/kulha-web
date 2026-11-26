@@ -871,9 +871,10 @@ try {
       await assertNoHorizontalOverflow(page, route.path, size.width);
       if (route.path.endsWith("/admin/merchant-review") && size.width <= 600) {
         const merchantDialog = page.getByTestId("merchant-review-detail-panel");
-        await merchantDialog.locator(".offerDialogTopbar").waitFor({ state: "visible" });
+        const merchantClose = merchantDialog.getByTestId("merchant-review-close");
+        await merchantClose.waitFor({ state: "visible" });
         const dialogBounds = await merchantDialog.boundingBox();
-        const dialogHeaderBounds = await merchantDialog.locator(".offerDialogTopbar").boundingBox();
+        const dialogHeaderBounds = await merchantClose.boundingBox();
         if (!dialogBounds || !dialogHeaderBounds || dialogHeaderBounds.top < 0 || dialogHeaderBounds.bottom > size.height) {
           throw new Error("Mobile merchant review must keep its dialog header visible: " + JSON.stringify({ dialogBounds, dialogHeaderBounds }));
         }
