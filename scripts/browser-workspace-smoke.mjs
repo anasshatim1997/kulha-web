@@ -455,7 +455,7 @@ async function assertOfferModerationLayout(page, width, height) {
     throw new Error("Offer queue must use the available workspace width before a selection is opened at " + width + "px: " + JSON.stringify(metrics));
   if (metrics.preview.width > 0)
     throw new Error("Offer detail dialog should remain closed until an offer is selected at " + width + "px: " + JSON.stringify(metrics));
-  if (metrics.offerCount < 5 || metrics.longTitleCount < 1)
+  if (metrics.offerCount < 4)
     throw new Error(`Offer moderation fixtures must exercise a populated queue and a long offer title: ${JSON.stringify(metrics)}`);
 }
 
@@ -936,6 +936,9 @@ try {
       if (route.path.endsWith("/admin/offer-moderation")) {
         await assertOfferModerationLayout(page, size.width, size.height);
         const longTitle = "Family breakfast basket with assorted bakery items, fresh fruit and detailed allergen information";
+        if (size.width === 1366) await page.screenshot({ path: join("artifacts/browser-screenshots", "offer-queue-default-1366x768.png"), animations: "disabled" });
+        await page.getByTestId("offer-pagination").getByRole("button", { name: "2" }).click();
+        await page.getByTestId("offer-queue").getByRole("button").filter({ hasText: longTitle }).waitFor({ state: "visible" });
         await page.getByTestId("offer-queue").getByRole("button").filter({ hasText: longTitle }).click();
         await page.getByTestId("offer-food-safety-alert").waitFor({ state: "visible" });
         const selectedTitle = page.getByTestId("offer-detail-panel").locator("h2").first();
