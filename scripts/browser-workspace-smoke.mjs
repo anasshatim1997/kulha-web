@@ -490,13 +490,18 @@ async function assertMerchantReviewLayout(page, width, height) {
       buttons, textareas,
       footerAction: actionRect ? { top: actionRect.top, bottom: actionRect.bottom, left: actionRect.left, right: actionRect.right } : null,
       footerNote: noteRect ? { top: noteRect.top, bottom: noteRect.bottom, left: noteRect.left, right: noteRect.right } : null,
-      selectedMerchant: detail?.textContent?.includes('Boulangerie Test') ?? false
+      selectedMerchant: detail?.textContent?.includes('Boulangerie Test') ?? false,
+      detailWidth: detail?.getBoundingClientRect().width ?? 0,
+      bodyColumns: workflow ? getComputedStyle(workflow.querySelector('.merchantInlineBody')).gridTemplateColumns : ''
     };
   });
   if (!metrics.detail || !metrics.heading || !metrics.topbar || !metrics.tabs
       || !metrics.workflow || !metrics.decision || !metrics.footer
       || !metrics.footerAction || !metrics.footerNote || !metrics.selectedMerchant) {
     throw new Error("Merchant review decision workspace is incomplete at " + width + "x" + height + ": " + JSON.stringify(metrics));
+  }
+  if (metrics.detail.width > 800 || metrics.bodyColumns.split(' ').length < 2) {
+    throw new Error('Merchant decision dialog must match the compact two-column PDF design at ' + width + 'x' + height + ': ' + JSON.stringify(metrics));
   }
   if (metrics.documentWidth > width + 1 || metrics.detail.left < -1 || metrics.detail.right > width + 1) {
     throw new Error("Merchant review horizontal clipping at " + width + "x" + height + ": " + JSON.stringify(metrics));
