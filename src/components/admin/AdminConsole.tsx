@@ -490,91 +490,65 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
 
         {page==="support-cases"&&cases&&<>
             <div className={styles.tabs} role="tablist" aria-label={t.casesTitle}>
-                {([["OPEN",t.open,caseCounts.open],["ESCALATED",t.escalated,caseCounts.escalated],["WAITING_REPLY",t.waiting,caseCounts.waiting],["RESOLVED",t.resolved,caseCounts.resolved]] as const).map(([value,label,count])=><button key={value} role="tab" aria-selected={caseStatus===value} className={caseStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setCaseStatus(value);setCasePage(0);setSelectedCase(null);setReason("");})}>{label}{typeof count==="number"?" · "+count:""}</button>)}
+                {([["OPEN",t.open,caseCounts.open],["ESCALATED",t.escalated,caseCounts.escalated],["WAITING_REPLY",t.waiting,caseCounts.waiting],["RESOLVED",t.resolved,caseCounts.resolved]] as const).map(([value,label,count])=><button key={value} role="tab" aria-selected={caseStatus===value} className={caseStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setCaseStatus(value);setCasePage(0);setSelectedCase(null);setSupportActionOpen(false);setReason("");})}>{label}{typeof count==="number"?" · "+count:""}</button>)}
             </div>
-            <div className={styles.supportWorkspace} data-testid="support-workspace">
-                <section className={styles.casePicker} aria-label={t.casesTitle} data-testid="support-case-queue">
-                    <div className={styles.caseList} data-testid="support-case-list">{caseItems.map(item=><button key={item.reference} data-testid="support-case-row" className={selectedCase?.summary.reference===item.reference?styles.caseSelected:styles.caseItem} onClick={()=>void loadCase(item.reference)}>
-                        <span className={styles.caseListTop}><small>{item.reference} · {item.category}</small><em className={styles.pill+" "+priorityTone(item.priority)}>{priorityLabel(item.priority)}</em></span>
-                        <strong>{item.subject}</strong><small>{item.reservationReference?item.reservationReference+" · ":""}{item.merchantName||t.shop}</small>
-                    </button>)}</div>{!caseItems.length&&<p className={styles.empty}>{t.empty}</p>}
-                    <AdminPagination page={casePage} pageCount={casePageCount} total={cases.total} size={cases.size||CASE_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setCasePage(next);setSelectedCase(null);}} />
-                </section>
-                <section className={styles.caseDetail} data-testid="support-case-detail">
-                    {!selectedCase?<p className={styles.empty}>{t.empty}</p>:<>
-                        <div className={styles.detailHead}><div><small>{t.record} {selectedCase.summary.reference} · {selectedCase.summary.category}</small><h2>{selectedCase.summary.subject}</h2></div><span className={styles.pill+" "+priorityTone(selectedCase.summary.priority)}>{priorityLabel(selectedCase.summary.priority)}</span></div>
-                        <div className={styles.caseHistory} data-testid="support-case-history">
-                        <div className={styles.caseReferenceCards}>
-                            <article><small>{t.caseReservation}</small><strong>{selectedCase.summary.reservationReference||"—"}</strong></article>
-                            <article><small>{t.caseOffer}</small><strong>{selectedCase.summary.offerTitle||"—"}</strong></article>
-                            <article><small>{t.caseShop}</small><strong>{selectedCase.summary.merchantName||"—"}</strong></article>
-                        </div>
-                        <h3 className={styles.sectionLabel}>{t.timeline}</h3>
-                        <div className={styles.caseTimeline} data-testid="support-case-timeline">{selectedCase.timeline.map(item=><article key={item.id} className={item.visibility==="INTERNAL"?styles.timelineInternal:item.authorType==="CUSTOMER"?styles.timelineCustomer:styles.timelineAgent}>
-                            <strong>{item.visibility==="INTERNAL"?t.internal:item.authorType==="CUSTOMER"?t.customer:t.reply} · {new Intl.DateTimeFormat(loc(locale),{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(new Date(item.createdAt))}</strong>
-                            <p>{item.message}</p>
-                        </article>)}</div>
-                        </div>
-                        <section className={styles.supportReadContext}>
-                            <div className={styles.caseAssignment}>
-                                <p>{t.assignedTo}: <strong>{selectedCase.summary.assigneeName||"Unassigned"}</strong></p>
-                            </div>
-                            <div className={styles.caseCustomer}>
-                                <span>{t.customer}: <strong>{revealed?revealed.fullName:selectedCase.summary.customerLabel}</strong></span>
-                                {revealed&&<small>{revealed.email} · {revealed.phone||"—"}</small>}
-                            </div>
-                            {!revealed&&<p className={styles.hint}><Lock size={13} aria-hidden="true"/>{t.masked}</p>}
-                            <div className={styles.merchantReadActions}>
-                                <p><ShieldCheck size={16} aria-hidden="true"/>{t.actionNote}</p>
-                                <button type="button" className={styles.primary} onClick={()=>setSupportActionOpen(true)}>{t.openReview}</button>
-                            </div>
-                        </section>
-                    </>}
-                </section>
-            </div>
-        </>}
-        {supportActionOpen&&selectedCase&&<div className={styles.actionOverlay} role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setSupportActionOpen(false);}}>
-            <section className={styles.actionDialog} role="dialog" aria-modal="true" aria-labelledby="support-action-title" data-testid="support-action-dialog">
-                <header className={styles.actionDialogHeader}>
-                    <div><small>{selectedCase.summary.reference}</small><h2 id="support-action-title">{selectedCase.summary.subject}</h2><p>{selectedCase.summary.customerLabel} · {selectedCase.summary.merchantName||t.shop}</p></div>
-                    <button type="button" className={styles.ghostBtn} onClick={()=>setSupportActionOpen(false)}>{t.closeReview}</button>
-                </header>
-                <div className={styles.actionDialogBody}>
-                    <section className={styles.merchantModalSection}>
-                        <h3>{t.assign}</h3>
-                        <div className={styles.offerActionRow}>
-                            {!isSupportOnly&&<button type="button" className={styles.ghostBtn} disabled={working} onClick={()=>void assignToMe()}>{t.assign}</button>}
-                            <button type="button" className={styles.ghostBtn} disabled={working} onClick={()=>void caseAction("CONTACT_SHOP")}>{t.contactShop}</button>
-                        </div>
-                    </section>
-                    {!revealed&&canRevealSupportCustomerDetails(roles,actorId,selectedCase.summary.assignedTo)&&<section className={styles.merchantModalSection}>
-                        <h3>{t.customer}</h3>
-                        <label className={styles.field}><span>{t.disclosureReason}</span><input value={disclosureReason} maxLength={SUPPORT_DISCLOSURE_REASON_MAX_LENGTH} onChange={event=>setDisclosureReason(event.target.value)} required /></label>
-                        <button className={styles.linkBtn} type="button" disabled={working||!disclosureReason.trim()} onClick={()=>void revealCustomer()}><Eye size={15} aria-hidden="true"/>{t.reveal}</button>
-                    </section>}
-                    <section className={styles.merchantModalSection} data-testid="support-case-actions">
-                        <h3>{t.decision}</h3>
-                        <label className={styles.field}><span>{t.actionReason}</span><input value={reason} onChange={e=>setReason(e.target.value)} placeholder={t.needsReason}/></label>
-                        <div className={styles.offerActionRow}>
-                            <button type="button" className={styles.ghostBtn} disabled={working||!reason.trim()} onClick={()=>void caseAction("ESCALATE")}>{t.escalate}</button>
-                            <button type="button" className={styles.primary} disabled={working||!reason.trim()} onClick={()=>void caseAction("RESOLVE")}>{t.resolve}</button>
-                            {!isSupportOnly&&selectedCase.summary.offerId&&<button type="button" className={styles.dangerOutline} disabled={working||!reason.trim()} onClick={()=>void caseAction("KEEP_OFFER_HIDDEN")}>{t.keepOffer}</button>}
-                        </div>
-                    </section>
-                    <section className={styles.messageComposer} data-testid="support-message-composer">
-                        <h3>{t.replyNote}</h3>
-                        <div className={styles.messageModes} role="group" aria-label={t.replyNote}>
-                            <button type="button" aria-pressed={sendToCustomer} className={sendToCustomer?styles.modeActive:styles.modeButton} onClick={()=>setSendToCustomer(true)}>{t.replyToCustomer}</button>
-                            <button type="button" aria-pressed={!sendToCustomer} className={!sendToCustomer?styles.modeActive:styles.modeButton} onClick={()=>setSendToCustomer(false)}>{t.internalNoteTab}</button>
-                        </div>
-                        <form onSubmit={sendMessage}>
-                            <label className={styles.field}><span className="sr-only">{t.replyNote}</span><textarea rows={4} value={draftMessage} onChange={e=>setDraftMessage(e.target.value)} placeholder={t.writeMessage} required/></label>
-                            <div className={styles.composerFoot}><p>{sendToCustomer?t.replyVisibleHint:t.internalVisibleHint}</p><button className={styles.primary} disabled={working||!draftMessage.trim()}>{sendToCustomer?t.sendCustomer:t.saveNote}</button></div>
-                        </form>
-                    </section>
-                </div>
+            <section className={redesign.supportTableCard} data-testid="support-workspace">
+                <div className={redesign.supportTableWrap}><table className={redesign.supportTable}>
+                    <thead><tr><th>REFERENCE</th><th>SUBJECT</th><th>SHOP</th><th>PRIORITY</th><th>UPDATED</th><th>STATUS</th><th aria-label={t.open}/></tr></thead>
+                    <tbody>{caseItems.map(item=><tr key={item.reference} data-testid="support-case-row" tabIndex={0} className={selectedCase?.summary.reference===item.reference?redesign.supportSelectedRow:""} onClick={()=>void loadCase(item.reference)} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();void loadCase(item.reference);}}}>
+                        <td><strong>{item.reference}</strong></td><td><strong>{item.subject}</strong></td><td>{item.merchantName||t.shop}</td>
+                        <td><span className={styles.pill+" "+priorityTone(item.priority)}>{priorityLabel(item.priority)}</span></td>
+                        <td>{relativeTime(item.updatedAt,locale)}</td><td>{item.status==="OPEN"?t.open:item.status==="ESCALATED"?t.escalated:item.status==="WAITING_REPLY"?t.waiting:t.resolved}</td>
+                        <td><button type="button" className={redesign.supportOpenButton} onClick={event=>{event.stopPropagation();void loadCase(item.reference);}}>{t.open}</button></td>
+                    </tr>)}</tbody>
+                </table></div>
+                {!caseItems.length&&<p className={styles.empty}>{t.empty}</p>}
+                <div className={redesign.supportPagination}><AdminPagination page={casePage} pageCount={casePageCount} total={cases.total} size={cases.size||CASE_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setCasePage(next);setSelectedCase(null);setSupportActionOpen(false);}}/></div>
             </section>
-        </div>}
+            {supportActionOpen&&selectedCase&&<div className={styles.actionOverlay} role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setSupportActionOpen(false);}}>
+                <section className={styles.actionDialog+" "+redesign.supportActionDialog} role="dialog" aria-modal="true" aria-labelledby="support-action-title" data-testid="support-action-dialog">
+                    <header className={styles.actionDialogHeader+" "+redesign.supportDialogHeader}>
+                        <div><small>{selectedCase.summary.reference} · {selectedCase.summary.category}</small><h2 id="support-action-title">{selectedCase.summary.subject}</h2><div className={redesign.supportHeaderPills}><span className={styles.pill+" "+priorityTone(selectedCase.summary.priority)}>{priorityLabel(selectedCase.summary.priority)}</span><span className={styles.pill+" "+styles.toneInfo}>{selectedCase.summary.status==="OPEN"?t.open:selectedCase.summary.status==="ESCALATED"?t.escalated:selectedCase.summary.status==="WAITING_REPLY"?t.waiting:t.resolved}</span></div></div>
+                        <div className={redesign.supportDialogNav}><button type="button" aria-label="Previous case" disabled={selectedCaseIndex<=0} onClick={()=>{const item=caseItems[selectedCaseIndex-1];if(item)void loadCase(item.reference);}}>‹</button><span>{selectedCaseIndex+1} / {caseItems.length}</span><button type="button" aria-label="Next case" disabled={selectedCaseIndex<0||selectedCaseIndex>=caseItems.length-1} onClick={()=>{const item=caseItems[selectedCaseIndex+1];if(item)void loadCase(item.reference);}}>›</button><button type="button" aria-label={t.closeReview} onClick={()=>setSupportActionOpen(false)}><X size={18}/></button></div>
+                    </header>
+                    <div className={styles.actionDialogBody+" "+redesign.supportModalBody} data-testid="support-case-detail">
+                        <section className={redesign.supportFactsColumn}>
+                            <div className={redesign.supportFactList}>
+                                <div><span>{t.caseShop}</span><strong>{selectedCase.summary.merchantName||t.shop}</strong></div>
+                                <div><span>{t.caseReservation}</span><strong>{selectedCase.summary.reservationReference||"—"}</strong></div>
+                                <div><span>{t.caseOffer}</span><strong>{selectedCase.summary.offerTitle||"—"}</strong></div>
+                            </div>
+                            <section className={redesign.supportInfoCard}><h3>{t.assignedTo}</h3><div><strong>{selectedCase.summary.assigneeName||"Unassigned"}</strong>{!isSupportOnly&&<button type="button" className={styles.ghostBtn} disabled={working} onClick={()=>void assignToMe()}>{t.assign}</button>}</div></section>
+                            <section className={redesign.supportInfoCard} data-testid="support-customer-context"><h3>{t.customer} · {revealed?"DETAILS REVEALED":"DETAILS MASKED"}</h3><strong>{revealed?revealed.fullName:selectedCase.summary.customerLabel}</strong>{revealed&&<small>{revealed.email} · {revealed.phone||"—"}</small>}{!revealed&&<p><Lock size={13}/>{t.masked}</p>}{!revealed&&canRevealSupportCustomerDetails(roles,actorId,selectedCase.summary.assignedTo)&&<><label className={styles.field}><span>{t.disclosureReason}</span><input value={disclosureReason} maxLength={SUPPORT_DISCLOSURE_REASON_MAX_LENGTH} onChange={event=>setDisclosureReason(event.target.value)} required/></label><button type="button" className={styles.linkBtn} disabled={working||!disclosureReason.trim()} onClick={()=>void revealCustomer()}><Eye size={15}/>{t.reveal}</button></>}</section>
+                            <button type="button" className={styles.ghostBtn} disabled={working} onClick={()=>void caseAction("CONTACT_SHOP")}>{t.contactShop}</button>
+                            {!isSupportOnly&&selectedCase.summary.offerId&&<button type="button" className={styles.dangerOutline} disabled={working||!reason.trim()} onClick={()=>void caseAction("KEEP_OFFER_HIDDEN")}>{t.keepOffer}</button>}
+                        </section>
+                        <section className={redesign.supportTimelineColumn}>
+                            <div className={styles.caseTimeline+" "+redesign.supportTimeline} data-testid="support-case-history">
+                                {selectedCase.timeline.map(item=><article key={item.id} className={item.visibility==="INTERNAL"?styles.timelineInternal:item.authorType==="CUSTOMER"?styles.timelineCustomer:styles.timelineAgent}>
+                                    <strong>{item.visibility==="INTERNAL"?t.internal:item.authorType==="CUSTOMER"?t.customer:t.reply} · {item.authorName||item.authorType} · {new Intl.DateTimeFormat(loc(locale),{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(new Date(item.createdAt))}</strong><p>{item.message}</p>
+                                </article>)}
+                            </div>
+                            <section className={styles.messageComposer+" "+redesign.supportComposer} data-testid="support-message-composer">
+                                <h3>{t.replyNote}</h3>
+                                <div className={styles.messageModes} role="group" aria-label={t.replyNote}>
+                                    <button type="button" aria-pressed={sendToCustomer} className={sendToCustomer?styles.modeActive:styles.modeButton} onClick={()=>setSendToCustomer(true)}>{t.replyToCustomer}</button>
+                                    <button type="button" aria-pressed={!sendToCustomer} className={!sendToCustomer?styles.modeActive:styles.modeButton} onClick={()=>setSendToCustomer(false)}>{t.internalNoteTab}</button>
+                                </div>
+                                <form onSubmit={sendMessage}><label className={styles.field}><span className="sr-only">{t.replyNote}</span><textarea rows={3} value={draftMessage} onChange={event=>setDraftMessage(event.target.value)} placeholder={t.writeMessage} required/></label>
+                                    <div className={styles.composerFoot}><p>{sendToCustomer?t.replyVisibleHint:t.internalVisibleHint}</p><button className={styles.primary} disabled={working||!draftMessage.trim()}>{sendToCustomer?t.sendCustomer:t.saveNote}</button></div>
+                                </form>
+                            </section>
+                        </section>
+                    </div>
+                    <footer className={styles.actionDialogFooter+" "+redesign.supportDialogFooter} data-testid="support-case-actions">
+                        <label className={styles.field}><span>{t.actionReason}</span><input value={reason} onChange={event=>setReason(event.target.value)} placeholder={t.needsReason}/></label>
+                        <button type="button" className={styles.dangerOutline} disabled={working||!reason.trim()} onClick={()=>void caseAction("ESCALATE")}>{t.escalate}</button>
+                        <button type="button" className={styles.primary} disabled={working||!reason.trim()} onClick={()=>void caseAction("RESOLVE")}>{t.resolve}</button>
+                    </footer>
+                </section>
+            </div>}
+        </>}
         {page==="audit-log"&&audit&&<>
             <section className={styles.auditFilters} aria-label={t.filter}>
                 <div className={styles.auditFilterTopRow}>
