@@ -393,3 +393,5 @@
  .root :global([class*="supportDialogFooter"]) :global([class*="field"]){grid-column:1/-1}
 }
 .supportTableCard{}.supportTableWrap{}.supportTable{}.supportSelectedRow{}.supportOpenButton{}.supportPagination{}.supportActionDialog{}.supportDialogHeader{}.supportHeaderPills{}.supportDialogNav{}.supportModalBody{}.supportFactsColumn{}.supportFactList{}.supportInfoCard{}.supportTimelineColumn{}.supportTimeline{}.supportComposer{}.supportDialogFooter{}
+
+.actionOverlay{}.actionDialog{}.actionDialogHeader{}.actionDialogBody{}.actionDialogFooter{}
