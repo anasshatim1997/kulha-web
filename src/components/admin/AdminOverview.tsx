@@ -46,7 +46,7 @@ export function AdminOverview({ locale }: { locale: SiteLocale }) {
     }
   }, []);
 
-  useEffect(() => { void load(); }, [load, reload]);
+  useEffect(() => { void Promise.resolve().then(load); }, [load, reload]);
 
   const flagged = (snapshot?.offers.items ?? [])
     .filter(item => item.reportedCount > 0 || item.allergensStatus === "UNKNOWN")
