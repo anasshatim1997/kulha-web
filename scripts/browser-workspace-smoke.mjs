@@ -1077,6 +1077,7 @@ try {
     const context = await loginContext(browser, "admin-token");
     const page = await context.newPage();
     await page.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
+    await page.getByTestId("merchant-review-detail-panel").getByRole("button", { name: "Close" }).click();
     const checks = page.locator('[data-testid="merchant-review-list"] input[type="checkbox"]');
     await checks.nth(0).check();
     await checks.nth(1).check();
