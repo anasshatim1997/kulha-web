@@ -416,3 +416,60 @@
 .root :global([class*="auditDetailBody"]) :global([class*="auditRecordNotice"]){font-size:10px}
 @media(max-width:760px){.root :global([class*="auditDetailDialog"]){width:100%;max-height:96dvh}.root :global([class*="auditDialogHeader"]){padding:14px}.root :global([class*="auditDetailBody"]){padding:14px}}
 .auditDetailDialog{}.auditDialogHeader{}.auditDetailBody{}
+
+
+/* PDF page 11 — multi-shop selection and batch decision */
+.root :global([class*="merchantTable"]) td:first-child{width:40px;text-align:center}
+.root :global([class*="merchantTable"]) input[type="checkbox"]{width:16px;height:16px;accent-color:#073b2b;cursor:pointer}
+.root :global([class*="merchantTable"]) tr:has(input:checked){background:#e8f3e9}
+.root :global([class*="merchantBatchBar"]){position:sticky;z-index:35;bottom:18px;display:flex;align-items:center;justify-content:center;gap:16px;width:max-content;max-width:calc(100% - 24px);margin:14px auto 0;padding:11px 15px;border-radius:18px;background:#073b2b;color:#fff;box-shadow:0 12px 34px rgba(7,59,43,.24)}
+.root :global([class*="merchantBatchBar"]) strong{font-size:12px}
+.root :global([class*="merchantBatchBar"]) button{border:0;background:transparent;color:#fff;text-decoration:underline;font-size:11px;font-weight:850}
+.root :global([class*="merchantBatchBar"]) button:last-child{min-height:38px;padding:0 14px;border-radius:22px;background:#ffc52e;color:#173b2d;text-decoration:none}
+.root :global([class*="merchantBatchDialog"]){width:min(100%,760px);max-height:92dvh}
+.root :global([class*="merchantBatchHeader"]){align-items:center;padding:18px 22px}
+.root :global([class*="merchantBatchHeader"]) small{color:#718074;font-size:10px;font-weight:950;letter-spacing:.07em}
+.root :global([class*="merchantBatchHeader"]) h2{margin:6px 0;font-size:20px}
+.root :global([class*="merchantBatchHeader"]) p{font-size:11px}
+.root :global([class*="merchantBatchHeader"])>button{display:grid;place-items:center;width:34px;height:34px;border:1px solid #e8e0d3;border-radius:50%;background:#fffefa;color:#173b2d}
+.root :global([class*="merchantBatchBody"]){display:grid;grid-template-columns:minmax(230px,.8fr) minmax(0,1.2fr);gap:18px;padding:18px 22px}
+.root :global([class*="merchantBatchSelected"]),.root :global([class*="merchantBatchDecision"]){display:grid;align-content:start;gap:9px;min-width:0}
+.root :global([class*="merchantBatchSelected"]) h3,.root :global([class*="merchantBatchDecision"]) h3{margin:0 0 4px;color:#647368;font-size:10px;font-weight:950;letter-spacing:.07em}
+.root :global([class*="merchantBatchSelected"]) article{display:flex;align-items:center;gap:10px;padding:11px;border-radius:12px;background:#faf3e6}
+.root :global([class*="merchantBatchSelected"]) article>div{display:grid;gap:4px;min-width:0;flex:1}
+.root :global([class*="merchantBatchSelected"]) article strong{color:#173b2d;font-size:11px}
+.root :global([class*="merchantBatchSelected"]) article small{color:#7e897f;font-size:9px}
+.root :global([class*="merchantBatchSelected"]) article em{font-size:9px;font-style:normal;font-weight:900}
+.root :global([class*="merchantBatchSelected"]) article>button{flex:0 0 auto;border:0;background:transparent;color:#647368;font-size:20px}
+.root :global([class*="merchantBatchChoices"]){display:grid;gap:7px}
+.root :global([class*="merchantBatchChoices"]) button{display:grid;gap:3px;min-height:54px;padding:10px 12px;border:1px solid #e6dfd2;border-radius:12px;background:#f7f4ec;text-align:start;color:#274735}
+.root :global([class*="merchantBatchChoices"]) strong{font-size:11px;font-weight:950}
+.root :global([class*="merchantBatchChoices"]) small{font-size:9px;line-height:1.35;color:#6e7a6f}
+.root :global([class*="merchantBatchChoices"]) button[class*="merchantChoiceApprove"]{border:2px solid #26744d;background:#e0f0e4;color:#175a3b}
+.root :global([class*="merchantBatchChoices"]) button[class*="merchantChoiceInfo"]{border:2px solid #e3c66e;background:#fff3d3;color:#795c17}
+.root :global([class*="merchantBatchChoices"]) button[class*="merchantChoiceReject"]{border:2px solid #cf5a4e;background:#fae9e6;color:#9f392f}
+.root :global([class*="merchantBatchChoices"]) button:disabled{opacity:.55;cursor:not-allowed}
+.root :global([class*="merchantBatchDecision"]) textarea{min-height:54px;font-size:12px}
+.root :global([class*="merchantBatchResult"]){align-items:center}
+.root :global([class*="merchantBatchResultNumber"]){display:block;margin-top:10px;color:#073b2b;font-size:48px;line-height:1;font-weight:950}
+.root :global([class*="merchantBatchResult"]) p{margin:6px 0 12px;color:#5e6d61;font-size:12px}
+.root :global([class*="merchantBatchProgress"]){height:9px;overflow:hidden;border-radius:20px;background:#eee7d9}
+.root :global([class*="merchantBatchProgress"]) span{display:block;height:100%;border-radius:20px}
+.root :global([class*="merchantBatchResultDetails"]){display:grid;gap:8px;margin-top:16px}
+.root :global([class*="merchantBatchResultDetails"]) div{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid #e8e0d3}
+.root :global([class*="merchantBatchResultDetails"]) span{color:#778277;font-size:10px}
+.root :global([class*="merchantBatchResultDetails"]) strong{color:#173b2d;font-size:10px;text-align:end}
+.root :global([class*="merchantBatchFooter"]){display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 22px}
+.root :global([class*="merchantBatchFooter"]) p{margin:0;color:#718074;font-size:10px}
+.root :global([class*="merchantBatchFooter"])>div{display:flex;gap:9px}
+.root :global([class*="merchantBatchFooter"]) button{min-height:40px;padding:0 14px;border-radius:22px;border:1px solid #e3dac8;background:#fffdf8;color:#173b2d;font-size:10px;font-weight:900}
+.root :global([class*="merchantBatchFooter"]) button:last-child{border:0;background:#073b2b;color:#fff}
+@media(max-width:760px){
+ .root :global([class*="merchantBatchBar"]){position:fixed;bottom:12px;left:12px;right:12px;width:auto;max-width:none;justify-content:space-between;gap:8px;padding:10px 12px}
+ .root :global([class*="merchantBatchBar"]) strong{font-size:10px}
+ .root :global([class*="merchantBatchBody"]){grid-template-columns:1fr;padding:14px;gap:14px}
+ .root :global([class*="merchantBatchHeader"]){padding:14px}
+ .root :global([class*="merchantBatchFooter"]){align-items:stretch;flex-direction:column;padding:12px}
+ .root :global([class*="merchantBatchFooter"])>div{flex-direction:column}
+}
+.merchantBatchBar{}.merchantBatchDialog{}.merchantBatchHeader{}.merchantBatchBody{}.merchantBatchSelected{}.merchantBatchDecision{}.merchantBatchChoices{}.merchantBatchResult{}.merchantBatchResultNumber{}.merchantBatchProgress{}.merchantBatchResultDetails{}.merchantBatchFooter{}
