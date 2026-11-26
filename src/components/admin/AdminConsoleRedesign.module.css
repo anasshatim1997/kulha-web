@@ -262,3 +262,70 @@
 .root :global([class*="batchFailed"]){color:#a33a31!important}
 .root :global([class*="batchSuccess"]){color:#237047!important}
 .batchRemove{}.batchRetry{}.batchFailed{}.batchSuccess{}
+
+
+/* PDF page 4 — merchant applications table and full review dialog */
+.root :global([class*="merchantTableCard"]){display:grid;gap:0;overflow:hidden;border:1px solid #e8e0d3;border-radius:18px;background:#fffefa}
+.root :global([class*="merchantTableWrap"]){overflow-x:auto}
+.root :global([class*="merchantTable"]){width:100%;min-width:780px;border-collapse:collapse;text-align:start}
+.root :global([class*="merchantTable"]) th{height:42px;padding:10px 16px;border-bottom:1px solid #e8e0d3;color:#778278;font-size:10px;font-weight:950;letter-spacing:.08em;text-align:start}
+.root :global([class*="merchantTable"]) td{height:70px;padding:10px 16px;border-bottom:1px solid #eee9df;color:#254333;font-size:12px;font-weight:700;white-space:nowrap}
+.root :global([class*="merchantTable"]) tr:last-child td{border-bottom:0}
+.root :global([class*="merchantIdentity"]){display:flex;align-items:center;gap:12px;min-width:230px}
+.root :global([class*="merchantIdentity"])>span:last-child{display:grid;gap:4px}
+.root :global([class*="merchantIdentity"]) strong{color:#173b2d;font-size:12px;font-weight:950}
+.root :global([class*="merchantIdentity"]) small{color:#818980;font-size:10px}
+.root :global([class*="merchantAvatar"]){display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border-radius:11px;background:#e8f0e6;color:#1e563a;font-size:11px;font-weight:950}
+.root :global(button[class*="merchantReviewButton"]){min-width:74px;min-height:36px;padding:0 14px;border:0;border-radius:22px;background:#073b2b;color:#fff;font-size:10px;font-weight:950;cursor:pointer}
+.root :global([class*="merchantPagination"]){padding:12px 16px;border-top:1px solid #eee9df}
+.root :global([class*="merchantActionDialog"]){width:min(100%,620px);max-height:92dvh}
+.root :global([class*="merchantDialogHeader"]){align-items:center;padding:18px 22px}
+.root :global([class*="merchantDialogHeader"]) small{display:block;color:#718074;font-size:10px;font-weight:950;letter-spacing:.07em}
+.root :global([class*="merchantDialogHeader"]) h2{margin:5px 0 7px;font-size:21px}
+.root :global([class*="merchantDialogNav"]){display:flex;align-items:center;gap:7px}
+.root :global([class*="merchantDialogNav"]) button{display:grid;place-items:center;min-width:34px;height:34px;border:1px solid #e8e0d3;border-radius:50%;background:#fffefa;color:#173b2d;font-size:17px}
+.root :global([class*="merchantDialogNav"]) button:disabled{opacity:.35;cursor:not-allowed}
+.root :global([class*="merchantDialogNav"]) span{color:#6d796e;font-size:10px;font-weight:900;white-space:nowrap}
+.root :global([class*="merchantDialogStepper"]){display:flex;align-items:center;gap:9px;padding:14px 22px 12px;border-bottom:1px solid #e9e2d5}
+.root :global([class*="merchantDialogStepper"])>i{flex:1;height:1px;background:#e5dfd3}
+.root :global([class*="merchantDialogStepper"])>div{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.root :global([class*="merchantDialogStepper"])>div span{display:grid;place-items:center;width:21px;height:21px;border-radius:50%;background:#eee9df;color:#67746a;font-size:10px;font-weight:950}
+.root :global([class*="merchantDialogStepper"]) .stepDone span{background:#073b2b;color:#fff}
+.root :global([class*="merchantDialogStepper"]) .stepCurrent span{background:#ffc52e;color:#173b2d}
+.root :global([class*="merchantDialogStepper"]) strong{color:#435c4a;font-size:10px}
+.root :global([class*="merchantModalBody"]){grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:18px;padding:18px 22px}
+.root :global([class*="merchantFactsColumn"]),.root :global([class*="merchantDecisionColumn"]){display:grid;align-content:start;gap:12px;min-width:0}
+.root :global([class*="merchantFactsColumn"])>h3,.root :global([class*="merchantDecisionColumn"])>h3{margin:0;color:#637267;font-size:10px;font-weight:950;letter-spacing:.07em}
+.root :global([class*="merchantFactsColumn"]) :global([class*="merchantFacts"]){display:grid;gap:0;margin:0}
+.root :global([class*="merchantFactsColumn"]) :global([class*="merchantFacts"])>div{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #eee9df}
+.root :global([class*="merchantFactsColumn"]) :global([class*="merchantFacts"]) dt{color:#788378;font-size:10px}
+.root :global([class*="merchantFactsColumn"]) :global([class*="merchantFacts"]) dd{margin:0;color:#183b2d;font-size:10px;font-weight:850;text-align:end;overflow-wrap:anywhere}
+.root :global([class*="merchantDocuments"]){display:grid;gap:8px;margin-top:3px}
+.root :global([class*="merchantDocuments"]) h3{margin:0;color:#637267;font-size:10px;font-weight:950}
+.root :global([class*="merchantDocuments"]) :global([class*="missingDocs"]){padding:12px;border:1px solid #f0dfaa;border-radius:12px;background:#fff2cf}
+.root :global([class*="merchantDocuments"]) :global([class*="missingDocs"]) strong{font-size:10px}
+.root :global([class*="merchantDocuments"]) :global([class*="missingDocs"]) small{font-size:9px;line-height:1.4}
+.root :global([class*="merchantDecisionColumn"]) :global([class*="checkList"]){display:grid;gap:7px}
+.root :global([class*="merchantDecisionColumn"]) :global([class*="checkList"]) label{display:flex;align-items:center;gap:8px;color:#274735;font-size:11px;font-weight:800}
+.root :global([class*="merchantDecisionColumn"]) :global([class*="checkList"]) input{width:15px;height:15px;accent-color:#0c6a43}
+.root :global([class*="merchantDecisionChoices"]){display:grid;gap:7px}
+.root :global([class*="merchantDecisionChoices"]) button{display:grid;gap:3px;width:100%;min-height:53px;padding:9px 12px;border:1px solid #e6dfd2;border-radius:12px;background:#f7f4ec;text-align:start;color:#274735}
+.root :global([class*="merchantDecisionChoices"]) strong{font-size:11px;font-weight:950}
+.root :global([class*="merchantDecisionChoices"]) small{font-size:9px;line-height:1.35;color:#6e7a6f}
+.root :global([class*="merchantDecisionChoices"]) button[class*="merchantChoiceApprove"]{border:2px solid #26744d;background:#e0f0e4;color:#175a3b}
+.root :global([class*="merchantDecisionChoices"]) button[class*="merchantChoiceInfo"]{border:2px solid #e3c66e;background:#fff3d3;color:#795c17}
+.root :global([class*="merchantDecisionChoices"]) button[class*="merchantChoiceReject"]{border:2px solid #cf5a4e;background:#fae9e6;color:#9f392f}
+.root :global([class*="merchantDecisionChoices"]) button:disabled{opacity:.65;cursor:not-allowed}
+.root :global([class*="merchantDecisionColumn"]) :global([class*="field"]) textarea{min-height:58px;font-size:12px}
+.root :global([class*="merchantActionDialog"]) :global([class*="actionDialogFooter"]){padding:12px 22px;gap:9px}
+.root :global([class*="merchantActionDialog"]) :global([class*="actionDialogFooter"]) button:last-child{min-height:40px;border-radius:22px;padding:0 16px;background:#0b6944;color:#fff;font-size:11px}
+@media(max-width:760px){
+ .root :global([class*="merchantActionDialog"]){width:100%;max-height:96dvh}
+ .root :global([class*="merchantDialogHeader"]){padding:14px}
+ .root :global([class*="merchantDialogStepper"]){padding:12px 14px;gap:5px}
+ .root :global([class*="merchantDialogStepper"]) strong{font-size:9px}
+ .root :global([class*="merchantModalBody"]){grid-template-columns:1fr;padding:14px;gap:16px}
+ .root :global([class*="merchantActionDialog"]) :global([class*="actionDialogFooter"]){padding:12px;flex-wrap:wrap}
+ .root :global([class*="merchantActionDialog"]) :global([class*="actionDialogFooter"]) p{flex:1 1 100%;font-size:11px}
+}
+.merchantTableCard{}.merchantTableWrap{}.merchantTable{}.merchantIdentity{}.merchantAvatar{}.merchantReviewButton{}.merchantPagination{}.merchantActionDialog{}.merchantDialogHeader{}.merchantDialogNav{}.merchantDialogStepper{}.merchantModalBody{}.merchantFactsColumn{}.merchantDocuments{}.merchantDecisionColumn{}.merchantDecisionChoices{}.merchantChoiceApprove{}.merchantChoiceInfo{}.merchantChoiceReject{}.merchantChoice{}. 
