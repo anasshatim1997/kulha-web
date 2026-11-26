@@ -259,8 +259,9 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const switchTab=(apply:()=>void)=>{setLoading(true);setFailed(false);apply();};
     const selectedBatchOffers=selectedOfferIds.map(id=>selectedOfferRecords[id]).filter((item):item is Offer=>Boolean(item));
     function toggleOfferSelection(item:Offer,checked:boolean){
+        if(checked&&selectedOfferIds.length===0)setBatchReason("");
         setSelectedOfferRecords(current=>checked?{...current,[item.id]:item}:current);
-        setSelectedOfferIds(current=>{if(checked&&current.length===0)setBatchReason("");return checked?[...current.filter(id=>id!==item.id),item.id]:current.filter(id=>id!==item.id);});
+        setSelectedOfferIds(current=>checked?[...current.filter(id=>id!==item.id),item.id]:current.filter(id=>id!==item.id));
     }
     async function submitBatchOffers(idsToProcess:string[]=selectedOfferIds){
         if(!idsToProcess.length||!batchReason.trim())return;
