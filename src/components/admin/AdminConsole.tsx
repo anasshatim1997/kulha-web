@@ -32,6 +32,7 @@ const more={
 } as const;
 
 const loc=(l:SiteLocale)=>l==="ar"?"ar-MA":l==="en"?"en-MA":"fr-MA";
+function relativeTime(value:string,l:SiteLocale){const stamp=Date.parse(value);if(!Number.isFinite(stamp))return "";const minutes=Math.max(0,Math.floor((Date.now()-stamp)/60000));const label=minutes<60?minutes+" min":minutes<1440?Math.floor(minutes/60)+" h":Math.floor(minutes/1440)+(l==="fr"?" j":l==="ar"?" ي":" d");return l==="fr"?"il y a "+label:l==="ar"?"منذ "+label:label+" ago";}
 function clockTime(value:string|null|undefined,l:SiteLocale){if(!value)return "—";const stamp=Date.parse(value);if(!Number.isFinite(stamp))return "—";return new Intl.DateTimeFormat(loc(l),{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(stamp);}
 function amount(minor:number,l:SiteLocale){return new Intl.NumberFormat(loc(l),{maximumFractionDigits:2}).format(minor/100);}
 function dateTime(value:string,l:SiteLocale){return new Intl.DateTimeFormat(loc(l),{timeZone:"Africa/Casablanca",weekday:"short",day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}).format(new Date(value));}
