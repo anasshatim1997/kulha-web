@@ -194,3 +194,15 @@
 
 
 .root :global([class*="offerDialogDecision"]) :global([class*="field"]) textarea{font-size:14px;line-height:1.45}
+
+
+/* Admin page heading/search row matches the approved screen */
+.root :global(header[data-testid="admin-page-heading"]){align-items:center;flex-wrap:nowrap;gap:22px;margin-bottom:2px}
+.root :global(header[data-testid="admin-page-heading"]) :global([class*="headerCopy"]){min-width:0;flex:1 1 auto}
+.root :global(header[data-testid="admin-page-heading"]) h1{font-size:clamp(26px,2.2vw,32px);margin-bottom:5px}
+.root :global(header[data-testid="admin-page-heading"]) p{font-size:12px}
+.root :global(header[data-testid="admin-page-heading"]) :global(label[class*="search"]){flex:0 0 220px;width:220px;max-width:220px;height:40px;margin-inline-start:auto;padding:0 14px}
+@media(max-width:760px){
+ .root :global(header[data-testid="admin-page-heading"]){align-items:stretch;flex-wrap:wrap;gap:12px}
+ .root :global(header[data-testid="admin-page-heading"]) :global(label[class*="search"]){flex:1 1 100%;width:100%;max-width:none}
+}
