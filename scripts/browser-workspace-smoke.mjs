@@ -195,6 +195,12 @@ const backend = createServer(async (request, response) => {
     return json(response, page(rows));
   }
   if (path === `/admin/merchants/${merchant.id}` && method === "GET") return json(response, merchant);
+  if (path === `/admin/merchants/${merchant.id}/request-information` && method === "POST") {
+    await bodyOf(request);
+    merchantStatus = "INFO_REQUIRED";
+    merchant.status = merchantStatus;
+    return json(response, {});
+  }
   if (path === `/admin/merchants/${merchant.id}/approve` && method === "POST") {
     await bodyOf(request);
     merchantStatus = "APPROVED";
