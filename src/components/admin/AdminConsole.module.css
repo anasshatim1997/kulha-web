@@ -5295,3 +5295,6 @@
  .supportWorkspace:has(.caseDetail .detailHead) .caseDetail{position:static;top:auto;left:auto;transform:none;width:100%;max-height:none;margin-top:14px;padding:14px;border-radius:14px;overflow:visible;box-shadow:none}
  .supportWorkspace:has(.caseDetail .detailHead) .caseHistory{display:block;max-height:none;overflow:visible}
 }
+.offerConfirmReason{display:grid;gap:7px;margin-top:16px;padding:13px 14px;border:1px solid #e9e0d1;border-radius:11px;background:#f8f4eb}
+.offerConfirmReason strong{font-size:11px;color:#6c756d}
+.offerConfirmReason p{margin:0;color:#173b29;font-size:13px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
