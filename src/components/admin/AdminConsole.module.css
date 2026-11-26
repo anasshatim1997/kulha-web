@@ -5349,3 +5349,8 @@
  .merchantReviewWorkspace:has(.merchantDetails .detailHead) .merchantDetails{width:min(780px,calc(100vw - 272px));left:calc(50% + 120px);height:auto;max-height:94vh;overflow:auto;padding:18px 22px}
  .merchantReviewWorkspace:has(.merchantDetails .detailHead) .merchantInlineBody{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:14px}
 }
+
+@media(min-width:900px){
+ .offerWorkspace:has(.offerPreviewHeading) .offerPreviewCard{width:min(780px,calc(100vw - 272px));left:calc(50% + 120px);height:90vh;max-height:90vh;box-sizing:border-box;overflow:hidden}
+ .offerWorkspace:has(.offerPreviewHeading) .offerInlineBody{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}
+}
