@@ -948,7 +948,7 @@ try {
     await batch.waitFor({ state: "visible" });
     await batch.locator('[data-action="request-information"]').click();
     await batch.getByLabel("ONE REASON FOR ALL (REQUIRED)").fill("Missing proof of business registration.");
-    await batch.getByRole("button", { name: "Request information" }).click();
+    await batch.locator("footer button").last().click();
     await batch.getByText(/RESULT · 1 OF 2 DONE/).waitFor({ state: "visible" });
     await batch.getByRole("button", { name: "Retry 1 failed" }).click();
     await batch.getByText(/RESULT · 2 OF 2 DONE/).waitFor({ state: "visible" });
