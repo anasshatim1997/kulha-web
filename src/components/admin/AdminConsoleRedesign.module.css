@@ -328,4 +328,4 @@
  .root :global([class*="merchantActionDialog"]) :global([class*="actionDialogFooter"]){padding:12px;flex-wrap:wrap}
  .root :global([class*="merchantActionDialog"]) :global([class*="actionDialogFooter"]) p{flex:1 1 100%;font-size:11px}
 }
-.merchantTableCard{}.merchantTableWrap{}.merchantTable{}.merchantIdentity{}.merchantAvatar{}.merchantReviewButton{}.merchantPagination{}.merchantActionDialog{}.merchantDialogHeader{}.merchantDialogNav{}.merchantDialogStepper{}.merchantModalBody{}.merchantFactsColumn{}.merchantDocuments{}.merchantDecisionColumn{}.merchantDecisionChoices{}.merchantChoiceApprove{}.merchantChoiceInfo{}.merchantChoiceReject{}.merchantChoice{}. 
+.merchantTableCard{}.merchantTableWrap{}.merchantTable{}.merchantIdentity{}.merchantAvatar{}.merchantReviewButton{}.merchantPagination{}.merchantActionDialog{}.merchantDialogHeader{}.merchantDialogNav{}.merchantDialogStepper{}.merchantModalBody{}.merchantFactsColumn{}.merchantDocuments{}.merchantDecisionColumn{}.merchantDecisionChoices{}.merchantChoiceApprove{}.merchantChoiceInfo{}.merchantChoiceReject{}.merchantChoice{};
