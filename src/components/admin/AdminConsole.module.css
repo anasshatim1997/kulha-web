@@ -5316,3 +5316,5 @@
 .topbar .search{width:100%;max-width:none;flex:1}
 
 .batchResultSkipped{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#f2eee5;color:#776a50;font-weight:900}
+
+.merchantDetails .merchantInlineFooter{margin-top:8px;padding:8px 0 0}
