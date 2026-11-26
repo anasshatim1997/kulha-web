@@ -516,16 +516,16 @@ async function assertOfferDecisionAccessible(page, width, height, route) {
 }
 async function assertSupportTimelineVisible(page, width, height) {
   const history = page.getByTestId("support-case-history");
-  const timeline = page.getByTestId("support-case-timeline");
-  const firstMessage = timeline.locator("article").first();
+  const firstMessage = history.locator("article").first();
   await firstMessage.waitFor({ state: "visible" });
   const firstBox = await firstMessage.boundingBox();
   const historyBox = await history.boundingBox();
   const actionBar = page.getByTestId("support-case-actions");
   const composer = page.getByTestId("support-message-composer");
   const composerBox = await composer.boundingBox();
-  if (!firstBox || !historyBox || !composerBox) {
-    throw new Error("Support timeline or reply composer is missing at " + width + "x" + height + ".");
+  const actionsBox = await actionBar.boundingBox();
+  if (!firstBox || !historyBox || !composerBox || !actionsBox) {
+    throw new Error("Support timeline, composer or case actions are missing at " + width + "x" + height + ".");
   }
   if (width >= 900 && (firstBox.y + firstBox.height <= historyBox.y
       || firstBox.y >= historyBox.y + historyBox.height)) {
@@ -533,16 +533,14 @@ async function assertSupportTimelineVisible(page, width, height) {
       + width + "x" + height + ": " + JSON.stringify({ firstBox, historyBox }));
   }
   await history.evaluate(element => { element.scrollTop = element.scrollHeight; });
-  const actionsBox = await actionBar.boundingBox();
   const historyAfterScroll = await history.boundingBox();
-  if (!actionsBox || !historyAfterScroll || actionsBox.y < historyAfterScroll.y - 1
-      || actionsBox.y + actionsBox.height > historyAfterScroll.y + historyAfterScroll.height + 1) {
-    throw new Error("Support case actions are not reachable inside the independent history scroller at "
-      + width + "x" + height + ": " + JSON.stringify({ actionsBox, historyAfterScroll }));
-  }
   const composerAfterScroll = await composer.boundingBox();
-  if (!composerAfterScroll || Math.abs(composerAfterScroll.y - composerBox.y) > 1) {
-    throw new Error("Support reply composer moved while the conversation timeline scrolled at " + width + "x" + height + ".");
+  const actionsAfterScroll = await actionBar.boundingBox();
+  if (!historyAfterScroll || !composerAfterScroll || !actionsAfterScroll
+      || Math.abs(composerAfterScroll.y - composerBox.y) > 1
+      || Math.abs(actionsAfterScroll.y - actionsBox.y) > 1) {
+    throw new Error("Support composer and action footer must remain fixed while the timeline scrolls at "
+      + width + "x" + height + ".");
   }
   await history.evaluate(element => { element.scrollTop = 0; });
 }
@@ -683,9 +681,9 @@ try {
     { path: "/en/admin/offer-moderation", token: "admin-token", heading: "Offer moderation", adminPage: true },
     { path: "/fr/admin/offer-moderation", token: "admin-token", heading: "Modération des offres", adminPage: true },
     { path: "/ar/admin/offer-moderation", token: "admin-token", heading: "مراجعة العروض", direction: "rtl", adminPage: true },
-    { path: "/en/admin/support-cases", token: "support-token", heading: "Support cases", compact: true, adminPage: true },
-    { path: "/fr/admin/support-cases", token: "support-token", heading: "Dossiers support", compact: true, adminPage: true },
-    { path: "/ar/admin/support-cases", token: "support-token", heading: "طلبات الدعم", direction: "rtl", compact: true, adminPage: true },
+    { path: "/en/admin/support-cases", token: "support-token", heading: "Support cases", adminPage: true },
+    { path: "/fr/admin/support-cases", token: "support-token", heading: "Dossiers support", adminPage: true },
+    { path: "/ar/admin/support-cases", token: "support-token", heading: "طلبات الدعم", direction: "rtl", adminPage: true },
     { path: "/en/admin/audit-log", token: "admin-token", heading: "Audit log", adminPage: true },
     { path: "/fr/admin/audit-log", token: "admin-token", heading: "Journal d’audit", adminPage: true },
     { path: "/ar/admin/audit-log", token: "admin-token", heading: "سجل التدقيق", direction: "rtl", adminPage: true },
@@ -760,41 +758,25 @@ try {
       }
       if (route.path.endsWith("/admin/support-cases")) {
         const supportLayout = await page.evaluate(() => {
+          const dialog = document.querySelector('[data-testid="support-action-dialog"]');
           const detail = document.querySelector('[data-testid="support-case-detail"]');
           const history = document.querySelector('[data-testid="support-case-history"]');
           const composer = document.querySelector('[data-testid="support-message-composer"]');
-          if (!detail || !history || !composer) return { missingRegion: true };
-          const panel = detail.getBoundingClientRect();
-          const reply = composer.getBoundingClientRect();
-          const picker = detail.parentElement?.children[0];
-          const pickerBottom = picker?.getBoundingClientRect().bottom ?? null;
-          const style = getComputedStyle(detail);
-          const historyStyle = getComputedStyle(history);
+          const footer = document.querySelector('[data-testid="support-case-actions"]');
+          if (!dialog || !detail || !history || !composer || !footer) return { missingRegion: true };
+          const box = element => { const rect = element.getBoundingClientRect(); return { top:rect.top,bottom:rect.bottom,left:rect.left,right:rect.right,width:rect.width,height:rect.height }; };
           return {
-            missingRegion: false,
-            panelBottom: panel.bottom,
-            composerBottom: reply.bottom,
-            detailTop: panel.top,
-            pickerBottom,
-            documentHeight: document.documentElement.scrollHeight,
-            viewportHeight: innerHeight,
-            detailOverflow: style.overflowY,
-            historyOverflow: historyStyle.overflowY,
+            missingRegion:false, dialog:box(dialog), detail:box(detail), history:box(history),
+            composer:box(composer), footer:box(footer),
+            documentHeight:document.documentElement.scrollHeight, viewportHeight:innerHeight,
+            historyOverflow:getComputedStyle(history).overflowY,
           };
         });
-        if (supportLayout.missingRegion || supportLayout.composerBottom > supportLayout.panelBottom + 1) {
-          throw new Error(`Support composer escaped its detail panel at ${size.width}x${size.height}: ${JSON.stringify(supportLayout)}`);
+        if (supportLayout.missingRegion || supportLayout.dialog.bottom > size.height + 1
+            || supportLayout.footer.bottom > size.height + 1 || supportLayout.documentHeight > size.height + 1) {
+          throw new Error(`Support action dialog is clipped at ${size.width}x${size.height}: ${JSON.stringify(supportLayout)}`);
         }
         if (size.width >= 900) await assertSupportTimelineVisible(page, size.width, size.height);
-        if (size.width < 900 && supportLayout.pickerBottom !== null
-          && supportLayout.detailTop < supportLayout.pickerBottom - 1) {
-          throw new Error(`Support detail must stack below the case picker at ${size.width}px: ${JSON.stringify(supportLayout)}`);
-        }
-        if (size.width >= 900 && (supportLayout.documentHeight > size.height + 1
-          || supportLayout.detailOverflow !== "hidden" || supportLayout.historyOverflow !== "auto"
-          || supportLayout.panelBottom > size.height + 1)) {
-          throw new Error(`Desktop support layout/scroll ownership failed at ${size.width}x${size.height}: ${JSON.stringify(supportLayout)}`);
-        }
       }
       if (route.direction) {
         const direction = await page.locator(route.directionSelector ?? ".kulhaAdminShell").getAttribute("dir");
@@ -842,7 +824,7 @@ try {
         const emptyCounts = await page.evaluate(() => ({
           merchants: document.querySelectorAll('[data-testid="merchant-row"]').length,
           offers: document.querySelectorAll('[data-testid="offer-row"]').length,
-          support: document.querySelector('[data-testid="support-case-list"]')?.children.length ?? null,
+          support: document.querySelectorAll('[data-testid="support-case-row"]').length,
           audit: document.querySelectorAll('[data-testid="audit-record-row"]').length
         }));
         const emptyCount = route.path.endsWith("/merchant-review") ? emptyCounts.merchants
