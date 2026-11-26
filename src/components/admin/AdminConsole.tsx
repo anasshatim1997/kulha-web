@@ -221,7 +221,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                 const statuses=["OPEN","ESCALATED","WAITING_REPLY","RESOLVED"] as const;
                 const stats=await Promise.allSettled(statuses.map(status=>api.get<Page<CaseItem>>("/admin/support-cases?status="+status+"&page=0&size=1")));
                 if(active)setCaseCounts({open:stats[0].status==="fulfilled"?stats[0].value.total:null,escalated:stats[1].status==="fulfilled"?stats[1].value.total:null,waiting:stats[2].status==="fulfilled"?stats[2].value.total:null,resolved:stats[3].status==="fulfilled"?stats[3].value.total:null});
-                if(data.items[0]){const d=await api.get<{summary:CaseItem;timeline:Timeline[]}>("/admin/support-cases/"+data.items[0].reference);if(active)setSelectedCase(d);}else if(active)setSelectedCase(null);
+                if(data.items[0]){const d=await api.get<{summary:CaseItem;timeline:Timeline[]}>("/admin/support-cases/"+data.items[0].reference);if(active){setSelectedCase(d);setSupportActionOpen(true);}}else if(active)setSelectedCase(null);
             }
             if(page==="audit-log"){const q=new URLSearchParams();if(auditFrom)q.set("from",auditFrom);if(auditTo)q.set("to",auditTo);if(auditAction)q.set("action",auditAction);if(auditResult)q.set("result",auditResult);if(auditSearch)q.set("q",auditSearch);q.set("page",String(auditPage));q.set("size",String(auditPageSize));const data=await api.get<AuditPage>("/admin/audit-log?"+q.toString());if(active){setAudit(data);setSelectedAuditId(data.items[0]?.id??null);setAuditModalOpen(false);setFailed(false);}}
         }catch{if(active)setFailed(true);}finally{if(active)setLoading(false);}};
@@ -251,7 +251,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
         try{await api.post("/admin/offers/"+selectedOffer.id+"/"+offerAction,{reason:reason.trim()});setMessage(t.save);setReload(v=>v+1);setSelectedOffer(null);setReason("");}
         catch{setMessage(t.error);}finally{setWorking(false);}
     }
-    async function loadCase(reference:string){setWorking(true);setRevealed(null);setDisclosureReason("");try{const d=await api.get<{summary:CaseItem;timeline:Timeline[]}>("/admin/support-cases/"+reference);setSelectedCase(d);setReason("");}catch{setMessage(t.error);}finally{setWorking(false);}}
+    async function loadCase(reference:string){setWorking(true);setRevealed(null);setDisclosureReason("");try{const d=await api.get<{summary:CaseItem;timeline:Timeline[]}>("/admin/support-cases/"+reference);setSelectedCase(d);setReason("");setSupportActionOpen(true);}catch{setMessage(t.error);}finally{setWorking(false);}}
     async function caseAction(action:string){if(!selectedCase)return;if(!reason.trim()){setMessage(t.saveReason);return;}setWorking(true);try{await api.post("/admin/support-cases/"+selectedCase.summary.reference+"/actions",{action,reason:reason.trim()});setMessage(t.save);await loadCase(selectedCase.summary.reference);setReload(v=>v+1);}catch{setMessage(t.error);}finally{setWorking(false);}}
     async function sendMessage(event:SyntheticEvent<HTMLFormElement>){event.preventDefault();if(!selectedCase||!draftMessage.trim())return;setWorking(true);try{await api.post("/admin/support-cases/"+selectedCase.summary.reference+"/messages",{message:draftMessage.trim(),sendToCustomer});setDraftMessage("");await loadCase(selectedCase.summary.reference);setMessage(t.save);}catch{setMessage(t.error);}finally{setWorking(false);}}
     async function revealCustomer(){if(!selectedCase)return;if(!disclosureReason.trim()){setMessage(t.saveReason);return;}setWorking(true);try{const d=await api.post<{fullName:string;email:string;phone:string|null}>("/admin/support-cases/"+selectedCase.summary.reference+"/reveal-customer",{reason:disclosureReason.trim()});setRevealed(d);setDisclosureReason("");}catch{setMessage(t.error);}finally{setWorking(false);}}
@@ -309,6 +309,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const auditItems=audit?.items.filter(a=>match(a.actorName,a.actorUserId,a.action,a.targetType,a.targetId,a.reason,a.correlationId))??[];
     const selectedAudit=auditItems.find(item=>item.id===selectedAuditId)??null;
     const selectedMerchantIndex=selectedMerchant?merchantItems.findIndex(item=>item.id===selectedMerchant.id):-1;
+    const selectedCaseIndex=selectedCase?caseItems.findIndex(item=>item.reference===selectedCase.summary.reference):-1;
     const selectedOfferIndex=selectedOffer?offerItems.findIndex(item=>item.id===selectedOffer.id):-1;
     const auditUi=auditText[locale];
     const resultLabel=(r:string)=>r==="SUCCESS"?t.success:r==="DENIED"?t.denied:r==="FAILED"?auditUi.failed:r;
