@@ -397,3 +397,22 @@
 .actionOverlay{}.actionDialog{}.actionDialogHeader{}.actionDialogBody{}.actionDialogFooter{}
 
 .offerImageFallback{}
+
+
+/* PDF page 6 — full-width audit ledger with details opened only on row selection */
+.root :global([class*="auditDetailDialog"]){width:min(100%,660px);max-height:90dvh}
+.root :global([class*="auditDialogHeader"]){align-items:center;padding:20px 24px}
+.root :global([class*="auditDialogHeader"]) h2{margin:6px 0;font-size:20px}
+.root :global([class*="auditDialogHeader"]) small{color:#718074;font-size:10px;font-weight:950;letter-spacing:.07em}
+.root :global([class*="auditDialogHeader"]) code{color:#738176;font-size:10px}
+.root :global([class*="auditDialogHeader"])>div:last-child{display:flex;align-items:center;gap:10px}
+.root :global([class*="auditDialogHeader"]) button{display:grid;place-items:center;width:34px;height:34px;border:1px solid #e8e0d3;border-radius:50%;background:#fffefa;color:#173b2d}
+.root :global([class*="auditDetailBody"]){padding:18px 24px;gap:14px}
+.root :global([class*="auditDetailBody"]) :global([class*="auditRecordSection"]){padding:14px;border:1px solid #e8e0d3;border-radius:13px;background:#fffefa}
+.root :global([class*="auditDetailBody"]) :global([class*="auditRecordSection"]) h3{margin:0 0 9px;color:#667569;font-size:10px;font-weight:950;letter-spacing:.07em}
+.root :global([class*="auditDetailBody"]) :global([class*="auditRecordFacts"]){gap:8px}
+.root :global([class*="auditDetailBody"]) :global([class*="auditRecordFacts"]) dt{font-size:10px}
+.root :global([class*="auditDetailBody"]) :global([class*="auditRecordFacts"]) dd{font-size:11px}
+.root :global([class*="auditDetailBody"]) :global([class*="auditRecordNotice"]){font-size:10px}
+@media(max-width:760px){.root :global([class*="auditDetailDialog"]){width:100%;max-height:96dvh}.root :global([class*="auditDialogHeader"]){padding:14px}.root :global([class*="auditDetailBody"]){padding:14px}}
+.auditDetailDialog{}.auditDialogHeader{}.auditDetailBody{}
