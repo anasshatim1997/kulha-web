@@ -433,7 +433,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                     </table>
                 </div>
                 {!offerItems.length&&<p className={styles.empty}>{t.empty}</p>}
-                {selectedOfferIds.length>0&&!batchOpen&&<div className={redesign.batchBar} data-testid="offer-batch-bar"><strong>{selectedOfferIds.length} {t.offers} selected</strong><button type="button" onClick={()=>{setSelectedOfferIds([]);setSelectedOfferRecords({});setBatchResult(null);}}>Clear</button><button type="button" onClick={()=>{setBatchReason("");setBatchAction("suspend");setBatchResult(null);setBatchOpen(true);}}>Review {selectedOfferIds.length} together →</button></div>}
+                {selectedOfferIds.length>0&&!batchOpen&&<div className={redesign.batchBar} data-testid="offer-batch-bar"><strong>{selectedOfferIds.length} {locale==="fr"?"offres sélectionnées":locale==="ar"?"عروض محددة":"offers selected"}</strong><button type="button" onClick={()=>{setSelectedOfferIds([]);setSelectedOfferRecords({});setBatchResult(null);}}>Clear</button><button type="button" onClick={()=>{setBatchReason("");setBatchAction("suspend");setBatchResult(null);setBatchOpen(true);}}>Review {selectedOfferIds.length} together →</button></div>}
                 <div className={redesign.offerPagination} data-testid="offer-pagination"><AdminPagination page={offerPage} pageCount={offerPageCount} total={offers.total} size={offers.size||OFFER_PAGE_SIZE} labels={pagerLabels} loading={loading} onChange={next=>{setLoading(true);setOfferPage(next);setSelectedOffer(null);setOfferDecisionOpen(false);}} /></div>
             </section>
         </>}
