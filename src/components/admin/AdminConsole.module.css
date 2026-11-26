@@ -5194,3 +5194,12 @@
 @media(max-width:720px){
  .merchantReviewWorkspace:has(.merchantDetails .detailHead) .merchantDetails{width:calc(100vw - 16px);max-height:94vh;padding:14px;border-radius:14px}
 }
+
+.supportWorkspace{grid-template-columns:minmax(0,1fr)}
+.caseDetail:not(:has(.detailHead)){display:none}
+.supportWorkspace:has(.caseDetail .detailHead)::before{content:"";position:fixed;z-index:89;inset:0;background:#071e16a8;backdrop-filter:blur(3px)}
+.supportWorkspace:has(.caseDetail .detailHead) .caseDetail{position:fixed;z-index:90;top:50%;left:50%;transform:translate(-50%,-50%);width:min(1020px,calc(100vw - 48px));max-height:90vh;overflow:auto;padding:18px 22px;border-radius:20px;background:#fffdf8;box-shadow:0 24px 80px #0005}
+.supportWorkspace .offerDialogTopbar{padding:0 0 12px}
+@media(max-width:720px){
+ .supportWorkspace:has(.caseDetail .detailHead) .caseDetail{width:calc(100vw - 16px);max-height:94vh;padding:14px;border-radius:14px}
+}
