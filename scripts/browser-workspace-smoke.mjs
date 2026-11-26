@@ -920,7 +920,7 @@ try {
     await context.close();
   }
 
-  // Merchant review: read mode is separate from the decision workspace.
+  // Merchant review: the first application opens in the PDF decision dialog; approval remains blocked without document review.
   {
     merchantStatus = "PENDING";
     merchant.status = merchantStatus;
@@ -928,17 +928,12 @@ try {
     const page = await context.newPage();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
-    const readView = page.getByTestId("merchant-review-workflow");
-    await readView.waitFor({ state: "visible" });
-    if (await readView.locator("textarea, input").count() !== 0) {
-      throw new Error("Merchant inspection view must be read-only; decision fields belong in the action workspace.");
-    }
-    if (await readView.getByRole("button").count() !== 0) {
-      throw new Error("Merchant inspection view must not contain decision submit controls.");
-    }
-    await page.getByRole("button", { name: "Review application" }).click();
     const actionDialog = page.getByTestId("merchant-review-action-dialog");
     await actionDialog.waitFor({ state: "visible" });
+    await page.getByTestId("merchant-review-table").waitFor({ state: "visible" });
+    if (await page.getByTestId("merchant-row").count() < 3) {
+      throw new Error("Merchant review table must show the pending applications behind the decision dialog.");
+    }
     const approve = actionDialog.getByRole("button", { name: "Approve" });
     if (await actionDialog.getByLabel("Documents readable and valid").count() !== 0) {
       throw new Error("Merchant review must not expose a document-validity checkbox when no documents exist.");
