@@ -8,6 +8,7 @@ import { AlertTriangle, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Cl
 import styles from "./AdminConsole.module.css";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { localePath } from "@/lib/navigation";
+import { eligibleOfferBatchItems, toggleBatchSelection } from "@/lib/admin/offer-batch";
 
 type PageKey="merchant-review"|"offer-moderation"|"support-cases"|"audit-log";
 type Merchant={id:string;ownerUserId:string;ownerEmail:string;name:string;businessType:string;address:string;city:string;phone:string;openingHours:string;status:string;decisionReason:string|null;createdAt:string};
@@ -250,13 +251,13 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     }
     function toggleOfferSelection(offer:Offer){
         setSelectedOffers(current=>{
-            if(current[offer.id]){const next={...current};delete next[offer.id];return next;}
-            if(Object.keys(current).length>=20){setMessage("A batch is limited to 20 offers.");return current;}
-            return {...current,[offer.id]:offer};
+            const next=toggleBatchSelection(current,offer);
+            if(next===current&&Object.keys(current).length>=20&&!current[offer.id])setMessage("A batch is limited to 20 offers.");
+            return next;
         });
     }
     async function runBatchOfferDecision(){
-        const candidates=Object.values(selectedOffers).filter(item=>batchOfferAction!=="reinstate"||item.status==="SUSPENDED");
+        const candidates=eligibleOfferBatchItems(Object.values(selectedOffers),batchOfferAction);
         if(!batchOfferReason.trim()){setMessage(t.saveReason);return;}
         if(!candidates.length){setMessage(t.reinstateOnlyHidden);return;}
         setBatchOfferWorking(true);setMessage("");
