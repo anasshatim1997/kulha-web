@@ -39,7 +39,7 @@ const moderationOffers = Array.from({ length: 48 }, (_, index) => {
     { title: "Salade composée", shopName: "Green Corner", reportedCount: 2, allergensStatus: "DECLARED", priceMinor: 2900, originalPriceMinor: null, quantityTotal: 6, quantityReserved: 3, pickupHour: 19 },
     { title: "Family breakfast basket with assorted bakery items, fresh fruit and detailed allergen information", shopName: "Boulangerie Test", reportedCount: 0, allergensStatus: "DECLARED", priceMinor: 4000, originalPriceMinor: 8000, quantityTotal: 10, quantityReserved: 2, pickupHour: 20 },
   ][index] ?? { title: `Offer ${index + 1}`, shopName: "Boulangerie Test", reportedCount: 0, allergensStatus: "DECLARED", priceMinor: 4000 + index * 100, originalPriceMinor: null, quantityTotal: 10, quantityReserved: 2, pickupHour: 18 };
-  const pickup = new Date(now.getTime() + (sample.pickupHour - now.getHours()) * 60 * 60 * 1000);
+  const pickup = new Date(now); pickup.setUTCHours(sample.pickupHour - 1, 0, 0, 0);
   return {
     id: `00000000-0000-4000-8000-${String(102 + index).padStart(12, "0")}`,
     title: sample.title, shopName: sample.shopName, city: index === 1 ? "Casablanca" : "Casablanca", priceMinor: sample.priceMinor,
