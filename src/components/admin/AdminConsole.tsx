@@ -5,6 +5,7 @@ import { canRevealSupportCustomerDetails, SUPPORT_DISCLOSURE_REASON_MAX_LENGTH }
 import { useSession } from "@/components/session/SessionProvider";
 import { AlertTriangle, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, Filter, Image as ImageIcon, Lock, Search, ShieldCheck, Tag, X } from "lucide-react";
 import styles from "./AdminConsole.module.css";
+import operations from "./AdminOperationsRedesign.module.css";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { eligibleOfferBatchItems, toggleBatchSelection } from "@/lib/admin/offer-batch";
 
@@ -313,9 +314,9 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const topbar=<header className={styles.topbar} data-testid="admin-console-topbar">
         {page!=="audit-log"&&<label className={styles.search} data-testid="admin-console-search"><Search size={17} aria-hidden="true"/><span className="sr-only">{searchPlaceholder}</span><input type="search" data-testid="admin-global-search" value={query} onChange={e=>{setQuery(e.target.value);}} placeholder={searchPlaceholder}/></label>}
     </header>;
-    const frame=(content:ReactNode)=><div className={`${styles.shell} kulhaAdminShell`} data-page={page} dir={locale==="ar"?"rtl":"ltr"}>
+    const frame=(content:ReactNode)=><div className={operations.root}><div className={`${styles.shell} kulhaAdminShell`} data-page={page} dir={locale==="ar"?"rtl":"ltr"}>
         <div className={styles.adminMain}>{topbar}<main className={styles.page}>{content}</main></div>
-    </div>;
+    </div></div>;
 
     if(loading)return frame(<><div className={styles.header}><div><div className={styles.skeleton}/><div className={styles.skeletonWide}/></div></div><div className={styles.skeletonPanel}/></>);
     if(failed)return frame(<div className={styles.alert} role="alert">{t.error}<button onClick={()=>{setLoading(true);setFailed(false);setReload(v=>v+1);}}>{t.retry}</button></div>);
