@@ -7,6 +7,7 @@ import { api } from "@/lib/api/client";
 import { localePath } from "@/lib/navigation";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import styles from "./AdminOverviewFresh.module.css";
+import { AdminTopNav } from "./AdminTopNav";
 
 type Page<T> = { items: T[]; page: number; size: number; total: number };
 type Merchant = { id: string; name: string; businessType: string; city: string; ownerEmail: string; status: string; createdAt: string };
@@ -33,7 +34,7 @@ export function AdminOverview({locale}:{locale:SiteLocale}) {
  const offers=data.offers?.items??[];const flags=offers.filter(o=>o.reportedCount>0||o.allergensStatus==="UNKNOWN");const reported=offers.filter(o=>o.reportedCount>0);const unknown=offers.filter(o=>o.allergensStatus==="UNKNOWN");const merchants=data.merchants?.items??[];const cases=data.cases?.items??[];const high=cases.filter(c=>c.priority==="HIGH").length;const activity=data.audit?.items??[];
  const work=[...flags.slice(0,4).map(o=>({key:o.id,kind:"offer" as const,title:o.title,sub:o.shopName+" · "+o.city,meta:o.reportedCount?o.reportedCount+" "+t.reported:t.noReport,path:"/admin/offer-moderation",urgent:o.allergensStatus==="UNKNOWN"})),...cases.slice(0,3).map(c=>({key:c.reference,kind:"case" as const,title:c.reference+" · "+c.subject,sub:c.merchantName||t.caseLabel,meta:c.priority==="HIGH"?t.high:c.priority==="MEDIUM"?t.medium:t.low,path:"/admin/support-cases",urgent:c.priority==="HIGH"})),...[...merchants,...(data.infoMerchants?.items??[])].slice(0,3).map(m=>({key:m.id,kind:"merchant" as const,title:m.name,sub:(m.businessType||t.merchantLabel)+" · "+m.city,meta:m.status==="INFO_REQUIRED"?t.infoRequired:t.pending,path:"/admin/merchant-review",urgent:false}))].slice(0,8);
  const fmtTime=updated?new Intl.DateTimeFormat(locale==="ar"?"ar-MA":locale==="en"?"en-MA":"fr-MA",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(updated):t.loading;const link=(p:string)=>localePath(locale,p);
- return <main className={styles.dashboard} dir={locale==="ar"?"rtl":"ltr"} data-testid="admin-overview">
+ return <><AdminTopNav locale={locale}/><main className={styles.dashboard} dir={locale==="ar"?"rtl":"ltr"} data-testid="admin-overview">
   <header className={styles.header}><div><span className={styles.kicker}>{t.greeting}</span><h1>{t.title}</h1><p>{t.subtitle}</p></div><div className={styles.headerTools}><span className={styles.live}><i/>{t.connected}</span><span className={styles.updated}>{t.last} · {fmtTime}</span><button onClick={()=>void refresh()} disabled={busy}><RefreshCw size={18} className={busy?styles.spin:""}/>{busy?t.refreshing:t.refresh}</button></div></header>
   {load==="error"&&<div className={styles.error} role="alert"><AlertTriangle size={21}/>{t.loadError}<button onClick={()=>void refresh()}>{t.retry}</button></div>}{load==="partial"&&<div className={styles.partial} role="status"><AlertTriangle size={18}/>{t.partial}</div>}
   <section className={styles.metrics} data-testid="admin-overview-metrics">
@@ -56,5 +57,5 @@ export function AdminOverview({locale}:{locale:SiteLocale}) {
    <section className={styles.activity}><header className={styles.sectionHead}><div><span className={styles.sectionLabel}>{t.actor}</span><h2>{t.recent}</h2></div><Link href={link("/admin/audit-log")}>{t.audit}<ArrowRight size={18}/></Link></header>{activity.length?<div className={styles.activityList}>{activity.slice(0,5).map(a=><article key={a.id}><span className={a.result==="SUCCESS"?styles.activityGood:styles.activityBad}><Activity size={19}/></span><div><strong>{human(a.action)}</strong><small>{a.actorName} · {a.targetType} #{a.targetId}</small>{a.reason&&<p>{a.reason}</p>}</div><time>{ago(a.createdAt,locale)}</time></article>)}</div>:<p className={styles.activityEmpty}>{load==="loading"?t.loading:t.noActivity}</p>}</section>
    <section className={styles.shortcuts}><header><span className={styles.sectionLabel}>{t.all}</span><h2>{t.systems}</h2></header><Link href={link("/admin/merchant-review")}><Store size={20}/><span>{t.merchantReview}</span><ArrowRight size={18}/></Link><Link href={link("/admin/offer-moderation")}><Tag size={20}/><span>{t.offerReview}</span><ArrowRight size={18}/></Link><Link href={link("/admin/support-cases")}><Users size={20}/><span>{t.support}</span><ArrowRight size={18}/></Link><Link href={link("/admin/audit-log")}><Activity size={20}/><span>{t.audit}</span><ArrowRight size={18}/></Link></section>
   </section>
- </main>;
+ </main></>;
 }
