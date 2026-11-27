@@ -5381,3 +5381,109 @@
 .offerWorkspace{gap:clamp(16px,2vw,24px);height:min(780px,calc(100dvh - 230px));min-height:520px}
 .auditExplorer{gap:16px}
 @media(max-width:899px){.page{padding:20px 14px 36px}.merchantReviewWorkspace,.supportWorkspace,.offerWorkspace{grid-template-columns:minmax(0,1fr);height:auto;min-height:0}.offerWorkspace{height:auto}.topbar .search{min-height:46px}}
+
+/* Complete reference-inspired admin workspace treatment */
+.page{max-width:1680px;padding:clamp(20px,2.6vw,40px) clamp(14px,2.6vw,38px) 64px;gap:22px}
+.header{align-items:center;gap:22px;padding-bottom:4px}
+.headerCopy{display:grid;gap:9px}
+.header h1{font-size:clamp(30px,3vw,42px);letter-spacing:-.04em;color:#073324}
+.header p{font-size:16px;line-height:1.55;max-width:800px}
+.card,.merchantPicker,.offerPicker,.casePicker,.auditTableCard,.auditFilters{border-radius:20px;border:1px solid #e8dfcf;background:#fffefa;box-shadow:0 4px 18px #46300b08}
+.tabs{gap:8px}
+.tab,.activeTab{min-height:42px;padding:9px 15px;border-radius:11px;font-size:13px;font-weight:850}
+.merchantReviewWorkspace{grid-template-columns:minmax(300px,.72fr) minmax(0,1.28fr);gap:22px}
+.merchantPicker,.offerPicker,.casePicker{padding:16px;min-width:0}
+.merchantListItem,.merchantSelected,.offerItem,.offerItemSelected,.caseItem,.caseSelected{border-radius:14px;margin:4px 0;transition:background .15s,border-color .15s,box-shadow .15s}
+.merchantListItem,.merchantSelected{padding:15px 14px}
+.merchantListItem:hover,.offerItem:hover,.caseItem:hover{background:#f8f4eb;border-color:#d9cdb8}
+.merchantSelected,.offerItemSelected,.caseSelected{box-shadow:0 0 0 2px #0a5639 inset;background:#f1f7ef}
+.merchantListTop strong,.offerCopy strong,.caseItem strong,.caseSelected strong{font-size:15px;line-height:1.35}
+.merchantListItem small,.merchantSelected small,.offerCopy small,.caseItem small,.caseSelected small{font-size:12px;line-height:1.45}
+.merchantDetails{border-radius:22px;box-shadow:0 10px 36px #40301410}
+.detailHead h2{font-size:clamp(22px,2vw,30px);line-height:1.2;letter-spacing:-.02em}
+.merchantStepper{padding:18px 0}
+.merchantPreviewInfo h3,.sectionLabel{font-size:14px;letter-spacing:.06em}
+.merchantFacts{gap:10px}
+.merchantFacts>div{padding:12px;border:1px solid #eee5d7;border-radius:12px;background:#fff}
+.merchantFacts dt{font-size:11px;font-weight:800;color:#6a796d}
+.merchantFacts dd{font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.field span{font-size:13px;font-weight:800}
+.field input,.field textarea{min-height:44px;border-radius:11px;font-size:14px}
+.merchantDecisionFields{gap:14px}
+.merchantInlineFooter{padding-top:16px}
+.merchantInlineFooter p{font-size:12px;line-height:1.5}
+.offerWorkspace{grid-template-columns:minmax(340px,.82fr) minmax(0,1.18fr);gap:22px;height:min(820px,calc(100dvh - 260px));min-height:560px}
+.offerPicker{display:flex;flex-direction:column;gap:14px;overflow:hidden}
+.offerQueue{flex:1;min-height:0;overflow:auto;padding-inline:2px}
+.offerRowOpen{grid-template-columns:64px minmax(0,1fr) auto;gap:12px;padding:13px 10px;border-radius:13px}
+.offerThumb{width:64px;height:64px;border-radius:12px}
+.offerCopy{gap:5px}
+.offerTags{gap:5px;flex-wrap:wrap}
+.offerPrice strong{font-size:13px}
+.offerPreviewCard{border-radius:22px;border:1px solid #e8dfcf;background:#fffefa;box-shadow:0 8px 28px #46300b0a}
+.offerPreviewScroll{padding:clamp(18px,2.4vw,28px)}
+.offerPreviewHeading{gap:16px;margin:8px 0 20px}
+.offerPreviewThumb{width:100px;height:100px;border-radius:16px}
+.offerPreviewTitle h2{font-size:clamp(22px,2vw,30px);line-height:1.2}
+.offerPreviewTitle p{font-size:14px}
+.offerPreviewFacts{gap:10px}
+.offerPreviewFacts>div{padding:13px 15px;border-radius:13px;background:#f8f4eb;border:1px solid #eee5d7}
+.offerPreviewFacts dt{font-size:11px;font-weight:850;color:#6b796d}
+.offerPreviewFacts dd{font-size:15px;font-weight:900}
+.offerPreviewAlert{padding:14px 16px;border-radius:14px;font-size:14px;line-height:1.5}
+.offerPreviewScroll .field textarea{min-height:100px}
+.offerActionRow{display:flex;gap:10px;flex-wrap:wrap}
+.offerActionRow button{min-height:44px;padding:0 16px}
+.supportWorkspace{grid-template-columns:minmax(300px,.75fr) minmax(0,1.25fr);gap:22px}
+.casePicker{padding:16px}
+.caseList{display:grid;gap:7px}
+.caseItem,.caseSelected{padding:15px;gap:8px}
+.caseListTop{gap:10px}
+.caseListTop small{font-size:11px;font-weight:800}
+.caseDetail{border-radius:22px;border:1px solid #e8dfcf;background:#fffefa;padding:clamp(18px,2.3vw,28px);box-shadow:0 8px 28px #46300b0a}
+.caseDetail .detailHead h2{font-size:clamp(22px,2vw,30px)}
+.caseReferenceCards{gap:10px}
+.caseReferenceCards article{padding:13px 15px;border:1px solid #eee5d7;border-radius:13px;background:#f8f4eb}
+.caseReferenceCards small{font-size:11px;font-weight:850}
+.caseReferenceCards strong{font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+.caseTimeline{gap:12px;padding:4px 0}
+.timelineCustomer,.timelineAgent,.timelineInternal{padding:14px 16px;border-radius:14px;max-width:90%}
+.caseTimeline strong{font-size:12px}
+.caseTimeline p{font-size:14px;line-height:1.6}
+.caseAssignment,.caseCustomer{padding:14px 0;border-top:1px solid #eee5d7}
+.caseAssignment p,.caseCustomer span{font-size:13px}
+.caseAssignment>div{gap:8px;flex-wrap:wrap}
+.auditFilters{padding:18px;gap:16px}
+.auditFilterLabel{font-size:12px;font-weight:850}
+.auditFilterControl,.auditSearchControl{min-height:44px;border-radius:11px}
+.auditExplorer{gap:16px}
+.auditExplorerHeading{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.auditExplorerHeading h2{font-size:21px}
+.auditExplorerHeading p{font-size:13px}
+.auditTableCard{overflow:hidden}
+.table{overflow-x:auto}
+.table table{width:100%;border-collapse:collapse;min-width:920px}
+.table th{padding:13px 14px;background:#f5f0e6;color:#68776b;font-size:11px;font-weight:900;letter-spacing:.05em;text-align:start}
+.table td{padding:14px;border-bottom:1px solid #eee6da;font-size:13px;line-height:1.45;vertical-align:middle}
+.table tbody tr{cursor:pointer;transition:background .12s}
+.table tbody tr:hover{background:#fbf7ee}
+.table tbody tr:last-child td{border-bottom:0}
+.table td strong{font-size:13px}
+.table td small{display:block;margin-top:3px;color:#6e7c71;font-size:11px}
+.auditTableReason{display:block;max-width:260px;white-space:normal;overflow-wrap:anywhere}
+.auditPaginationBar{padding:14px 16px;border-top:1px solid #eee5d7}
+.auditRecordCard{border:1px solid #e8dfcf;border-radius:22px;background:#fffefa;padding:clamp(18px,2vw,26px);box-shadow:0 10px 34px #46300b12}
+.auditRecordHeader h2{font-size:25px}
+.auditRecordSection{padding:18px 0;border-top:1px solid #eee5d7}
+.auditRecordSection h3{font-size:13px;font-weight:900}
+.auditRecordFacts{gap:10px}
+.auditRecordFacts>div{padding:12px;border-radius:12px;background:#f8f4eb}
+.auditRecordFacts dt{font-size:11px;font-weight:850}
+.auditRecordFacts dd{font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+.empty{padding:24px 18px;border:1px dashed #d9cfbd;border-radius:14px;background:#fbf8f1;font-size:14px;line-height:1.5;color:#657468}
+.primary,.primaryWide{min-height:46px;border-radius:12px;font-size:13px}
+.ghostBtn,.dangerOutline{min-height:42px;border-radius:11px;font-size:13px}
+.offerBatchBar{border-radius:13px;padding:12px;background:#f3f0e6;border:1px solid #e4dac8}
+.offerBatchBar .primary{min-height:40px}
+@media(max-width:1050px){.merchantReviewWorkspace,.supportWorkspace{grid-template-columns:minmax(0,1fr)}.offerWorkspace{grid-template-columns:minmax(0,1fr);height:auto;min-height:0}.offerPicker{max-height:720px}.offerPreviewCard{position:relative!important;left:auto!important;top:auto!important;transform:none!important;width:100%!important;height:auto!important;max-height:none!important}}
+@media(max-width:720px){.page{padding:18px 12px 32px;gap:16px}.header h1{font-size:30px}.header p{font-size:14px}.tabs{overflow-x:auto;flex-wrap:nowrap;padding-bottom:5px}.tab,.activeTab{min-height:38px;font-size:12px;padding:8px 12px}.merchantPicker,.offerPicker,.casePicker{padding:10px}.merchantDetails,.caseDetail{padding:15px!important}.offerPreviewScroll{padding:14px}.offerPreviewThumb{width:72px;height:72px}.offerPreviewFacts{grid-template-columns:repeat(2,minmax(0,1fr))}.auditFilters{padding:12px}.auditExplorerHeading{align-items:flex-start;flex-direction:column}.auditRecordCard{width:100%!important;left:auto!important;top:auto!important;transform:none!important;height:auto!important;max-height:none!important;position:relative!important}.timelineCustomer,.timelineAgent,.timelineInternal{max-width:100%}.auditRecordFacts{grid-template-columns:minmax(0,1fr)}.auditPaginationBar{gap:10px;flex-wrap:wrap}}
