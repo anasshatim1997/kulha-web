@@ -1,108 +1,60 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, Check, Clock3, FileText, LifeBuoy, RefreshCw, Store, Tag, XCircle } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Activity, AlertTriangle, ArrowRight, ClipboardList, RefreshCw, ShieldAlert, Store, Tag, Users } from "lucide-react";
 import { api } from "@/lib/api/client";
 import { localePath } from "@/lib/navigation";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
-import styles from "./AdminConsole.module.css";
+import styles from "./AdminOverviewFresh.module.css";
 
-type Page<T> = { items: T[]; total: number; page: number; size: number };
-type Offer = { id: string; title: string; shopName: string; city: string; reportedCount: number; allergensStatus: string; status: string; pickupStart: string | null };
-type Merchant = { id: string; name: string; businessType: string; city: string; status: string; createdAt: string };
-type CaseItem = { reference: string; subject: string; priority: string; status: string; merchantName: string | null; updatedAt: string };
-type AuditRow = { id: string; actorName: string; action: string; targetType: string; targetId: string; result: string; createdAt: string };
-type Snapshot = { offers: Page<Offer>; merchants: Page<Merchant>; cases: Page<CaseItem>; audit: Page<AuditRow> };
+type Page<T> = { items: T[]; page: number; size: number; total: number };
+type Merchant = { id: string; name: string; businessType: string; city: string; ownerEmail: string; status: string; createdAt: string };
+type Offer = { id: string; title: string; shopName: string; city: string; status: string; reportedCount: number; allergensStatus: string; priceMinor: number; pickupStart: string | null };
+type SupportCase = { id: string; reference: string; subject: string; priority: string; status: string; merchantName: string | null; updatedAt: string };
+type AuditEntry = { id: string; actorName: string; action: string; targetType: string; targetId: string; reason: string | null; result: string; createdAt: string };
+type Snapshot = { merchants: Page<Merchant> | null; infoMerchants: Page<Merchant> | null; offers: Page<Offer> | null; cases: Page<SupportCase> | null; audit: Page<AuditEntry> | null };
+const emptySnapshot: Snapshot = { merchants: null, infoMerchants: null, offers: null, cases: null, audit: null };
 
-export function AdminOverview({ locale }: { locale: SiteLocale }) {
-  const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
-  const [error, setError] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const [refreshedAt, setRefreshedAt] = useState<Date | null>(null);
-  const [reload, setReload] = useState(0);
-  const copy = locale === "fr"
-    ? { title: "Aujourd’hui chez Kulha!", lead: "Vue opérationnelle de la modération et du support.", offers: "Offres à vérifier", merchants: "Commerces en attente", info: "informations requises", cases: "Dossiers support ouverts", queue: "À traiter en priorité", recent: "Activité récente", view: "Tout voir", empty: "Aucun élément à traiter.", refresh: "Actualiser", live: "En direct", reported: "signalements", unknown: "Allergènes inconnus", pending: "En attente", high: "Élevée", medium: "Moyenne", low: "Faible", systems: "Systèmes", documents: "Documents non connectés", docsHelp: "Les fichiers ne peuvent pas être vérifiés tant que le backend ne les fournit pas.", noActivity: "Aucune activité récente.", updated: "Actualisé", failed: "Échec du chargement des données opérationnelles." }
-    : locale === "ar"
-      ? { title: "اليوم في KULHA!", lead: "نظرة تشغيلية على المراجعة والدعم.", offers: "عروض للمراجعة", merchants: "متاجر قيد الانتظار", info: "معلومات مطلوبة", cases: "طلبات دعم مفتوحة", queue: "الأكثر إلحاحاً", recent: "النشاط الأخير", view: "عرض الكل", empty: "لا توجد عناصر للمراجعة.", refresh: "تحديث", live: "مباشر", reported: "بلاغات", unknown: "مسببات الحساسية غير معروفة", pending: "قيد الانتظار", high: "مرتفع", medium: "متوسط", low: "منخفض", systems: "الأنظمة", documents: "الوثائق غير متصلة", docsHelp: "لا يمكن التحقق من الملفات حتى يوفرها الخادم.", noActivity: "لا يوجد نشاط حديث.", updated: "تم التحديث", failed: "تعذر تحميل بيانات العمليات." }
-      : { title: "Today at Kulha!", lead: "Operational overview of moderation and support.", offers: "Food-safety offers", merchants: "Merchants waiting", info: "info required", cases: "Open support cases", queue: "Up next · most urgent first", recent: "Recent activity", view: "View all", empty: "Nothing needs attention.", refresh: "Refresh", live: "Live", reported: "reports", unknown: "Allergens unknown", pending: "Pending", high: "High", medium: "Medium", low: "Low", systems: "Systems", documents: "Documents not connected", docsHelp: "Files cannot be verified until the backend serves them.", noActivity: "No recent activity.", updated: "Refreshed", failed: "Could not load operational data." };
+const copy = {
+ en:{title:"Operations overview",greeting:"Marketplace operations",subtitle:"Work that needs attention across KULHA.",refresh:"Refresh",refreshing:"Updating",last:"Updated",pendingMerchants:"Merchant applications",infoMerchants:"Need more information",flaggedOffers:"Offers flagged",openCases:"Open support cases",priority:"Priority work",viewQueue:"Open queue",foodSafety:"Food safety watch",reports:"Reports",allergens:"Allergens not provided",merchantReview:"Merchant review",offerReview:"Offer moderation",support:"Support",audit:"Audit trail",recent:"Recent admin activity",noWork:"Nothing is waiting in this queue.",noActivity:"No recent activity.",noSafety:"No food-safety flags in the loaded offers.",loadError:"Admin data could not be loaded. Check API availability and retry.",partial:"Some admin data sources are unavailable.",retry:"Retry",foodLabel:"Food-safety flag",merchantLabel:"Merchant application",caseLabel:"Support case",reported:"reports",noReport:"Allergen information missing",unknown:"Unknown",open:"Open",systems:"Workspace shortcuts",all:"All workspaces",loading:"Loading admin data",connected:"Live data",pending:"Pending",infoRequired:"Info required",high:"High",medium:"Medium",low:"Low",decision:"Needs decision",actor:"By",auditLabel:"Audit"},
+ fr:{title:"Vue opérationnelle",greeting:"Opérations marketplace",subtitle:"Les tâches qui demandent votre attention sur KULHA.",refresh:"Actualiser",refreshing:"Mise à jour",last:"Actualisé",pendingMerchants:"Demandes de commerces",infoMerchants:"Informations à compléter",flaggedOffers:"Offres signalées",openCases:"Dossiers support ouverts",priority:"À traiter en priorité",viewQueue:"Ouvrir la file",foodSafety:"Vigilance sécurité alimentaire",reports:"Signalements",allergens:"Allergènes non renseignés",merchantReview:"Revue des commerces",offerReview:"Modération des offres",support:"Support",audit:"Journal d’audit",recent:"Activité admin récente",noWork:"Aucune tâche en attente.",noActivity:"Aucune activité récente.",noSafety:"Aucun signalement alimentaire dans les offres chargées.",loadError:"Impossible de charger les données. Vérifiez l’API puis réessayez.",partial:"Certaines sources admin sont indisponibles.",retry:"Réessayer",foodLabel:"Sécurité alimentaire",merchantLabel:"Demande de commerce",caseLabel:"Dossier support",reported:"signalements",noReport:"Allergènes manquants",unknown:"Inconnu",open:"Ouvrir",systems:"Accès rapides",all:"Tous les espaces",loading:"Chargement",connected:"Données en direct",pending:"En attente",infoRequired:"Infos requises",high:"Élevée",medium:"Moyenne",low:"Faible",decision:"Décision requise",actor:"Par",auditLabel:"Audit"},
+ ar:{title:"نظرة عامة على العمليات",greeting:"عمليات السوق",subtitle:"المهام التي تحتاج إلى اهتمام عبر KULHA.",refresh:"تحديث",refreshing:"جارٍ التحديث",last:"آخر تحديث",pendingMerchants:"طلبات المتاجر",infoMerchants:"معلومات إضافية مطلوبة",flaggedOffers:"عروض تم الإبلاغ عنها",openCases:"حالات دعم مفتوحة",priority:"مهام ذات أولوية",viewQueue:"فتح قائمة العمل",foodSafety:"مراقبة سلامة الغذاء",reports:"بلاغات",allergens:"مسببات الحساسية غير محددة",merchantReview:"مراجعة المتاجر",offerReview:"مراجعة العروض",support:"الدعم",audit:"سجل التدقيق",recent:"النشاط الإداري الأخير",noWork:"لا توجد مهام تنتظر.",noActivity:"لا يوجد نشاط حديث.",noSafety:"لا توجد تنبيهات سلامة غذائية ضمن العروض الحالية.",loadError:"تعذر تحميل بيانات الإدارة. تحقق من اتصال API ثم أعد المحاولة.",partial:"بعض مصادر الإدارة غير متاحة.",retry:"إعادة المحاولة",foodLabel:"تنبيه سلامة الغذاء",merchantLabel:"طلب متجر",caseLabel:"حالة دعم",reported:"بلاغات",noReport:"معلومات الحساسية غير متوفرة",unknown:"غير معروف",open:"فتح",systems:"روابط سريعة",all:"جميع الأقسام",loading:"جارٍ تحميل البيانات",connected:"بيانات مباشرة",pending:"قيد الانتظار",infoRequired:"معلومات مطلوبة",high:"مرتفع",medium:"متوسط",low:"منخفض",decision:"يتطلب قراراً",actor:"بواسطة",auditLabel:"التدقيق"}
+} as const;
 
-  const load = useCallback(async () => {
-    setRefreshing(true);
-    setError(false);
-    try {
-      const [firstOffers, pendingMerchants, infoRequiredMerchants, cases, audit] = await Promise.all([
-        api.get<Page<Offer>>("/admin/offers?page=0&size=20"),
-        api.get<Page<Merchant>>("/admin/merchants?status=PENDING&page=0&size=4"),
-        api.get<Page<Merchant>>("/admin/merchants?status=INFO_REQUIRED&page=0&size=4"),
-        api.get<Page<CaseItem>>("/admin/support-cases?status=OPEN&page=0&size=4"),
-        api.get<Page<AuditRow>>("/admin/audit-log?page=0&size=4")
-      ]);
-      const allOffers = [...firstOffers.items];
-      for (let nextPage = 1; allOffers.length < firstOffers.total && nextPage < 100; nextPage += 1) {
-        const nextOffers = await api.get<Page<Offer>>("/admin/offers?page=" + nextPage + "&size=20");
-        if (!nextOffers.items.length) break;
-        allOffers.push(...nextOffers.items);
-      }
-      const offers = { ...firstOffers, items: allOffers };
-      const merchants = { ...pendingMerchants, items: [...pendingMerchants.items, ...infoRequiredMerchants.items], total: pendingMerchants.total + infoRequiredMerchants.total };
-      setSnapshot({ offers, merchants, cases, audit });
-      setRefreshedAt(new Date());
-    } catch {
-      setError(true);
-    } finally {
-      setRefreshing(false);
-    }
-  }, []);
+function fmt(n:number,l:SiteLocale){return new Intl.NumberFormat(l==="ar"?"ar-MA":l==="en"?"en-MA":"fr-MA").format(n)}
+function ago(value:string,l:SiteLocale){const d=Date.parse(value);if(!Number.isFinite(d))return "";const m=Math.max(0,Math.floor((Date.now()-d)/60000));if(l==="ar")return m<60?m+" د":m<1440?Math.floor(m/60)+" س":Math.floor(m/1440)+" ي";if(l==="fr")return m<60?m+" min":m<1440?Math.floor(m/60)+" h":Math.floor(m/1440)+" j";return m<60?m+" min":m<1440?Math.floor(m/60)+" h":Math.floor(m/1440)+" d"}
+function human(value:string){return value.replace(/[._-]+/g," ").toLowerCase().replace(/\b\w/g,x=>x.toUpperCase())}
 
-  useEffect(() => { void Promise.resolve().then(load); }, [load, reload]);
-
-  const flagged = (snapshot?.offers.items ?? [])
-    .filter(item => item.reportedCount > 0 || item.allergensStatus === "UNKNOWN")
-    .sort((a, b) => (b.reportedCount >= 3 ? 0 : b.allergensStatus === "UNKNOWN" ? 1 : 2) - (a.reportedCount >= 3 ? 0 : a.allergensStatus === "UNKNOWN" ? 1 : 2) || b.reportedCount - a.reportedCount);
-  const openCases = [...(snapshot?.cases.items ?? [])].sort((a, b) => ({ HIGH: 0, MEDIUM: 1, LOW: 2 }[a.priority as "HIGH" | "MEDIUM" | "LOW"] ?? 3) - ({ HIGH: 0, MEDIUM: 1, LOW: 2 }[b.priority as "HIGH" | "MEDIUM" | "LOW"] ?? 3));
-  const waitingMerchants = snapshot?.merchants.items ?? [];
-  const auditRows = snapshot?.audit.items ?? [];
-  const priorityLabel = (priority: string) => priority === "HIGH" ? copy.high : priority === "MEDIUM" ? copy.medium : copy.low;
-  const timeLabel = (value: string) => new Intl.DateTimeFormat(locale === "ar" ? "ar-MA" : locale === "en" ? "en-MA" : "fr-MA", { timeZone: "Africa/Casablanca", hour: "2-digit", minute: "2-digit" }).format(new Date(value));
-  const actionLabel = (value: string) => value.split(/[._-]+/).filter(Boolean).map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()).join(" ");
-
-  return <div className={styles.shell+" kulhaAdminShell"} data-page="overview" dir={locale==="ar"?"rtl":"ltr"}>
-    <main className={styles.page}>
-  <div className={styles.adminOverview}>
-    <header className={styles.header}>
-      <div><h1>{copy.title}</h1><p>{copy.lead}{refreshedAt ? " · "+copy.updated+" "+timeLabel(refreshedAt.toISOString()) : ""}</p></div>
-      <div className={styles.overviewLive}><span><i/>{copy.live}</span><button type="button" disabled={refreshing} onClick={()=>setReload(value=>value+1)}><RefreshCw size={15} className={refreshing?styles.overviewSpin:""}/>{copy.refresh}</button></div>
-    </header>
-    {error && <div className={styles.alert} role="alert">{copy.failed}<button type="button" onClick={()=>setReload(value=>value+1)}>{copy.refresh}</button></div>}
-    <section className={styles.overviewMetrics} data-testid="overview-metrics">
-      <Link href={localePath(locale, "/admin/offer-moderation")}><span><AlertTriangle size={19}/></span><strong>{snapshot ? flagged.length : "—"}</strong><b>{copy.offers}</b><small>{snapshot?flagged.filter(item=>item.reportedCount>0).length+" "+copy.reported+" · "+flagged.filter(item=>item.allergensStatus==="UNKNOWN").length+" "+copy.unknown:""}</small><ArrowRight size={16}/></Link>
-      <Link href={localePath(locale, "/admin/merchant-review")}><span><Store size={19}/></span><strong>{snapshot?.merchants.total ?? "—"}</strong><b>{copy.merchants}</b><small>{snapshot?waitingMerchants.filter(item=>item.status==="PENDING").length+" "+copy.pending+" · "+waitingMerchants.filter(item=>item.status==="INFO_REQUIRED").length+" "+copy.info:""}</small><ArrowRight size={16}/></Link>
-      <Link href={localePath(locale, "/admin/support-cases")}><span><LifeBuoy size={19}/></span><strong>{snapshot?.cases.total ?? "—"}</strong><b>{copy.cases}</b><small>{snapshot?openCases.filter(item=>item.priority==="HIGH").length+" "+copy.high+" · "+openCases.filter(item=>item.priority==="MEDIUM").length+" "+copy.medium+" · "+openCases.filter(item=>item.priority==="LOW").length+" "+copy.low:""}</small><ArrowRight size={16}/></Link>
-    </section>
-    <div className={styles.overviewColumns} data-testid="overview-columns">
-      <section className={styles.overviewQueue} data-testid="overview-priority-queue">
-        <div className={styles.overviewQueueHead}><h2>{copy.queue}</h2><Link href={localePath(locale, "/admin/offer-moderation")}>{copy.view} <ArrowRight size={14}/></Link></div>
-        {flagged.slice(0,2).map(item => <Link className={styles.overviewOffer} key={item.id} href={localePath(locale, "/admin/offer-moderation")}><span className={styles.overviewOfferIcon}><Tag size={17}/></span><span><strong>{item.title}</strong><small>{item.shopName} · {item.city}{item.pickupStart ? " · "+timeLabel(item.pickupStart) : ""}</small></span><span className={styles.overviewSignal}>{item.reportedCount > 0 ? item.reportedCount+" "+copy.reported : copy.unknown}</span></Link>)}
-        {openCases.slice(0,1).map(item=><Link className={styles.overviewOffer} key={item.reference} href={localePath(locale,"/admin/support-cases")}><span className={styles.overviewOfferIcon}><LifeBuoy size={17}/></span><span><strong>{item.reference} · {item.subject}</strong><small>{item.merchantName||"—"}</small></span><span className={styles.overviewSignal}>{priorityLabel(item.priority)}</span></Link>)}
-        {waitingMerchants.slice(0,1).map(item=><Link className={styles.overviewOffer} key={item.id} href={localePath(locale,"/admin/merchant-review")}><span className={styles.overviewOfferIcon}><Store size={17}/></span><span><strong>{item.name}</strong><small>{item.businessType} · {item.city}</small></span><span className={styles.overviewPending}>{copy.pending}</span></Link>)}
-        {snapshot&&flagged.length===0&&openCases.length===0&&waitingMerchants.length===0&&<p className={styles.empty}>{copy.empty}</p>}
-      </section>
-      <div className={styles.overviewSide} data-testid="overview-side-column">
-        <section className={styles.overviewQueue}>
-          <div className={styles.overviewQueueHead}><h2>{copy.recent}</h2><Link href={localePath(locale,"/admin/audit-log")}>{copy.view} <ArrowRight size={14}/></Link></div>
-          {auditRows.length?auditRows.slice(0,4).map(item=><article className={styles.overviewActivity} key={item.id}><span className={styles.overviewActivityIcon}><Clock3 size={15}/></span><span><strong>{actionLabel(item.action)}</strong><small>{item.actorName} · {timeLabel(item.createdAt)}</small></span><em className={item.result==="SUCCESS"?styles.overviewSuccess:styles.overviewFailure}>{item.result==="SUCCESS"?<Check size={13}/>:<XCircle size={13}/>}</em></article>):<p className={styles.empty}>{snapshot?copy.noActivity:"—"}</p>}
-        </section>
-        <section className={styles.overviewSystems}>
-          <h2>{copy.systems}</h2>
-          <p><Check size={14}/><span>Offers</span><strong>✓</strong></p>
-          <p><Check size={14}/><span>Audit</span><strong>✓</strong></p>
-          <p><Check size={14}/><span>Support</span><strong>✓</strong></p>
-          <div><FileText size={17}/><span><strong>{copy.documents}</strong><small>{copy.docsHelp}</small></span></div>
-        </section>
-      </div>
-    </div>
-  </div>
-    </main>
-  </div>;
+export function AdminOverview({locale}:{locale:SiteLocale}) {
+ const t=copy[locale];const [data,setData]=useState<Snapshot>(emptySnapshot);const [busy,setBusy]=useState(false);const [updated,setUpdated]=useState<Date|null>(null);const [load,setLoad]=useState<"loading"|"ready"|"partial"|"error">("loading");const alive=useRef(false);
+ const refresh=useCallback(async()=>{setBusy(true);const r=await Promise.allSettled([api.get<Page<Merchant>>("/admin/merchants?status=PENDING&page=0&size=6"),api.get<Page<Merchant>>("/admin/merchants?status=INFO_REQUIRED&page=0&size=6"),api.get<Page<Offer>>("/admin/offers?page=0&size=100"),api.get<Page<SupportCase>>("/admin/support-cases?status=OPEN&page=0&size=6"),api.get<Page<AuditEntry>>("/admin/audit-log?page=0&size=6")]);if(!alive.current)return;const d:Snapshot={merchants:r[0].status==="fulfilled"?r[0].value:null,infoMerchants:r[1].status==="fulfilled"?r[1].value:null,offers:r[2].status==="fulfilled"?r[2].value:null,cases:r[3].status==="fulfilled"?r[3].value:null,audit:r[4].status==="fulfilled"?r[4].value:null};const ok=r.filter(x=>x.status==="fulfilled").length;setData(d);setLoad(ok===0?"error":ok===5?"ready":"partial");setUpdated(new Date());setBusy(false)},[]);
+ useEffect(()=>{alive.current=true;void refresh();const f=()=>void refresh();const v=()=>{if(!document.hidden)void refresh()};const timer=window.setInterval(()=>{if(!document.hidden)void refresh()},60000);window.addEventListener("focus",f);document.addEventListener("visibilitychange",v);return()=>{alive.current=false;window.clearInterval(timer);window.removeEventListener("focus",f);document.removeEventListener("visibilitychange",v)}},[refresh]);
+ const offers=data.offers?.items??[];const flags=offers.filter(o=>o.reportedCount>0||o.allergensStatus==="UNKNOWN");const reported=offers.filter(o=>o.reportedCount>0);const unknown=offers.filter(o=>o.allergensStatus==="UNKNOWN");const merchants=data.merchants?.items??[];const infos=data.infoMerchants?.items??[];const cases=data.cases?.items??[];const high=cases.filter(c=>c.priority==="HIGH").length;const activity=data.audit?.items??[];
+ const work=[...flags.slice(0,4).map(o=>({key:o.id,kind:"offer" as const,title:o.title,sub:o.shopName+" · "+o.city,meta:o.reportedCount?o.reportedCount+" "+t.reported:t.noReport,path:"/admin/offer-moderation",urgent:o.allergensStatus==="UNKNOWN"})),...cases.slice(0,3).map(c=>({key:c.reference,kind:"case" as const,title:c.reference+" · "+c.subject,sub:c.merchantName||t.caseLabel,meta:c.priority==="HIGH"?t.high:c.priority==="MEDIUM"?t.medium:t.low,path:"/admin/support-cases",urgent:c.priority==="HIGH"})),...[...merchants,...infos].slice(0,3).map(m=>({key:m.id,kind:"merchant" as const,title:m.name,sub:(m.businessType||t.merchantLabel)+" · "+m.city,meta:m.status==="INFO_REQUIRED"?t.infoRequired:t.pending,path:"/admin/merchant-review",urgent:false}))].slice(0,8);
+ const fmtTime=updated?new Intl.DateTimeFormat(locale==="ar"?"ar-MA":locale==="en"?"en-MA":"fr-MA",{timeZone:"Africa/Casablanca",hour:"2-digit",minute:"2-digit"}).format(updated):t.loading;const link=(p:string)=>localePath(locale,p);
+ return <main className={styles.dashboard} dir={locale==="ar"?"rtl":"ltr"} data-testid="admin-overview">
+  <header className={styles.header}><div><span className={styles.kicker}>{t.greeting}</span><h1>{t.title}</h1><p>{t.subtitle}</p></div><div className={styles.headerTools}><span className={styles.live}><i/>{t.connected}</span><span className={styles.updated}>{t.last} · {fmtTime}</span><button onClick={()=>void refresh()} disabled={busy}><RefreshCw size={18} className={busy?styles.spin:""}/>{busy?t.refreshing:t.refresh}</button></div></header>
+  {load==="error"&&<div className={styles.error} role="alert"><AlertTriangle size={21}/>{t.loadError}<button onClick={()=>void refresh()}>{t.retry}</button></div>}{load==="partial"&&<div className={styles.partial} role="status"><AlertTriangle size={18}/>{t.partial}</div>}
+  <section className={styles.metrics} data-testid="admin-overview-metrics">
+   <Link href={link("/admin/merchant-review")} className={styles.merchantMetric}><span className={styles.icon}><Store size={23}/></span><span className={styles.metricValue}>{data.merchants?fmt(data.merchants.total,locale):"—"}</span><span className={styles.metricLabel}>{t.pendingMerchants}</span><span className={styles.metricFoot}>{fmt(data.infoMerchants?.total??0,locale)} {t.infoMerchants}</span><ArrowRight size={18}/></Link>
+   <Link href={link("/admin/offer-moderation")} className={styles.offerMetric}><span className={styles.icon}><Tag size={23}/></span><span className={styles.metricValue}>{data.offers?fmt(flags.length,locale):"—"}</span><span className={styles.metricLabel}>{t.flaggedOffers}</span><span className={styles.metricFoot}>{fmt(reported.length,locale)} {t.reported} · {fmt(unknown.length,locale)} {t.allergens}</span><ArrowRight size={18}/></Link>
+   <Link href={link("/admin/support-cases")} className={styles.caseMetric}><span className={styles.icon}><ClipboardList size={23}/></span><span className={styles.metricValue}>{data.cases?fmt(data.cases.total,locale):"—"}</span><span className={styles.metricLabel}>{t.openCases}</span><span className={styles.metricFoot}>{fmt(high,locale)} {t.high}</span><ArrowRight size={18}/></Link>
+  </section>
+  <section className={styles.mainGrid}>
+   <section className={styles.queue}><header className={styles.sectionHead}><div><span className={styles.sectionLabel}>{t.decision}</span><h2>{t.priority}</h2></div><Link href={link("/admin/offer-moderation")}>{t.viewQueue}<ArrowRight size={18}/></Link></header>
+    {load==="loading"&&<div className={styles.skeleton}><i/><i/><i/></div>}
+    {work.length>0&&<div className={styles.queueList}>{work.map(x=><Link key={x.kind+x.key} href={link(x.path)} className={styles.queueRow}><span className={x.urgent?styles.queueIconAlert:x.kind==="offer"?styles.queueIconOffer:x.kind==="merchant"?styles.queueIconMerchant:styles.queueIconCase}>{x.kind==="offer"?<Tag size={20}/>:x.kind==="merchant"?<Store size={20}/>:<ClipboardList size={20}/>}</span><span className={styles.queueText}><strong>{x.title}</strong><small>{x.sub}</small></span><span className={x.urgent?styles.badgeRed:styles.badge}>{x.meta}</span><span className={styles.queueOpen}>{t.open}<ArrowRight size={17}/></span></Link>)}</div>}
+    {!work.length&&load!=="loading"&&<div className={styles.emptyQueue}><span>✓</span><strong>{t.noWork}</strong></div>}
+   </section>
+   <aside className={styles.focusColumn}>
+    <section className={styles.foodSafety}><header><ShieldAlert size={23}/><div><h2>{t.foodSafety}</h2><p>{t.allergens}</p></div><strong>{fmt(unknown.length,locale)}</strong></header>{unknown.slice(0,4).map(o=><Link href={link("/admin/offer-moderation")} key={o.id}><span><b>{o.title}</b><small>{o.shopName}</small></span><span className={styles.badgeRed}>{t.unknown}</span></Link>)}{!unknown.length&&load!=="loading"&&<p className={styles.focusEmpty}>{t.noSafety}</p>}</section>
+    <section className={styles.reports}><header><span className={styles.reportIcon}><AlertTriangle size={19}/></span><h2>{t.reports}</h2><strong>{fmt(reported.length,locale)}</strong></header>{reported.slice(0,4).map(o=><Link href={link("/admin/offer-moderation")} key={o.id}><span><b>{o.title}</b><small>{o.shopName}</small></span><span className={styles.badge}>{fmt(o.reportedCount,locale)} {t.reported}</span></Link>)}{!reported.length&&load!=="loading"&&<p className={styles.focusEmpty}>{t.noSafety}</p>}</section>
+   </aside>
+  </section>
+  <section className={styles.bottomGrid}>
+   <section className={styles.activity}><header className={styles.sectionHead}><div><span className={styles.sectionLabel}>{t.actor}</span><h2>{t.recent}</h2></div><Link href={link("/admin/audit-log")}>{t.audit}<ArrowRight size={18}/></Link></header>{activity.length?<div className={styles.activityList}>{activity.slice(0,5).map(a=><article key={a.id}><span className={a.result==="SUCCESS"?styles.activityGood:styles.activityBad}><Activity size={19}/></span><div><strong>{human(a.action)}</strong><small>{a.actorName} · {a.targetType} #{a.targetId}</small>{a.reason&&<p>{a.reason}</p>}</div><time>{ago(a.createdAt,locale)}</time></article>)}</div>:<p className={styles.activityEmpty}>{load==="loading"?t.loading:t.noActivity}</p>}</section>
+   <section className={styles.shortcuts}><header><span className={styles.sectionLabel}>{t.all}</span><h2>{t.systems}</h2></header><Link href={link("/admin/merchant-review")}><Store size={20}/><span>{t.merchantReview}</span><ArrowRight size={18}/></Link><Link href={link("/admin/offer-moderation")}><Tag size={20}/><span>{t.offerReview}</span><ArrowRight size={18}/></Link><Link href={link("/admin/support-cases")}><Users size={20}/><span>{t.support}</span><ArrowRight size={18}/></Link><Link href={link("/admin/audit-log")}><Activity size={20}/><span>{t.audit}</span><ArrowRight size={18}/></Link></section>
+  </section>
+ </main>;
 }
