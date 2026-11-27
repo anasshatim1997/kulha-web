@@ -5368,3 +5368,16 @@
 .auditExplorer .auditRecordCard{left:50%;width:min(900px,calc(100vw - 48px));transform:translateX(-50%);height:min(88vh,900px);max-height:88vh}
 @media(min-width:900px) and (max-height:800px){.supportWorkspace:has(.caseDetail .detailHead) .caseDetail{left:50%!important;width:min(1100px,calc(100vw - 48px))!important;transform:translate(-50%,-50%)!important}}
 @media(max-width:899px){.offerWorkspace:has(.offerPreviewHeading) .offerPreviewCard{left:50%;width:calc(100vw - 16px);transform:translateX(-50%)}.merchantReviewWorkspace:has(.merchantDetails .detailHead) .merchantDetails{left:50%;width:calc(100vw - 16px);transform:translateX(-50%)}.supportWorkspace:has(.caseDetail .detailHead) .caseDetail{left:50%;width:calc(100vw - 16px);transform:translateX(-50%)}.auditExplorer .auditRecordCard{left:50%;width:calc(100vw - 16px);transform:translateX(-50%)}}
+
+/* Reference-inspired workspaces: readable, spacious, without a permanent rail */
+.page{max-width:1640px;padding:clamp(20px,3vw,42px) clamp(16px,3vw,40px) 60px;gap:22px}
+.header h1{font-size:clamp(28px,3vw,40px);letter-spacing:-.035em}
+.header p{font-size:15px;line-height:1.55;max-width:760px}
+.card{border-radius:22px;padding:clamp(18px,2vw,26px)}
+.tabs{gap:8px}
+.tab,.activeTab{min-height:40px;padding:8px 14px;font-size:13px}
+.listRow,.selectedRow{padding:16px 15px;border-radius:14px}
+.merchantReviewWorkspace,.supportWorkspace{gap:clamp(16px,2vw,24px)}
+.offerWorkspace{gap:clamp(16px,2vw,24px);height:min(780px,calc(100dvh - 230px));min-height:520px}
+.auditExplorer{gap:16px}
+@media(max-width:899px){.page{padding:20px 14px 36px}.merchantReviewWorkspace,.supportWorkspace,.offerWorkspace{grid-template-columns:minmax(0,1fr);height:auto;min-height:0}.offerWorkspace{height:auto}.topbar .search{min-height:46px}}
