@@ -4,7 +4,7 @@ import Link from "next/link";
 import { api } from "@/lib/api/client";
 import { canRevealSupportCustomerDetails, SUPPORT_DISCLOSURE_REASON_MAX_LENGTH } from "@/lib/auth/admin-access";
 import { useSession } from "@/components/session/SessionProvider";
-import { AlertTriangle, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, Eye, FileText, Filter, Image as ImageIcon, LifeBuoy, Lock, Search, ShieldCheck, Store, Tag, X } from "lucide-react";
+import { AlertTriangle, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, Eye, FileText, Filter, Image as ImageIcon, LifeBuoy, Lock, Search, ShieldCheck, Store, Tag, X, LogOut } from "lucide-react";
 import styles from "./AdminConsole.module.css";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { localePath } from "@/lib/navigation";
@@ -194,7 +194,7 @@ type MerchantAction="approve"|"request-information"|"reject";
 type OfferAction="suspend"|"request-edit"|"reinstate";
 
 export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
-    const t={...words[locale],...more[locale]};const {state}=useSession();const actorId=state.status==="authenticated"?state.user.id:"";const roles=state.status==="authenticated"?state.user.roles:[];const isSupportOnly=roles.includes("SUPPORT")&&!roles.includes("ADMIN")&&!roles.includes("SUPER_ADMIN");
+    const t={...words[locale],...more[locale]};const {state,signOut}=useSession();const actorId=state.status==="authenticated"?state.user.id:"";const roles=state.status==="authenticated"?state.user.roles:[];const isSupportOnly=roles.includes("SUPPORT")&&!roles.includes("ADMIN")&&!roles.includes("SUPER_ADMIN");
     const [loading,setLoading]=useState(true);const [failed,setFailed]=useState(false);const [reload,setReload]=useState(0);const [message,setMessage]=useState("");const [query,setQuery]=useState("");
     const [merchants,setMerchants]=useState<Page<Merchant>|null>(null);const [merchantStatus,setMerchantStatus]=useState("PENDING");const [merchantPage,setMerchantPage]=useState(0);const [selectedMerchant,setSelectedMerchant]=useState<Merchant|null>(null);const [merchantAction,setMerchantAction]=useState<MerchantAction|null>(null);const [checks,setChecks]=useState([false,false,false]);const [tabCounts,setTabCounts]=useState<{pending:number|null;info:number|null}>({pending:null,info:null});
     const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useState("");const [offerPage,setOfferPage]=useState(0);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");
@@ -270,7 +270,8 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
         <div className={styles.topbarTools}>
             {page!=="audit-log"&&<label className={styles.search} data-testid="admin-console-search"><Search size={16} aria-hidden="true"/><span className="sr-only">{searchPlaceholder}</span><input type="search" data-testid="admin-global-search" value={query} onChange={e=>setQuery(e.target.value)} placeholder={searchPlaceholder}/><kbd>⌘ K</kbd></label>}
             <span className={styles.localeMark}>{locale.toUpperCase()}</span>
-            <span className={styles.adminAvatar}>AD</span>
+            <div className={styles.adminIdentity}><span className={styles.adminAvatar}>{state.status==="authenticated"?(state.user.fullName||state.user.email).slice(0,1).toUpperCase():"A"}</span><span>{state.status==="authenticated"?(state.user.fullName||state.user.email):"Admin"}</span></div>
+            <button type="button" className={styles.topbarSignOut} onClick={()=>void signOut()}><LogOut size={15} aria-hidden="true"/>{locale==="fr"?"Déconnexion":locale==="ar"?"تسجيل الخروج":"Sign out"}</button>
         </div>
     </header>;
     const frame=(content:ReactNode)=><div className={styles.shell+" kulhaAdminShell"} data-page={page} dir={locale==="ar"?"rtl":"ltr"}>{topbar}<main className={styles.page}>{content}</main></div>;
