@@ -26,4 +26,5 @@ export function AdminTopNav({locale}:{locale:SiteLocale}) {
    <div className={styles.languages} aria-label="Languages">{(["fr","en","ar"] as const).map(l=><Link key={l} href={localePath(l,removeLocalePrefix(pathname)||"/")} className={l===locale?styles.languageActive:styles.language}>{languageNames[l]}</Link>)}</div>
    <Link href={localePath(locale,"/")} className={styles.exit}>{locale==="fr"?"Site public":locale==="ar"?"الموقع العام":"Public site"} <span>↗</span></Link>
   </div>
- </nav>
+ </nav>;
+}
