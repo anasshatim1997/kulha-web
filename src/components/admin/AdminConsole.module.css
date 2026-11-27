@@ -5511,3 +5511,151 @@
     .overviewMetric { transition: none; }
     .overviewMetric:hover { transform: none; }
 }
+
+
+/* Unified visual system for every administration screen. */
+.shell{--ink:#123b2d;--muted:#586b60;--line:#e4e1d7;--paper:#fffefa;--canvas:#f5f2e9;--green:#073b2d;--gold:#f3b92f;min-height:100dvh!important;height:auto!important;overflow:visible!important;background:var(--canvas);color:var(--ink);font-size:16px;line-height:1.5}
+.shell *{box-sizing:border-box}
+.shell .topbar{position:sticky!important;inset-block-start:0!important;z-index:1000!important;isolation:isolate;display:flex;width:100%;min-height:78px;height:auto!important;align-items:center;gap:22px;padding:12px clamp(20px,3.5vw,56px);border:0;background:var(--green);box-shadow:0 5px 20px #0524191f;pointer-events:auto!important}
+.shell .topbar>* ,.shell .topbarNav,.shell .topbarNav a,.shell .topbarTools,.shell .topbarTools button,.shell .topbarTools input{pointer-events:auto!important}
+.shell .topbarBrand{flex:0 0 auto;color:#fffefa;font-size:25px;font-weight:1000;letter-spacing:-.045em}
+.shell .topbarBrand span{color:var(--gold)}
+.shell .topbarNav{display:flex;flex:1 1 auto;min-width:0;align-items:center;gap:7px;overflow:visible}
+.shell .topbarNavLink,.shell .topbarNavActive{display:inline-flex;min-height:46px;align-items:center;justify-content:center;gap:9px;padding:0 17px;border:1px solid transparent;border-radius:13px;color:#e5eee8;font-size:15px;font-weight:850;line-height:1.2;text-decoration:none;white-space:nowrap}
+.shell .topbarNavLink:hover{background:#ffffff17;color:#fff}
+.shell .topbarNavActive{border-color:#fffefa;background:#fffefa;color:var(--green)}
+.shell .navCount{min-width:21px;height:21px;font-size:11px}
+.shell .topbarTools{flex:0 1 auto;min-width:0;gap:12px}
+.shell .topbar .search{width:clamp(190px,22vw,320px);min-width:180px;max-width:320px;height:44px;padding-inline:13px;border:1px solid #547769;border-radius:12px;background:#104b39}
+.shell .topbar .search input{color:#fff;font-size:14px}
+.shell .topbar .search input::placeholder{color:#c4d4ca;opacity:1}
+.shell .topbar .search kbd{font-size:11px}
+.shell .localeMark{color:#fff;font-size:13px;font-weight:850}
+.shell .adminIdentity{display:inline-flex;align-items:center;gap:9px;color:#fff;font-size:14px;font-weight:850;white-space:nowrap}
+.shell .adminAvatar{width:40px;height:40px;font-size:14px}
+.shell .topbarSignOut{min-height:44px;padding-inline:16px;border-radius:999px;font-size:14px}
+.shell .topbar a:focus-visible,.shell .topbar button:focus-visible,.shell .topbar input:focus-visible,.shell .overview a:focus-visible{outline:3px solid var(--gold);outline-offset:3px;position:relative;z-index:3}
+.shell>.page{display:grid;width:min(100%,1800px);max-width:none!important;min-height:calc(100dvh - 78px);height:auto!important;margin-inline:auto;padding:clamp(30px,3.2vw,52px) clamp(22px,3.4vw,58px) 84px;gap:26px;overflow:visible!important}
+.shell .header{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px 24px}
+.shell .headerCopy{min-width:0}
+.shell .header h1,.shell[data-page="merchant-review"] .header h1,.shell[data-page="offer-moderation"] .header h1,.shell[data-page="support-cases"] .header h1,.shell[data-page="audit-log"] .header h1,.shell[data-page="overview"] .header h1{margin:0 0 7px;color:var(--ink);font-size:clamp(34px,2.5vw,42px)!important;font-weight:950;line-height:1.12;letter-spacing:-.035em;white-space:normal}
+.shell .header p,.shell[data-page="merchant-review"] .header p,.shell[data-page="offer-moderation"] .header p,.shell[data-page="support-cases"] .header p,.shell[data-page="audit-log"] .header p,.shell[data-page="overview"] .header p{max-width:900px;margin:0;color:var(--muted);font-size:16px!important;line-height:1.6}
+.shell .card,.shell .merchantDetails,.shell .offerPicker,.shell .offerPreviewCard,.shell .offerDecision,.shell .casePicker,.shell .caseDetail,.shell .auditFilters,.shell .auditExplorer,.shell .auditRecordCard,.shell .overviewPanel{border:1px solid var(--line);border-radius:20px;background:var(--paper);box-shadow:0 7px 24px #1932220d}
+.shell .merchantReviewWorkspace{display:grid;grid-template-columns:minmax(310px,.36fr) minmax(0,.64fr);align-items:start;gap:24px;min-width:0}
+.shell .merchantPicker{display:grid;align-content:start;gap:16px;min-width:0;min-height:0!important;height:auto!important;max-height:none!important;padding:0;overflow:visible!important}
+.shell .merchantPicker .list{display:grid;gap:12px}
+.shell .merchantListItem,.shell .merchantSelected{display:grid;gap:8px;min-width:0;padding:18px 19px;border:1px solid var(--line);border-radius:16px;background:var(--paper);text-align:start}
+.shell .merchantListItem:hover,.shell .merchantSelected{border-color:#3e7456;box-shadow:0 4px 16px #073b2d14}
+.shell .merchantListTop strong,.shell .merchantListItem strong,.shell .merchantSelected strong{color:var(--ink);font-size:16px!important;font-weight:900;line-height:1.35}
+.shell .merchantListItem>small,.shell .merchantSelected>small{color:var(--muted);font-size:14px!important;line-height:1.5;overflow-wrap:anywhere}
+.shell .merchantDetails{min-width:0;min-height:0!important;height:auto!important;max-height:none!important;padding:clamp(24px,2.4vw,36px);overflow:visible!important}
+.shell .merchantDetails .detailHead{align-items:center;gap:18px;margin:0}
+.shell .merchantDetails .detailHead small{color:var(--muted);font-size:14px!important;line-height:1.5}
+.shell .detailHead h2,.shell .merchantDetails .detailHead h2,.shell .caseDetail .detailHead h2,.shell .offerPreviewTitle h2{color:var(--ink);font-size:clamp(26px,2vw,34px)!important;line-height:1.2;font-weight:950;letter-spacing:-.025em;white-space:normal;overflow-wrap:anywhere}
+.shell .merchantStepper{display:flex;align-items:center;gap:15px;margin:24px 0 28px}
+.shell .merchantStepper>div{display:flex;align-items:center;gap:10px;min-width:0}
+.shell .merchantStepper>div>span{flex:0 0 30px;width:30px;height:30px;font-size:14px}
+.shell .merchantStepper strong{font-size:14px!important;line-height:1.35;white-space:nowrap}
+.shell .merchantFacts>div,.shell .merchantDetails .merchantPreviewInfo .merchantFacts>div{display:grid;grid-template-columns:minmax(130px,.85fr) minmax(0,1.15fr);align-items:start;gap:18px;padding:13px 0}
+.shell .merchantFacts dt,.shell .merchantFacts dd,.shell .merchantDetails .merchantPreviewInfo .merchantFacts dt,.shell .merchantDetails .merchantPreviewInfo .merchantFacts dd{min-width:0;color:var(--ink);font-size:15px!important;line-height:1.5;overflow-wrap:anywhere}
+.shell .merchantFacts dt{color:var(--muted)!important;font-weight:650}
+.shell .merchantFacts dd{text-align:start;font-weight:800}
+.shell .merchantDetails .merchantDocuments h3,.shell .merchantDetails .merchantModalSection h3,.shell .merchantDecision>h3,.shell .card h3,.shell .sectionLabel{margin:0 0 15px;color:#53695b;font-size:14px!important;font-weight:950;letter-spacing:.09em;line-height:1.4}
+.shell .merchantInlineBody{gap:18px;margin-top:20px}
+.shell .merchantModalSection{min-width:0;padding:18px;border:1px solid var(--line);border-radius:17px;background:#fffefa}
+.shell .merchantDocuments .missingDocs{min-height:0;padding:17px;border-radius:13px}
+.shell .merchantDocuments .missingDocs strong{font-size:14px!important;line-height:1.45}
+.shell .merchantDocuments .missingDocs small{margin-top:5px;font-size:13px!important;line-height:1.55}
+.shell .merchantDocuments .checkList{display:grid;gap:16px}
+.shell .merchantDocuments .checkList label,.shell .checkList label,.shell .inlineCheck{display:flex;align-items:center;gap:13px;color:var(--ink);font-size:15px!important;font-weight:750;line-height:1.5}
+.shell .checkList input,.shell .inlineCheck input{flex:0 0 24px;width:24px;height:24px}
+.shell .approveNote,.shell .hint,.shell .missingDocs{font-size:14px!important;line-height:1.55}
+.shell .merchantDecision{display:grid;gap:18px;margin-top:20px;padding:clamp(20px,2vw,28px);border:1px solid #e7e1d4;border-radius:18px;background:#f5f1e7}
+.shell .merchantDecision>h3{margin:0;font-size:14px!important}
+.shell .merchantDecision .segment{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(0,1fr);gap:12px;max-width:none}
+.shell .merchantDecision .segment button{min-width:0;min-height:50px;padding:10px 14px;border-radius:12px;font-size:15px!important;line-height:1.3;white-space:normal}
+.shell .merchantDecisionFields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:0}
+.shell .merchantDecisionFields .field,.shell .field{display:grid;min-width:0;gap:9px;margin:0;color:var(--ink);font-size:14px!important;font-weight:800;line-height:1.4}
+.shell .merchantDecisionFields .field textarea,.shell .field textarea,.shell .field input,.shell .field select,.shell .caseActionReason input,.shell .auditFilters input,.shell .auditFilters select{width:100%;min-height:48px;padding:12px 14px;border:1px solid #dcd8cc;border-radius:12px;background:#fffefa;color:var(--ink);font:inherit;font-size:15px!important;line-height:1.45}
+.shell .merchantDecisionFields .field textarea,.shell .field textarea{min-height:100px}
+.shell .merchantDecision .cardFoot{position:static;align-items:center;gap:16px;margin:0;padding-top:16px}
+.shell .merchantDecision .cardFoot p{max-width:65%;color:var(--muted);font-size:14px!important;line-height:1.5}
+.shell .primary,.shell .primaryWide,.shell .ghostBtn,.shell .dangerOutline,.shell .pageButton{min-height:44px;padding:10px 17px;border-radius:12px;font-size:14px!important;line-height:1.3;font-weight:850}
+.shell .tabs{gap:9px}
+.shell .tab,.shell .activeTab{min-height:42px;padding:9px 15px;border-radius:11px;font-size:14px!important;line-height:1.3}
+.shell .pill{min-height:27px;padding:5px 11px;font-size:13px!important;line-height:1.3}
+.shell .pagination{gap:14px;padding-top:14px}
+.shell .paginationSummary{font-size:14px!important}
+.shell .pageNumber,.shell .pageCurrent{min-width:40px;min-height:40px;font-size:14px!important}
+.shell .offerWorkspace{display:grid;grid-template-columns:minmax(320px,.38fr) minmax(0,.62fr);align-items:start;gap:24px;height:auto!important;min-height:0!important}
+.shell .offerPicker,.shell .offerPreviewCard,.shell .offerDecision,.shell .offerPreviewScroll{position:static!important;min-width:0;min-height:0!important;height:auto!important;max-height:none!important;padding:20px;overflow:visible!important}
+.shell .offerPicker{display:grid;align-content:start;gap:15px}
+.shell .offerQueue{display:grid;gap:12px}
+.shell .offerItem,.shell .offerItemSelected{grid-template-columns:60px minmax(0,1fr) auto;gap:13px;padding:13px;border-radius:15px}
+.shell .offerThumb{width:60px;height:60px}
+.shell .offerCopy{gap:5px}
+.shell .offerCopy>strong{font-size:15px!important;line-height:1.35}
+.shell .offerCopy>small{font-size:13px!important;line-height:1.4}
+.shell .offerTags{gap:6px}
+.shell .offerTags em{min-height:23px;padding:3px 9px;font-size:11px!important}
+.shell .offerPrice strong{font-size:14px!important}
+.shell .offerPrice small{font-size:12px!important}
+.shell .offerMetrics article{min-height:82px;padding:14px 16px;border-radius:15px}
+.shell .offerMetrics strong{font-size:30px}
+.shell .offerMetrics span{font-size:13px}
+.shell .offerPreviewHeading{gap:18px}
+.shell .offerPreviewTitle small{font-size:13px!important}
+.shell .offerPreviewTitle p{font-size:14px!important}
+.shell .offerPreviewFacts dt,.shell .offerPreviewFacts dd{font-size:15px!important;line-height:1.5}
+.shell .offerAction,.shell .offerActionActive,.shell .reasonChip,.shell .reasonChipActive{min-height:42px;padding:8px 14px;font-size:13px!important}
+.shell .foodSafetyAlert strong{font-size:15px!important}
+.shell .foodSafetyAlert small{font-size:14px!important;line-height:1.5}
+.shell .supportWorkspace{display:grid;grid-template-columns:minmax(300px,.36fr) minmax(0,.64fr);align-items:start;gap:24px;min-width:0}
+.shell .casePicker,.shell .caseDetail{min-width:0;min-height:0!important;height:auto!important;max-height:none!important;padding:22px;overflow:visible!important}
+.shell .caseList{display:grid;gap:11px}
+.shell .caseItem,.shell .caseSelected{display:grid;gap:8px;padding:16px;border-radius:14px}
+.shell .caseItem strong,.shell .caseSelected strong{font-size:15px!important;line-height:1.4}
+.shell .caseItem small,.shell .caseSelected small,.shell .caseListTop small{font-size:13px!important;line-height:1.45}
+.shell .caseReferenceCards article{padding:16px}
+.shell .caseReferenceCards small{font-size:13px!important}
+.shell .caseReferenceCards strong{font-size:15px!important;line-height:1.45}
+.shell .caseAssignment p,.shell .caseCustomer{font-size:14px!important;line-height:1.5}
+.shell .caseCustomer small{font-size:13px!important}
+.shell .caseTimeline article{padding:16px 18px}
+.shell .caseTimeline article strong{font-size:13px!important}
+.shell .caseTimeline article p{font-size:15px!important;line-height:1.6}
+.shell .messageComposer{gap:14px;padding:20px;border-radius:16px}
+.shell .modeButton,.shell .modeActive{min-height:42px;padding-inline:15px;font-size:14px!important}
+.shell .composerFoot p,.shell .caseActionReason{font-size:14px!important;line-height:1.5}
+.shell .caseActions .primary,.shell .caseActions .ghostBtn{min-height:46px;font-size:14px!important}
+.shell .auditFilters{gap:14px;padding:20px}
+.shell .auditFilters label,.shell .auditFilterLabel{font-size:14px!important}
+.shell .auditFilters input,.shell .auditFilters select{min-height:46px;font-size:14px!important}
+.shell .auditExplorerHeading h2{font-size:26px!important}
+.shell .auditExplorerHeading p{font-size:15px!important}
+.shell .auditExplorer .auditTableCard .table table{min-width:900px;font-size:14px!important}
+.shell .auditExplorer .auditTableCard .table th{padding:14px 13px;font-size:12px!important}
+.shell .auditExplorer .auditTableCard .table td{padding:15px 13px;font-size:14px!important;line-height:1.45}
+.shell .auditExplorer .auditTableCard .table td small{font-size:12px!important}
+.shell .overview{gap:24px}
+.shell .overviewWelcome{padding:clamp(24px,3vw,40px);border-radius:22px}
+.shell .overviewWelcome h2{font-size:clamp(32px,2.8vw,42px)}
+.shell .overviewWelcome p{font-size:16px}
+.shell .overviewEyebrow{font-size:12px}
+.shell .overviewMetrics{gap:18px}
+.shell .overviewMetric{gap:10px;padding:23px;border-radius:19px}
+.shell .overviewMetricLabel{font-size:15px}
+.shell .overviewMetric strong{font-size:clamp(36px,2.8vw,44px)}
+.shell .overviewMetric small{font-size:14px;line-height:1.5}
+.shell .overviewPanel{padding:25px}
+.shell .overviewPanel h3{font-size:23px}
+.shell .overviewQueueRow strong{font-size:16px}
+.shell .overviewQueueRow small{font-size:14px}
+.shell .overviewActivityRow strong{font-size:15px}
+.shell .overviewActivityRow small{font-size:13px}
+.shell .overviewViewAll,.shell .overviewBottom a{font-size:14px}
+.shell .overviewBottom>span{font-size:14px}
+@media(max-width:1180px){.shell .topbar{flex-wrap:wrap;gap:10px 16px}.shell .topbarNav{order:3;flex:1 1 100%;overflow-x:auto;padding-bottom:2px;scrollbar-width:thin}.shell .topbarTools{margin-inline-start:auto}.shell .merchantReviewWorkspace,.shell .supportWorkspace{grid-template-columns:minmax(260px,.38fr) minmax(0,.62fr);gap:18px}}
+@media(max-width:900px){.shell .topbar{position:sticky!important}.shell .merchantReviewWorkspace,.shell .offerWorkspace,.shell .supportWorkspace,.shell .overviewGrid{grid-template-columns:minmax(0,1fr)}.shell .merchantDetails,.shell .caseDetail{padding:22px}.shell .offerPicker{padding:18px}.shell .overviewMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.shell .topbar{gap:9px;padding:10px 13px}.shell .topbarBrand{font-size:21px}.shell .topbarNav{order:3;flex:1 1 100%;gap:4px}.shell .topbarNavLink,.shell .topbarNavActive{min-height:40px;padding-inline:12px;font-size:13px}.shell .topbarTools{flex:1 1 auto;gap:7px}.shell .topbar .search{width:min(43vw,210px);min-width:0;height:40px}.shell .adminIdentity{display:none}.shell .topbarSignOut{min-height:38px;padding-inline:10px;font-size:12px}.shell>.page{min-height:calc(100dvh - 100px);padding:23px 15px 54px;gap:20px}.shell .header h1,.shell[data-page="merchant-review"] .header h1,.shell[data-page="offer-moderation"] .header h1,.shell[data-page="support-cases"] .header h1,.shell[data-page="audit-log"] .header h1,.shell[data-page="overview"] .header h1{font-size:32px!important}.shell .header p{font-size:15px!important}.shell .merchantDecisionFields{grid-template-columns:minmax(0,1fr)}.shell .merchantDecision .segment{grid-template-columns:minmax(0,1fr)}.shell .merchantDecision .cardFoot{align-items:stretch;flex-direction:column}.shell .merchantDecision .cardFoot p{max-width:none}.shell .overviewWelcome{align-items:flex-start;flex-direction:column}.shell .overviewMetrics{gap:11px}.shell .overviewMetric{padding:16px}.shell .overviewMetric strong{font-size:32px}.shell .merchantStepper{gap:7px}.shell .merchantStepper strong{font-size:12px!important;white-space:normal}}
+@media(max-width:400px){.shell .topbarSignOut{width:38px;min-width:38px;padding:0;overflow:hidden;font-size:0}.shell .topbarSignOut svg{flex:0 0 auto}.shell .overviewMetrics{grid-template-columns:minmax(0,1fr)}}
