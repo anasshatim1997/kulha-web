@@ -4,12 +4,12 @@ import Link from "next/link";
 import { api } from "@/lib/api/client";
 import { canRevealSupportCustomerDetails, SUPPORT_DISCLOSURE_REASON_MAX_LENGTH } from "@/lib/auth/admin-access";
 import { useSession } from "@/components/session/SessionProvider";
-import { AlertTriangle, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, Eye, FileText, Filter, Image as ImageIcon, LifeBuoy, Lock, Search, ShieldCheck, Store, Tag, X, LogOut } from "lucide-react";
+import { AlertTriangle, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, LayoutDashboard, Eye, FileText, Filter, Image as ImageIcon, LifeBuoy, Lock, Search, ShieldCheck, Store, Tag, X, LogOut } from "lucide-react";
 import styles from "./AdminConsole.module.css";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { localePath } from "@/lib/navigation";
 
-type PageKey="merchant-review"|"offer-moderation"|"support-cases"|"audit-log";
+type PageKey="overview"|"merchant-review"|"offer-moderation"|"support-cases"|"audit-log";
 type Merchant={id:string;ownerUserId:string;ownerEmail:string;name:string;businessType:string;address:string;city:string;phone:string;openingHours:string;status:string;decisionReason:string|null;createdAt:string};
 type Offer={id:string;title:string;shopName:string;city:string;priceMinor:number;originalPriceMinor:number|null;quantityTotal:number;quantityReserved:number;allergensStatus:string;allergens:string|null;foodNotes:string|null;status:string;reportedCount:number;pickupStart:string|null;pickupEnd:string|null;imageUrl:string|null};
 type CaseItem={id:string;reference:string;category:string;subject:string;description:string;priority:string;status:string;customerUserId:string;customerLabel:string;merchantId:string|null;merchantName:string|null;offerId:string|null;offerTitle:string|null;reservationReference:string|null;assignedTo:string|null;assigneeName:string|null;hiddenOffer:boolean;createdAt:string;updatedAt:string;resolvedAt:string|null};
@@ -17,6 +17,7 @@ type Timeline={id:string;authorType:string;authorUserId:string|null;authorLabel:
 type AuditRow={id:string;actorUserId:string;actorName:string;action:string;targetType:string;targetId:string;reason:string|null;result:string;correlationId:string|null;createdAt:string};
 type Page<T>={items:T[];page:number;size:number;total:number};
 type AuditPage=Page<AuditRow>;
+type OverviewData={merchants:Page<Merchant>;offers:Page<Offer>;cases:Page<CaseItem>;audit:AuditPage};
 type LabelMap=Record<string,string>;
 
 const words={
@@ -195,7 +196,7 @@ type OfferAction="suspend"|"request-edit"|"reinstate";
 
 export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const t={...words[locale],...more[locale]};const {state,signOut}=useSession();const actorId=state.status==="authenticated"?state.user.id:"";const roles=state.status==="authenticated"?state.user.roles:[];const isSupportOnly=roles.includes("SUPPORT")&&!roles.includes("ADMIN")&&!roles.includes("SUPER_ADMIN");
-    const [loading,setLoading]=useState(true);const [failed,setFailed]=useState(false);const [reload,setReload]=useState(0);const [message,setMessage]=useState("");const [query,setQuery]=useState("");
+    const [loading,setLoading]=useState(true);const [failed,setFailed]=useState(false);const [overview,setOverview]=useState<OverviewData|null>(null);const [reload,setReload]=useState(0);const [message,setMessage]=useState("");const [query,setQuery]=useState("");
     const [merchants,setMerchants]=useState<Page<Merchant>|null>(null);const [merchantStatus,setMerchantStatus]=useState("PENDING");const [merchantPage,setMerchantPage]=useState(0);const [selectedMerchant,setSelectedMerchant]=useState<Merchant|null>(null);const [merchantAction,setMerchantAction]=useState<MerchantAction|null>(null);const [checks,setChecks]=useState([false,false,false]);const [tabCounts,setTabCounts]=useState<{pending:number|null;info:number|null}>({pending:null,info:null});
     const [offers,setOffers]=useState<Page<Offer>|null>(null);const [offerStatus,setOfferStatus]=useState("");const [offerPage,setOfferPage]=useState(0);const [selectedOffer,setSelectedOffer]=useState<Offer|null>(null);const [offerAction,setOfferAction]=useState<OfferAction>("suspend");
     const [cases,setCases]=useState<Page<CaseItem>|null>(null);const [caseStatus,setCaseStatus]=useState("OPEN");const [casePage,setCasePage]=useState(0);const [selectedCase,setSelectedCase]=useState<{summary:CaseItem;timeline:Timeline[]}|null>(null);const [caseCounts,setCaseCounts]=useState<{open:number|null;escalated:number|null;waiting:number|null;resolved:number|null}>({open:null,escalated:null,waiting:null,resolved:null});
@@ -206,6 +207,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
 
     useEffect(()=>{let active=true;
         const load=async()=>{try{
+            if(page==="overview"){const results=await Promise.all([api.get<Page<Merchant>>("/admin/merchants?status=PENDING&page=0&size=5"),api.get<Page<Offer>>("/admin/offers?page=0&size=5"),api.get<Page<CaseItem>>("/admin/support-cases?status=OPEN&page=0&size=5"),api.get<AuditPage>("/admin/audit-log?page=0&size=5")]);if(active){setOverview({merchants:results[0],offers:results[1],cases:results[2],audit:results[3]});setFailed(false);}}
             if(page==="merchant-review"){const data=await api.get<Page<Merchant>>("/admin/merchants?status="+merchantStatus+"&page="+merchantPage+"&size="+MERCHANT_PAGE_SIZE);if(active){setMerchants(data);setFailed(false);setSelectedMerchant(data.items[0]??null);setMerchantAction(null);setChecks([false,false,false]);setReason("");setInternalNote("");}
                 const [p,i]=await Promise.allSettled([api.get<Page<Merchant>>("/admin/merchants?status=PENDING&page=0&size=1"),api.get<Page<Merchant>>("/admin/merchants?status=INFO_REQUIRED&page=0&size=1")]);
                 if(active)setTabCounts({pending:p.status==="fulfilled"?p.value.total:null,info:i.status==="fulfilled"?i.value.total:null});}
@@ -223,8 +225,8 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
         void load();return()=>{active=false;};
     },[page,reload,merchantStatus,merchantPage,caseStatus,casePage,auditFrom,auditTo,auditAction,auditResult,auditPage,auditPageSize,auditSearch,offerPage]);
 
-    const title=page==="merchant-review"?t.merchantTitle:page==="offer-moderation"?t.offersTitle:page==="support-cases"?t.casesTitle:t.auditTitle;
-    const lead=page==="merchant-review"?t.merchantLead:page==="offer-moderation"?t.offersLead:page==="support-cases"?t.casesLead:t.auditLead;
+    const title=page==="overview"?(locale==="fr"?"Vue d’ensemble":locale==="ar"?"نظرة عامة":"Overview"):page==="merchant-review"?t.merchantTitle:page==="offer-moderation"?t.offersTitle:page==="support-cases"?t.casesTitle:t.auditTitle;
+    const lead=page==="overview"?(locale==="fr"?"Votre espace de pilotage : les priorités, les dernières activités et les points à traiter.":locale==="ar"?"مساحة الإدارة: الأولويات وآخر الأنشطة والمهام التي تتطلب إجراءً.":"Your operations at a glance: priorities, recent activity and work that needs attention."):page==="merchant-review"?t.merchantLead:page==="offer-moderation"?t.offersLead:page==="support-cases"?t.casesLead:t.auditLead;
     const q=query.trim().toLocaleLowerCase(locale);
     const match=(...values:(string|null|undefined)[])=>!q||values.some(v=>(v||"").toLocaleLowerCase(locale).includes(q));
     const merchantLabel=(s:string)=>s==="PENDING"?t.pending:s==="INFO_REQUIRED"?t.info:s==="APPROVED"?t.approved:t.rejected;
@@ -256,14 +258,15 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
 
     const searchPlaceholder=page==="merchant-review"?t.searchMerchant:page==="offer-moderation"?t.searchOffers:page==="support-cases"?t.searchCases:t.searchAudit;
     const navItems=[
+        {key:"overview" as const,href:"/admin",label:locale==="fr"?"Vue d’ensemble":locale==="ar"?"نظرة عامة":"Overview",icon:LayoutDashboard},
         {key:"merchant-review" as const,href:"/admin/merchant-review",label:locale==="fr"?"Commerces":locale==="ar"?"المتاجر":"Merchants",icon:Store},
         {key:"offer-moderation" as const,href:"/admin/offer-moderation",label:locale==="fr"?"Offres":locale==="ar"?"العروض":"Offers",icon:Tag},
         {key:"support-cases" as const,href:"/admin/support-cases",label:locale==="fr"?"Support":locale==="ar"?"الدعم":"Support",icon:LifeBuoy},
         {key:"audit-log" as const,href:"/admin/audit-log",label:locale==="fr"?"Journal":locale==="ar"?"سجل التدقيق":"Audit log",icon:ClipboardList}
     ];
-    const currentTitle=page==="merchant-review"?t.merchantTitle:page==="offer-moderation"?t.offersTitle:page==="support-cases"?t.casesTitle:t.auditTitle;
+    const currentTitle=title;
     const topbar=<header className={styles.topbar} data-testid="admin-console-topbar">
-        <Link href={localePath(locale,"/admin/merchant-review")} className={styles.topbarBrand} aria-label="KULHA Administration">KULHA<span>!</span></Link>
+        <Link href={localePath(locale,"/admin")} className={styles.topbarBrand} aria-label="KULHA Administration">KULHA<span>!</span></Link>
         <nav className={styles.topbarNav} aria-label={locale==="fr"?"Navigation principale":locale==="ar"?"التنقل الرئيسي":"Main navigation"}>
             {navItems.map(item=>{const count=item.key==="merchant-review"?tabCounts.pending:item.key==="offer-moderation"?offers?.total:item.key==="support-cases"?cases?.total:null;return <Link key={item.key} href={localePath(locale,item.href)} aria-current={page===item.key?"page":undefined} className={page===item.key?styles.topbarNavActive:styles.topbarNavLink}><span>{item.label}</span>{typeof count==="number"&&count>0&&<em className={styles.navCount}>{count}</em>}</Link>;})}
         </nav>
@@ -318,6 +321,34 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
         </header>
         {message&&<div className={styles.notice} role="status">{message}</div>}
 
+
+        {page==="overview"&&overview&&(()=>{
+            const pending=overview.merchants.total;
+            const openCases=overview.cases.total;
+            const unknown=overview.offers.items.filter(item=>item.allergensStatus==="UNKNOWN").length;
+            const flagged=overview.offers.items.filter(item=>item.reportedCount>0).length;
+            const labels=locale==="fr"?{pending:"Commerces à examiner",offers:"Offres récentes",cases:"Dossiers ouverts",activity:"Activité récente",queue:"À traiter en priorité",view:"Voir la file",empty:"Aucune activité récente.",flagged:"Signalements dans les offres chargées",unknown:"Offres avec allergènes inconnus",recent:"Événements récents"}:locale==="ar"?{pending:"متاجر بانتظار المراجعة",offers:"العروض الأخيرة",cases:"حالات مفتوحة",activity:"النشاط الأخير",queue:"الأولويات",view:"عرض القائمة",empty:"لا يوجد نشاط حديث.",flagged:"بلاغات ضمن العروض المعروضة",unknown:"عروض بمسببات حساسية غير معروفة",recent:"الأحداث الأخيرة"}:{pending:"Merchants to review",offers:"Recent offers",cases:"Open support cases",activity:"Recent activity",queue:"Needs attention",view:"Open queue",empty:"No recent activity.",flagged:"Reports in the loaded offers",unknown:"Offers with unknown allergens",recent:"Recent events"};
+            return <section className={styles.overview}>
+                <div className={styles.overviewWelcome}><div><span className={styles.overviewEyebrow}>KULHA! · ADMINISTRATION</span><h2>{locale==="fr"?"Bonjour":locale==="ar"?"مرحباً":"Good to see you"}{state.status==="authenticated"&&state.user.fullName?" "+state.user.fullName.split(" ")[0]:""}</h2><p>{lead}</p></div><span className={styles.overviewDate}>{new Intl.DateTimeFormat(locale==="ar"?"ar-MA":locale==="fr"?"fr-MA":"en-GB",{dateStyle:"full"}).format(new Date())}</span></div>
+                <div className={styles.overviewMetrics}>
+                    <Link href={localePath(locale,"/admin/merchant-review")} className={styles.overviewMetric}><span className={styles.overviewMetricIcon}><Store size={20}/></span><span className={styles.overviewMetricLabel}>{labels.pending}</span><strong>{pending}</strong><small>{locale==="fr"?"Demandes en attente":locale==="ar"?"طلبات معلقة":"Applications waiting"}</small></Link>
+                    <Link href={localePath(locale,"/admin/offer-moderation")} className={styles.overviewMetric}><span className={styles.overviewMetricIcon}><Tag size={20}/></span><span className={styles.overviewMetricLabel}>{labels.offers}</span><strong>{overview.offers.total}</strong><small>{unknown} · {labels.unknown.toLowerCase()}</small></Link>
+                    <Link href={localePath(locale,"/admin/support-cases")} className={styles.overviewMetric}><span className={styles.overviewMetricIcon}><LifeBuoy size={20}/></span><span className={styles.overviewMetricLabel}>{labels.cases}</span><strong>{openCases}</strong><small>{locale==="fr"?"Nécessitent un suivi":locale==="ar"?"تتطلب المتابعة":"Awaiting follow-up"}</small></Link>
+                    <Link href={localePath(locale,"/admin/audit-log")} className={styles.overviewMetric}><span className={styles.overviewMetricIcon}><ClipboardList size={20}/></span><span className={styles.overviewMetricLabel}>{labels.activity}</span><strong>{overview.audit.total}</strong><small>{labels.recent}</small></Link>
+                </div>
+                <div className={styles.overviewGrid}>
+                    <section className={styles.overviewPanel}><header><div><span className={styles.overviewEyebrow}>{labels.queue}</span><h3>{locale==="fr"?"La file de travail":locale==="ar"?"قائمة العمل":"Work queue"}</h3></div><span className={styles.overviewTotal}>{pending+openCases}</span></header>
+                        <Link href={localePath(locale,"/admin/merchant-review")} className={styles.overviewQueueRow}><span className={styles.overviewQueueIcon}><Store size={18}/></span><span><strong>{labels.pending}</strong><small>{locale==="fr"?"Vérifier les nouvelles demandes":locale==="ar"?"تحقق من الطلبات الجديدة":"Check new applications"}</small></span><b>{pending}</b><ChevronRight size={18}/></Link>
+                        <Link href={localePath(locale,"/admin/offer-moderation")} className={styles.overviewQueueRow}><span className={styles.overviewQueueIcon}><AlertTriangle size={18}/></span><span><strong>{labels.unknown}</strong><small>{labels.flagged}: {flagged}</small></span><b>{unknown}</b><ChevronRight size={18}/></Link>
+                        <Link href={localePath(locale,"/admin/support-cases")} className={styles.overviewQueueRow}><span className={styles.overviewQueueIcon}><LifeBuoy size={18}/></span><span><strong>{labels.cases}</strong><small>{locale==="fr"?"Consulter les demandes clients":locale==="ar"?"راجع طلبات العملاء":"Review customer requests"}</small></span><b>{openCases}</b><ChevronRight size={18}/></Link>
+                    </section>
+                    <section className={styles.overviewPanel}><header><div><span className={styles.overviewEyebrow}>{labels.activity}</span><h3>{labels.recent}</h3></div><Link href={localePath(locale,"/admin/audit-log")} className={styles.overviewViewAll}>{labels.view}<ChevronRight size={16}/></Link></header>
+                        {overview.audit.items.length?overview.audit.items.slice(0,5).map(item=><div className={styles.overviewActivityRow} key={item.id}><span className={styles.overviewActivityDot}/><span><strong>{auditActionLabel(item.action,locale)}</strong><small>{item.actorName} · {shortDateTime(item.createdAt,locale)}</small></span><span className={styles.pill+" "+resultTone(item.result)}>{resultLabel(item.result)}</span></div>):<p className={styles.empty}>{labels.empty}</p>}
+                    </section>
+                </div>
+                <div className={styles.overviewBottom}><span><ShieldCheck size={17}/>{locale==="fr"?"Chaque décision sensible est consignée dans le journal d’audit.":locale==="ar"?"يتم تسجيل القرارات الحساسة في سجل التدقيق.":"Sensitive decisions are recorded in the audit log."}</span><Link href={localePath(locale,"/admin/audit-log")}>{locale==="fr"?"Consulter le journal":locale==="ar"?"فتح سجل التدقيق":"Review audit log"}<ChevronRight size={16}/></Link></div>
+            </section>;
+        })()}
         {page==="merchant-review"&&merchants&&<>
             <div className={styles.tabs} role="tablist" aria-label={t.merchantTitle}>{merchantStatuses.map(value=>{const n=tabCount(value);return <button key={value} role="tab" aria-selected={merchantStatus===value} className={merchantStatus===value?styles.activeTab:styles.tab} onClick={()=>switchTab(()=>{setMerchantStatus(value);setMerchantPage(0);setSelectedMerchant(null);setReason("");setInternalNote("");})}>{merchantLabel(value)}{typeof n==="number"?" · "+n:""}</button>;})}</div>
             <div className={styles.merchantReviewWorkspace}>
