@@ -5358,3 +5358,13 @@
 @media(max-width:1099px){.overviewColumns{grid-template-columns:minmax(0,1fr)}}
 
 .offerPreviewCard:not(:has(.offerPreviewHeading)){display:none!important}
+
+/* Sidebar-free admin workspace overrides */
+.adminModalBackdrop{padding-left:24px;padding-right:24px}
+@media(max-width:899px){.adminModalBackdrop{padding:10px}}
+.offerWorkspace:has(.offerPreviewHeading) .offerPreviewCard{left:50%;width:min(1080px,calc(100vw - 48px));transform:translateX(-50%);height:min(90vh,900px);max-height:90vh}
+.merchantReviewWorkspace:has(.merchantDetails .detailHead) .merchantDetails{left:50%;width:min(980px,calc(100vw - 48px));transform:translateX(-50%);height:auto;max-height:92vh;overflow:auto;padding:clamp(18px,2.5vw,30px)}
+.supportWorkspace:has(.caseDetail .detailHead) .caseDetail{left:50%;width:min(1100px,calc(100vw - 48px));transform:translateX(-50%);height:min(90vh,900px);max-height:90vh}
+.auditExplorer .auditRecordCard{left:50%;width:min(900px,calc(100vw - 48px));transform:translateX(-50%);height:min(88vh,900px);max-height:88vh}
+@media(min-width:900px) and (max-height:800px){.supportWorkspace:has(.caseDetail .detailHead) .caseDetail{left:50%!important;width:min(1100px,calc(100vw - 48px))!important;transform:translate(-50%,-50%)!important}}
+@media(max-width:899px){.offerWorkspace:has(.offerPreviewHeading) .offerPreviewCard{left:50%;width:calc(100vw - 16px);transform:translateX(-50%)}.merchantReviewWorkspace:has(.merchantDetails .detailHead) .merchantDetails{left:50%;width:calc(100vw - 16px);transform:translateX(-50%)}.supportWorkspace:has(.caseDetail .detailHead) .caseDetail{left:50%;width:calc(100vw - 16px);transform:translateX(-50%)}.auditExplorer .auditRecordCard{left:50%;width:calc(100vw - 16px);transform:translateX(-50%)}}
