@@ -16013,3 +16013,27 @@ body:has(.admin-login-shell) #contenu {
         overflow: visible;
     }
 }
+
+
+html:has(.kulhaAdminShell), body:has(.kulhaAdminShell) {
+    height: auto;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+body:has(.kulhaAdminShell) > #contenu {
+    flex: 1 0 auto;
+    min-height: 0;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+}
+body:has(.kulhaAdminShell) > #contenu > .kulhaAdminShell {
+    width: 100%;
+    max-width: none;
+    min-height: 100dvh;
+    height: auto;
+    overflow: visible;
+}
