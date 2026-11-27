@@ -5,6 +5,7 @@ import { canRevealSupportCustomerDetails, SUPPORT_DISCLOSURE_REASON_MAX_LENGTH }
 import { useSession } from "@/components/session/SessionProvider";
 import { AlertTriangle, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, Filter, Image as ImageIcon, Lock, Search, ShieldCheck, Tag, X } from "lucide-react";
 import styles from "./AdminConsole.module.css";
+import { AdminTopNav } from "./AdminTopNav";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { eligibleOfferBatchItems, toggleBatchSelection } from "@/lib/admin/offer-batch";
 
@@ -314,7 +315,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
         {page!=="audit-log"&&<label className={styles.search} data-testid="admin-console-search"><Search size={17} aria-hidden="true"/><span className="sr-only">{searchPlaceholder}</span><input type="search" data-testid="admin-global-search" value={query} onChange={e=>{setQuery(e.target.value);}} placeholder={searchPlaceholder}/></label>}
     </header>;
     const frame=(content:ReactNode)=><div className={`${styles.shell} kulhaAdminShell`} data-page={page} dir={locale==="ar"?"rtl":"ltr"}>
-        <div className={styles.adminMain}>{topbar}<main className={styles.page}>{content}</main></div>
+        <AdminTopNav locale={locale}/><div className={styles.adminMain}>{topbar}<main className={styles.page}>{content}</main></div>
     </div>;
 
     if(loading)return frame(<><div className={styles.header}><div><div className={styles.skeleton}/><div className={styles.skeletonWide}/></div></div><div className={styles.skeletonPanel}/></>);
