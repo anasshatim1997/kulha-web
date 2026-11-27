@@ -116,7 +116,7 @@ export function SiteHeader() {
     return () => { current = false; };
   }, [state.status, isAdminWorkspace, isWorkspace, isMerchant, pathname]);
 
-  if (/\/admin\/login\/?$/.test(pathname)) return null;
+  if (/\/admin\/login\/?$/.test(pathname) || isAdminWorkspace) return null;
 
   if (isCustomerWorkspace && !isAuthPage && !isWorkspace) {
     const discoverHref = localePath(locale, "/offers");
