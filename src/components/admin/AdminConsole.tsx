@@ -1,11 +1,13 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode, type RefObject, type SyntheticEvent } from "react";
+import Link from "next/link";
 import { api } from "@/lib/api/client";
 import { canRevealSupportCustomerDetails, SUPPORT_DISCLOSURE_REASON_MAX_LENGTH } from "@/lib/auth/admin-access";
 import { useSession } from "@/components/session/SessionProvider";
-import { AlertTriangle, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Eye, FileText, Filter, Image as ImageIcon, Lock, Search, ShieldCheck, Tag, X } from "lucide-react";
+import { AlertTriangle, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, Eye, FileText, Filter, Image as ImageIcon, LifeBuoy, Lock, Search, ShieldCheck, Store, Tag, X } from "lucide-react";
 import styles from "./AdminConsole.module.css";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
+import { localePath } from "@/lib/navigation";
 
 type PageKey="merchant-review"|"offer-moderation"|"support-cases"|"audit-log";
 type Merchant={id:string;ownerUserId:string;ownerEmail:string;name:string;businessType:string;address:string;city:string;phone:string;openingHours:string;status:string;decisionReason:string|null;createdAt:string};
@@ -253,8 +255,15 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const switchTab=(apply:()=>void)=>{setLoading(true);setFailed(false);apply();};
 
     const searchPlaceholder=page==="merchant-review"?t.searchMerchant:page==="offer-moderation"?t.searchOffers:page==="support-cases"?t.searchCases:t.searchAudit;
-    const topbar=<div className={styles.topbar} data-testid="admin-console-topbar">{page!=="audit-log"&&<label className={styles.search} data-testid="admin-console-search"><Search size={17} aria-hidden="true"/><span className="sr-only">{searchPlaceholder}</span><input type="search" data-testid="admin-global-search" value={query} onChange={e=>{setQuery(e.target.value);}} placeholder={searchPlaceholder}/></label>}</div>;
-    const frame=(content:ReactNode)=><div className={`${styles.shell} kulhaAdminShell`} data-page={page} dir={locale==="ar"?"rtl":"ltr"}>{topbar}<main className={styles.page}>{content}</main></div>;
+    const navItems=[
+        {key:"merchant-review" as const,href:"/admin/merchant-review",label:locale==="fr"?"Commerces":locale==="ar"?"المتاجر":"Merchants",icon:Store},
+        {key:"offer-moderation" as const,href:"/admin/offer-moderation",label:locale==="fr"?"Offres":locale==="ar"?"العروض":"Offers",icon:Tag},
+        {key:"support-cases" as const,href:"/admin/support-cases",label:locale==="fr"?"Support":locale==="ar"?"الدعم":"Support",icon:LifeBuoy},
+        {key:"audit-log" as const,href:"/admin/audit-log",label:locale==="fr"?"Journal":locale==="ar"?"سجل التدقيق":"Audit log",icon:ClipboardList}
+    ];
+    const currentTitle=page==="merchant-review"?t.merchantTitle:page==="offer-moderation"?t.offersTitle:page==="support-cases"?t.casesTitle:t.auditTitle;
+    const topbar=<div className={styles.topbar} data-testid="admin-console-topbar"><div className={styles.topbarContext}><span>KULHA <i>/</i> ADMIN</span><strong>{currentTitle}</strong></div><div className={styles.topbarTools}>{page!=="audit-log"&&<label className={styles.search} data-testid="admin-console-search"><Search size={16} aria-hidden="true"/><span className="sr-only">{searchPlaceholder}</span><input type="search" data-testid="admin-global-search" value={query} onChange={e=>setQuery(e.target.value)} placeholder={searchPlaceholder}/><kbd>⌘ K</kbd></label>}<span className={styles.localeMark}>{locale.toUpperCase()}</span><span className={styles.adminAvatar}>K</span></div></div>;
+    const frame=(content:ReactNode)=><div className={styles.shell+" kulhaAdminShell"} data-page={page} dir={locale==="ar"?"rtl":"ltr"}><aside className={styles.adminSidebar}><Link href={localePath(locale,"/admin/merchant-review")} className={styles.adminBrand} aria-label="KULHA Administration"><span className={styles.brandMark}>K!</span><span><strong>KULHA</strong><small>ADMINISTRATION</small></span></Link><div className={styles.sidebarLabel}>{locale==="fr"?"ESPACE DE TRAVAIL":locale==="ar"?"مساحة العمل":"WORKSPACE"}</div><nav className={styles.adminNav} aria-label={locale==="fr"?"Navigation principale":locale==="ar"?"التنقل الرئيسي":"Main navigation"}>{navItems.map(item=>{const Icon=item.icon;return <Link key={item.key} href={localePath(locale,item.href)} aria-current={page===item.key?"page":undefined} className={page===item.key?styles.adminNavActive:styles.adminNavLink}><Icon size={17} strokeWidth={1.8}/><span>{item.label}</span>{item.key==="merchant-review"&&tabCounts.pending!==null&&tabCounts.pending>0&&<em>{tabCounts.pending}</em>}</Link>;})}</nav><div className={styles.sidebarBottom}><span className={styles.sidebarStatus}><i/> {locale==="fr"?"Système opérationnel":locale==="ar"?"النظام يعمل":"Systems operational"}</span><span className={styles.sidebarVersion}>KULHA · MOROCCO</span></div></aside><div className={styles.adminMain}>{topbar}<main className={styles.page}>{content}</main></div></div>;
 
     if(loading)return frame(<><div className={styles.header}><div><div className={styles.skeleton}/><div className={styles.skeletonWide}/></div></div><div className={styles.skeletonPanel}/></>);
     if(failed)return frame(<div className={styles.alert} role="alert">{t.error}<button onClick={()=>{setLoading(true);setFailed(false);setReload(v=>v+1);}}>{t.retry}</button></div>);
