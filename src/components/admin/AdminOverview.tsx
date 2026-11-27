@@ -7,6 +7,7 @@ import { api } from "@/lib/api/client";
 import { localePath } from "@/lib/navigation";
 import type { SiteLocale } from "@/lib/i18n/site-copy";
 import styles from "./AdminConsole.module.css";
+import operations from "./AdminOperationsRedesign.module.css";
 
 type Page<T> = { items: T[]; total: number; page: number; size: number };
 type Offer = { id: string; title: string; shopName: string; city: string; reportedCount: number; allergensStatus: string; status: string; pickupStart: string | null };
@@ -67,7 +68,7 @@ export function AdminOverview({ locale }: { locale: SiteLocale }) {
   const timeLabel = (value: string) => new Intl.DateTimeFormat(locale === "ar" ? "ar-MA" : locale === "en" ? "en-MA" : "fr-MA", { timeZone: "Africa/Casablanca", hour: "2-digit", minute: "2-digit" }).format(new Date(value));
   const actionLabel = (value: string) => value.split(/[._-]+/).filter(Boolean).map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()).join(" ");
 
-  return <div className={styles.shell+" kulhaAdminShell"} data-page="overview" dir={locale==="ar"?"rtl":"ltr"}>
+  return <div className={operations.root}><div className={styles.shell+" kulhaAdminShell"} data-page="overview" dir={locale==="ar"?"rtl":"ltr"}>
     <main className={styles.page}>
   <div className={styles.adminOverview}>
     <header className={styles.header}>
@@ -104,5 +105,5 @@ export function AdminOverview({ locale }: { locale: SiteLocale }) {
     </div>
   </div>
     </main>
-  </div>;
+  </div></div>;
 }
