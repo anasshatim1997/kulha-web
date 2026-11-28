@@ -22,7 +22,7 @@ export function localePath(locale: SiteLocale, path: string): string {
 }
 /** Root-level French auth pages are defined in src/app/(auth), not under [locale]. */
 export function isCanonicalFrenchAuthPath(pathname: string): boolean {
-  return /^\/(?:(?:fr|en|ar)\/)?admin(?:\/(?!login(?:\/|$))|$)/.test(pathname);
+  return /^\/(?:login|admin\/login|register|forgot-password|reset-password|verify-email)(?:\/|$)/.test(pathname);
 }
 
 export function switchLocalePath(pathname: string, locale: SiteLocale): string {
@@ -45,7 +45,7 @@ export function switchLocalePath(pathname: string, locale: SiteLocale): string {
   return localePath(locale, withoutPrefix);
 }
 export function isAdminWorkspacePath(pathname: string): boolean {
-  return /^\/(?:(?:en|ar)\/)?admin(?:\/(?!login(?:\/|$))|$)/.test(pathname);
+  return /^\/(?:(?:fr|en|ar)\/)?admin(?:\/(?!login(?:\/|$))|$)/.test(pathname);
 }
 export function isMerchantWorkspacePath(pathname: string): boolean {
   return /^\/(?:(?:en|ar)\/)?merchant(?:\/|$)/.test(pathname);
