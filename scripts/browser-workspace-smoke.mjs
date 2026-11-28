@@ -125,7 +125,7 @@ function json(response, value, status = 200) {
     response.writeHead(status, { "content-type": "application/json; charset=utf-8" });
     response.end(JSON.stringify(value));
 }
-function page(items) { return { items, page: 0, size: 20, total: items.length }; }
+function page(items, url) { const currentPage = Math.max(0, Number(url?.searchParams.get("page") ?? 0)); const size = Math.max(1, Number(url?.searchParams.get("size") ?? 20)); return { items: items.slice(currentPage * size, (currentPage + 1) * size), page: currentPage, size, total: items.length }; }
 async function waitForBackendRequest(predicate, description) {
     for (let attempt = 0; attempt < 50; attempt += 1) {
         const match = requests.find(predicate);
@@ -211,7 +211,7 @@ const backend = createServer(async (request, response) => {
 
     if (path === "/admin/merchants" && method === "GET") {
         const rows = url.searchParams.get("status") === "PENDING" && merchantStatus === "PENDING" ? merchantRows.filter(item => item.status === "PENDING") : merchantRows.filter(item => item.status === url.searchParams.get("status"));
-        return json(response, page(rows));
+        return json(response, page(rows, url));
     }
     if (path === `/admin/merchants/${merchant.id}` && method === "GET") return json(response, merchant);
     if (path === `/admin/merchants/${merchant.id}/approve` && method === "POST") {
@@ -221,7 +221,7 @@ const backend = createServer(async (request, response) => {
         return json(response, {});
     }
     if (path === "/admin/offers" && method === "GET") {
-        return json(response, page(moderationOffers.map(item => ({ ...item, status: offerStatus }))));
+        return json(response, page(moderationOffers.map(item => ({ ...item, status: offerStatus })), url));
     }
     if (path === `/admin/offers/${offer.id}/suspend` && method === "POST") {
         await bodyOf(request);
@@ -230,7 +230,7 @@ const backend = createServer(async (request, response) => {
     }
     if (path === "/admin/support-cases" && method === "GET") {
         const rows = url.searchParams.get("status") === caseStatus ? supportCases : [];
-        return json(response, page(rows));
+        return json(response, page(rows, url));
     }
     if (path === `/admin/support-cases/${supportCase.reference}` && method === "GET") {
         return json(response, { summary: { ...supportCase, status: caseStatus }, timeline });
@@ -255,7 +255,7 @@ const backend = createServer(async (request, response) => {
         supportCase.status = caseStatus;
         return json(response, {});
     }
-    if (path === "/admin/audit-log" && method === "GET") return json(response, page(auditRows));
+    if (path === "/admin/audit-log" && method === "GET") return json(response, page(auditRows, url));
     if (path === "/admin/audit-log/export") return csv(response, "kulha-audit-log.csv");
 
     if (path === "/reservations" && method === "GET") return json(response, page([]));
@@ -1079,6 +1079,27 @@ try {
         await page.getByRole("button", { name: "Confirm handover" }).click();
         await page.getByRole("heading", { name: "Basket handed to customer" }).waitFor({ state: "visible" });
         await assertNoHorizontalOverflow(page, "/en/merchant/reservations/scan", 390);
+        await context.close();
+    }
+
+    {
+        const context = await loginContext(browser, "admin-token", { width: 1366, height: 768 });
+        const page = await context.newPage();
+        await page.goto(origin + "/en/admin", { waitUntil: "networkidle" });
+        const merchantLink = page.locator('a[href*="/admin/merchant-review?page=1"]').first();
+        const merchantName = await merchantLink.locator("strong").innerText();
+        await merchantLink.click();
+        await page.getByTestId("merchant-review-detail-panel").getByText(merchantName, { exact: true }).waitFor({ state: "visible" });
+        await page.goto(origin + "/en/admin", { waitUntil: "networkidle" });
+        const offerLink = page.locator('a[href*="/admin/offer-moderation?page=1"]').first();
+        const offerTitle = await offerLink.locator("strong").innerText();
+        await offerLink.click();
+        await page.getByTestId("offer-detail-panel").getByText(offerTitle, { exact: true }).waitFor({ state: "visible" });
+        await page.goto(origin + "/en/admin", { waitUntil: "networkidle" });
+        const caseLink = page.locator('a[href*="/admin/support-cases?page=1"]').first();
+        const caseSubject = await caseLink.locator("strong").innerText();
+        await caseLink.click();
+        await page.getByTestId("support-case-detail").getByText(caseSubject, { exact: true }).waitFor({ state: "visible" });
         await context.close();
     }
 
