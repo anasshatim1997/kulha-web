@@ -18,6 +18,6 @@ export async function requireMerchantPage(locale: string): Promise<boolean> {
     user = null;
   }
   if (!user) redirect(localePath(locale as "fr" | "en" | "ar", "/login"));
-  if (!user.roles?.some(role => ["MERCHANT", "MERCHANT_OWNER", "MERCHANT_STAFF"].includes(role))) redirect(localePath(locale as "fr" | "en" | "ar", "/merchant/dashboard"));
+  if (!user.roles?.some(role => ["MERCHANT", "MERCHANT_OWNER", "MERCHANT_STAFF"].includes(role))) redirect(localePath(locale as "fr" | "en" | "ar", "/merchant/apply"));
   return user.roles.some(role => ["MERCHANT", "MERCHANT_OWNER"].includes(role));
 }
