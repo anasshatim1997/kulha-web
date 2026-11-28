@@ -32,6 +32,7 @@ export const merchantCopy = {
     loadError: "Impossible de charger votre dossier commerçant. Réessayez.",
     pendingTitle: "Demande en cours d’examen",
     pendingBody: "Votre dossier a bien été reçu. L’équipe KULHA! l’examine avant d’activer les droits commerçant.",
+    refreshStatus: "Actualiser le statut",
     approvedTitle: "Votre commerce est approuvé",
     approvedBody: "Votre compte dispose maintenant des droits commerçant. Les outils de gestion seront accessibles à mesure de leur mise à disposition.",
     rejectedTitle: "Des corrections sont nécessaires",
@@ -133,6 +134,7 @@ export const merchantCopy = {
     loadError: "We could not load your shop application. Please try again.",
     pendingTitle: "Application under review",
     pendingBody: "We have received your application. The KULHA! team will review it before enabling merchant permissions.",
+    refreshStatus: "Check application status",
     approvedTitle: "Your shop is approved",
     approvedBody: "Your account now has merchant permissions. Shop management tools will become available as they are released.",
     rejectedTitle: "Changes are required",
@@ -234,6 +236,7 @@ export const merchantCopy = {
     loadError: "تعذر تحميل طلب المتجر. يرجى المحاولة مرة أخرى.",
     pendingTitle: "الطلب قيد المراجعة",
     pendingBody: "استلمنا طلبك. سيراجعه فريق KULHA! قبل تفعيل صلاحيات التاجر.",
+    refreshStatus: "تحديث حالة الطلب"
     approvedTitle: "تمت الموافقة على متجرك",
     approvedBody: "أصبح حسابك يملك صلاحيات التاجر. ستتوفر أدوات إدارة المتجر عند إطلاقها.",
     rejectedTitle: "يلزم إجراء تعديلات",
