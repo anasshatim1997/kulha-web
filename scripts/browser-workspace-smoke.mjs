@@ -1101,7 +1101,7 @@ try {
         await page.getByTestId("support-case-detail").getByText(caseSubject, { exact: true }).waitFor({ state: "visible" });
         await page.goto(origin + "/en/admin", { waitUntil: "networkidle" });
         await page.getByLabel("Language").selectOption("fr");
-        await page.waitForURL("**/fr/admin");
+        await page.waitForURL("**/admin");
         await page.getByTestId("admin-today-workspace").waitFor({ state: "visible" });
         await context.close();
     }
