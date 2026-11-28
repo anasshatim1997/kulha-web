@@ -8,7 +8,7 @@ export function safeNext(raw: string | null | undefined, fallback = "/offers"): 
   return raw;
 }
 
-const localePrefix = /^\/(en|ar)(?=\/|$)/;
+const localePrefix = /^\/(fr|en|ar)(?=\/|$)/;
 export function localeFromPath(pathname: string): SiteLocale {
   if (/^\/ar(?:\/|$)/.test(pathname)) return "ar";
   if (/^\/en(?:\/|$)/.test(pathname)) return "en";
@@ -22,7 +22,7 @@ export function localePath(locale: SiteLocale, path: string): string {
 }
 /** Root-level French auth pages are defined in src/app/(auth), not under [locale]. */
 export function isCanonicalFrenchAuthPath(pathname: string): boolean {
-  return /^\/(?:login|admin\/login|register|forgot-password|reset-password|verify-email)(?:\/|$)/.test(pathname);
+  return /^\/(?:(?:fr|en|ar)\/)?admin(?:\/(?!login(?:\/|$))|$)/.test(pathname);
 }
 
 export function switchLocalePath(pathname: string, locale: SiteLocale): string {
