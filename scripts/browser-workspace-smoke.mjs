@@ -1056,6 +1056,85 @@ try {
         process.stdout.write(`PASS viewport matrix: ${route.path}\n`);
     }
 
+    {
+        const context = await loginContext(browser, "customer-token", { width: 390, height: 844 });
+        const page = await context.newPage();
+        await page.goto(origin + "/en/merchant/dashboard", { waitUntil: "networkidle" });
+        await page.waitForURL("**/en/merchant/apply");
+        const form = page.getByTestId("merchant-application-form");
+        await form.waitFor({ state: "visible" });
+        const bakery = page.getByRole("radio", { name: "Bakery" });
+        await bakery.focus();
+        await bakery.press("ArrowRight");
+        if (await page.getByRole("radio", { name: "Café" }).getAttribute("aria-checked") !== "true") {
+            throw new Error("Business type radio group did not move to the next option with ArrowRight.");
+        }
+        await page.getByRole("radio", { name: "Café" }).press("Home");
+        if (await bakery.getAttribute("aria-checked") !== "true") {
+            throw new Error("Business type radio group did not move to the first option with Home.");
+        }
+        await page.getByLabel("Shop name").fill("Boulangerie Atlas");
+        await page.getByRole("button", { name: "Continue" }).click();
+        await page.getByLabel("Street address").fill("24 Avenue Hassan II");
+        await page.getByLabel("City").fill("Casablanca");
+        await page.getByLabel("Phone number").fill("+212 6 12 34 56 78");
+        await page.getByRole("button", { name: "Continue" }).click();
+        await page.getByRole("button", { name: "Submit shop application" }).click();
+        await waitForBackendRequest(item => item.method === "POST" && item.path === "/merchants/apply", "Merchant application submission");
+        await page.getByRole("heading", { name: "Application under review" }).waitFor({ state: "visible" });
+        await assertNoHorizontalOverflow(page, "/en/merchant/apply", 390);
+        await page.goto(origin + "/ar/merchant/apply", { waitUntil: "networkidle" });
+        await page.locator('.mw-shell[dir="rtl"]').waitFor({ state: "visible" });
+        await assertNoHorizontalOverflow(page, "/ar/merchant/apply", 390);
+
+        const adminContext = await loginContext(browser, "admin-token", { width: 1366, height: 768 });
+        const adminPage = await adminContext.newPage();
+        await adminPage.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
+        const firstReview = await openMerchantVerifyMode(adminPage);
+        const informationDecision = adminPage.getByTestId("merchant-review-decision");
+        await informationDecision.getByRole("button", { name: "Request information" }).click();
+        await informationDecision.getByLabel("Reason (required)").fill("Please confirm the pickup entrance address.");
+        await adminPage.getByTestId("merchant-review-footer").getByRole("button", { name: "Submit decision" }).click();
+        await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/request-information"), "Merchant information request");
+        await adminContext.close();
+
+        await page.goto(origin + "/en/merchant/apply", { waitUntil: "networkidle" });
+        await page.getByRole("button", { name: "Check application status" }).click();
+        await page.getByTestId("merchant-application-form").waitFor({ state: "visible" });
+        await page.getByText("Please confirm the pickup entrance address.").waitFor({ state: "visible" });
+        await page.getByLabel("Shop name").fill("Boulangerie Atlas Centre");
+        await page.getByRole("button", { name: "Continue" }).click();
+        await page.getByLabel("Street address").fill("24 Avenue Hassan II, entrée côté jardin");
+        await page.getByRole("button", { name: "Continue" }).click();
+        await page.getByRole("button", { name: "Update and resubmit application" }).click();
+        await waitForBackendRequest(item => item.method === "PUT" && item.path === "/merchants/me", "Merchant application resubmission");
+        await page.getByRole("heading", { name: "Application under review" }).waitFor({ state: "visible" });
+
+        const approvalContext = await loginContext(browser, "admin-token", { width: 1366, height: 768 });
+        const approvalPage = await approvalContext.newPage();
+        await approvalPage.goto(origin + "/en/admin/merchant-review", { waitUntil: "networkidle" });
+        const approvalWorkflow = await openMerchantVerifyMode(approvalPage);
+        const checks = approvalWorkflow.locator('input[type="checkbox"]');
+        for (let index = 0; index < 3; index += 1) await checks.nth(index).check();
+        const approvalDecision = approvalPage.getByTestId("merchant-review-decision");
+        await approvalDecision.getByRole("button", { name: "Approve" }).click();
+        await approvalDecision.getByLabel("Reason (required)").fill("Business identity, owner contact and pickup address verified.");
+        await approvalPage.getByTestId("merchant-review-footer").getByRole("button", { name: "Submit decision" }).click();
+        await waitForBackendRequest(item => item.method === "POST" && item.path.endsWith("/approve"), "Merchant application approval");
+        await approvalContext.close();
+
+        await page.getByRole("button", { name: "Check application status" }).click();
+        await waitForBackendRequest(item => item.method === "GET" && item.path === "/merchants/me/workspace", "Approved merchant workspace");
+        await page.getByRole("heading", { level: 1 }).waitFor({ state: "visible" });
+        if (merchantApplication.status !== "APPROVED") throw new Error("Merchant application did not reach APPROVED after the admin decision.");
+        await page.screenshot({
+            path: join("artifacts/browser-screenshots", "merchant-application-approved-390x844.png"),
+            animations: "disabled",
+        });
+        await context.close();
+        process.stdout.write("PASS merchant onboarding: customer redirect, accessible type selection, FR/AR RTL, information request, resubmission, approval and merchant workspace activation\n");
+    }
+
     // Orders: the status filter changes the backend query, not just the selected tab.
     {
         const context = await loginContext(browser, "merchant-token");
