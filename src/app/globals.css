@@ -16015,25 +16015,55 @@ body:has(.admin-login-shell) #contenu {
 }
 
 
-html:has(.kulhaAdminShell), body:has(.kulhaAdminShell) {
+/* Admin console is its own workspace; desktop scrolling stays in its panes. */
+@media (min-width: 900px) {
+  html:has(.kulhaAdminShell),
+  body:has(.kulhaAdminShell) {
+    width: 100%;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+  body:has(.kulhaAdminShell) > #contenu {
+    flex: 1 1 0%;
+    width: 100%;
+    height: 100dvh;
+    min-height: 0;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+  body:has(.kulhaAdminShell) > #contenu > .kulhaAdminShell {
+    width: 100%;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+  body:has(.kulhaAdminShell) > footer { display: none; }
+}
+@media (max-width: 899px) {
+  html:has(.kulhaAdminShell),
+  body:has(.kulhaAdminShell) {
     height: auto;
     min-height: 100dvh;
     overflow-x: hidden;
     overflow-y: auto;
-}
-body:has(.kulhaAdminShell) > #contenu {
-    flex: 1 0 auto;
-    min-height: 0;
+  }
+  body:has(.kulhaAdminShell) > #contenu {
+    flex: 1 1 auto;
     width: 100%;
+    height: auto;
+    min-height: 0;
     max-width: none;
     margin: 0;
     padding: 0;
     overflow: visible;
-}
-body:has(.kulhaAdminShell) > #contenu > .kulhaAdminShell {
-    width: 100%;
-    max-width: none;
-    min-height: 100dvh;
+  }
+  body:has(.kulhaAdminShell) > #contenu > .kulhaAdminShell {
     height: auto;
+    min-height: 100dvh;
     overflow: visible;
+  }
+  body:has(.kulhaAdminShell) > footer { display: none; }
 }
