@@ -17,7 +17,7 @@ export function localeFromPath(pathname: string): SiteLocale {
 export function localePath(locale: SiteLocale, path: string): string {
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
   const withoutPrefix = cleanPath.replace(localePrefix, "") || "/";
-  if (locale === "fr") return withoutPrefix.startsWith("/admin") ? `/fr${withoutPrefix}` : withoutPrefix;
+  if (locale === "fr") return (withoutPrefix === "/admin" || withoutPrefix.startsWith("/admin/")) ? `/fr${withoutPrefix}` : withoutPrefix;
   return `/${locale}${withoutPrefix === "/" ? "" : withoutPrefix}`;
 }
 /** Root-level French auth pages are defined in src/app/(auth), not under [locale]. */
