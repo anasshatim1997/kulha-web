@@ -230,7 +230,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
     const [audit,setAudit]=useState<AuditPage|null>(null);const [auditPage,setAuditPage]=useState(0);const [auditPageSize,setAuditPageSize]=useState(AUDIT_PAGE_SIZE);const [selectedAuditId,setSelectedAuditId]=useState<string|null>(null);const [auditSearch,setAuditSearch]=useState("");const [auditFrom,setAuditFrom]=useState("");const [auditTo,setAuditTo]=useState("");const [auditAction,setAuditAction]=useState("");const [auditResult,setAuditResult]=useState("");const [auditQuickRange,setAuditQuickRange]=useState<"today"|"7"|"30"|null>(null);const [auditFiltersExpanded,setAuditFiltersExpanded]=useState(false);
     const [reason,setReason]=useState("");const [disclosureReason,setDisclosureReason]=useState("");const [internalNote,setInternalNote]=useState("");const [draftMessage,setDraftMessage]=useState("");const [sendToCustomer,setSendToCustomer]=useState(true);const [revealed,setRevealed]=useState<{fullName:string;email:string;phone:string|null}|null>(null);const [working,setWorking]=useState(false);
 
-    useEffect(()=>{if(page!=="audit-log")return;setAuditPage(0);const timeout=window.setTimeout(()=>setAuditSearch(query.trim()),280);return()=>window.clearTimeout(timeout);},[page,query]);
+    useEffect(()=>{if(page!=="audit-log")return;const timeout=window.setTimeout(()=>setAuditSearch(query.trim()),280);return()=>window.clearTimeout(timeout);},[page,query]);
     useEffect(()=>{const onShortcut=(event:KeyboardEvent)=>{if((event.metaKey||event.ctrlKey)&&event.key.toLowerCase()==="k"){event.preventDefault();searchInputRef.current?.focus();}};window.addEventListener("keydown",onShortcut);return()=>window.removeEventListener("keydown",onShortcut);},[]);
 
     useEffect(()=>{let active=true;
@@ -324,7 +324,7 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
             <label className={`${styles.search} ${styles.adminSearch}`} data-testid="admin-console-search">
                 <span className={styles.adminSearchIcon}><Search size={17} strokeWidth={2.2} aria-hidden="true"/></span>
                 <span className="sr-only">{searchPlaceholder}</span>
-                <input ref={searchInputRef} type="search" data-testid="admin-global-search" value={query} onChange={e=>setQuery(e.target.value)} placeholder={searchPlaceholder}/>
+                <input ref={searchInputRef} type="search" data-testid="admin-global-search" value={query} onChange={e=>{setQuery(e.target.value);if(page==="audit-log")setAuditPage(0);}} placeholder={searchPlaceholder}/>
                 <kbd>⌘ K</kbd>
             </label>
             <label className={styles.localeControl}>
