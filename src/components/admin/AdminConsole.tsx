@@ -11,7 +11,7 @@ import type { SiteLocale } from "@/lib/i18n/site-copy";
 import { localePath, switchLocalePath } from "@/lib/navigation";
 
 type PageKey="overview"|"merchant-review"|"offer-moderation"|"support-cases"|"audit-log";
-type Merchant={id:string;ownerUserId:string;ownerEmail:string;name:string;businessType:string;address:string;city:string;phone:string;openingHours:string;status:string;decisionReason:string|null;createdAt:string};
+type Merchant={id:string;ownerUserId:string;ownerEmail:string;name:string;businessType:string;address:string;city:string;district?:string|null;latitude?:number|null;longitude?:number|null;pickupInstructions?:string|null;phone:string;openingHours:string;status:string;decisionReason:string|null;createdAt:string};
 type Offer={id:string;title:string;shopName:string;city:string;priceMinor:number;originalPriceMinor:number|null;quantityTotal:number;quantityReserved:number;allergensStatus:string;allergens:string|null;foodNotes:string|null;status:string;reportedCount:number;pickupStart:string|null;pickupEnd:string|null;imageUrl:string|null;createdAt?:string};
 type CaseItem={id:string;reference:string;category:string;subject:string;description:string;priority:string;status:string;customerUserId:string;customerLabel:string;merchantId:string|null;merchantName:string|null;offerId:string|null;offerTitle:string|null;reservationReference:string|null;assignedTo:string|null;assigneeName:string|null;hiddenOffer:boolean;createdAt:string;updatedAt:string;resolvedAt:string|null};
 type Timeline={id:string;authorType:string;authorUserId:string|null;authorLabel:string;visibility:string;message:string;createdAt:string};
@@ -733,7 +733,13 @@ export function AdminConsole({locale,page}:{locale:SiteLocale;page:PageKey}){
                                     </article>
                                     <article className={styles.merchantReadGroup}>
                                         <header><span><MapPin size={19}/></span><div><strong>{t.merchantEstablishmentGroup}</strong><small>{locale==="fr"?"Localisation et disponibilité":locale==="ar"?"الموقع وأوقات العمل":"Location and opening times"}</small></div></header>
-                                        <dl><div><dt>{t.address}</dt><dd>{selectedMerchant.address||selectedMerchant.city||"—"}</dd></div><div><dt>{t.hours}</dt><dd>{selectedMerchant.openingHours||"—"}</dd></div></dl>
+                                        <dl>
+                                            <div><dt>{t.address}</dt><dd>{selectedMerchant.address||selectedMerchant.city||"—"}</dd></div>
+                                            {selectedMerchant.district&&<div><dt>{t.merchantDistrict}</dt><dd>{selectedMerchant.district}</dd></div>}
+                                            <div><dt>{t.hours}</dt><dd>{selectedMerchant.openingHours||"—"}</dd></div>
+                                            {typeof selectedMerchant.latitude==="number"&&typeof selectedMerchant.longitude==="number"&&<div><dt>{t.merchantCoordinates}</dt><dd><bdi dir="ltr">{selectedMerchant.latitude.toFixed(5)}, {selectedMerchant.longitude.toFixed(5)}</bdi></dd></div>}
+                                            {selectedMerchant.pickupInstructions&&<div><dt>{t.merchantPickupInstructions}</dt><dd>{selectedMerchant.pickupInstructions}</dd></div>}
+                                        </dl>
                                     </article>
                                 </div>
                                 <div className={styles.merchantDocumentsNotice}><span><FileText size={19}/></span><div><strong>{t.noDocumentsTitle}</strong><small>{t.noDocumentsBody}</small></div></div>
