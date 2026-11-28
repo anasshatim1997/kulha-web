@@ -236,7 +236,7 @@ export const merchantCopy = {
     loadError: "تعذر تحميل طلب المتجر. يرجى المحاولة مرة أخرى.",
     pendingTitle: "الطلب قيد المراجعة",
     pendingBody: "استلمنا طلبك. سيراجعه فريق KULHA! قبل تفعيل صلاحيات التاجر.",
-    refreshStatus: "تحديث حالة الطلب"
+    refreshStatus: "تحديث حالة الطلب",
     approvedTitle: "تمت الموافقة على متجرك",
     approvedBody: "أصبح حسابك يملك صلاحيات التاجر. ستتوفر أدوات إدارة المتجر عند إطلاقها.",
     rejectedTitle: "يلزم إجراء تعديلات",
