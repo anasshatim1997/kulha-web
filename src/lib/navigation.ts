@@ -8,7 +8,7 @@ export function safeNext(raw: string | null | undefined, fallback = "/offers"): 
   return raw;
 }
 
-const localePrefix = /^\/(fr|en|ar)(?=\/|$)/;
+const localePrefix = /^\/(en|ar)(?=\/|$)/;
 export function localeFromPath(pathname: string): SiteLocale {
   if (/^\/ar(?:\/|$)/.test(pathname)) return "ar";
   if (/^\/en(?:\/|$)/.test(pathname)) return "en";
@@ -17,7 +17,7 @@ export function localeFromPath(pathname: string): SiteLocale {
 export function localePath(locale: SiteLocale, path: string): string {
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
   const withoutPrefix = cleanPath.replace(localePrefix, "") || "/";
-  if (locale === "fr") return (withoutPrefix === "/admin" || withoutPrefix.startsWith("/admin/")) ? `/fr${withoutPrefix}` : withoutPrefix;
+  if (locale === "fr") return withoutPrefix;
   return `/${locale}${withoutPrefix === "/" ? "" : withoutPrefix}`;
 }
 /** Root-level French auth pages are defined in src/app/(auth), not under [locale]. */
@@ -45,7 +45,7 @@ export function switchLocalePath(pathname: string, locale: SiteLocale): string {
   return localePath(locale, withoutPrefix);
 }
 export function isAdminWorkspacePath(pathname: string): boolean {
-  return /^\/(?:(?:fr|en|ar)\/)?admin(?:\/(?!login(?:\/|$))|$)/.test(pathname);
+  return /^\/(?:(?:en|ar)\/)?admin(?:\/(?!login(?:\/|$))|$)/.test(pathname);
 }
 export function isMerchantWorkspacePath(pathname: string): boolean {
   return /^\/(?:(?:en|ar)\/)?merchant(?:\/|$)/.test(pathname);
