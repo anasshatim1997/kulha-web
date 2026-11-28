@@ -1099,7 +1099,6 @@ try {
         await adminContext.close();
 
         await page.goto(origin + "/en/merchant/apply", { waitUntil: "networkidle" });
-        await page.getByRole("button", { name: "Check application status" }).click();
         await page.getByTestId("merchant-application-form").waitFor({ state: "visible" });
         await page.getByText("Please confirm the pickup entrance address.").waitFor({ state: "visible" });
         await page.getByLabel("Shop name").fill("Boulangerie Atlas Centre");
