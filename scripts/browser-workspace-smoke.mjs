@@ -34,6 +34,7 @@ const pickupEnd = new Date(now.getTime() + 2 * 60 * 60 * 1000).toISOString();
 const requests = [];
 let staff = [];
 let merchantStatus = "PENDING";
+let merchantApplication = null;
 let offerStatus = "PUBLISHED";
 let caseStatus = "OPEN";
 
@@ -152,9 +153,10 @@ const backend = createServer(async (request, response) => {
     const path = url.pathname.replace(/^\/api\/v1/, "");
     const method = request.method ?? "GET";
     const token = request.headers.authorization ?? "";
-    const role = token.includes("support-token") ? "SUPPORT"
+    let role = token.includes("support-token") ? "SUPPORT"
         : token.includes("admin-token") ? "ADMIN"
             : token.includes("customer-token") ? "CUSTOMER" : "MERCHANT_OWNER";
+    if (role === "CUSTOMER" && merchantApplication?.status === "APPROVED") role = "MERCHANT_OWNER";
     requests.push({ method, path, query: url.search, token });
 
     if (path === "/auth/login" && method === "POST") {
@@ -169,6 +171,30 @@ const backend = createServer(async (request, response) => {
             id: actorId, email: "browser-smoke@kulha.test", fullName: "KULHA Browser Smoke",
             phone: null, emailVerified: true, roles: [role],
         });
+    }
+    if (path === "/merchants/me" && method === "GET") {
+        if (!merchantApplication) return json(response, { title: "Not found", status: 404 }, 404);
+        return json(response, merchantApplication);
+    }
+    if (path === "/merchants/apply" && method === "POST") {
+        const payload = await bodyOf(request);
+        merchantApplication = {
+            id: "00000000-0000-4000-8000-000000000109",
+            ownerUserId: customerId,
+            ownerEmail: "browser-smoke@kulha.test",
+            ...payload,
+            status: "PENDING",
+            decisionReason: null,
+            createdAt: new Date().toISOString(),
+        };
+        merchantRows.unshift(merchantApplication);
+        return json(response, merchantApplication, 201);
+    }
+    if (path === "/merchants/me" && method === "PUT") {
+        const payload = await bodyOf(request);
+        if (!merchantApplication) return json(response, { title: "Not found", status: 404 }, 404);
+        Object.assign(merchantApplication, payload, { status: "PENDING", decisionReason: null });
+        return json(response, merchantApplication);
     }
     if (path === "/offers" && method === "GET") return json(response, page([{ id: offer.id, title: offer.title, category: "BREAD_PASTRY", priceMinor: 4000, originalPriceMinor: 8000, quantityTotal: 10, availableUnits: 8, pickupStart, pickupEnd, merchant: { name: "Boulangerie Test", address: "12 Avenue Hassan II", city: "Casablanca", district: null, pickupInstructions: null } }]));
     if (path === "/merchants/me/workspace") {
@@ -210,14 +236,19 @@ const backend = createServer(async (request, response) => {
     if (path === "/merchants/me/sales/export") return csv(response, "kulha-sales.csv");
 
     if (path === "/admin/merchants" && method === "GET") {
-        const rows = url.searchParams.get("status") === "PENDING" && merchantStatus === "PENDING" ? merchantRows.filter(item => item.status === "PENDING") : merchantRows.filter(item => item.status === url.searchParams.get("status"));
+        const rows = merchantRows.filter(item => item.status === url.searchParams.get("status"));
         return json(response, page(rows, url));
     }
-    if (path === `/admin/merchants/${merchant.id}` && method === "GET") return json(response, merchant);
-    if (path === `/admin/merchants/${merchant.id}/approve` && method === "POST") {
-        await bodyOf(request);
-        merchantStatus = "APPROVED";
-        merchant.status = merchantStatus;
+    const selectedMerchant = merchantRows.find(item => path === `/admin/merchants/${item.id}`);
+    if (selectedMerchant && method === "GET") return json(response, selectedMerchant);
+    const merchantDecision = path.match(/^\/admin\/merchants\/([^/]+)\/(approve|request-information|reject)$/);
+    if (merchantDecision && method === "POST") {
+        const payload = await bodyOf(request);
+        const target = merchantRows.find(item => item.id === merchantDecision[1]);
+        if (!target) return json(response, { title: "Not found", status: 404 }, 404);
+        target.status = merchantDecision[2] === "approve" ? "APPROVED" : merchantDecision[2] === "request-information" ? "INFO_REQUIRED" : "REJECTED";
+        target.decisionReason = payload.reason ?? null;
+        if (target.id === merchant.id) merchantStatus = target.status;
         return json(response, {});
     }
     if (path === "/admin/offers" && method === "GET") {
