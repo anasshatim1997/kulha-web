@@ -34,7 +34,7 @@ export function switchLocalePath(pathname: string, locale: SiteLocale): string {
   if (parts[0] === "merchant" && parts.length >= 2 && ["apply", "dashboard", "offers", "reservations", "orders", "staff", "sales"].includes(parts[1])) {
     return localePath(locale, `/${parts.join("/")}`);
   }
-  if (parts[0] === "admin" && parts.length === 2 && ["login", "merchant-review", "offer-moderation", "support-cases", "audit-log"].includes(parts[1])) {
+  if (parts[0] === "admin" && (parts.length === 1 || (parts.length === 2 && ["login", "merchant-review", "offer-moderation", "support-cases", "audit-log"].includes(parts[1])))) {
     return localePath(locale, `/${parts.join("/")}`);
   }
   if (parts[0] === "offers" && parts.length <= 3) return localePath(locale, `/${parts.join("/")}`);
