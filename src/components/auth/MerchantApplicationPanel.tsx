@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useSession } from "@/components/session/SessionProvider";
 import { useToast } from "@/components/feedback/ToastProvider";
 import { Alert } from "@/components/ui/Alert";
@@ -167,12 +167,15 @@ export function MerchantApplicationPanel() {
     const pathname = usePathname();
     const locale = localeFromPath(pathname) as SiteLocale;
     const t: Copy = merchantCopy[locale];
-    const { state } = useSession();
+    const { state, reload } = useSession();
     const toast = useToast();
     const user = state.status === "authenticated" ? state.user : null;
     const [merchant, setMerchant] = useState<MerchantRecord | null>(null);
     const [values, setValues] = useState<MerchantFormValues>(emptyValues);
     const [step, setStep] = useState(0);
+    const stepHeadingRef = useRef<HTMLHeadingElement>(null);
+    const previousStepRef = useRef(step);
+    const approvalRefreshRef = useRef<string | null>(null);
     const [direction, setDirection] = useState<"forward" | "back">("forward");
     const [hoursTouched, setHoursTouched] = useState(false);
     const [hoursErrorDay, setHoursErrorDay] = useState<DayKey | undefined>(undefined);
@@ -195,6 +198,20 @@ export function MerchantApplicationPanel() {
     const requestKey = canLoad ? `${userId}:${reloadKey}` : null;
     const loading = requestKey !== null && settledKey !== requestKey;
     const loadError = requestKey !== null && loadFailure?.key === requestKey ? loadFailure.message : null;
+
+    useEffect(() => {
+        if (previousStepRef.current === step) return;
+        previousStepRef.current = step;
+        stepHeadingRef.current?.focus();
+    }, [step]);
+
+    useEffect(() => {
+        if (!merchant || merchant.status !== "APPROVED" || !user) return;
+        if (user.roles.some(role => ["MERCHANT", "MERCHANT_OWNER"].includes(role))) return;
+        if (approvalRefreshRef.current === merchant.id) return;
+        approvalRefreshRef.current = merchant.id;
+        void reload();
+    }, [merchant?.id, merchant?.status, user?.id, user?.roles, reload]);
 
     useEffect(() => {
         if (requestKey === null) return;
@@ -433,7 +450,10 @@ export function MerchantApplicationPanel() {
                         </div>
                         {merchant.decisionReason && <p className="mw-reason"><strong>{t.reason}:</strong> {merchant.decisionReason}</p>}
                         <Details merchant={merchant} t={t} />
-                        <Link href={localePath(locale, "/account")} className="mw-back-link">{t.workspaceBack}</Link>
+                        <div className="mw-actions-row">
+                            <Button variant="ghost" onClick={() => setReloadKey(value => value + 1)}>{t.refreshStatus}</Button>
+                            <Link href={localePath(locale, "/account")} className="mw-back-link">{t.workspaceBack}</Link>
+                        </div>
                     </section>
                 </div>
             </Shell>
@@ -451,7 +471,7 @@ export function MerchantApplicationPanel() {
     const previewHours = hoursTouched || isLast ? formatPreviewHours(values.hours, t.daysShort, t.hoursClosed) : null;
 
     return (
-        <div key="form" className={styles.page} dir={locale === "ar" ? "rtl" : "ltr"}>
+        <div key="form" className={styles.page} dir={locale === "ar" ? "rtl" : "ltr"} data-testid="merchant-application">
             <header className={styles.head}>
                 <h1>{copy.title}</h1>
                 <p>{copy.lead}</p>
@@ -468,10 +488,10 @@ export function MerchantApplicationPanel() {
                     )}
                     {fieldError && <Alert tone="error">{fieldError}</Alert>}
 
-                    <form onSubmit={onSubmit} noValidate className={styles.form}>
+                    <form onSubmit={onSubmit} noValidate className={styles.form} data-testid="merchant-application-form">
                         <div key={step} className={`${styles.pane}${direction === "back" ? ` ${styles.paneBack}` : ""}`}>
                             <div className={styles.cardHead}>
-                                <h2 id="merchant-form-title">{stepHeadings[step][0]}</h2>
+                                <h2 id="merchant-form-title" ref={stepHeadingRef} tabIndex={-1}>{stepHeadings[step][0]}</h2>
                                 <p>{stepHeadings[step][1]}</p>
                             </div>
 
@@ -486,7 +506,30 @@ export function MerchantApplicationPanel() {
                                         <span id="merchant-type-label" className={styles.label}>{copy.businessType}</span>
                                         <div className={styles.chips}>
                                             {businessTypes.map((type) => (
-                                                <button key={type} type="button" role="radio" aria-checked={values.businessType === type} className={styles.chip} onClick={() => setValues((current) => ({ ...current, businessType: type }))}>
+                                                <button
+                                                    key={type}
+                                                    id={`merchant-type-${type}`}
+                                                    type="button"
+                                                    role="radio"
+                                                    aria-checked={values.businessType === type}
+                                                    tabIndex={values.businessType === type ? 0 : -1}
+                                                    className={styles.chip}
+                                                    onClick={() => setValues((current) => ({ ...current, businessType: type }))}
+                                                    onKeyDown={(event) => {
+                                                        const currentIndex = businessTypes.indexOf(type);
+                                                        let nextIndex: number | null = null;
+                                                        if (event.key === "Home") nextIndex = 0;
+                                                        else if (event.key === "End") nextIndex = businessTypes.length - 1;
+                                                        else if (event.key === "ArrowRight") nextIndex = (currentIndex + (locale === "ar" ? -1 : 1) + businessTypes.length) % businessTypes.length;
+                                                        else if (event.key === "ArrowLeft") nextIndex = (currentIndex + (locale === "ar" ? 1 : -1) + businessTypes.length) % businessTypes.length;
+                                                        if (nextIndex !== null) {
+                                                            event.preventDefault();
+                                                            const nextType = businessTypes[nextIndex];
+                                                            setValues((current) => ({ ...current, businessType: nextType }));
+                                                            document.getElementById(`merchant-type-${nextType}`)?.focus();
+                                                        }
+                                                    }}
+                                                >
                                                     {copy.types[type]}
                                                 </button>
                                             ))}
