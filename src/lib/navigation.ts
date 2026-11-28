@@ -3,15 +3,15 @@ import type { SiteLocale } from "@/lib/i18n/site-copy";
 /** Keep post-auth redirects on this origin and away from internal API routes. */
 export function safeNext(raw: string | null | undefined, fallback = "/offers"): string {
   if (!raw) return fallback;
-  if (!/^\/(?![/\\])[A-Za-z0-9\-._~!$&'()*+,;=:@%/?#[\]]*$/.test(raw)) return fallback;
+  if (!/^\\/(?![/\\\\])[A-Za-z0-9\\-._~!$&'()*+,;=:@%/?#[\\]]*$/.test(raw)) return fallback;
   if (raw.startsWith("/api/")) return fallback;
   return raw;
 }
 
-const localePrefix = /^\/(en|ar)(?=\/|$)/;
+const localePrefix = /^\\/(en|ar)(?=\\/|$)/;
 export function localeFromPath(pathname: string): SiteLocale {
-  if (/^\/ar(?:\/|$)/.test(pathname)) return "ar";
-  if (/^\/en(?:\/|$)/.test(pathname)) return "en";
+  if (/^\\/ar(?:\\/|$)/.test(pathname)) return "ar";
+  if (/^\\/en(?:\\/|$)/.test(pathname)) return "en";
   return "fr";
 }
 export function localePath(locale: SiteLocale, path: string): string {
@@ -22,7 +22,7 @@ export function localePath(locale: SiteLocale, path: string): string {
 }
 /** Root-level French auth pages are defined in src/app/(auth), not under [locale]. */
 export function isCanonicalFrenchAuthPath(pathname: string): boolean {
-  return /^\/(?:login|admin\/login|register|forgot-password|reset-password|verify-email)(?:\/|$)/.test(pathname);
+  return /^\\/(?:login|admin\\/login|register|forgot-password|reset-password|verify-email)(?:\\/|$)/.test(pathname);
 }
 
 export function switchLocalePath(pathname: string, locale: SiteLocale): string {
@@ -34,7 +34,7 @@ export function switchLocalePath(pathname: string, locale: SiteLocale): string {
   if (parts[0] === "merchant" && parts.length >= 2 && ["apply", "dashboard", "offers", "reservations", "orders", "staff", "sales"].includes(parts[1])) {
     return localePath(locale, `/${parts.join("/")}`);
   }
-  if (parts[0] === "admin" && parts.length === 2 && ["login", "merchant-review", "offer-moderation", "support-cases", "audit-log"].includes(parts[1])) {
+  if (parts[0] === "admin" && (parts.length === 1 || (parts.length === 2 && ["login", "merchant-review", "offer-moderation", "support-cases", "audit-log"].includes(parts[1])))) {
     return localePath(locale, `/${parts.join("/")}`);
   }
   if (parts[0] === "offers" && parts.length <= 3) return localePath(locale, `/${parts.join("/")}`);
@@ -45,18 +45,18 @@ export function switchLocalePath(pathname: string, locale: SiteLocale): string {
   return localePath(locale, withoutPrefix);
 }
 export function isAdminWorkspacePath(pathname: string): boolean {
-  return /^\/(?:(?:en|ar)\/)?admin(?:\/(?!login(?:\/|$))|$)/.test(pathname);
+  return /^\\/(?:(?:en|ar)\\/)?admin(?:\\/(?!login(?:\\/|$))|$)/.test(pathname);
 }
 export function isMerchantWorkspacePath(pathname: string): boolean {
-  return /^\/(?:(?:en|ar)\/)?merchant(?:\/|$)/.test(pathname);
+  return /^\\/(?:(?:en|ar)\\/)?merchant(?:\\/|$)/.test(pathname);
 }
 export function isCustomerAccountPath(pathname: string): boolean {
-  return /^\/(?:(?:en|ar)\/)?account\/?$/.test(pathname);
+  return /^\\/(?:(?:en|ar)\\/)?account\\/?$/.test(pathname);
 }
 export function shouldUseCustomerWorkspace(pathname: string, roles: readonly string[]): boolean {
   if (!roles.includes("CUSTOMER") || roles.some(role => ["MERCHANT", "MERCHANT_OWNER", "MERCHANT_STAFF", "ADMIN", "SUPER_ADMIN", "MODERATOR", "SUPPORT"].includes(role))) return false;
   if (isMerchantWorkspacePath(pathname)) return false;
-  if (/^\/(?:(?:en|ar)\/)?(?:login|admin\/login|register(?:\/merchant)?|forgot-password|reset-password|verify-email)\/?$/.test(pathname)) return false;
+  if (/^\\/(?:(?:en|ar)\\/)?(?:login|admin\\/login|register(?:\\/merchant)?|forgot-password|reset-password|verify-email)\\/?$/.test(pathname)) return false;
   return true;
 }
 export function defaultSignedInPath(locale: SiteLocale, roles: readonly string[]): string {
